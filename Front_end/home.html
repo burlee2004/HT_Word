@@ -3,47 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World - HT Work</title>
+    <title>Hoàng ❤️ Nhi - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Hiệu ứng trái tim bay lơ lửng */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        .heart {
+            position: fixed;
+            bottom: -10px;
+            font-size: 20px;
+            user-select: none;
+            pointer-events: none;
+            animation: float linear forwards;
+        }
+        /* Hiệu ứng đập nhẹ cho trái tim chính */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .animate-heartbeat {
+            animation: heartbeat 1.5s infinite;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 h-screen flex flex-col">
-    <nav class="bg-blue-600 p-4 text-white flex justify-between items-center shadow-md">
-        <div class="text-xl font-bold">HT Work Panel</div>
-        <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md font-medium transition">Đăng xuất</button>
+<body class="bg-pink-50 h-screen flex flex-col overflow-hidden">
+    <nav class="bg-rose-400 p-4 text-white flex justify-between items-center shadow-lg z-10">
+        <div class="text-xl font-bold italic">HT Work ❤️ Love Story</div>
+        <button id="logoutBtn" class="bg-white text-rose-500 hover:bg-rose-100 px-4 py-2 rounded-full font-medium transition shadow-sm">Đăng xuất</button>
     </nav>
 
-    <main class="flex-grow flex items-center justify-center">
-        <div class="text-center bg-white p-10 rounded-xl shadow-lg border border-gray-100">
-            <h1 class="text-5xl font-extrabold text-gray-800 mb-4">Hello World! 🌍</h1>
-            <p class="text-xl text-gray-600">Chào mừng bạn trở lại,</p>
-            <p id="userNameDisplay" class="text-2xl font-bold text-blue-600 mt-2">Đang tải...</p>
+    <main class="flex-grow flex items-center justify-center relative px-4">
+        <div class="text-center bg-white p-12 rounded-3xl shadow-2xl border-4 border-rose-200 max-w-lg w-full z-10 transform transition hover:scale-105 duration-300">
+            <div class="text-7xl mb-6 animate-heartbeat">❤️</div>
             
-            <div class="mt-8 p-4 bg-green-50 border border-green-200 rounded-md text-green-700">
-                ✅ Hệ thống Frontend đã kết nối thành công với Backend và Database Supabase.
+            <h1 class="text-4xl font-extrabold text-rose-600 mb-2">Hoàng ❤️ Nhi</h1>
+            <p id="welcomeMessage" class="text-lg text-gray-500 italic mb-8">Chào mừng anh trở về, Hoàng yêu dấu</p>
+
+            <div class="bg-rose-50 p-6 rounded-2xl border-l-4 border-rose-400 text-left mb-8">
+                <p class="text-rose-700 font-serif text-xl leading-relaxed">
+                    "Trái tim này chỉ có một người thôi<br>
+                    Yêu Nhi mãi mãi, chẳng hề phôi pha.<br>
+                    Dù cho bão táp mưa sa,<br>
+                    Hoàng vẫn đứng đó, là nhà của Nhi."
+                </p>
+            </div>
+            
+            <div class="text-rose-400 font-medium">
+                ✨ Mãi bên nhau Nhi nhé! ✨
             </div>
         </div>
     </main>
 
     <script>
-        // 1. Kiểm tra xem user đã đăng nhập chưa (Kiểm tra LocalStorage)
+        // 1. Kiểm tra đăng nhập
         const userStr = localStorage.getItem('user');
-        
         if (!userStr) {
-            // Nếu chưa có dữ liệu, đá văng ra trang login
-            alert("Bạn chưa đăng nhập!");
             window.location.href = 'login.html';
-        } else {
-            // Nếu có, lấy tên ra hiển thị
-            const user = JSON.parse(userStr);
-            document.getElementById('userNameDisplay').textContent = user.full_name || user.email;
         }
 
         // 2. Chức năng Đăng xuất
         document.getElementById('logoutBtn').addEventListener('click', () => {
-            // Xóa bộ nhớ tạm và quay về trang đăng nhập
             localStorage.removeItem('user');
             window.location.href = 'login.html';
         });
+
+        // 3. Tạo hiệu ứng trái tim bay (Cybersecurity student style - dùng JS để tạo động)
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 2 + 's'; // Bay trong 2-5s
+            heart.style.opacity = Math.random();
+            heart.style.fontSize = Math.random() * 20 + 10 + 'px';
+            
+            document.body.appendChild(heart);
+
+            // Xóa trái tim sau khi bay xong để tránh nặng web
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+
+        // Tạo trái tim liên tục mỗi 300ms
+        setInterval(createHeart, 300);
     </script>
 </body>
 </html>

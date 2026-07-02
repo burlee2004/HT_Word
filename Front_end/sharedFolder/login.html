@@ -26,60 +26,78 @@
         <p class="mt-4 text-center text-sm text-gray-600">Chưa có tài khoản? <a href="register.html" class="text-blue-600 hover:underline">Đăng ký</a></p>
     </div>
 
-    <script>
-        const API_URL = 'https://htwork-backend.onrender.com';
+   <script>
+    const API_URL = 'https://htwork-backend.onrender.com';
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const submitBtn = document.getElementById('submitBtn');
+    // 1. KIỂM TRA PHIÊN ĐĂNG NHẬP (Chống vòng lặp)
+    const userStr = localStorage.getItem('user');
+    console.log("1. Kiểm tra localStorage:", userStr);
 
-            // 1. BẬT HIỆU ỨNG LOADING
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Đang xử lý...
-            `;
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            console.log("2. Role hiện tại là:", user.role);
 
-            try {
-                const response = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Lưu thông tin user
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    // ĐIỀU HƯỚNG THÔNG MINH DỰA VÀO ROLE
-                    const role = data.user.role;
-                    if (role === 'admin') {
-                        window.location.href = '../Admin/home.html';
-                    } else if (role === 'freelancer') {
-                        window.location.href = '../freelancer/home.html';
-                    } else {
-                        window.location.href = '../user/home.html';
-                    }
-                } else {
-                    alert('Lỗi: ' + data.error);
-                }
-            } catch (error) {
-                console.error('Lỗi kết nối:', error);
-                alert('Không thể kết nối đến máy chủ Backend. Có thể Server đang khởi động, vui lòng thử lại sau 30 giây!');
-            } finally {
-                // 2. TẮT HIỆU ỨNG LOADING DÙ THÀNH CÔNG HAY THẤT BẠI
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Đăng nhập';
+            // Dùng đường dẫn tương đối (../) để nhảy từ sharedFolder ra ngoài rồi vào các thư mục tương ứng
+            if (user.role === 'admin') {
+                window.location.replace('../Admin/home.html');
+            } else if (user.role === 'freelancer') {
+                window.location.replace('../freelancer/home.html');
+            } else {
+                window.location.replace('../user/home.html');
             }
-        });
-    </script>
+        } catch (error) {
+            console.error("Lỗi đọc dữ liệu, đang xóa user...", error);
+            localStorage.removeItem('user');
+        }
+    }
+
+    // 2. XỬ LÝ SỰ KIỆN SUBMIT FORM
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const submitBtn = document.getElementById('submitBtn');
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Đang xử lý...';
+
+        try {
+            console.log("3. Đang gửi request đăng nhập lên Server...");
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            console.log("4. Phản hồi từ Server:", data);
+
+            if (response.ok) {
+                // Lưu thông tin user
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // ĐIỀU HƯỚNG THÔNG MINH
+                const role = data.user.role;
+                if (role === 'admin') {
+                    window.location.href = '../Admin/home.html';
+                } else if (role === 'freelancer') {
+                    window.location.href = '../freelancer/home.html';
+                } else {
+                    window.location.href = '../user/home.html';
+                }
+            } else {
+                alert('Lỗi: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối:', error);
+            alert('Không thể kết nối đến máy chủ Backend. Có thể Server đang khởi động!');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Đăng nhập';
+        }
+    });
+</script>
 </body>
 </html>

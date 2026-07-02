@@ -20,10 +20,33 @@
         </div>
     </main>
     <script>
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.role !== 'client') { window.location.href = '../sharedFolder/login.html'; }
-        document.getElementById('clientName').textContent = user.full_name;
-        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '../sharedFolder/login.html'; });
-    </script>
+    console.log("Đang kiểm tra quyền truy cập vào Client Portal...");
+    const userStr = localStorage.getItem('user');
+    
+    if (!userStr) {
+        console.warn("Chưa đăng nhập -> Bị đá về Login");
+        window.location.replace('../sharedFolder/login.html');
+    } else {
+        const user = JSON.parse(userStr);
+        console.log("User hợp lệ, role là:", user.role);
+
+        // NẾU ROLE KHÔNG PHẢI LÀ CLIENT -> BẮT BUỘC XÓA DỮ LIỆU RỒI MỚI ĐÁ RA NGOÀI
+        if (user.role !== 'client') {
+            console.error("Sai quyền! Đang là", user.role, "nhưng trang này cần client");
+            alert("Bạn không có quyền truy cập trang này!");
+            localStorage.removeItem('user'); // Dòng này cực kỳ quan trọng để cắt vòng lặp
+            window.location.replace('../sharedFolder/login.html');
+        } else {
+            // Hợp lệ, cho vào nhà
+            document.getElementById('clientName').textContent = user.full_name;
+        }
+    }
+
+    // Xử lý nút đăng xuất
+    document.getElementById('logoutBtn').addEventListener('click', () => { 
+        localStorage.clear(); 
+        window.location.replace('../sharedFolder/login.html'); 
+    });
+</script>
 </body>
 </html>

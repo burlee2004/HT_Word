@@ -1,0 +1,23 @@
+# Chuyển hướng người dùng vào trang chủ mặc định
+[[redirects]]
+  from = "/"
+  to = "/sharedFolder/home.html"
+  status = 200
+
+# Chỉ đường cho link đăng nhập
+[[redirects]]
+  from = "/login"
+  to = "/sharedFolder/login.html"
+  status = 200
+
+# Chỉ đường cho link đăng ký
+[[redirects]]
+  from = "/register"
+  to = "/sharedFolder/register.html"
+  status = 200
+
+# Bắt các lỗi truy cập sai link và trả về trang chủ
+[[redirects]]
+  from = "/*"
+  to = "/sharedFolder/home.html"
+  status = 404

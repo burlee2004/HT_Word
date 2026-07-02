@@ -56,9 +56,18 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Không cần alert nữa, cho nhảy trang luôn cho mượt
+                    // Lưu thông tin user
                     localStorage.setItem('user', JSON.stringify(data.user));
-                    window.location.href = 'home.html';
+                    
+                    // ĐIỀU HƯỚNG THÔNG MINH DỰA VÀO ROLE
+                    const role = data.user.role;
+                    if (role === 'admin') {
+                        window.location.href = '../Admin/home.html';
+                    } else if (role === 'freelancer') {
+                        window.location.href = '../freelancer/home.html';
+                    } else {
+                        window.location.href = '../user/home.html';
+                    }
                 } else {
                     alert('Lỗi: ' + data.error);
                 }

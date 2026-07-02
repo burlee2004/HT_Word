@@ -25,85 +25,70 @@ app.get('/', (req, res) => {
     res.send('HT Work Backend is running!');
 });
 
-// 3. API Đăng ký (/register)
+// Route Đăng ký (Register)
 app.post('/register', async (req, res) => {
+    const { email, password, full_name, role, main_category, skills } = req.body;
+
     try {
-        const { email, password, full_name } = req.body;
+        // 1. Mã hóa mật khẩu (Giả sử bạn đã dùng bcrypt)
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        if (!email || !password || !full_name) {
-            return res.status(400).json({ error: 'Vui lòng điền đầy đủ thông tin.' });
-        }
-
-        // Băm mật khẩu (Hashing) với độ khó 10 (Salt rounds)
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-        // Lưu thông tin vào bảng users trên Supabase
-        const { data, error } = await supabase
+        // 2. Tạo User trong bảng public.users
+        const { data: newUser, error: userError } = await supabase
             .from('users')
-            .insert([
-                { email: email, password: hashedPassword, full_name: full_name }
-            ]);
+            .insert([{ email, password: hashedPassword, full_name, role }])
+            .select()
+            .single();
 
-        if (error) {
-            // Lỗi phổ biến: Email đã tồn tại (do cài đặt Unique ở cột email)
-            if (error.code === '23505') {
-                return res.status(409).json({ error: 'Email này đã được sử dụng.' });
+        if (userError) throw userError;
+
+        // 3. Nếu là Freelancer, tạo thêm Profile
+        if (role === 'freelancer') {
+            const { error: profileError } = await supabase
+                .from('freelancer_profiles')
+                .insert([{
+                    user_id: newUser.id,
+                    main_category: main_category || 'Other',
+                    skills: skills || [] // Mảng JSON chứa tối đa 5 skills
+                }]);
+
+            if (profileError) {
+                // Rollback: Xóa user nếu tạo profile thất bại để tránh rác dữ liệu
+                await supabase.from('users').delete().eq('id', newUser.id);
+                throw profileError;
             }
-            throw error;
         }
 
-        res.status(201).json({ message: 'Đăng ký thành công!', data });
+        res.status(201).json({ message: 'Đăng ký thành công!' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Lỗi server khi đăng ký.' });
+        res.status(400).json({ error: error.message });
     }
 });
 
-// 4. API Đăng nhập (/login)
+// Route Đăng nhập (Login)
 app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
     try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Vui lòng nhập email và mật khẩu.' });
-        }
-
-        // Lấy thông tin user từ Supabase dựa vào email
-        const { data: users, error } = await supabase
+        // Lấy thông tin user (bao gồm cả role)
+        const { data: user, error } = await supabase
             .from('users')
             .select('*')
-            .eq('email', email);
+            .eq('email', email)
+            .single();
 
-        if (error) throw error;
+        if (error || !user) throw new Error('Email không tồn tại!');
 
-        // Kiểm tra xem user có tồn tại không
-        if (!users || users.length === 0) {
-            return res.status(401).json({ error: 'Email hoặc mật khẩu không chính xác.' });
-        }
+        // Kiểm tra mật khẩu (Sử dụng bcrypt)
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) throw new Error('Mật khẩu không đúng!');
 
-        const user = users[0];
-
-        // So sánh mật khẩu người dùng nhập với mật khẩu đã băm trong database
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            return res.status(401).json({ error: 'Email hoặc mật khẩu không chính xác.' });
-        }
-
-        // Đăng nhập thành công
+        // Trả về thông tin user (để Frontend biết đường điều hướng)
         res.status(200).json({ 
-            message: 'Đăng nhập thành công!',
-            user: {
-                id: user.id,
-                email: user.email,
-                full_name: user.full_name
-            }
+            message: 'Đăng nhập thành công', 
+            user: { id: user.id, email: user.email, full_name: user.full_name, role: user.role } 
         });
-
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Lỗi server khi đăng nhập.' });
+        res.status(400).json({ error: error.message });
     }
 });
 

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - HT Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white h-screen flex flex-col">
+    <nav class="bg-black p-4 flex justify-between">
+        <div class="font-bold text-red-500">HT Work ADMIN</div>
+        <div>
+            <span id="adminName" class="mr-4"></span>
+            <button onclick="changePass()" class="text-blue-400 mr-4 text-sm hover:underline">Đổi mật khẩu</button>
+            <button id="logoutBtn" class="bg-red-600 px-3 py-1 rounded">Thoát</button>
+        </div>
+    </nav>
+    <main class="flex-grow p-10 text-center">
+        <h1 class="text-3xl font-bold mb-4">Trung tâm Phân xử & Ký quỹ Token</h1>
+        <p class="text-gray-400">Không có tranh chấp nào cần xử lý hôm nay.</p>
+    </main>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'admin') { alert('Cấm truy cập!'); window.location.href = '../sharedFolder/login.html'; }
+        document.getElementById('adminName').textContent = 'Xin chào, ' + user.full_name;
+        
+        function changePass() { alert('Chức năng đổi mật khẩu sẽ liên kết với Backend ở Giai đoạn 5.'); }
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear(); window.location.href = '../sharedFolder/login.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - HT Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .skill-tag { display: inline-flex; items-center; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 9999px; font-size: 14px; margin: 4px; }
+        .skill-tag button { margin-left: 6px; color: #ef4444; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen py-10">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Tạo tài khoản HT Work</h2>
+        
+        <form id="registerForm" class="space-y-4">
+            <!-- Chọn Vai Trò -->
+            <div class="flex justify-center space-x-4 mb-4">
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="role" value="client" checked class="form-radio text-blue-600 h-4 w-4" onchange="toggleFreelancerFields()">
+                    <span class="ml-2 text-gray-700 font-medium">Khách hàng</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="role" value="freelancer" class="form-radio text-blue-600 h-4 w-4" onchange="toggleFreelancerFields()">
+                    <span class="ml-2 text-gray-700 font-medium">Freelancer (Nhận việc)</span>
+                </label>
+            </div>
+
+            <div><label class="block text-sm font-medium">Họ và Tên</label><input type="text" id="fullName" required class="mt-1 block w-full px-3 py-2 border rounded-md"></div>
+            <div><label class="block text-sm font-medium">Email</label><input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border rounded-md"></div>
+            <div><label class="block text-sm font-medium">Mật khẩu</label><input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border rounded-md"></div>
+
+            <!-- Vùng ẩn dành riêng cho Freelancer -->
+            <div id="freelancerFields" class="hidden space-y-4 p-4 bg-blue-50 rounded-md border border-blue-100">
+                <div>
+                    <label class="block text-sm font-medium text-blue-800">Chuyên ngành chính</label>
+                    <select id="mainCategory" class="mt-1 block w-full px-3 py-2 border rounded-md">
+                        <option value="Web & Mobile Development">Web & Mobile Development</option>
+                        <option value="IT Helpdesk & Network">IT Helpdesk & Network (Quản trị mạng/Cài win)</option>
+                        <option value="Data Science & AI">Data Science & AI</option>
+                        <option value="Tutor & Assignment">Hỗ trợ Bài tập / Đồ án (Tutor)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-blue-800">Kỹ năng (Tối đa 5 - Gõ & Ấn Enter)</label>
+                    <input type="text" id="skillInput" list="skillSuggestions" placeholder="VD: Flutter, .NET, React..." class="mt-1 block w-full px-3 py-2 border rounded-md">
+                    <datalist id="skillSuggestions">
+                        <option value="Flutter"><option value="React Native"><option value=".NET Core">
+                        <option value="Python"><option value="Cybersecurity"><option value="Full-Stack">
+                    </datalist>
+                    <div id="skillTagsContainer" class="mt-2 min-h-[30px] border border-dashed border-blue-300 p-2 rounded bg-white"></div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full flex justify-center py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition">Đăng ký ngay</button>
+        </form>
+    </div>
+
+    <script>
+        const API_URL = 'https://htwork-backend.onrender.com';
+        let skillsArray = [];
+
+        // Hiển thị form Freelancer
+        function toggleFreelancerFields() {
+            const role = document.querySelector('input[name="role"]:checked').value;
+            document.getElementById('freelancerFields').style.display = role === 'freelancer' ? 'block' : 'none';
+        }
+
+        // Xử lý Tag Kỹ năng (Tối đa 5)
+        const skillInput = document.getElementById('skillInput');
+        const skillTagsContainer = document.getElementById('skillTagsContainer');
+
+        skillInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const skill = this.value.trim();
+                if (skill && skillsArray.length < 5 && !skillsArray.includes(skill)) {
+                    skillsArray.push(skill);
+                    renderSkills();
+                    this.value = '';
+                } else if (skillsArray.length >= 5) {
+                    alert("Chỉ được thêm tối đa 5 kỹ năng!");
+                }
+            }
+        });
+
+        function renderSkills() {
+            skillTagsContainer.innerHTML = skillsArray.map((skill, index) => 
+                `<span class="skill-tag">${skill} <button type="button" onclick="removeSkill(${index})">×</button></span>`
+            ).join('');
+        }
+
+        function removeSkill(index) {
+            skillsArray.splice(index, 1);
+            renderSkills();
+        }
+
+        // Gửi dữ liệu
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const payload = {
+                full_name: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                role: role
+            };
+
+            if (role === 'freelancer') {
+                payload.main_category = document.getElementById('mainCategory').value;
+                payload.skills = skillsArray;
+                if (skillsArray.length === 0) return alert("Vui lòng nhập ít nhất 1 kỹ năng!");
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true; submitBtn.innerHTML = 'Đang xử lý...';
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Đăng ký thành công!'); window.location.href = 'login.html';
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối máy chủ!');
+            } finally {
+                submitBtn.disabled = false; submitBtn.innerHTML = 'Đăng ký ngay';
+            }
+        });
+    </script>
+</body>
+</html>

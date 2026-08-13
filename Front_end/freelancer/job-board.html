@@ -25,10 +25,8 @@
             <form id="applyForm" class="space-y-3">
                 <input type="hidden" id="modal_job_id">
                 
-                <div>
-                    <label class="block text-sm font-medium">Freelancer ID (Test):</label>
-                    <input type="text" id="freelancer_id" required class="w-full border p-2 rounded">
-                </div>
+                <!-- Freelancer ID lấy tự động từ LocalStorage -->
+                <input type="hidden" id="freelancer_id">
                 <div>
                     <label class="block text-sm font-medium">Lời giới thiệu (Cover Letter):</label>
                     <textarea id="cover_letter" required class="w-full border p-2 rounded"></textarea>
@@ -50,6 +48,16 @@
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
+
+        // Lấy thông tin user từ LocalStorage
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            document.getElementById('freelancer_id').value = user.id;
+        } else {
+            alert('Bạn chưa đăng nhập!');
+            window.location.replace('../sharedFolder/login.html');
+        }
 
         async function loadJobs() {
             const listDiv = document.getElementById('jobList');

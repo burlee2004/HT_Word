@@ -13,10 +13,8 @@
         <p class="mb-4 text-gray-600">Form này dùng để test API /api/escrow/lock. Khách hàng chọn 1 ứng viên, hệ thống sẽ tự động trừ Token trong ví và khóa lại.</p>
 
         <form id="escrowForm" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Client ID (Của bạn - Bắt buộc phải có ví có tiền):</label>
-                <input type="text" id="client_id" required class="mt-1 block w-full border p-2 rounded">
-            </div>
+            <!-- Client ID tự động lấy từ LocalStorage -->
+            <input type="hidden" id="client_id">
             
             <div>
                 <label class="block text-sm font-medium text-gray-700">Application ID (ID của đơn ứng tuyển):</label>
@@ -38,6 +36,13 @@
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
+
+        // Lấy thông tin user
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            document.getElementById('client_id').value = user.id;
+        }
 
         document.getElementById('escrowForm').addEventListener('submit', async (e) => {
             e.preventDefault();

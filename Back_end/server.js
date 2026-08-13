@@ -4,6 +4,10 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const { createClient } = require('@supabase/supabase-js');
 
+// Import cấu hình Upload
+const uploadImage = require('./config/cloudinary');
+const uploadFile = require('./config/s3');
+
 // 1. Khởi tạo Express app & Cấu hình
 const app = express();
 app.use(cors()); // Cho phép Frontend gọi API
@@ -87,6 +91,120 @@ app.post('/login', async (req, res) => {
             message: 'Đăng nhập thành công', 
             user: { id: user.id, email: user.email, full_name: user.full_name, role: user.role } 
         });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Route Upload Ảnh (Cloudinary)
+app.post('/upload-image', uploadImage.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Không có file ảnh' });
+    
+    res.status(200).json({
+        message: 'Upload ảnh thành công!',
+        imageUrl: req.file.path // Đường dẫn ảnh trên Cloudinary
+    });
+});
+
+// Route Upload File/Video (AWS S3)
+app.post('/upload-file', uploadFile.single('file'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Không có file' });
+    
+    res.status(200).json({
+        message: 'Upload file thành công!',
+        fileUrl: req.file.location // Đường dẫn file trên S3
+    });
+});
+
+// ==========================================
+// API DÀNH CHO JOBS & ESCROW (PHASE 1 MVP)
+// ==========================================
+
+// 1. API: Khách hàng đăng Job mới
+app.post('/api/jobs', async (req, res) => {
+    const { client_id, title, description, budget } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('jobs')
+            .insert([{ client_id, title, description, budget, status: 'open' }])
+            .select();
+        
+        if (error) throw error;
+        res.status(201).json({ message: 'Đăng dự án thành công!', job: data[0] });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 2. API: Freelancer xem danh sách Job đang Open
+app.get('/api/jobs', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('jobs')
+            .select(`*, users (full_name)`) // Lấy thêm tên người đăng
+            .eq('status', 'open')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.status(200).json({ jobs: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 3. API: Freelancer ứng tuyển (Báo giá)
+app.post('/api/jobs/apply', async (req, res) => {
+    const { job_id, freelancer_id, cover_letter, bid_amount } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('job_applications')
+            .insert([{ job_id, freelancer_id, cover_letter, bid_amount, status: 'pending' }])
+            .select();
+        
+        if (error) throw error;
+        res.status(201).json({ message: 'Ứng tuyển thành công!', application: data[0] });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 4. API: Escrow - Khách hàng duyệt Freelancer và Khóa tiền
+// Mô phỏng Escrow: Trừ tiền từ Ví của Client, tăng số dư Locked của Client
+app.post('/api/escrow/lock', async (req, res) => {
+    const { client_id, application_id, amount } = req.body;
+    
+    // Ghi chú tiếng Việt quan trọng:
+    // Thực tế sẽ cần Transaction Database (Begin -> Commit) để tránh lỗi một phần.
+    // Dưới đây là logic giả lập (Mock) cho quá trình Test đơn giản.
+    try {
+        // Lấy ví của Client
+        const { data: wallet, error: walletError } = await supabase
+            .from('wallets')
+            .select('*')
+            .eq('user_id', client_id)
+            .single();
+            
+        // Nếu không có ví hoặc không đủ tiền
+        if (walletError || !wallet || wallet.balance < amount) {
+            return res.status(400).json({ error: 'Ví không đủ tiền hoặc chưa tồn tại!' });
+        }
+
+        // Cập nhật số dư Ví: Trừ Balance khả dụng, cộng vào Locked Balance
+        const { error: updateError } = await supabase
+            .from('wallets')
+            .update({ 
+                balance: wallet.balance - amount,
+                locked_balance: wallet.locked_balance + amount 
+            })
+            .eq('user_id', client_id);
+            
+        if (updateError) throw updateError;
+
+        // Cập nhật trạng thái Application thành 'accepted'
+        await supabase.from('job_applications').update({ status: 'accepted' }).eq('id', application_id);
+        
+        // Trả kết quả
+        res.status(200).json({ message: 'Đã khóa tiền Escrow thành công! Dự án bắt đầu.' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

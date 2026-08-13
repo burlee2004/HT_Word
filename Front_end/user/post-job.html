@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khách hàng - Đăng Dự Án</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-10">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Đăng Dự Án Mới (Khách Hàng)</h1>
+        
+        <form id="postJobForm" class="space-y-4">
+            <!-- Giả lập Client ID để test, thực tế sẽ lấy từ Token Đăng nhập -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Client ID (UUID từ bảng users):</label>
+                <input type="text" id="client_id" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Nhập UUID của bạn (Test)">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Tiêu đề dự án:</label>
+                <input type="text" id="title" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Vd: Làm website bán hàng">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Mô tả công việc:</label>
+                <textarea id="description" required rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Ngân sách (Token/VNĐ):</label>
+                <input type="number" id="budget" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="1000000">
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">
+                Đăng Dự Án
+            </button>
+        </form>
+
+        <div id="message" class="mt-4 text-green-600 font-bold hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('postJobForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                client_id: document.getElementById('client_id').value,
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                budget: document.getElementById('budget').value
+            };
+
+            try {
+                // Đổi http://localhost:5000 thành domain của backend Render sau này
+                const response = await fetch('http://localhost:5000/api/jobs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                const msgDiv = document.getElementById('message');
+                msgDiv.classList.remove('hidden');
+                
+                if (response.ok) {
+                    msgDiv.textContent = data.message;
+                    msgDiv.className = "mt-4 text-green-600 font-bold";
+                    document.getElementById('postJobForm').reset();
+                } else {
+                    msgDiv.textContent = 'Lỗi: ' + data.error;
+                    msgDiv.className = "mt-4 text-red-600 font-bold";
+                }
+            } catch (err) {
+                alert('Không thể kết nối đến Backend');
+            }
+        });
+    </script>
+</body>
+</html>

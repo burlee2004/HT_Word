@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khách hàng - Quản lý Ứng tuyển & Escrow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-10">
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Mô phỏng Khóa Escrow (Khách Hàng)</h1>
+        
+        <p class="mb-4 text-gray-600">Form này dùng để test API /api/escrow/lock. Khách hàng chọn 1 ứng viên, hệ thống sẽ tự động trừ Token trong ví và khóa lại.</p>
+
+        <form id="escrowForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Client ID (Của bạn - Bắt buộc phải có ví có tiền):</label>
+                <input type="text" id="client_id" required class="mt-1 block w-full border p-2 rounded">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Application ID (ID của đơn ứng tuyển):</label>
+                <input type="text" id="application_id" required class="mt-1 block w-full border p-2 rounded">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Số lượng Token khóa (Tương ứng Job Budget):</label>
+                <input type="number" id="amount" required class="mt-1 block w-full border p-2 rounded">
+            </div>
+
+            <button type="submit" class="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600">
+                Duyệt Ứng Viên & Khóa Token
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('escrowForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                client_id: document.getElementById('client_id').value,
+                application_id: document.getElementById('application_id').value,
+                amount: parseFloat(document.getElementById('amount').value)
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/escrow/lock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Thành công: ' + data.message);
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối đến Backend');
+            }
+        });
+    </script>
+</body>
+</html>

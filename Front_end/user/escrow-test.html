@@ -35,6 +35,10 @@
     </div>
 
     <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
         document.getElementById('escrowForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
@@ -44,7 +48,7 @@
             };
 
             try {
-                const response = await fetch('http://localhost:5000/api/escrow/lock', {
+                const response = await fetch(`${API_URL}/api/escrow/lock`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

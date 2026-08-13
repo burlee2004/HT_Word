@@ -41,6 +41,10 @@
     </div>
 
     <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
         document.getElementById('postJobForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -53,7 +57,7 @@
 
             try {
                 // Đổi http://localhost:5000 thành domain của backend Render sau này
-                const response = await fetch('http://localhost:5000/api/jobs', {
+                const response = await fetch(`${API_URL}/api/jobs`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

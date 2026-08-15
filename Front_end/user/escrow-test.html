@@ -3,33 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Quản lý Ứng tuyển & Escrow</title>
+    <title>Khách hàng - Danh sách Ứng viên & Khóa Escrow</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 p-10">
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">Mô phỏng Khóa Escrow (Khách Hàng)</h1>
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Quản lý Ứng viên & Khóa Escrow</h1>
         
-        <p class="mb-4 text-gray-600">Form này dùng để test API /api/escrow/lock. Khách hàng chọn 1 ứng viên, hệ thống sẽ tự động trừ Token trong ví và khóa lại.</p>
+        <div id="applicationsList" class="space-y-4">
+            <p class="text-gray-500">Đang tải danh sách ứng viên...</p>
+        </div>
+    </div>
 
-        <form id="escrowForm" class="space-y-4">
-            <!-- Client ID tự động lấy từ LocalStorage -->
-            <input type="hidden" id="client_id">
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Application ID (ID của đơn ứng tuyển):</label>
-                <input type="text" id="application_id" required class="mt-1 block w-full border p-2 rounded">
-            </div>
+    <!-- Modal Khóa Escrow -->
+    <div id="escrowModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg w-96 shadow-xl">
+            <h2 class="text-xl font-bold mb-4">Duyệt và Khóa Token Escrow</h2>
+            <form id="escrowForm" class="space-y-4">
+                <input type="hidden" id="modal_application_id">
+                <input type="hidden" id="modal_client_id">
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Số lượng Token khóa (Tương ứng Job Budget):</label>
-                <input type="number" id="amount" required class="mt-1 block w-full border p-2 rounded">
-            </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Số Token muốn khóa (Tương đương ngân sách):</label>
+                    <input type="number" id="amount" required class="mt-1 block w-full border p-2 rounded" placeholder="VD: 1000">
+                </div>
 
-            <button type="submit" class="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600">
-                Duyệt Ứng Viên & Khóa Token
-            </button>
-        </form>
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button type="button" onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Hủy</button>
+                    <button type="submit" class="bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600">Khóa Token & Bắt Đầu</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -37,18 +41,59 @@
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
 
-        // Lấy thông tin user
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            const user = JSON.parse(userStr);
-            document.getElementById('client_id').value = user.id;
+        let currentUser = null;
+
+        async function loadApplications() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('Bạn chưa đăng nhập!');
+                window.location.replace('../sharedFolder/login.html');
+                return;
+            }
+            currentUser = JSON.parse(userStr);
+
+            const listDiv = document.getElementById('applicationsList');
+            try {
+                const response = await fetch(`${API_URL}/api/client/${currentUser.id}/applications`);
+                const data = await response.json();
+                
+                if (data.applications && data.applications.length > 0) {
+                    listDiv.innerHTML = data.applications.map(app => `
+                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <h3 class="text-lg font-bold text-blue-600">Dự án: ${app.jobs ? app.jobs.title : 'Không rõ'}</h3>
+                            <p class="text-gray-700 mt-2"><strong>Freelancer:</strong> ${app.users ? app.users.full_name : 'Không rõ'}</p>
+                            <p class="text-gray-600"><strong>Lời chào:</strong> ${app.cover_letter}</p>
+                            <div class="flex justify-between items-center mt-4">
+                                <span class="font-bold text-green-600">Báo giá: ${app.bid_amount} Token</span>
+                                <button onclick="openEscrowModal('${app.id}')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 shadow">
+                                    Chọn & Khóa Escrow
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    listDiv.innerHTML = '<p class="text-gray-500">Chưa có ứng viên nào ứng tuyển vào dự án của bạn.</p>';
+                }
+            } catch (err) {
+                listDiv.innerHTML = '<p class="text-red-500">Lỗi kết nối Server!</p>';
+            }
+        }
+
+        function openEscrowModal(applicationId) {
+            document.getElementById('modal_application_id').value = applicationId;
+            document.getElementById('modal_client_id').value = currentUser.id;
+            document.getElementById('escrowModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('escrowModal').classList.add('hidden');
         }
 
         document.getElementById('escrowForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
-                client_id: document.getElementById('client_id').value,
-                application_id: document.getElementById('application_id').value,
+                client_id: document.getElementById('modal_client_id').value,
+                application_id: document.getElementById('modal_application_id').value,
                 amount: parseFloat(document.getElementById('amount').value)
             };
 
@@ -62,6 +107,8 @@
                 
                 if (response.ok) {
                     alert('Thành công: ' + data.message);
+                    closeModal();
+                    loadApplications(); // Reload list
                 } else {
                     alert('Lỗi: ' + data.error);
                 }
@@ -69,6 +116,9 @@
                 alert('Không thể kết nối đến Backend');
             }
         });
+
+        // Tải danh sách khi mở trang
+        loadApplications();
     </script>
 </body>
 </html>

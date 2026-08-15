@@ -203,6 +203,14 @@ app.post('/api/escrow/lock', async (req, res) => {
         // Cập nhật trạng thái Application thành 'accepted'
         await supabase.from('job_applications').update({ status: 'accepted' }).eq('id', application_id);
         
+        // Ghi lại lịch sử giao dịch vào bảng transactions cho Admin quản lý
+        await supabase.from('transactions').insert([{
+            user_id: client_id,
+            amount: amount,
+            type: 'escrow_lock',
+            status: 'success'
+        }]);
+
         // Trả kết quả
         res.status(200).json({ message: 'Đã khóa tiền Escrow thành công! Dự án bắt đầu.' });
     } catch (error) {
@@ -210,7 +218,57 @@ app.post('/api/escrow/lock', async (req, res) => {
     }
 });
 
-// 5. Khởi động Server
+// 5. API: Khách hàng xem danh sách Freelancer ứng tuyển
+app.get('/api/client/:client_id/applications', async (req, res) => {
+    const { client_id } = req.params;
+    try {
+        // 1. Tìm các job do client này đăng
+        const { data: jobs, error: jobsError } = await supabase
+            .from('jobs')
+            .select('id, title')
+            .eq('client_id', client_id);
+            
+        if (jobsError) throw jobsError;
+        if (!jobs || jobs.length === 0) return res.status(200).json({ applications: [] });
+
+        const jobIds = jobs.map(j => j.id);
+
+        // 2. Tìm các ứng tuyển thuộc về các job này
+        // Lưu ý: dùng thư viện Supabase JS để join bảng users lấy tên Freelancer
+        const { data: apps, error: appsError } = await supabase
+            .from('job_applications')
+            .select(`
+                *,
+                jobs (title),
+                users!job_applications_freelancer_id_fkey (full_name, email)
+            `)
+            .in('job_id', jobIds)
+            .eq('status', 'pending');
+
+        if (appsError) throw appsError;
+        
+        res.status(200).json({ applications: apps });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 6. API: Admin xem toàn bộ Giao dịch và Thống kê
+app.get('/api/admin/transactions', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('transactions')
+            .select('*, users(full_name, email, role)')
+            .order('created_at', { ascending: false });
+            
+        if (error) throw error;
+        res.status(200).json({ transactions: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Khởi động Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`✅ Server đang chạy tại http://localhost:${PORT}`);

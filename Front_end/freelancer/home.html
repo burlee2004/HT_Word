@@ -22,11 +22,48 @@
                 <a href="my-jobs.html" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 inline-block">Dự án Đang thực hiện (Nộp bài)</a>
             </div>
         </div>
+
+        <!-- Cột Thông báo -->
+        <div class="mt-8 bg-white p-6 rounded-lg shadow border-l-4 border-yellow-400">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                🔔 Thông báo mới nhất
+            </h2>
+            <div id="notificationsList" class="space-y-3">
+                <p class="text-gray-500 text-sm">Đang tải thông báo...</p>
+            </div>
+        </div>
     </main>
     <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user || user.role !== 'freelancer') { window.location.href = '../sharedFolder/login.html'; }
         document.getElementById('freelancerName').textContent = user.full_name;
+
+        // Tải thông báo
+        async function loadNotifications(userId) {
+            const notiDiv = document.getElementById('notificationsList');
+            try {
+                const res = await fetch(`${API_URL}/api/notifications/${userId}`);
+                const data = await res.json();
+                if (data.notifications && data.notifications.length > 0) {
+                    notiDiv.innerHTML = data.notifications.map(n => `
+                        <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                            <strong class="block text-gray-800">${n.title}</strong>
+                            <span class="text-gray-600 text-sm">${n.content}</span>
+                            <div class="text-xs text-gray-400 mt-1">${new Date(n.created_at).toLocaleString('vi-VN')}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    notiDiv.innerHTML = '<p class="text-gray-500 text-sm">Không có thông báo nào.</p>';
+                }
+            } catch(err) {
+                notiDiv.innerHTML = '<p class="text-red-500 text-sm">Lỗi kết nối Server.</p>';
+            }
+        }
+        loadNotifications(user.id);
+
         document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '../sharedFolder/login.html'; });
     </script>
 </body>

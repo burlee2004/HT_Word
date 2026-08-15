@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ví Token Của Tôi - HT Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-10">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Quản Lý Ví Token</h1>
+        
+        <!-- Hiển thị số dư -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8 flex justify-between items-center border-l-4 border-blue-500">
+            <div>
+                <h2 class="text-lg font-medium text-gray-600">Số dư khả dụng</h2>
+                <p id="balance" class="text-3xl font-bold text-green-600">0 Token</p>
+            </div>
+            <div class="text-right">
+                <h2 class="text-sm font-medium text-gray-500">Đang bị khóa (Escrow)</h2>
+                <p id="locked_balance" class="text-xl font-bold text-yellow-600">0 Token</p>
+            </div>
+        </div>
+
+        <!-- Form Nạp Tiền -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-bold mb-4">Nạp Thêm Token (Mô phỏng)</h2>
+            <form id="depositForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Số lượng Token muốn nạp:</label>
+                    <input type="number" id="amount" required min="1" class="mt-1 block w-full border p-2 rounded" placeholder="Ví dụ: 5000">
+                </div>
+                <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded hover:bg-blue-700 shadow w-full">
+                    Gửi Yêu Cầu Nạp
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let currentUser = null;
+
+        async function loadWallet() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('Bạn chưa đăng nhập!');
+                window.location.replace('../sharedFolder/login.html');
+                return;
+            }
+            currentUser = JSON.parse(userStr);
+
+            try {
+                const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
+                const data = await response.json();
+                
+                if (response.ok && data.wallet) {
+                    document.getElementById('balance').textContent = `${data.wallet.balance} Token`;
+                    document.getElementById('locked_balance').textContent = `${data.wallet.locked_balance} Token`;
+                }
+            } catch (err) {
+                console.error('Lỗi tải ví', err);
+            }
+        }
+
+        document.getElementById('depositForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = document.getElementById('amount').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/deposit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, amount: amount })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Thành công: ' + data.message);
+                    document.getElementById('amount').value = '';
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối đến Backend');
+            }
+        });
+
+        loadWallet();
+    </script>
+</body>
+</html>

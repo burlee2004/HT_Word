@@ -17,13 +17,27 @@
         <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
             <h2 class="text-2xl font-bold text-gray-800">Dự án của tôi</h2>
             <div class="mt-4 flex space-x-4">
+                <a href="wallet.html" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 inline-block">Quản lý Ví (Nạp Token)</a>
                 <a href="post-job.html" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 inline-block">+ Đăng tải yêu cầu mới</a>
                 <a href="escrow-test.html" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 inline-block">Mô phỏng Khóa Escrow</a>
                 <a href="review-work.html" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block">Nghiệm thu & Giải ngân</a>
             </div>
         </div>
+
+        <!-- Cột Thông báo -->
+        <div class="mt-8 bg-white p-6 rounded-lg shadow border-l-4 border-yellow-400">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                🔔 Thông báo mới nhất
+            </h2>
+            <div id="notificationsList" class="space-y-3">
+                <p class="text-gray-500 text-sm">Đang tải thông báo...</p>
+            </div>
+        </div>
     </main>
     <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
     console.log("Đang kiểm tra quyền truy cập vào Client Portal...");
     const userStr = localStorage.getItem('user');
     
@@ -43,6 +57,29 @@
         } else {
             // Hợp lệ, cho vào nhà
             document.getElementById('clientName').textContent = user.full_name;
+            loadNotifications(user.id);
+        }
+    }
+
+    // Load Notifications
+    async function loadNotifications(userId) {
+        const notiDiv = document.getElementById('notificationsList');
+        try {
+            const res = await fetch(`${API_URL}/api/notifications/${userId}`);
+            const data = await res.json();
+            if (data.notifications && data.notifications.length > 0) {
+                notiDiv.innerHTML = data.notifications.map(n => `
+                    <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                        <strong class="block text-gray-800">${n.title}</strong>
+                        <span class="text-gray-600 text-sm">${n.content}</span>
+                        <div class="text-xs text-gray-400 mt-1">${new Date(n.created_at).toLocaleString('vi-VN')}</div>
+                    </div>
+                `).join('');
+            } else {
+                notiDiv.innerHTML = '<p class="text-gray-500 text-sm">Không có thông báo nào.</p>';
+            }
+        } catch(err) {
+            notiDiv.innerHTML = '<p class="text-red-500 text-sm">Lỗi tải thông báo.</p>';
         }
     }
 

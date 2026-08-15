@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Duyệt Nạp Tiền</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-10 font-sans">
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Duyệt Lệnh Nạp Token</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-50 text-gray-600 uppercase text-sm leading-normal">
+                        <tr>
+                            <th class="py-3 px-6 text-left">Thời gian</th>
+                            <th class="py-3 px-6 text-left">Người dùng</th>
+                            <th class="py-3 px-6 text-right">Số Token Nạp</th>
+                            <th class="py-3 px-6 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositsTableBody" class="text-gray-600 text-sm font-light">
+                        <tr>
+                            <td colspan="4" class="py-3 px-6 text-center">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        async function loadDeposits() {
+            const tbody = document.getElementById('depositsTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="py-3 px-6 text-center">Đang tải dữ liệu...</td></tr>';
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/deposits`);
+                const data = await response.json();
+
+                if (data.deposits && data.deposits.length > 0) {
+                    tbody.innerHTML = data.deposits.map(d => {
+                        const date = new Date(d.created_at).toLocaleString('vi-VN');
+                        const userName = d.users ? d.users.full_name : 'Không rõ';
+                        
+                        return `
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="py-3 px-6 text-left">${date}</td>
+                                <td class="py-3 px-6 text-left font-medium">${userName}</td>
+                                <td class="py-3 px-6 text-right font-bold text-green-600">+${d.amount}</td>
+                                <td class="py-3 px-6 text-center">
+                                    <button onclick="approveDeposit('${d.id}')" class="bg-blue-600 text-white px-4 py-1 rounded shadow hover:bg-blue-700">
+                                        Phê Duyệt
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="py-3 px-6 text-center text-gray-500">Không có lệnh nạp tiền nào đang chờ.</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="4" class="py-3 px-6 text-center text-red-500">Lỗi kết nối Backend.</td></tr>';
+            }
+        }
+
+        async function approveDeposit(requestId) {
+            if (!confirm('Xác nhận duyệt nạp tiền cho giao dịch này?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/deposits/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: requestId })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Thành công: ' + data.message);
+                    loadDeposits(); // Reload list
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối đến Backend');
+            }
+        }
+
+        loadDeposits();
+    </script>
+</body>
+</html>

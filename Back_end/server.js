@@ -229,6 +229,13 @@ app.post('/api/escrow/lock', async (req, res) => {
             status: 'success'
         }]);
 
+        // Gửi thông báo cho Freelancer
+        await supabase.from('notifications').insert([{
+            user_id: updatedApp.freelancer_id,
+            title: 'Dự án đã bắt đầu',
+            content: `Khách hàng đã chốt hợp đồng và khóa ${amount} Token Escrow. Bạn có thể bắt tay vào làm việc ngay!`
+        }]);
+
         // Trả kết quả
         res.status(200).json({ message: 'Đã khóa tiền Escrow thành công! Dự án bắt đầu.' });
     } catch (error) {
@@ -334,6 +341,17 @@ app.post('/api/milestones/submit', async (req, res) => {
             .select();
             
         if (error) throw error;
+
+        // Gửi thông báo cho Client
+        const { data: jobData } = await supabase.from('jobs').select('client_id').eq('id', data[0].job_id).single();
+        if (jobData) {
+            await supabase.from('notifications').insert([{
+                user_id: jobData.client_id,
+                title: 'Có báo cáo công việc mới',
+                content: 'Freelancer vừa nộp báo cáo (minh chứng) cho dự án. Hãy vào kiểm tra và nghiệm thu.'
+            }]);
+        }
+
         res.status(200).json({ message: 'Nộp bằng chứng thành công!', milestone: data[0] });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -402,7 +420,116 @@ app.post('/api/escrow/release', async (req, res) => {
             status: 'success'
         }]);
 
+        // Gửi thông báo cho Freelancer
+        await supabase.from('notifications').insert([{
+            user_id: freelancer_id,
+            title: 'Đã nhận thanh toán!',
+            content: `Khách hàng đã nghiệm thu công việc và giải ngân ${amount} Token vào ví của bạn.`
+        }]);
+
         res.status(200).json({ message: 'Giải ngân thành công! Tiền đã được chuyển cho Freelancer.' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// ==========================================
+// API DÀNH CHO PHASE 3 (NẠP TOKEN & THÔNG BÁO)
+// ==========================================
+
+// 11. API: Khách hàng tạo lệnh nạp Token
+app.post('/api/deposit', async (req, res) => {
+    const { user_id, amount } = req.body;
+    try {
+        const { error } = await supabase.from('deposit_requests').insert([{ user_id, amount }]);
+        if (error) throw error;
+        res.status(200).json({ message: 'Đã gửi lệnh nạp tiền. Vui lòng chờ Admin duyệt.' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 12. API: Admin lấy danh sách lệnh nạp tiền chờ duyệt
+app.get('/api/admin/deposits', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('deposit_requests')
+            .select('*, users(full_name, email)')
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        res.status(200).json({ deposits: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 13. API: Admin duyệt nạp tiền
+app.post('/api/admin/deposits/approve', async (req, res) => {
+    const { request_id } = req.body;
+    try {
+        const { data: request, error: reqErr } = await supabase.from('deposit_requests').select('*').eq('id', request_id).single();
+        if (reqErr || !request) throw new Error('Không tìm thấy yêu cầu nạp tiền');
+
+        // Lấy ví user
+        const { data: wallet, error: walErr } = await supabase.from('wallets').select('*').eq('user_id', request.user_id).single();
+        
+        let newBalance = parseFloat(request.amount);
+        if (wallet) {
+            newBalance += parseFloat(wallet.balance);
+            await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', request.user_id);
+        } else {
+            await supabase.from('wallets').insert([{ user_id: request.user_id, balance: request.amount }]);
+        }
+
+        // Cập nhật trạng thái request
+        await supabase.from('deposit_requests').update({ status: 'approved' }).eq('id', request_id);
+
+        // Ghi transaction
+        await supabase.from('transactions').insert([{
+            user_id: request.user_id,
+            amount: request.amount,
+            type: 'deposit',
+            status: 'success'
+        }]);
+
+        // Thông báo cho user
+        await supabase.from('notifications').insert([{
+            user_id: request.user_id,
+            title: 'Nạp Token Thành Công',
+            content: `Admin đã duyệt lệnh nạp ${request.amount} Token của bạn. Tiền đã được cộng vào ví khả dụng.`
+        }]);
+
+        res.status(200).json({ message: 'Duyệt nạp tiền thành công!' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 14. API: Lấy thông báo của user
+app.get('/api/notifications/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('notifications')
+            .select('*')
+            .eq('user_id', user_id)
+            .order('created_at', { ascending: false })
+            .limit(10);
+        if (error) throw error;
+        res.status(200).json({ notifications: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 15. API: Lấy thông tin ví của user
+app.get('/api/wallet/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const { data, error } = await supabase.from('wallets').select('*').eq('user_id', user_id).single();
+        if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
+        res.status(200).json({ wallet: data || { balance: 0, locked_balance: 0 } });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

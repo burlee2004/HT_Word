@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công việc của tôi - HT Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-10">
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Dự án Đang thực hiện</h1>
+        
+        <div id="jobsList" class="space-y-6">
+            <p class="text-gray-500">Đang tải...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let currentUser = null;
+
+        async function loadJobs() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('Bạn chưa đăng nhập!');
+                window.location.replace('../sharedFolder/login.html');
+                return;
+            }
+            currentUser = JSON.parse(userStr);
+
+            const listDiv = document.getElementById('jobsList');
+            try {
+                const response = await fetch(`${API_URL}/api/freelancer/${currentUser.id}/active-jobs`);
+                const data = await response.json();
+                
+                if (data.jobs && data.jobs.length > 0) {
+                    listDiv.innerHTML = data.jobs.map(job => `
+                        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-indigo-500">
+                            <h2 class="text-xl font-bold text-indigo-700">${job.title}</h2>
+                            <p class="text-gray-600 mt-2">${job.description}</p>
+                            <div class="mt-4">
+                                <h3 class="font-bold text-gray-800 border-b pb-2">Các Mốc Tiến Độ (Milestones)</h3>
+                                <ul class="mt-2 space-y-4">
+                                    ${job.milestones.map(m => renderMilestone(m)).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    listDiv.innerHTML = '<p class="text-gray-500">Bạn chưa có dự án nào đang chạy.</p>';
+                }
+            } catch (err) {
+                listDiv.innerHTML = '<p class="text-red-500">Lỗi kết nối Server!</p>';
+            }
+        }
+
+        function renderMilestone(m) {
+            let statusHtml = '';
+            let actionHtml = '';
+
+            if (m.status === 'pending') {
+                statusHtml = '<span class="text-yellow-600 font-bold">Đang làm</span>';
+                actionHtml = `
+                    <div class="mt-2">
+                        <label class="block text-sm font-medium">Nộp file báo cáo (Upload lên AWS S3):</label>
+                        <input type="file" id="file_${m.id}" class="mt-1 block w-full border p-2 text-sm">
+                        <button onclick="submitEvidence('${m.id}')" class="mt-2 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Tải lên & Nộp bài</button>
+                    </div>
+                `;
+            } else if (m.status === 'pending_review') {
+                statusHtml = '<span class="text-blue-600 font-bold">Đang chờ Khách duyệt</span>';
+                actionHtml = `<p class="mt-2 text-sm text-gray-500">File đã nộp: <a href="${m.evidence_url}" target="_blank" class="text-blue-500 underline">Xem file</a></p>`;
+            } else if (m.status === 'approved') {
+                statusHtml = '<span class="text-green-600 font-bold">Đã Nghiệm Thu (Đã nhận tiền)</span>';
+                actionHtml = `<p class="mt-2 text-sm text-gray-500">File: <a href="${m.evidence_url}" target="_blank" class="text-blue-500 underline">Xem file</a></p>`;
+            }
+
+            return `
+                <li class="bg-gray-50 p-4 rounded border border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold text-gray-700">${m.description}</span>
+                        <span>Trị giá: <strong class="text-green-600">${m.amount} Token</strong></span>
+                    </div>
+                    <div class="mt-1 text-sm">Trạng thái: ${statusHtml}</div>
+                    ${actionHtml}
+                </li>
+            `;
+        }
+
+        async function submitEvidence(milestoneId) {
+            const fileInput = document.getElementById(`file_${milestoneId}`);
+            if (!fileInput.files[0]) {
+                alert('Vui lòng chọn file trước khi nộp!');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // 1. Upload file lên S3
+                alert('Đang tải file lên AWS S3, vui lòng chờ...');
+                const uploadRes = await fetch(`${API_URL}/upload-file`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+
+                if (!uploadRes.ok) throw new Error(uploadData.error || 'Lỗi upload');
+
+                const evidenceUrl = uploadData.fileUrl;
+
+                // 2. Gửi link cho Backend để đổi status Milestone
+                const submitRes = await fetch(`${API_URL}/api/milestones/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ milestone_id: milestoneId, evidence_url: evidenceUrl })
+                });
+
+                if (submitRes.ok) {
+                    alert('Nộp bài thành công! Đang chờ Khách hàng nghiệm thu.');
+                    loadJobs();
+                } else {
+                    const submitData = await submitRes.json();
+                    alert('Lỗi nộp bài: ' + submitData.error);
+                }
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        loadJobs();
+    </script>
+</body>
+</html>

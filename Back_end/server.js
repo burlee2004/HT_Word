@@ -200,8 +200,26 @@ app.post('/api/escrow/lock', async (req, res) => {
             
         if (updateError) throw updateError;
 
-        // Cập nhật trạng thái Application thành 'accepted'
-        await supabase.from('job_applications').update({ status: 'accepted' }).eq('id', application_id);
+        // Cập nhật trạng thái Application thành 'accepted' và lấy thông tin
+        const { data: updatedApp, error: appErr } = await supabase
+            .from('job_applications')
+            .update({ status: 'accepted' })
+            .eq('id', application_id)
+            .select()
+            .single();
+            
+        if (appErr) throw appErr;
+
+        // Đổi trạng thái Job sang in_progress
+        await supabase.from('jobs').update({ status: 'in_progress' }).eq('id', updatedApp.job_id);
+
+        // Tự động tạo 1 Milestone mặc định
+        await supabase.from('milestones').insert([{
+            job_id: updatedApp.job_id,
+            description: 'Giai đoạn 1 (Bàn giao toàn bộ)',
+            amount: amount,
+            status: 'pending'
+        }]);
         
         // Ghi lại lịch sử giao dịch vào bảng transactions cho Admin quản lý
         await supabase.from('transactions').insert([{
@@ -263,6 +281,128 @@ app.get('/api/admin/transactions', async (req, res) => {
             
         if (error) throw error;
         res.status(200).json({ transactions: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// ==========================================
+// API DÀNH CHO PHASE 2 (THỰC THI & NGHIỆM THU)
+// ==========================================
+
+// 7. API: Lấy danh sách job Freelancer đang làm
+app.get('/api/freelancer/:id/active-jobs', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { data: apps, error } = await supabase
+            .from('job_applications')
+            .select(`
+                job_id,
+                jobs (id, title, description, budget, client_id)
+            `)
+            .eq('freelancer_id', id)
+            .eq('status', 'accepted');
+            
+        if (error) throw error;
+        if (!apps || apps.length === 0) return res.status(200).json({ jobs: [] });
+        
+        const jobs = apps.map(app => app.jobs);
+        
+        // Lấy thêm milestone cho từng job
+        for (let job of jobs) {
+            const { data: milestones } = await supabase
+                .from('milestones')
+                .select('*')
+                .eq('job_id', job.id);
+            job.milestones = milestones || [];
+        }
+
+        res.status(200).json({ jobs });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 8. API: Freelancer nộp minh chứng (Submit Milestone)
+app.post('/api/milestones/submit', async (req, res) => {
+    const { milestone_id, evidence_url } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('milestones')
+            .update({ evidence_url, status: 'pending_review' })
+            .eq('id', milestone_id)
+            .select();
+            
+        if (error) throw error;
+        res.status(200).json({ message: 'Nộp bằng chứng thành công!', milestone: data[0] });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 9. API: Khách hàng xem danh sách Milestone đang chờ duyệt
+app.get('/api/client/:client_id/pending-milestones', async (req, res) => {
+    const { client_id } = req.params;
+    try {
+        const { data: jobs, error: jobsError } = await supabase
+            .from('jobs')
+            .select('id, title')
+            .eq('client_id', client_id);
+            
+        if (jobsError) throw jobsError;
+        if (!jobs || jobs.length === 0) return res.status(200).json({ milestones: [] });
+        const jobIds = jobs.map(j => j.id);
+
+        const { data: milestones, error: mError } = await supabase
+            .from('milestones')
+            .select('*, jobs(title)')
+            .in('job_id', jobIds)
+            .eq('status', 'pending_review');
+            
+        if (mError) throw mError;
+        res.status(200).json({ milestones });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 10. API: Nghiệm thu và Giải ngân (Release Escrow)
+app.post('/api/escrow/release', async (req, res) => {
+    const { client_id, milestone_id, amount } = req.body;
+    try {
+        // Lấy job_id từ milestone
+        const { data: mData, error: mErr } = await supabase.from('milestones').select('job_id').eq('id', milestone_id).single();
+        if (mErr) throw new Error('Không tìm thấy milestone');
+
+        // Lấy freelancer_id từ job_applications (chỉ lấy người đã được accepted)
+        const { data: appData, error: appErr } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', mData.job_id).eq('status', 'accepted').single();
+        if (appErr) throw new Error('Không tìm thấy Freelancer của dự án này');
+
+        const freelancer_id = appData.freelancer_id;
+
+        // Lấy ví
+        const { data: clientWallet, error: cwError } = await supabase.from('wallets').select('*').eq('user_id', client_id).single();
+        const { data: freeWallet, error: fwError } = await supabase.from('wallets').select('*').eq('user_id', freelancer_id).single();
+        
+        if (cwError || fwError || !clientWallet || !freeWallet) throw new Error('Lỗi truy xuất ví');
+        if (clientWallet.locked_balance < amount) throw new Error('Không đủ số dư bị khóa để giải ngân');
+
+        // Trừ locked client, cộng balance freelancer
+        await supabase.from('wallets').update({ locked_balance: clientWallet.locked_balance - amount }).eq('user_id', client_id);
+        await supabase.from('wallets').update({ balance: freeWallet.balance + amount }).eq('user_id', freelancer_id);
+
+        // Cập nhật milestone thành approved
+        await supabase.from('milestones').update({ status: 'approved' }).eq('id', milestone_id);
+
+        // Ghi transaction
+        await supabase.from('transactions').insert([{
+            user_id: freelancer_id,
+            amount: amount,
+            type: 'escrow_release',
+            status: 'success'
+        }]);
+
+        res.status(200).json({ message: 'Giải ngân thành công! Tiền đã được chuyển cho Freelancer.' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

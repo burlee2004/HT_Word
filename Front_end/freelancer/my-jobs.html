@@ -175,7 +175,13 @@
                 `;
             } else if (m.status === 'PENDING_REVIEW') {
                 statusHtml = '<span class="text-blue-600 font-bold">Đang chờ Khách duyệt</span>';
-                actionHtml = `<p class="mt-2 text-sm text-gray-500">File đã nộp: <a href="${m.evidence_url}" target="_blank" class="text-blue-500 underline">Xem file</a></p>`;
+                let links = '';
+                if (m.proof_urls && m.proof_urls.length > 0) {
+                    links = m.proof_urls.map((u, i) => `<a href="${u}" target="_blank" class="text-blue-500 underline inline-block mr-2">🔗 Tệp ${i+1}</a>`).join('');
+                } else if (m.evidence_url) {
+                    links = `<a href="${m.evidence_url}" target="_blank" class="text-blue-500 underline">Xem minh chứng</a>`;
+                }
+                actionHtml = `<div class="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700"><strong>Minh chứng đã nộp:</strong><br>${links}</div>`;
             } else if (m.status === 'APPROVED') {
                 statusHtml = '<span class="text-green-600 font-bold">Đã Nghiệm Thu (APPROVED)</span>';
                 actionHtml = `<p class="mt-2 text-sm text-gray-500">Tiền đã được xử lý theo cấu hình: ${m.payment_mode}</p>`;

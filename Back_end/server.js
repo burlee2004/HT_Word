@@ -515,7 +515,6 @@ app.post('/api/milestones/advanced/submit', async (req, res) => {
             .from('milestones')
             .update({ 
                 proof_urls: proof_urls, 
-                evidence_url: report_text, // Tạm dùng trường cũ lưu text báo cáo
                 status: 'PENDING_REVIEW' 
             })
             .eq('id', milestone_id)

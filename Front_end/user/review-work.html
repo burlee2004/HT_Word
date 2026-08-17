@@ -133,9 +133,18 @@
                         <div class="mt-4 space-y-4">
                             <h3 class="font-bold text-gray-800">Cần Nghiệm Thu:</h3>
                             ${pendingMilestones.map(m => `
-                                <div class="bg-blue-50 p-4 rounded border border-blue-200">
+                                <div class="bg-blue-50 border border-blue-200 p-4 rounded mb-4">
                                     <h4 class="font-bold text-blue-800 text-lg">${m.title}</h4>
-                                    <p class="text-sm text-gray-700 mt-1"><strong>Freelancer nộp bài:</strong> <a href="${m.proof_urls ? m.proof_urls[0] : m.evidence_url}" target="_blank" class="text-blue-600 underline">Xem minh chứng</a></p>
+                                    ${(() => {
+                                        let links = '';
+                                        if (m.proof_urls && m.proof_urls.length > 0) {
+                                            links = m.proof_urls.map((u, i) => `<a href="${u}" target="_blank" class="text-blue-600 underline font-medium inline-block mr-3 mb-1">🔗 Xem Tệp ${i+1}</a>`).join('');
+                                        } else if (m.evidence_url) {
+                                            links = `<a href="${m.evidence_url}" target="_blank" class="text-blue-600 underline font-medium">Xem minh chứng</a>`;
+                                        }
+                                        return `<p class="text-sm text-gray-700 mt-2"><strong>Freelancer nộp bài:</strong><br>${links}</p>`;
+                                    })()}
+                                    
                                     <p class="text-sm text-gray-700 mt-1"><strong>Số tiền giải ngân:</strong> <span class="text-green-600 font-bold">${m.amount} Token</span></p>
                                     
                                     <div class="mt-4 flex space-x-3">

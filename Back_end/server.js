@@ -714,20 +714,26 @@ app.get('/api/wallet/:user_id', async (req, res) => {
 // ==========================================
 
 // Upload Ảnh (Cloudinary)
-app.post('/api/upload/image', uploadImage.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'Không có file ảnh' });
-    res.status(200).json({ url: req.file.path, type: 'image' });
+app.post('/api/upload/image', (req, res) => {
+    uploadImage.single('file')(req, res, function (err) {
+        if (err) return res.status(500).json({ error: 'Multer Error: ' + err.message });
+        if (!req.file) return res.status(400).json({ error: 'Không có file ảnh' });
+        res.status(200).json({ url: req.file.path, type: 'image' });
+    });
 });
 
 // Upload File nặng/Video (S3)
-app.post('/api/upload/file', uploadFile.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'Không có file' });
-    
-    let type = 'document';
-    if (req.file.mimetype.startsWith('video/')) type = 'video';
-    else if (req.file.mimetype.startsWith('audio/')) type = 'audio';
+app.post('/api/upload/file', (req, res) => {
+    uploadFile.single('file')(req, res, function (err) {
+        if (err) return res.status(500).json({ error: 'S3 Error: ' + err.message });
+        if (!req.file) return res.status(400).json({ error: 'Không có file' });
+        
+        let type = 'document';
+        if (req.file.mimetype.startsWith('video/')) type = 'video';
+        else if (req.file.mimetype.startsWith('audio/')) type = 'audio';
 
-    res.status(200).json({ url: req.file.location, type: type });
+        res.status(200).json({ url: req.file.location, type: type });
+    });
 });
 
 // Lấy tin nhắn Chat

@@ -712,12 +712,12 @@ app.get('/api/wallet/:user_id', async (req, res) => {
 // API DÀNH CHO LUỒNG CHAT & UPLOAD (YÊU CẦU MỚI)
 // ==========================================
 
-// Upload Ảnh (Cloudinary)
+// Upload Ảnh (Chuyển sang dùng S3 vì Cloudinary báo lỗi 403)
 app.post('/api/upload/image', (req, res) => {
-    uploadImage.single('file')(req, res, function (err) {
-        if (err) return res.status(500).json({ error: 'Multer Error: ' + err.message });
+    uploadFile.single('file')(req, res, function (err) {
+        if (err) return res.status(500).json({ error: 'S3 Error: ' + err.message });
         if (!req.file) return res.status(400).json({ error: 'Không có file ảnh' });
-        res.status(200).json({ url: req.file.path, type: 'image' });
+        res.status(200).json({ url: req.file.location, type: 'image' });
     });
 });
 

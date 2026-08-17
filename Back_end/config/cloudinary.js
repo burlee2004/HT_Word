@@ -1,19 +1,21 @@
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const multer = require('multer');
 require('dotenv').config();
 
-// Cấu hình SDK
+// Fix lỗi user copy dính chữ "CLOUDINARY_URL=" hoặc ngoặc "< >" TRƯỚC KHI require Cloudinary
 let cloudinaryUrl = process.env.CLOUDINARY_URL || '';
 if (cloudinaryUrl) {
-  // Fix lỗi user copy dính chữ "CLOUDINARY_URL=" hoặc ngoặc "< >"
   if (cloudinaryUrl.startsWith('CLOUDINARY_URL=')) {
     cloudinaryUrl = cloudinaryUrl.replace('CLOUDINARY_URL=', '');
   }
   cloudinaryUrl = cloudinaryUrl.replace(/[<>]/g, '').trim();
-  
-  process.env.CLOUDINARY_URL = cloudinaryUrl; // Gán lại cho SDK tự động nhận
-} else {
+  process.env.CLOUDINARY_URL = cloudinaryUrl;
+}
+
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+
+// Cấu hình SDK
+if (!process.env.CLOUDINARY_URL) {
   cloudinary.config({
     cloud_name: (process.env.CLOUDINARY_CLOUD_NAME || '').trim(),
     api_key: (process.env.CLOUDINARY_API_KEY || '').trim(),

@@ -709,6 +709,72 @@ app.get('/api/wallet/:user_id', async (req, res) => {
     }
 });
 
+// ==========================================
+// API DÀNH CHO LUỒNG CHAT & UPLOAD (YÊU CẦU MỚI)
+// ==========================================
+
+// Upload Ảnh (Cloudinary)
+app.post('/api/upload/image', uploadImage.single('file'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Không có file ảnh' });
+    res.status(200).json({ url: req.file.path, type: 'image' });
+});
+
+// Upload File nặng/Video (S3)
+app.post('/api/upload/file', uploadFile.single('file'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Không có file' });
+    
+    let type = 'document';
+    if (req.file.mimetype.startsWith('video/')) type = 'video';
+    else if (req.file.mimetype.startsWith('audio/')) type = 'audio';
+
+    res.status(200).json({ url: req.file.location, type: type });
+});
+
+// Lấy tin nhắn Chat
+app.get('/api/jobs/:job_id/messages', async (req, res) => {
+    const { job_id } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('messages')
+            .select('*, users(full_name, role)')
+            .eq('job_id', job_id)
+            .order('created_at', { ascending: true });
+        if (error) throw error;
+        res.status(200).json({ messages: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Gửi tin nhắn Chat
+app.post('/api/jobs/:job_id/messages', async (req, res) => {
+    const { job_id } = req.params;
+    const { sender_id, milestone_id, content, file_url, file_type } = req.body;
+    try {
+        const { data, error } = await supabase.from('messages').insert([{
+            job_id, sender_id, milestone_id, content, file_url, file_type
+        }]).select('*, users(full_name, role)');
+        if (error) throw error;
+
+        // Lấy thông tin user để push thông báo
+        const { data: jobData } = await supabase.from('jobs').select('client_id').eq('id', job_id).single();
+        const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', job_id).eq('status', 'accepted').single();
+        
+        if (jobData && appData) {
+            const recipient_id = (sender_id === jobData.client_id) ? appData.freelancer_id : jobData.client_id;
+            await supabase.from('notifications').insert([{
+                user_id: recipient_id,
+                title: 'Tin nhắn mới',
+                content: `Bạn có tin nhắn hoặc tệp đính kèm mới trong dự án. Hãy vào phòng chat kiểm tra!`
+            }]);
+        }
+
+        res.status(201).json({ message: data[0] });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 // Khởi động Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

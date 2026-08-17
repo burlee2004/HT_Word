@@ -42,6 +42,37 @@
         </div>
     </div>
 
+    <!-- Modal Chat & Upload -->
+    <div id="chatModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex justify-center items-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col" style="height: 80vh;">
+            <div class="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-bold text-gray-800">Phòng Thảo Luận Dự Án</h2>
+                <button onclick="closeChatModal()" class="text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-gray-100 space-y-4">
+                <!-- Tin nhắn sẽ hiển thị ở đây -->
+            </div>
+            
+            <div class="p-4 border-t bg-white rounded-b-lg">
+                <input type="hidden" id="chat_job_id">
+                <div class="flex flex-col space-y-2">
+                    <textarea id="chatInput" rows="2" class="w-full border p-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập nội dung tin nhắn..."></textarea>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <input type="file" id="chatFile" class="text-sm border p-1 rounded">
+                            <span class="text-xs text-gray-500">(Ảnh/Video/File)</span>
+                        </div>
+                        <button onclick="sendChatMessage()" id="btnSendChat" class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 shadow flex items-center justify-center">
+                            Gửi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
@@ -122,7 +153,10 @@
 
             return `
                 <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
-                    <h2 class="text-2xl font-bold text-gray-800">${job.title}</h2>
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-800">${job.title}</h2>
+                        <button onclick="openChatModal('${job.id}')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-sm font-bold shadow-sm flex items-center">💬 Thảo luận</button>
+                    </div>
                     ${actionHtml}
                 </div>
             `;
@@ -211,6 +245,125 @@
                 }
             } catch (err) {
                 alert('Không thể kết nối Backend');
+            }
+        }
+
+        // ---------- CHAT LOGIC ----------
+        async function openChatModal(jobId) {
+            document.getElementById('chat_job_id').value = jobId;
+            document.getElementById('chatModal').classList.remove('hidden');
+            loadChatMessages(jobId);
+        }
+
+        function closeChatModal() {
+            document.getElementById('chatModal').classList.add('hidden');
+        }
+
+        async function loadChatMessages(jobId) {
+            const chatBox = document.getElementById('chatMessages');
+            chatBox.innerHTML = '<p class="text-center text-gray-500 mt-4">Đang tải tin nhắn...</p>';
+            
+            try {
+                const res = await fetch(`${API_URL}/api/jobs/${jobId}/messages`);
+                const data = await res.json();
+                if (res.ok) {
+                    if (data.messages.length === 0) {
+                        chatBox.innerHTML = '<p class="text-center text-gray-500 mt-4">Chưa có tin nhắn nào. Bắt đầu thảo luận!</p>';
+                    } else {
+                        chatBox.innerHTML = data.messages.map(msg => renderMessage(msg)).join('');
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                }
+            } catch (err) {
+                chatBox.innerHTML = '<p class="text-center text-red-500 mt-4">Lỗi kết nối Server!</p>';
+            }
+        }
+
+        function renderMessage(msg) {
+            const isMe = msg.sender_id === currentUser.id;
+            const timeStr = new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            const roleBadge = msg.users.role === 'client' ? '<span class="text-[10px] bg-blue-100 text-blue-800 px-1 rounded ml-1">KHÁCH HÀNG</span>' : '<span class="text-[10px] bg-green-100 text-green-800 px-1 rounded ml-1">FREELANCER</span>';
+            
+            let fileHtml = '';
+            if (msg.file_url) {
+                if (msg.file_type === 'image') {
+                    fileHtml = `<div class="mt-2"><img src="${msg.file_url}" class="max-w-[200px] rounded-lg border border-gray-200 cursor-pointer" onclick="window.open('${msg.file_url}', '_blank')"></div>`;
+                } else if (msg.file_type === 'video') {
+                    fileHtml = `<div class="mt-2"><video src="${msg.file_url}" controls class="max-w-[250px] rounded-lg"></video></div>`;
+                } else {
+                    fileHtml = `<div class="mt-2"><a href="${msg.file_url}" target="_blank" class="flex items-center text-sm underline ${isMe ? 'text-white' : 'text-blue-600'}">📁 Tải File đính kèm</a></div>`;
+                }
+            }
+
+            return `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                    <div class="text-xs text-gray-500 mb-1 flex items-center">${msg.users.full_name} ${roleBadge} - ${timeStr}</div>
+                    <div class="max-w-[80%] rounded-lg p-3 ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none border shadow-sm'}">
+                        ${msg.content ? `<p class="text-sm whitespace-pre-wrap">${msg.content}</p>` : ''}
+                        ${fileHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function sendChatMessage() {
+            const jobId = document.getElementById('chat_job_id').value;
+            const content = document.getElementById('chatInput').value.trim();
+            const fileInput = document.getElementById('chatFile');
+            const btn = document.getElementById('btnSendChat');
+
+            if (!content && (!fileInput.files || fileInput.files.length === 0)) return;
+
+            btn.disabled = true;
+            btn.textContent = '...';
+
+            let fileUrl = null;
+            let fileType = null;
+
+            try {
+                if (fileInput.files && fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    const isImage = file.type.startsWith('image/');
+                    const uploadEndpoint = isImage ? '/api/upload/image' : '/api/upload/file';
+
+                    const uploadRes = await fetch(`${API_URL}${uploadEndpoint}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!uploadRes.ok) throw new Error('Upload file thất bại');
+                    const uploadData = await uploadRes.json();
+                    fileUrl = uploadData.url;
+                    fileType = uploadData.type;
+                }
+
+                const res = await fetch(`${API_URL}/api/jobs/${jobId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender_id: currentUser.id,
+                        content: content,
+                        file_url: fileUrl,
+                        file_type: fileType
+                    })
+                });
+
+                if (res.ok) {
+                    document.getElementById('chatInput').value = '';
+                    document.getElementById('chatFile').value = '';
+                    loadChatMessages(jobId);
+                } else {
+                    const data = await res.json();
+                    alert('Lỗi gửi tin: ' + data.error);
+                }
+            } catch (err) {
+                alert('Lỗi: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Gửi';
             }
         }
 

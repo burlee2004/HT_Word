@@ -3,16 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Nghiệm thu Công việc</title>
+    <title>Khách hàng - Quản Lý & Nghiệm thu</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 p-10">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Nghiệm thu Milestone (Báo cáo Tiến độ)</h1>
-        <p class="text-gray-600 mb-4">Các giai đoạn Freelancer đã nộp bài, đang chờ bạn kiểm tra file và giải ngân (Giải phóng Token Escrow).</p>
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Quản Lý Tiến Độ & Nghiệm Thu</h1>
+        <p class="text-gray-600 mb-8">Nơi bạn duyệt Kế hoạch (Khóa Escrow) và Nghiệm thu các mốc công việc (Giải ngân).</p>
         
-        <div id="milestoneList" class="space-y-4">
+        <div id="jobsList" class="space-y-6">
             <p class="text-gray-500">Đang tải...</p>
+        </div>
+    </div>
+
+    <!-- Modal Yêu cầu sửa đổi (Revision) -->
+    <div id="revisionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-[500px]">
+            <h2 class="text-2xl font-bold mb-4 text-red-600">Yêu Cầu Chỉnh Sửa</h2>
+            <p class="text-gray-600 mb-4 text-sm">Vui lòng mô tả rõ lỗi để Freelancer sửa lại cho chuẩn.</p>
+            
+            <input type="hidden" id="rev_milestone_id">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium">Nội dung yêu cầu sửa:</label>
+                    <textarea id="rev_feedback" rows="3" class="mt-1 block w-full border p-2 rounded text-sm" placeholder="Màu nút bấm bị sai, tính năng login bị lỗi..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Link ảnh chụp lỗi (Nếu có):</label>
+                    <input type="text" id="rev_screenshot" class="mt-1 block w-full border p-2 rounded text-sm" placeholder="https://...">
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-2 border-t pt-4">
+                <button type="button" onclick="closeRevisionModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 font-bold">Hủy</button>
+                <button type="button" onclick="submitRevision()" class="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-700">Gửi Yêu Cầu</button>
+            </div>
         </div>
     </div>
 
@@ -23,7 +49,7 @@
 
         let currentUser = null;
 
-        async function loadPendingMilestones() {
+        async function loadPendingActions() {
             const userStr = localStorage.getItem('user');
             if (!userStr) {
                 alert('Bạn chưa đăng nhập!');
@@ -32,57 +58,89 @@
             }
             currentUser = JSON.parse(userStr);
 
-            const listDiv = document.getElementById('milestoneList');
+            const listDiv = document.getElementById('jobsList');
             try {
-                const response = await fetch(`${API_URL}/api/client/${currentUser.id}/pending-milestones`);
+                const response = await fetch(`${API_URL}/api/client/${currentUser.id}/pending-actions`);
                 const data = await response.json();
                 
-                if (data.milestones && data.milestones.length > 0) {
-                    listDiv.innerHTML = data.milestones.map(m => `
-                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
-                            <h3 class="text-xl font-bold text-gray-800">Dự án: ${m.jobs ? m.jobs.title : ''}</h3>
-                            <p class="text-gray-700 mt-2"><strong>Giai đoạn:</strong> ${m.description}</p>
-                            <p class="text-gray-700 mt-1"><strong>File báo cáo:</strong> <a href="${m.evidence_url}" target="_blank" class="text-blue-600 underline font-medium">Bấm vào đây để Xem/Tải File</a></p>
-                            <p class="text-gray-700 mt-1"><strong>Số tiền giải ngân:</strong> <span class="font-bold text-red-600">${m.amount} Token</span></p>
-                            
-                            <div class="mt-6 flex space-x-4">
-                                <button onclick="releaseEscrow('${m.id}', ${m.amount})" class="bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700 shadow">
-                                    Nghiệm Thu & Giải Ngân
-                                </button>
-                                <button onclick="rejectWork()" class="bg-red-100 text-red-600 px-6 py-2 rounded font-bold hover:bg-red-200">
-                                    Từ chối (Yêu cầu sửa)
-                                </button>
-                            </div>
-                        </div>
-                    `).join('');
+                if (data.jobs && data.jobs.length > 0) {
+                    listDiv.innerHTML = data.jobs.map(job => renderJob(job)).join('');
                 } else {
-                    listDiv.innerHTML = '<p class="text-gray-500 bg-white p-6 rounded shadow">Hiện không có công việc nào đang chờ duyệt.</p>';
+                    listDiv.innerHTML = '<p class="text-gray-500 bg-white p-6 rounded shadow">Hiện không có công việc nào cần bạn xử lý.</p>';
                 }
             } catch (err) {
                 listDiv.innerHTML = '<p class="text-red-500">Lỗi kết nối Server!</p>';
             }
         }
 
-        async function releaseEscrow(milestoneId, amount) {
-            if (!confirm('Bạn có chắc chắn file báo cáo đã đạt yêu cầu? Bấm OK hệ thống sẽ tự động trừ ' + amount + ' Token bị khóa để trả cho Freelancer.')) return;
+        function renderJob(job) {
+            let actionHtml = '';
 
-            const payload = {
-                client_id: currentUser.id,
-                milestone_id: milestoneId,
-                amount: amount
-            };
+            if (job.status === 'pending_plan_approval') {
+                const totalAmount = job.milestones.reduce((sum, m) => sum + parseFloat(m.amount), 0);
+                actionHtml = `
+                    <div class="bg-yellow-50 p-4 border border-yellow-300 rounded mt-4">
+                        <h3 class="font-bold text-yellow-800 text-lg mb-2">Freelancer đã gửi Bản Kế Hoạch!</h3>
+                        <p class="text-sm text-gray-700 mb-4">Vui lòng xem kỹ các mốc công việc bên dưới. Nếu đồng ý, hệ thống sẽ <strong>Khóa (Escrow) tổng cộng ${totalAmount} Token</strong> từ ví của bạn.</p>
+                        
+                        <div class="space-y-3 mb-4">
+                            ${job.milestones.map((m, i) => `
+                                <div class="bg-white p-3 rounded shadow-sm border border-gray-100 text-sm">
+                                    <div class="flex justify-between font-bold"><span>Mốc ${i+1}: ${m.title}</span> <span class="text-green-600">${m.amount} Token</span></div>
+                                    <div class="text-gray-600 mt-1">Bàn giao: ${m.expected_deliverables} | Thanh toán: ${m.payment_mode}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <button onclick="approvePlanAndLock('${job.id}')" class="bg-yellow-600 text-white font-bold px-6 py-2 rounded hover:bg-yellow-700 shadow">Đồng ý Kế Hoạch & Khóa Escrow</button>
+                    </div>
+                `;
+            } else if (job.status === 'in_progress') {
+                const pendingMilestones = job.milestones.filter(m => m.status === 'PENDING_REVIEW');
+                if (pendingMilestones.length > 0) {
+                    actionHtml = `
+                        <div class="mt-4 space-y-4">
+                            <h3 class="font-bold text-gray-800">Cần Nghiệm Thu:</h3>
+                            ${pendingMilestones.map(m => `
+                                <div class="bg-blue-50 p-4 rounded border border-blue-200">
+                                    <h4 class="font-bold text-blue-800 text-lg">${m.title}</h4>
+                                    <p class="text-sm text-gray-700 mt-1"><strong>Freelancer nộp bài:</strong> <a href="${m.proof_urls ? m.proof_urls[0] : m.evidence_url}" target="_blank" class="text-blue-600 underline">Xem minh chứng</a></p>
+                                    <p class="text-sm text-gray-700 mt-1"><strong>Số tiền giải ngân:</strong> <span class="text-green-600 font-bold">${m.amount} Token</span></p>
+                                    
+                                    <div class="mt-4 flex space-x-3">
+                                        <button onclick="approveMilestone('${m.id}')" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 shadow">✅ Nghiệm Thu (Approve)</button>
+                                        <button onclick="openRevisionModal('${m.id}')" class="bg-red-100 text-red-600 px-4 py-2 rounded font-bold border border-red-300 hover:bg-red-200">❌ Bắt sửa lại (Revision)</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    actionHtml = `<div class="mt-4 p-4 bg-gray-100 rounded text-gray-500">Dự án đang chạy. Đang chờ Freelancer nộp bài cho các mốc tiếp theo...</div>`;
+                }
+            }
 
+            return `
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
+                    <h2 class="text-2xl font-bold text-gray-800">${job.title}</h2>
+                    ${actionHtml}
+                </div>
+            `;
+        }
+
+        // --- Hành động: Khóa Escrow
+        async function approvePlanAndLock(jobId) {
+            if (!confirm('Bạn có chắc chắn chốt kế hoạch này? Tiền sẽ bị Khóa Escrow.')) return;
             try {
-                const response = await fetch(`${API_URL}/api/escrow/release`, {
+                const response = await fetch(`${API_URL}/api/jobs/start-project`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ client_id: currentUser.id, job_id: jobId })
                 });
-                
                 const data = await response.json();
                 if (response.ok) {
                     alert('Thành công: ' + data.message);
-                    loadPendingMilestones();
+                    loadPendingActions();
                 } else {
                     alert('Lỗi: ' + data.error);
                 }
@@ -91,11 +149,72 @@
             }
         }
 
-        function rejectWork() {
-            alert('Tính năng yêu cầu chỉnh sửa (Revision) sẽ được cập nhật ở phiên bản sau.');
+        // --- Hành động: Nghiệm thu (Giải ngân ACID)
+        async function approveMilestone(milestoneId) {
+            if (!confirm('Xác nhận Nghiệm thu mốc công việc này? (Tiền sẽ được xử lý tự động)')) return;
+            try {
+                const response = await fetch(`${API_URL}/api/milestones/advanced/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: currentUser.id, milestone_id: milestoneId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Nghiệm thu thành công: ' + data.message);
+                    loadPendingActions();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối đến Backend');
+            }
         }
 
-        loadPendingMilestones();
+        // --- Hành động: Yêu cầu sửa (Revision)
+        function openRevisionModal(milestoneId) {
+            document.getElementById('rev_milestone_id').value = milestoneId;
+            document.getElementById('rev_feedback').value = '';
+            document.getElementById('rev_screenshot').value = '';
+            document.getElementById('revisionModal').classList.remove('hidden');
+        }
+
+        function closeRevisionModal() {
+            document.getElementById('revisionModal').classList.add('hidden');
+        }
+
+        async function submitRevision() {
+            const mId = document.getElementById('rev_milestone_id').value;
+            const feedback = document.getElementById('rev_feedback').value;
+            const screenshot = document.getElementById('rev_screenshot').value;
+
+            if (!feedback) { alert('Vui lòng nhập nội dung cần sửa!'); return; }
+
+            const payload = {
+                milestone_id: mId,
+                feedback_text: feedback,
+                screenshot_urls: screenshot ? [screenshot] : []
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/milestones/advanced/revision`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Thành công: ' + data.message);
+                    closeRevisionModal();
+                    loadPendingActions();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối Backend');
+            }
+        }
+
+        loadPendingActions();
     </script>
 </body>
 </html>

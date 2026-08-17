@@ -15,6 +15,27 @@
         </div>
     </div>
 
+    <!-- Modal Tạo Kế Hoạch (Milestone Builder) -->
+    <div id="planModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">Lập Kế Hoạch Dự Án (Milestones)</h2>
+            <p class="text-gray-600 mb-4">Chia nhỏ dự án thành các giai đoạn để dễ quản lý và nghiệm thu.</p>
+            
+            <input type="hidden" id="modal_job_id">
+            
+            <div id="milestonesContainer" class="space-y-4">
+                <!-- Các form nhập milestone sẽ chèn vào đây -->
+            </div>
+            
+            <button type="button" onclick="addMilestoneForm()" class="mt-4 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 font-bold">+ Thêm Giai Đoạn Mới</button>
+
+            <div class="mt-8 flex justify-end space-x-2 border-t pt-4">
+                <button type="button" onclick="closePlanModal()" class="bg-red-100 text-red-600 px-4 py-2 rounded font-bold hover:bg-red-200">Hủy</button>
+                <button type="button" onclick="submitPlan()" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700">Gửi Kế Hoạch Cho Khách Duyệt</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
@@ -37,88 +58,230 @@
                 const data = await response.json();
                 
                 if (data.jobs && data.jobs.length > 0) {
-                    listDiv.innerHTML = data.jobs.map(job => `
-                        <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-indigo-500">
-                            <h2 class="text-xl font-bold text-indigo-700">${job.title}</h2>
-                            <p class="text-gray-600 mt-2">${job.description}</p>
-                            <div class="mt-4">
-                                <h3 class="font-bold text-gray-800 border-b pb-2">Các Mốc Tiến Độ (Milestones)</h3>
-                                <ul class="mt-2 space-y-4">
-                                    ${job.milestones.map(m => renderMilestone(m)).join('')}
-                                </ul>
-                            </div>
-                        </div>
-                    `).join('');
+                    listDiv.innerHTML = data.jobs.map(job => renderJob(job)).join('');
                 } else {
-                    listDiv.innerHTML = '<p class="text-gray-500">Bạn chưa có dự án nào đang chạy.</p>';
+                    listDiv.innerHTML = '<p class="text-gray-500 bg-white p-6 rounded shadow">Bạn chưa có dự án nào đang chạy.</p>';
                 }
             } catch (err) {
                 listDiv.innerHTML = '<p class="text-red-500">Lỗi kết nối Server!</p>';
             }
         }
 
+        function renderJob(job) {
+            let headerBadge = '';
+            let contentHtml = '';
+
+            if (job.status === 'planning') {
+                headerBadge = '<span class="bg-blue-100 text-blue-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Đang lập kế hoạch</span>';
+                contentHtml = `
+                    <div class="bg-blue-50 p-4 rounded border border-blue-200 mt-4">
+                        <p class="text-blue-800">Khách hàng đã chọn bạn! Vui lòng lập kế hoạch (Milestones) để bắt đầu.</p>
+                        <button onclick="openPlanModal('${job.id}')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 shadow">Lập Kế Hoạch (Milestone Builder)</button>
+                    </div>
+                `;
+            } else if (job.status === 'pending_plan_approval') {
+                headerBadge = '<span class="bg-yellow-100 text-yellow-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Chờ khách duyệt Plan</span>';
+                contentHtml = '<p class="mt-4 text-gray-500 italic">Kế hoạch đã được gửi. Chờ khách hàng duyệt và khóa Escrow...</p>';
+            } else if (job.status === 'in_progress') {
+                headerBadge = '<span class="bg-green-100 text-green-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Đang thực hiện (Escrow Locked)</span>';
+                contentHtml = `
+                    <div class="mt-4">
+                        <h3 class="font-bold text-gray-800 border-b pb-2">Các Giai Đoạn (Milestones)</h3>
+                        <ul class="mt-2 space-y-4">
+                            ${job.milestones.map(m => renderMilestone(m)).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-indigo-500">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-indigo-700">${job.title}</h2>
+                        ${headerBadge}
+                    </div>
+                    <p class="text-gray-600 mt-2">${job.description}</p>
+                    <p class="text-gray-800 mt-2 font-bold">Ngân sách dự kiến: ${job.budget} Token</p>
+                    ${contentHtml}
+                </div>
+            `;
+        }
+
         function renderMilestone(m) {
             let statusHtml = '';
             let actionHtml = '';
 
-            if (m.status === 'pending') {
-                statusHtml = '<span class="text-yellow-600 font-bold">Đang làm</span>';
+            if (m.status === 'PENDING' || m.status === 'IN_PROGRESS' || m.status === 'REVISION') {
+                statusHtml = m.status === 'REVISION' 
+                    ? '<span class="text-red-600 font-bold">Yêu cầu sửa (Revision)</span>' 
+                    : '<span class="text-yellow-600 font-bold">Đang làm</span>';
+                
+                let revisionInfo = '';
+                if (m.status === 'REVISION' && m.milestone_revisions && m.milestone_revisions.length > 0) {
+                    const lastRev = m.milestone_revisions[m.milestone_revisions.length - 1];
+                    revisionInfo = `
+                        <div class="bg-red-50 p-3 rounded mt-2 border border-red-200">
+                            <p class="text-red-800 text-sm"><strong>Khách hàng phản hồi:</strong> ${lastRev.feedback_text}</p>
+                            ${lastRev.screenshot_urls && lastRev.screenshot_urls.length > 0 ? `<a href="${lastRev.screenshot_urls[0]}" target="_blank" class="text-blue-600 text-sm underline">Xem ảnh đính kèm</a>` : ''}
+                        </div>
+                    `;
+                }
+
                 actionHtml = `
-                    <div class="mt-2">
-                        <label class="block text-sm font-medium">Nộp file báo cáo (Upload lên AWS S3):</label>
-                        <input type="file" id="file_${m.id}" class="mt-1 block w-full border p-2 text-sm">
-                        <button onclick="submitEvidence('${m.id}')" class="mt-2 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Tải lên & Nộp bài</button>
+                    ${revisionInfo}
+                    <div class="mt-3 bg-gray-100 p-3 rounded">
+                        <label class="block text-sm font-medium">Link file minh chứng (Google Drive, AWS, v.v.):</label>
+                        <input type="text" id="evidence_${m.id}" class="mt-1 block w-full border p-2 text-sm rounded" placeholder="https://...">
+                        <button onclick="submitEvidence('${m.id}')" class="mt-2 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm font-bold shadow">Gửi Báo Cáo / Nộp Bài</button>
                     </div>
                 `;
-            } else if (m.status === 'pending_review') {
+            } else if (m.status === 'PENDING_REVIEW') {
                 statusHtml = '<span class="text-blue-600 font-bold">Đang chờ Khách duyệt</span>';
                 actionHtml = `<p class="mt-2 text-sm text-gray-500">File đã nộp: <a href="${m.evidence_url}" target="_blank" class="text-blue-500 underline">Xem file</a></p>`;
-            } else if (m.status === 'approved') {
-                statusHtml = '<span class="text-green-600 font-bold">Đã Nghiệm Thu (Đã nhận tiền)</span>';
-                actionHtml = `<p class="mt-2 text-sm text-gray-500">File: <a href="${m.evidence_url}" target="_blank" class="text-blue-500 underline">Xem file</a></p>`;
+            } else if (m.status === 'APPROVED') {
+                statusHtml = '<span class="text-green-600 font-bold">Đã Nghiệm Thu (APPROVED)</span>';
+                actionHtml = `<p class="mt-2 text-sm text-gray-500">Tiền đã được xử lý theo cấu hình: ${m.payment_mode}</p>`;
             }
 
             return `
                 <li class="bg-gray-50 p-4 rounded border border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <span class="font-semibold text-gray-700">${m.description}</span>
-                        <span>Trị giá: <strong class="text-green-600">${m.amount} Token</strong></span>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-gray-800 text-lg">${m.title}</span>
+                        <span>Ngân sách: <strong class="text-green-600">${m.amount} Token</strong></span>
                     </div>
-                    <div class="mt-1 text-sm">Trạng thái: ${statusHtml}</div>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Mô tả:</strong> ${m.description}</p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Kết quả bàn giao:</strong> ${m.expected_deliverables}</p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Thanh toán:</strong> ${m.payment_mode === 'PAY_PER_MILESTONE' ? 'Từng mốc' : 'Gộp cuối dự án'}</p>
+                    <div class="mt-1 text-sm border-t pt-2">Trạng thái: ${statusHtml}</div>
                     ${actionHtml}
                 </li>
             `;
         }
 
-        async function submitEvidence(milestoneId) {
-            const fileInput = document.getElementById(`file_${milestoneId}`);
-            if (!fileInput.files[0]) {
-                alert('Vui lòng chọn file trước khi nộp!');
+        // ---------- MILESTONE BUILDER LOGIC ----------
+        let milestoneCount = 0;
+
+        function openPlanModal(jobId) {
+            document.getElementById('modal_job_id').value = jobId;
+            document.getElementById('milestonesContainer').innerHTML = '';
+            milestoneCount = 0;
+            addMilestoneForm(); // add the first form
+            document.getElementById('planModal').classList.remove('hidden');
+        }
+
+        function closePlanModal() {
+            document.getElementById('planModal').classList.add('hidden');
+        }
+
+        function addMilestoneForm() {
+            milestoneCount++;
+            const container = document.getElementById('milestonesContainer');
+            const div = document.createElement('div');
+            div.className = 'bg-gray-50 p-4 rounded border border-gray-300 relative milestone-item';
+            div.innerHTML = `
+                <h3 class="font-bold mb-2">Giai đoạn ${milestoneCount}</h3>
+                <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-red-500 font-bold hover:text-red-700">Xóa</button>
+                
+                <div class="grid grid-cols-2 gap-4 mb-2">
+                    <div>
+                        <label class="block text-sm font-medium">Tiêu đề:</label>
+                        <input type="text" class="m-title mt-1 block w-full border p-2 rounded text-sm" placeholder="VD: Bàn giao giao diện">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Trị giá (Token):</label>
+                        <input type="number" class="m-amount mt-1 block w-full border p-2 rounded text-sm" placeholder="VD: 500">
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <label class="block text-sm font-medium">Mô tả chi tiết:</label>
+                    <textarea class="m-desc mt-1 block w-full border p-2 rounded text-sm" rows="2"></textarea>
+                </div>
+                
+                <div class="mb-2">
+                    <label class="block text-sm font-medium">Kết quả bàn giao (Deliverables):</label>
+                    <input type="text" class="m-deliver mt-1 block w-full border p-2 rounded text-sm" placeholder="VD: Link Web, Source code">
+                </div>
+
+                <div class="mb-2">
+                    <label class="block text-sm font-medium">Phương thức thanh toán:</label>
+                    <select class="m-payment mt-1 block w-full border p-2 rounded text-sm">
+                        <option value="PAY_PER_MILESTONE">Trả tiền ngay khi xong mốc này (Khuyến nghị)</option>
+                        <option value="PAY_AT_END">Gom lại trả 1 lần ở cuối dự án</option>
+                    </select>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        async function submitPlan() {
+            const jobId = document.getElementById('modal_job_id').value;
+            const items = document.querySelectorAll('.milestone-item');
+            
+            if (items.length === 0) {
+                alert('Vui lòng tạo ít nhất 1 giai đoạn!');
                 return;
             }
 
-            const file = fileInput.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
+            const milestones = [];
+            for (let item of items) {
+                const title = item.querySelector('.m-title').value;
+                const amount = item.querySelector('.m-amount').value;
+                const desc = item.querySelector('.m-desc').value;
+                const deliver = item.querySelector('.m-deliver').value;
+                const payment = item.querySelector('.m-payment').value;
+
+                if (!title || !amount) {
+                    alert('Tiêu đề và Trị giá không được bỏ trống!');
+                    return;
+                }
+
+                milestones.push({
+                    title: title,
+                    amount: parseFloat(amount),
+                    description: desc,
+                    expected_deliverables: deliver,
+                    payment_mode: payment
+                });
+            }
 
             try {
-                // 1. Upload file lên S3
-                alert('Đang tải file lên AWS S3, vui lòng chờ...');
-                const uploadRes = await fetch(`${API_URL}/upload-file`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const uploadData = await uploadRes.json();
-
-                if (!uploadRes.ok) throw new Error(uploadData.error || 'Lỗi upload');
-
-                const evidenceUrl = uploadData.fileUrl;
-
-                // 2. Gửi link cho Backend để đổi status Milestone
-                const submitRes = await fetch(`${API_URL}/api/milestones/submit`, {
+                const res = await fetch(`${API_URL}/api/milestones/create-plan`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ milestone_id: milestoneId, evidence_url: evidenceUrl })
+                    body: JSON.stringify({ job_id: jobId, milestones: milestones })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    alert('Gửi kế hoạch thành công! Đang chờ Khách hàng duyệt.');
+                    closePlanModal();
+                    loadJobs();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối Backend');
+            }
+        }
+
+        // ---------- SUBMIT EVIDENCE LOGIC ----------
+        async function submitEvidence(milestoneId) {
+            const evidenceInput = document.getElementById(`evidence_${milestoneId}`).value;
+            if (!evidenceInput) {
+                alert('Vui lòng nhập link minh chứng!');
+                return;
+            }
+
+            try {
+                const submitRes = await fetch(`${API_URL}/api/milestones/advanced/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        milestone_id: milestoneId, 
+                        proof_urls: [evidenceInput], 
+                        report_text: evidenceInput // Dùng tạm cho tương thích
+                    })
                 });
 
                 if (submitRes.ok) {
@@ -129,7 +292,7 @@
                     alert('Lỗi nộp bài: ' + submitData.error);
                 }
             } catch (err) {
-                alert(err.message);
+                alert('Không kết nối được Backend');
             }
         }
 

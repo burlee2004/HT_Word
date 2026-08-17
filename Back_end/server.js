@@ -176,39 +176,11 @@ app.post('/api/jobs/apply', async (req, res) => {
     }
 });
 
-// 4. API: Escrow - Khách hàng duyệt Freelancer và Khóa tiền
-// Mô phỏng Escrow: Trừ tiền từ Ví của Client, tăng số dư Locked của Client
-app.post('/api/escrow/lock', async (req, res) => {
-    const { client_id, application_id, amount } = req.body;
-    
-    // Ghi chú tiếng Việt quan trọng:
-    // Thực tế sẽ cần Transaction Database (Begin -> Commit) để tránh lỗi một phần.
-    // Dưới đây là logic giả lập (Mock) cho quá trình Test đơn giản.
+// 4. API: Khách hàng Chấp nhận Freelancer (Bước khởi tạo - KHÔNG KHÓA TIỀN)
+app.post('/api/jobs/accept-freelancer', async (req, res) => {
+    const { client_id, application_id } = req.body;
     try {
-        // Lấy ví của Client
-        const { data: wallet, error: walletError } = await supabase
-            .from('wallets')
-            .select('*')
-            .eq('user_id', client_id)
-            .single();
-            
-        // Nếu không có ví hoặc không đủ tiền
-        if (walletError || !wallet || wallet.balance < amount) {
-            return res.status(400).json({ error: 'Ví không đủ tiền hoặc chưa tồn tại!' });
-        }
-
-        // Cập nhật số dư Ví: Trừ Balance khả dụng, cộng vào Locked Balance
-        const { error: updateError } = await supabase
-            .from('wallets')
-            .update({ 
-                balance: wallet.balance - amount,
-                locked_balance: wallet.locked_balance + amount 
-            })
-            .eq('user_id', client_id);
-            
-        if (updateError) throw updateError;
-
-        // Cập nhật trạng thái Application thành 'accepted' và lấy thông tin
+        // Cập nhật trạng thái Application thành 'accepted'
         const { data: updatedApp, error: appErr } = await supabase
             .from('job_applications')
             .update({ status: 'accepted' })
@@ -218,34 +190,104 @@ app.post('/api/escrow/lock', async (req, res) => {
             
         if (appErr) throw appErr;
 
-        // Đổi trạng thái Job sang in_progress
-        await supabase.from('jobs').update({ status: 'in_progress' }).eq('id', updatedApp.job_id);
+        // Đổi trạng thái Job sang 'planning'
+        await supabase.from('jobs').update({ status: 'planning' }).eq('id', updatedApp.job_id);
 
-        // Tự động tạo 1 Milestone mặc định
-        await supabase.from('milestones').insert([{
-            job_id: updatedApp.job_id,
-            description: 'Giai đoạn 1 (Bàn giao toàn bộ)',
-            amount: amount,
-            status: 'pending'
+        // Gửi thông báo cho Freelancer yêu cầu lập kế hoạch
+        await supabase.from('notifications').insert([{
+            user_id: updatedApp.freelancer_id,
+            title: 'Trúng thầu dự án!',
+            content: 'Khách hàng đã chọn bạn. Hãy vào mục Dự án đang làm để Lập Kế Hoạch (Milestones) và gửi cho Khách hàng duyệt.'
         }]);
+
+        res.status(200).json({ message: 'Đã chọn Freelancer. Chờ Freelancer lập kế hoạch.' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 4.1. API: Freelancer tạo Kế hoạch (Tạo nhiều Milestones)
+app.post('/api/milestones/create-plan', async (req, res) => {
+    const { job_id, milestones } = req.body; 
+    // milestones là mảng: [{ title, description, expected_deliverables, amount, payment_mode }]
+    try {
+        // Gắn job_id và status mặc định vào từng milestone
+        const inserts = milestones.map(m => ({
+            ...m,
+            job_id: job_id,
+            status: 'PENDING'
+        }));
+
+        const { error } = await supabase.from('milestones').insert(inserts);
+        if (error) throw error;
+
+        // Đổi trạng thái job để báo hiệu Khách hàng cần duyệt Plan
+        await supabase.from('jobs').update({ status: 'pending_plan_approval' }).eq('id', job_id);
+
+        // Gửi thông báo cho Client
+        const { data: jobData } = await supabase.from('jobs').select('client_id').eq('id', job_id).single();
+        if (jobData) {
+            await supabase.from('notifications').insert([{
+                user_id: jobData.client_id,
+                title: 'Bản kế hoạch dự án đã hoàn tất',
+                content: 'Freelancer đã lên xong kế hoạch (Milestones). Vui lòng vào kiểm tra, chốt kế hoạch và Khóa Escrow để bắt đầu.'
+            }]);
+        }
+
+        res.status(200).json({ message: 'Tạo kế hoạch thành công, chờ Khách duyệt.' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 4.2. API: Khách hàng Duyệt Kế hoạch & Chính thức Khóa Tiền Escrow
+app.post('/api/jobs/start-project', async (req, res) => {
+    const { client_id, job_id } = req.body;
+    try {
+        // Tính tổng tiền các milestones
+        const { data: milestones, error: mErr } = await supabase.from('milestones').select('amount').eq('job_id', job_id);
+        if (mErr || !milestones || milestones.length === 0) throw new Error('Không có kế hoạch nào để duyệt');
         
-        // Ghi lại lịch sử giao dịch vào bảng transactions cho Admin quản lý
+        const totalAmount = milestones.reduce((sum, m) => sum + parseFloat(m.amount), 0);
+
+        // Lấy ví của Client
+        const { data: wallet, error: walletError } = await supabase.from('wallets').select('*').eq('user_id', client_id).single();
+        if (walletError || !wallet || wallet.balance < totalAmount) {
+            return res.status(400).json({ error: `Ví không đủ tiền! Cần ${totalAmount} Token.` });
+        }
+
+        // Cập nhật số dư Ví: Trừ Balance, cộng Locked Balance
+        await supabase.from('wallets').update({ 
+            balance: wallet.balance - totalAmount,
+            locked_balance: wallet.locked_balance + totalAmount 
+        }).eq('user_id', client_id);
+
+        // Đổi trạng thái Job sang in_progress
+        await supabase.from('jobs').update({ status: 'in_progress' }).eq('id', job_id);
+
+        // Chuyển status của Milestone đầu tiên sang IN_PROGRESS
+        const sortedMilestones = await supabase.from('milestones').select('id').eq('job_id', job_id).order('created_at', { ascending: true }).limit(1);
+        if (sortedMilestones.data.length > 0) {
+            await supabase.from('milestones').update({ status: 'IN_PROGRESS' }).eq('id', sortedMilestones.data[0].id);
+        }
+
+        // Ghi transaction
         await supabase.from('transactions').insert([{
             user_id: client_id,
-            amount: amount,
+            amount: totalAmount,
             type: 'escrow_lock',
             status: 'success'
         }]);
 
-        // Gửi thông báo cho Freelancer
+        // Thông báo Freelancer
+        const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', job_id).eq('status', 'accepted').single();
         await supabase.from('notifications').insert([{
-            user_id: updatedApp.freelancer_id,
-            title: 'Dự án đã bắt đầu',
-            content: `Khách hàng đã chốt hợp đồng và khóa ${amount} Token Escrow. Bạn có thể bắt tay vào làm việc ngay!`
+            user_id: appData.freelancer_id,
+            title: 'Dự án chính thức bắt đầu!',
+            content: `Khách hàng đã chốt kế hoạch và Khóa ${totalAmount} Token. Bắt tay vào làm việc ngay!`
         }]);
 
-        // Trả kết quả
-        res.status(200).json({ message: 'Đã khóa tiền Escrow thành công! Dự án bắt đầu.' });
+        res.status(200).json({ message: 'Đã khóa Escrow và bắt đầu dự án thành công!' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -322,7 +364,7 @@ app.get('/api/client/:client_id/my-jobs', async (req, res) => {
 // API DÀNH CHO PHASE 2 (THỰC THI & NGHIỆM THU)
 // ==========================================
 
-// 7. API: Lấy danh sách job Freelancer đang làm
+// 7. API: Lấy danh sách job Freelancer đang làm (kể cả PLANNING)
 app.get('/api/freelancer/:id/active-jobs', async (req, res) => {
     const { id } = req.params;
     try {
@@ -330,7 +372,7 @@ app.get('/api/freelancer/:id/active-jobs', async (req, res) => {
             .from('job_applications')
             .select(`
                 job_id,
-                jobs (id, title, description, budget, client_id)
+                jobs (id, title, description, budget, client_id, status)
             `)
             .eq('freelancer_id', id)
             .eq('status', 'accepted');
@@ -340,12 +382,13 @@ app.get('/api/freelancer/:id/active-jobs', async (req, res) => {
         
         const jobs = apps.map(app => app.jobs);
         
-        // Lấy thêm milestone cho từng job
+        // Lấy thêm milestone và revision cho từng job
         for (let job of jobs) {
             const { data: milestones } = await supabase
                 .from('milestones')
-                .select('*')
-                .eq('job_id', job.id);
+                .select('*, milestone_revisions(feedback_text, screenshot_urls, created_at)')
+                .eq('job_id', job.id)
+                .order('created_at', { ascending: true });
             job.milestones = milestones || [];
         }
 
@@ -383,27 +426,29 @@ app.post('/api/milestones/submit', async (req, res) => {
     }
 });
 
-// 9. API: Khách hàng xem danh sách Milestone đang chờ duyệt
-app.get('/api/client/:client_id/pending-milestones', async (req, res) => {
+// 9. API: Khách hàng xem danh sách Job cần quản lý (Duyệt kế hoạch HOẶC duyệt bài)
+app.get('/api/client/:client_id/pending-actions', async (req, res) => {
     const { client_id } = req.params;
     try {
         const { data: jobs, error: jobsError } = await supabase
             .from('jobs')
-            .select('id, title')
-            .eq('client_id', client_id);
+            .select('id, title, status')
+            .eq('client_id', client_id)
+            .in('status', ['pending_plan_approval', 'in_progress']); // Chỉ lấy job chờ duyệt plan hoặc đang chạy
             
         if (jobsError) throw jobsError;
-        if (!jobs || jobs.length === 0) return res.status(200).json({ milestones: [] });
-        const jobIds = jobs.map(j => j.id);
+        if (!jobs || jobs.length === 0) return res.status(200).json({ jobs: [] });
 
-        const { data: milestones, error: mError } = await supabase
-            .from('milestones')
-            .select('*, jobs(title)')
-            .in('job_id', jobIds)
-            .eq('status', 'pending_review');
+        for (let job of jobs) {
+            const { data: milestones } = await supabase
+                .from('milestones')
+                .select('*')
+                .eq('job_id', job.id)
+                .order('created_at', { ascending: true });
+            job.milestones = milestones || [];
+        }
             
-        if (mError) throw mError;
-        res.status(200).json({ milestones });
+        res.status(200).json({ jobs });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

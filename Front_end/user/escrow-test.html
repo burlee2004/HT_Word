@@ -23,10 +23,7 @@
                 <input type="hidden" id="modal_application_id">
                 <input type="hidden" id="modal_client_id">
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Số Token muốn khóa (Tương đương ngân sách):</label>
-                    <input type="number" id="amount" required class="mt-1 block w-full border p-2 rounded" placeholder="VD: 1000">
-                </div>
+                <p class="text-sm text-gray-600">Bạn có chắc chắn muốn chọn Freelancer này cho dự án không? Token sẽ được giữ trong Escrow.</p>
 
                 <div class="flex justify-end space-x-2 mt-4">
                     <button type="button" onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Hủy</button>
@@ -92,25 +89,29 @@
         document.getElementById('escrowForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
-                client_id: document.getElementById('modal_client_id').value,
-                application_id: document.getElementById('modal_application_id').value,
-                amount: parseFloat(document.getElementById('amount').value)
+                client_id: currentUser.id,
+                application_id: document.getElementById('modal_application_id').value
             };
 
             try {
-                const response = await fetch(`${API_URL}/api/escrow/lock`, {
+                const response = await fetch(`${API_URL}/api/jobs/accept-freelancer`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                
                 const data = await response.json();
+                const msgDiv = document.getElementById('message');
+                msgDiv.classList.remove('hidden');
                 
                 if (response.ok) {
-                    alert('Thành công: ' + data.message);
-                    closeModal();
-                    loadApplications(); // Reload list
+                    msgDiv.textContent = data.message;
+                    msgDiv.className = "mt-4 text-green-600 font-bold block";
+                    alert('Đã chọn Freelancer thành công! Đang chờ họ lập kế hoạch.');
+                    window.location.href = 'home.html';
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    msgDiv.textContent = 'Lỗi: ' + data.error;
+                    msgDiv.className = "mt-4 text-red-600 font-bold block";
                 }
             } catch (err) {
                 alert('Không thể kết nối đến Backend');

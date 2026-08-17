@@ -434,6 +434,110 @@ app.post('/api/escrow/release', async (req, res) => {
 });
 
 // ==========================================
+// API DÀNH CHO LUỒNG ADVANCED MILESTONE (YÊU CẦU MỚI)
+// ==========================================
+
+// 11. API: Submit Milestone (Freelancer nộp bài với mảng proof_urls)
+app.post('/api/milestones/advanced/submit', async (req, res) => {
+    const { milestone_id, proof_urls, report_text } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('milestones')
+            .update({ 
+                proof_urls: proof_urls, 
+                evidence_url: report_text, -- Tạm dùng trường cũ lưu text báo cáo
+                status: 'PENDING_REVIEW' 
+            })
+            .eq('id', milestone_id)
+            .select();
+            
+        if (error) throw error;
+
+        // Gửi thông báo cho Client
+        const { data: jobData } = await supabase.from('jobs').select('client_id').eq('id', data[0].job_id).single();
+        if (jobData) {
+            await supabase.from('notifications').insert([{
+                user_id: jobData.client_id,
+                title: 'Có báo cáo công việc mới',
+                content: 'Freelancer vừa nộp báo cáo (minh chứng) cho dự án. Hãy vào kiểm tra và nghiệm thu.'
+            }]);
+        }
+        res.status(200).json({ message: 'Nộp bằng chứng thành công!', milestone: data[0] });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 12. API: Request Revision (Khách hàng yêu cầu sửa lại)
+app.post('/api/milestones/advanced/revision', async (req, res) => {
+    const { milestone_id, feedback_text, screenshot_urls } = req.body;
+    try {
+        // Lưu lịch sử yêu cầu sửa
+        await supabase.from('milestone_revisions').insert([{
+            milestone_id, feedback_text, screenshot_urls
+        }]);
+
+        // Cập nhật trạng thái milestone về REVISION
+        const { data, error } = await supabase
+            .from('milestones')
+            .update({ status: 'REVISION' })
+            .eq('id', milestone_id)
+            .select();
+            
+        if (error) throw error;
+
+        // Tìm Freelancer để báo tin
+        const { data: mData } = await supabase.from('milestones').select('job_id').eq('id', milestone_id).single();
+        const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', mData.job_id).eq('status', 'accepted').single();
+        
+        await supabase.from('notifications').insert([{
+            user_id: appData.freelancer_id,
+            title: 'Yêu cầu chỉnh sửa',
+            content: 'Khách hàng đã yêu cầu chỉnh sửa báo cáo của bạn. Vui lòng kiểm tra chi tiết.'
+        }]);
+
+        res.status(200).json({ message: 'Đã gửi yêu cầu chỉnh sửa cho Freelancer!' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 13. API: Approve Milestone (Sử dụng ACID Transaction qua PostgreSQL RPC)
+app.post('/api/milestones/advanced/approve', async (req, res) => {
+    const { client_id, milestone_id } = req.body;
+    try {
+        // Lấy thông tin job_id để tìm freelancer
+        const { data: mData, error: mErr } = await supabase.from('milestones').select('job_id').eq('id', milestone_id).single();
+        if (mErr) throw new Error('Không tìm thấy milestone');
+
+        const { data: appData, error: appErr } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', mData.job_id).eq('status', 'accepted').single();
+        if (appErr) throw new Error('Không tìm thấy Freelancer của dự án này');
+
+        const freelancer_id = appData.freelancer_id;
+
+        // Gọi hàm RPC của PostgreSQL để thực thi chuỗi lệnh ACID
+        const { data, error: rpcError } = await supabase.rpc('approve_milestone_transaction', {
+            p_milestone_id: milestone_id,
+            p_client_id: client_id,
+            p_freelancer_id: freelancer_id
+        });
+
+        if (rpcError) throw rpcError;
+
+        // Gửi thông báo cho Freelancer
+        await supabase.from('notifications').insert([{
+            user_id: freelancer_id,
+            title: 'Đã nhận thanh toán!',
+            content: `Khách hàng đã duyệt Milestone. Tiền đang được chuyển theo chính sách Payment Mode của dự án.`
+        }]);
+
+        res.status(200).json({ message: 'Nghiệm thu thành công và thực thi dòng tiền an toàn!' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// ==========================================
 // API DÀNH CHO PHASE 3 (NẠP TOKEN & THÔNG BÁO)
 // ==========================================
 

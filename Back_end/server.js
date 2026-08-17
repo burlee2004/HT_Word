@@ -130,6 +130,14 @@ app.post('/api/jobs', async (req, res) => {
             .select();
         
         if (error) throw error;
+
+        // Gửi thông báo cho Client
+        await supabase.from('notifications').insert([{
+            user_id: client_id,
+            title: 'Tạo Yêu cầu thành công',
+            content: `Bạn đã đăng thành công yêu cầu: "${title}". Hãy chờ Freelancer ứng tuyển nhé.`
+        }]);
+
         res.status(201).json({ message: 'Đăng dự án thành công!', job: data[0] });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -288,6 +296,23 @@ app.get('/api/admin/transactions', async (req, res) => {
             
         if (error) throw error;
         res.status(200).json({ transactions: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 6.5. API: Khách hàng xem danh sách các Yêu cầu (Job) mình đã tạo
+app.get('/api/client/:client_id/my-jobs', async (req, res) => {
+    const { client_id } = req.params;
+    try {
+        const { data: jobs, error } = await supabase
+            .from('jobs')
+            .select('*')
+            .eq('client_id', client_id)
+            .order('created_at', { ascending: false });
+            
+        if (error) throw error;
+        res.status(200).json({ jobs });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

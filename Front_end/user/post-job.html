@@ -76,11 +76,13 @@
                 
                 if (response.ok) {
                     msgDiv.textContent = data.message;
-                    msgDiv.className = "mt-4 text-green-600 font-bold";
+                    msgDiv.className = "mt-4 text-green-600 font-bold block";
                     document.getElementById('postJobForm').reset();
+                    alert('Đăng tin thành công!');
+                    window.location.href = 'home.html';
                 } else {
                     msgDiv.textContent = 'Lỗi: ' + data.error;
-                    msgDiv.className = "mt-4 text-red-600 font-bold";
+                    msgDiv.className = "mt-4 text-red-600 font-bold block";
                 }
             } catch (err) {
                 alert('Không thể kết nối đến Backend');

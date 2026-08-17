@@ -4,11 +4,15 @@ const multer = require('multer');
 require('dotenv').config();
 
 // Cấu hình SDK
-cloudinary.config({
-  cloud_name: (process.env.CLOUDINARY_CLOUD_NAME || '').trim(),
-  api_key: (process.env.CLOUDINARY_API_KEY || '').trim(),
-  api_secret: (process.env.CLOUDINARY_API_SECRET || '').trim()
-});
+if (process.env.CLOUDINARY_URL) {
+  // Tự động phân tích CLOUDINARY_URL
+} else {
+  cloudinary.config({
+    cloud_name: (process.env.CLOUDINARY_CLOUD_NAME || '').trim(),
+    api_key: (process.env.CLOUDINARY_API_KEY || '').trim(),
+    api_secret: (process.env.CLOUDINARY_API_SECRET || '').trim()
+  });
+}
 
 // Cấu hình Storage cho Multer
 const storage = new CloudinaryStorage({

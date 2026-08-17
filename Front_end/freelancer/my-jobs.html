@@ -167,9 +167,10 @@
                         <label class="block text-sm font-medium mb-1">Nộp minh chứng (Nhập link hoặc tải file):</label>
                         <div class="flex items-center space-x-2 mb-2">
                             <input type="text" id="evidence_${m.id}" class="flex-1 border p-2 text-sm rounded" placeholder="Nhập link URL (Google Drive, Github...)">
-                            <input type="file" id="evidence_file_${m.id}" class="text-sm w-48 border p-1 bg-white rounded" multiple>
+                            <input type="file" id="evidence_file_${m.id}" class="text-sm w-48 border p-1 bg-white rounded cursor-pointer" multiple onchange="handleEvidenceFileSelect(event, '${m.id}')">
                         </div>
-                        <button onclick="submitEvidenceWithFile('${m.id}')" id="btn_submit_${m.id}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm font-bold shadow">Gửi Báo Cáo / Nộp Bài</button>
+                        <div id="preview_${m.id}" class="mb-2 grid grid-cols-2 gap-2"></div>
+                        <button onclick="submitEvidenceWithFile('${m.id}')" id="btn_submit_${m.id}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm font-bold shadow mt-1">Gửi Báo Cáo / Nộp Bài</button>
                     </div>
                 `;
             } else if (m.status === 'PENDING_REVIEW') {
@@ -303,12 +304,58 @@
         }
 
         // ---------- SUBMIT EVIDENCE WITH UPLOAD LOGIC ----------
+        let pendingFiles = {}; // Cache file list per milestone
+
+        function handleEvidenceFileSelect(e, mId) {
+            if (!pendingFiles[mId]) pendingFiles[mId] = [];
+            
+            const newFiles = Array.from(e.target.files);
+            pendingFiles[mId] = pendingFiles[mId].concat(newFiles);
+            
+            e.target.value = ''; // Reset input để có thể chọn lại chính file đó
+            renderEvidencePreview(mId);
+        }
+
+        function removeEvidenceFile(mId, index) {
+            if (pendingFiles[mId]) {
+                pendingFiles[mId].splice(index, 1);
+                renderEvidencePreview(mId);
+            }
+        }
+
+        function renderEvidencePreview(mId) {
+            const container = document.getElementById(`preview_${mId}`);
+            if (!container) return;
+            
+            const files = pendingFiles[mId] || [];
+            if (files.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = files.map((f, index) => {
+                const isImage = f.type.startsWith('image/');
+                const previewUrl = isImage ? URL.createObjectURL(f) : '';
+                return `
+                    <div class="flex items-center p-2 border rounded bg-white shadow-sm justify-between w-full">
+                        <div class="flex items-center space-x-2">
+                            ${isImage ? `<img src="${previewUrl}" class="w-10 h-10 object-cover rounded border">` : '<span class="text-2xl">📄</span>'}
+                            <div class="text-xs flex flex-col w-32">
+                                <span class="font-medium truncate" title="${f.name}">${f.name}</span>
+                                <span class="text-gray-500">${(f.size/1024/1024).toFixed(2)} MB</span>
+                            </div>
+                        </div>
+                        <button onclick="removeEvidenceFile('${mId}', ${index})" class="text-red-500 hover:text-red-700 font-bold px-2 py-1 bg-red-50 rounded">Xóa</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
         async function submitEvidenceWithFile(milestoneId) {
             const evidenceInput = document.getElementById(`evidence_${milestoneId}`).value.trim();
-            const fileInput = document.getElementById(`evidence_file_${milestoneId}`);
             const btn = document.getElementById(`btn_submit_${milestoneId}`);
             
-            const files = Array.from(fileInput.files || []);
+            const files = pendingFiles[milestoneId] || [];
 
             if (!evidenceInput && files.length === 0) {
                 alert('Vui lòng nhập link hoặc tải file minh chứng lên!');
@@ -356,6 +403,7 @@
 
                 if (submitRes.ok) {
                     alert('Nộp bài thành công! File/Link đã được gửi cho Khách hàng.');
+                    delete pendingFiles[milestoneId];
                     loadJobs();
                 } else {
                     const submitData = await submitRes.json();

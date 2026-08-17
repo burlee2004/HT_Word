@@ -4,8 +4,15 @@ const multer = require('multer');
 require('dotenv').config();
 
 // Cấu hình SDK
-if (process.env.CLOUDINARY_URL) {
-  // Tự động phân tích CLOUDINARY_URL
+let cloudinaryUrl = process.env.CLOUDINARY_URL || '';
+if (cloudinaryUrl) {
+  // Fix lỗi user copy dính chữ "CLOUDINARY_URL=" hoặc ngoặc "< >"
+  if (cloudinaryUrl.startsWith('CLOUDINARY_URL=')) {
+    cloudinaryUrl = cloudinaryUrl.replace('CLOUDINARY_URL=', '');
+  }
+  cloudinaryUrl = cloudinaryUrl.replace(/[<>]/g, '').trim();
+  
+  process.env.CLOUDINARY_URL = cloudinaryUrl; // Gán lại cho SDK tự động nhận
 } else {
   cloudinary.config({
     cloud_name: (process.env.CLOUDINARY_CLOUD_NAME || '').trim(),

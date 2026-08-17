@@ -1,20 +1,10 @@
 require('dotenv').config();
 
-// Fix lỗi user copy dính chữ "CLOUDINARY_URL=" hoặc ngoặc "< >" TRƯỚC KHI require Cloudinary
-let cloudinaryUrl = process.env.CLOUDINARY_URL || '';
-if (cloudinaryUrl) {
-  if (cloudinaryUrl.startsWith('CLOUDINARY_URL=')) {
-    cloudinaryUrl = cloudinaryUrl.replace('CLOUDINARY_URL=', '');
-  }
-  cloudinaryUrl = cloudinaryUrl.replace(/[<>]/g, '').trim();
-  process.env.CLOUDINARY_URL = cloudinaryUrl;
-}
-
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 
-// Cấu hình SDK
+// Cấu hình SDK (Nếu có CLOUDINARY_URL thì SDK tự nhận diện)
 if (!process.env.CLOUDINARY_URL) {
   cloudinary.config({
     cloud_name: (process.env.CLOUDINARY_CLOUD_NAME || '').trim(),

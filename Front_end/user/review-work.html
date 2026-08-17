@@ -61,7 +61,7 @@
                     
                     <div class="flex justify-between items-center">
                         <div class="flex items-center space-x-2">
-                            <input type="file" id="chatFile" class="text-sm border p-1 rounded">
+                            <input type="file" id="chatFile" class="text-sm border p-1 rounded" multiple>
                             <span class="text-xs text-gray-500">(Ảnh/Video/File)</span>
                         </div>
                         <button onclick="sendChatMessage()" id="btnSendChat" class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 shadow flex items-center justify-center">
@@ -308,62 +308,68 @@
 
         async function sendChatMessage() {
             const jobId = document.getElementById('chat_job_id').value;
-            const content = document.getElementById('chatInput').value.trim();
+            const contentInput = document.getElementById('chatInput');
             const fileInput = document.getElementById('chatFile');
-            const btn = document.getElementById('btnSendChat');
+            const chatBox = document.getElementById('chatMessages');
+            
+            const content = contentInput.value.trim();
+            const files = Array.from(fileInput.files || []);
 
-            if (!content && (!fileInput.files || fileInput.files.length === 0)) return;
+            if (!content && files.length === 0) return;
 
-            btn.disabled = true;
-            btn.textContent = '...';
+            // Xóa form ngay lập tức để UX mượt
+            contentInput.value = '';
+            fileInput.value = '';
 
-            let fileUrl = null;
-            let fileType = null;
-
-            try {
-                if (fileInput.files && fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    
-                    const isImage = file.type.startsWith('image/');
-                    const uploadEndpoint = isImage ? '/api/upload/image' : '/api/upload/file';
-
-                    const uploadRes = await fetch(`${API_URL}${uploadEndpoint}`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    if (!uploadRes.ok) throw new Error('Upload file thất bại');
-                    const uploadData = await uploadRes.json();
-                    fileUrl = uploadData.url;
-                    fileType = uploadData.type;
-                }
-
-                const res = await fetch(`${API_URL}/api/jobs/${jobId}/messages`, {
+            // 1. Gửi tin nhắn Text trước nếu có
+            if (content) {
+                fetch(`${API_URL}/api/jobs/${jobId}/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        sender_id: currentUser.id,
-                        content: content,
-                        file_url: fileUrl,
-                        file_type: fileType
-                    })
-                });
+                    body: JSON.stringify({ sender_id: currentUser.id, content: content })
+                }).then(() => loadChatMessages(jobId));
+            }
 
-                if (res.ok) {
-                    document.getElementById('chatInput').value = '';
-                    document.getElementById('chatFile').value = '';
+            // 2. Gửi file (Async từng file để hiện progress)
+            for (let file of files) {
+                const tempId = 'temp_' + Date.now() + Math.random().toString(36).substr(2, 9);
+                const tempHtml = `
+                    <div id="${tempId}" class="flex flex-col items-end">
+                        <div class="text-xs text-gray-500 mb-1 flex items-center">Đang gửi...</div>
+                        <div class="max-w-[80%] rounded-lg p-3 bg-blue-300 text-white rounded-tr-none flex items-center space-x-2">
+                            <span class="animate-spin rounded-full h-4 w-4 border-t-2 border-white border-solid"></span>
+                            <span class="text-sm">Đang tải lên: ${file.name}</span>
+                        </div>
+                    </div>
+                `;
+                chatBox.insertAdjacentHTML('beforeend', tempHtml);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const isImage = file.type.startsWith('image/');
+                const uploadEndpoint = isImage ? '/api/upload/image' : '/api/upload/file';
+
+                try {
+                    const uploadRes = await fetch(`${API_URL}${uploadEndpoint}`, { method: 'POST', body: formData });
+                    const uploadData = await uploadRes.json();
+                    
+                    if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload thất bại');
+
+                    // Gửi URL vào message DB
+                    await fetch(`${API_URL}/api/jobs/${jobId}/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sender_id: currentUser.id, file_url: uploadData.url, file_type: uploadData.type })
+                    });
+                    
+                    document.getElementById(tempId).remove();
                     loadChatMessages(jobId);
-                } else {
-                    const data = await res.json();
-                    alert('Lỗi gửi tin: ' + data.error);
+                } catch (err) {
+                    const tempDiv = document.getElementById(tempId);
+                    if (tempDiv) tempDiv.innerHTML = `<p class="text-red-500 text-sm p-2 bg-red-100 rounded border border-red-300">❌ Lỗi tải ${file.name}: ${err.message}</p>`;
                 }
-            } catch (err) {
-                alert('Lỗi: ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Gửi';
             }
         }
 

@@ -26,7 +26,7 @@ const uploadFile = multer({
       cb(null, 'htwork_files/' + uniqueSuffix + '-' + file.originalname);
     }
   }),
-  limits: { fileSize: 500 * 1024 * 1024 } // Giới hạn file 500MB
+  limits: { fileSize: 5000 * 1024 * 1024 } // Giới hạn file 5000MB (5GB)
 });
 
 module.exports = uploadFile;

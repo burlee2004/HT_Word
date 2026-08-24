@@ -607,36 +607,69 @@ app.post('/api/milestones/advanced/revision', async (req, res) => {
     }
 });
 
-// 13. API: Approve Milestone (Sử dụng ACID Transaction qua PostgreSQL RPC)
+// 13. API: Approve Milestone - CHUẨN CORE BANKING (ACID + Row-Level Locking)
+// Sử dụng PostgreSQL Stored Function fn_release_milestone
+// Chống spam bằng Idempotency Key (milestone_id là key duy nhất, không thể approve 2 lần)
 app.post('/api/milestones/advanced/approve', async (req, res) => {
     const { client_id, milestone_id } = req.body;
+    if (!client_id || !milestone_id) {
+        return res.status(400).json({ error: 'Thiếu client_id hoặc milestone_id' });
+    }
+
     try {
-        // Lấy thông tin job_id để tìm freelancer
-        const { data: mData, error: mErr } = await supabase.from('milestones').select('job_id').eq('id', milestone_id).single();
+        // Lấy job_id để tìm freelancer
+        const { data: mData, error: mErr } = await supabase
+            .from('milestones')
+            .select('job_id, status, price')
+            .eq('id', milestone_id)
+            .single();
         if (mErr) throw new Error('Không tìm thấy milestone');
 
-        const { data: appData, error: appErr } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', mData.job_id).eq('status', 'accepted').single();
+        // Chặn approve trùng ngay ở Node.js trước khi vào DB (tầng bảo vệ thứ nhất)
+        if (mData.status === 'PAID') {
+            return res.status(409).json({ error: 'Milestone này đã được giải ngân trước đó (status: PAID). Không thể thực hiện lần 2.' });
+        }
+
+        const { data: appData, error: appErr } = await supabase
+            .from('job_applications')
+            .select('freelancer_id')
+            .eq('job_id', mData.job_id)
+            .eq('status', 'accepted')
+            .single();
         if (appErr) throw new Error('Không tìm thấy Freelancer của dự án này');
 
         const freelancer_id = appData.freelancer_id;
 
-        // Gọi hàm RPC của PostgreSQL để thực thi chuỗi lệnh ACID
-        const { data, error: rpcError } = await supabase.rpc('approve_milestone_transaction', {
-            p_milestone_id: milestone_id,
-            p_client_id: client_id,
-            p_freelancer_id: freelancer_id
+        // Tạo Idempotency Key duy nhất cho giao dịch này
+        // Dùng milestone_id làm key -> chắc chắn không bao giờ approve 2 lần
+        const idempotency_key = `RELEASE_${milestone_id}`;
+
+        // Gọi PostgreSQL Stored Function (tầng bảo vệ thứ hai - ACID + Row-Level Lock)
+        const { data: rpcResult, error: rpcError } = await supabase.rpc('fn_release_milestone', {
+            p_milestone_id:     milestone_id,
+            p_client_id:        client_id,
+            p_freelancer_id:    freelancer_id,
+            p_idempotency_key:  idempotency_key
         });
 
         if (rpcError) throw rpcError;
 
-        // Gửi thông báo cho Freelancer
+        // Hàm PostgreSQL trả về { success, message/error }
+        if (!rpcResult.success) {
+            return res.status(400).json({ error: rpcResult.error });
+        }
+
+        // Gửi thông báo cho Freelancer sau khi giải ngân thành công
         await supabase.from('notifications').insert([{
             user_id: freelancer_id,
-            title: 'Đã nhận thanh toán!',
-            content: `Khách hàng đã duyệt Milestone. Tiền đang được chuyển theo chính sách Payment Mode của dự án.`
+            title: '💰 Đã nhận thanh toán!',
+            content: `Khách hàng đã nghiệm thu. ${mData.price} Token đã được chuyển vào ví của bạn.`
         }]);
 
-        res.status(200).json({ message: 'Nghiệm thu thành công và thực thi dòng tiền an toàn!' });
+        res.status(200).json({ 
+            message: 'Nghiệm thu và giải ngân thành công!',
+            detail: rpcResult.message
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

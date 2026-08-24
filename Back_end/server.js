@@ -620,10 +620,10 @@ app.post('/api/milestones/advanced/approve', async (req, res) => {
         // Lấy job_id để tìm freelancer
         const { data: mData, error: mErr } = await supabase
             .from('milestones')
-            .select('job_id, status, price')
+            .select('job_id, status, amount')
             .eq('id', milestone_id)
             .single();
-        if (mErr) throw new Error('Không tìm thấy milestone');
+        if (mErr) throw new Error('Không tìm thấy milestone. Hãy kiểm tra milestone_id có đúng không.');
 
         // Chặn approve trùng ngay ở Node.js trước khi vào DB (tầng bảo vệ thứ nhất)
         if (mData.status === 'PAID') {
@@ -641,7 +641,6 @@ app.post('/api/milestones/advanced/approve', async (req, res) => {
         const freelancer_id = appData.freelancer_id;
 
         // Tạo Idempotency Key duy nhất cho giao dịch này
-        // Dùng milestone_id làm key -> chắc chắn không bao giờ approve 2 lần
         const idempotency_key = `RELEASE_${milestone_id}`;
 
         // Gọi PostgreSQL Stored Function (tầng bảo vệ thứ hai - ACID + Row-Level Lock)
@@ -663,7 +662,7 @@ app.post('/api/milestones/advanced/approve', async (req, res) => {
         await supabase.from('notifications').insert([{
             user_id: freelancer_id,
             title: '💰 Đã nhận thanh toán!',
-            content: `Khách hàng đã nghiệm thu. ${mData.price} Token đã được chuyển vào ví của bạn.`
+            content: `Khách hàng đã nghiệm thu. ${mData.amount} Token đã được chuyển vào ví của bạn.`
         }]);
 
         res.status(200).json({ 
@@ -859,8 +858,8 @@ app.get('/api/test/milestones', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('milestones')
-            .select('id, title, price, status, job_id, created_at')
-            .in('status', ['PENDING_REVIEW', 'FUNDED', 'PAID'])
+            .select('id, title, amount, status, job_id, created_at')
+            .in('status', ['PENDING_REVIEW', 'FUNDED', 'PAID', 'IN_PROGRESS', 'approved'])
             .order('created_at', { ascending: false })
             .limit(10);
         if (error) throw error;
@@ -899,7 +898,7 @@ app.get('/api/test/milestone-detail/:milestone_id', async (req, res) => {
     try {
         const { data: ms, error: mErr } = await supabase
             .from('milestones')
-            .select('id, title, price, status, job_id, paid_at')
+            .select('id, title, amount, status, job_id, paid_at')
             .eq('id', req.params.milestone_id)
             .single();
         if (mErr) throw mErr;

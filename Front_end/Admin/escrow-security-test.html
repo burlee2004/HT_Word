@@ -227,7 +227,7 @@ async function selectMilestone(id) {
         // Hiển thị info
         document.getElementById('msInfo').innerHTML = `
             <div><div class="text-gray-400 mb-1">Tên Milestone</div><div class="text-white font-bold">${currentMs.title || '(Không tên)'}</div></div>
-            <div><div class="text-gray-400 mb-1">Giá trị</div><div class="text-yellow-400 font-bold text-lg">${currentMs.price} Token</div></div>
+            <div><div class="text-gray-400 mb-1">Giá trị</div><div class="text-yellow-400 font-bold text-lg">${currentMs.amount} Token</div></div>
             <div><div class="text-gray-400 mb-1">Trạng thái</div><div class="font-bold ${currentMs.status === 'PAID' ? 'text-green-400' : currentMs.status === 'PENDING_REVIEW' ? 'text-yellow-400' : 'text-blue-400'}">${currentMs.status}</div></div>
             <div><div class="text-gray-400 mb-1">Milestone ID</div><div class="text-gray-300 text-xs">${currentMs.id}</div></div>
         `;

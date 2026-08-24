@@ -163,24 +163,36 @@
         document.getElementById('avatarUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            document.getElementById('previewAvatar').src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
+            const preview = document.getElementById('previewAvatar');
+            const oldSrc = preview.src;
+            preview.src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
             try {
                 const url = await uploadImageFile(file);
                 document.getElementById('avatar_url').value = url;
-                document.getElementById('previewAvatar').src = url;
-            } catch (err) { alert(err.message); }
+                preview.src = url;
+                alert('✅ Tải ảnh đại diện lên Cloudinary thành công!');
+            } catch (err) { 
+                preview.src = oldSrc;
+                alert('❌ Lỗi tải ảnh: ' + err.message); 
+            }
         });
 
         // Handle Cover File Selection
         document.getElementById('coverUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            document.getElementById('previewCover').src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
+            const preview = document.getElementById('previewCover');
+            const oldSrc = preview.src;
+            preview.src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
             try {
                 const url = await uploadImageFile(file);
                 document.getElementById('cover_url').value = url;
-                document.getElementById('previewCover').src = url;
-            } catch (err) { alert(err.message); }
+                preview.src = url;
+                alert('✅ Tải ảnh bìa lên Cloudinary thành công!');
+            } catch (err) { 
+                preview.src = oldSrc;
+                alert('❌ Lỗi tải ảnh bìa: ' + err.message); 
+            }
         });
 
         // Render UI
@@ -273,9 +285,10 @@
                 // Đóng modal và render lại
                 renderUI(data.user);
                 closeEditModal();
+                alert('✅ Lưu hồ sơ thành công!');
                 
             } catch (error) {
-                alert('Lỗi: ' + error.message);
+                alert('❌ Lỗi không thể lưu: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 btnText.innerText = 'Lưu';

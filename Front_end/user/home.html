@@ -21,14 +21,33 @@
                     <a href="profile.html" class="text-blue-200 hover:text-white transition">Hồ sơ cá nhân</a>
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-6">
+                <!-- Nút Thông báo (Dropdown) -->
+                <div class="relative">
+                    <button id="bellBtn" class="text-blue-200 hover:text-white text-2xl relative focus:outline-none transition">
+                        <i class="fas fa-bell"></i>
+                        <span id="notiBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center hidden">!</span>
+                    </button>
+                    <!-- Khung Dropdown -->
+                    <div id="notiDropdown" class="hidden absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden transform origin-top-right transition-all">
+                        <div class="bg-gray-50 px-4 py-3 border-b flex justify-between items-center text-gray-800">
+                            <span class="font-bold"><i class="fas fa-bell text-blue-500 mr-2"></i>Thông báo</span>
+                            <button onclick="loadNotifications(JSON.parse(localStorage.getItem('user')).id)" class="text-blue-600 text-xs hover:underline"><i class="fas fa-sync-alt mr-1"></i>Làm mới</button>
+                        </div>
+                        <div id="notificationsList" class="max-h-80 overflow-y-auto bg-white">
+                            <p class="text-gray-500 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải...</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="hidden md:block text-right">
                     <div id="clientName" class="font-bold text-sm"></div>
                     <div class="text-xs text-blue-300">Khách hàng</div>
                 </div>
-                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center border-2 border-blue-300 overflow-hidden">
-                    <img id="navAvatar" src="https://ui-avatars.com/api/?name=C&background=0D8ABC&color=fff" alt="Avatar" class="w-full h-full object-cover">
-                </div>
+                <!-- Avatar Clickable -->
+                <a href="profile.html" title="Chỉnh sửa hồ sơ" class="w-11 h-11 bg-blue-500 rounded-full flex items-center justify-center border-2 border-blue-300 overflow-hidden cursor-pointer hover:border-white transition shadow">
+                    <img id="navAvatar" src="" alt="Avatar" class="w-full h-full object-cover">
+                </a>
                 <button id="logoutBtn" class="bg-white text-blue-800 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 shadow transition flex items-center">
                     <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
                 </button>
@@ -97,23 +116,6 @@
                 <p class="text-gray-500 text-sm flex-grow">Nhắn tin nội bộ 1-1, gửi file tốc độ cao, thảo luận dự án và đánh giá chấm sao.</p>
             </a>
         </div>
-
-        <!-- Cột Thông báo -->
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-6 border-b pb-4">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center">
-                    <div class="w-8 h-8 bg-red-100 text-red-500 rounded-full flex items-center justify-center mr-3">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    Thông báo mới nhất
-                </h2>
-                <button onclick="loadNotifications(JSON.parse(localStorage.getItem('user')).id)" class="text-blue-600 text-sm hover:underline"><i class="fas fa-sync-alt mr-1"></i>Làm mới</button>
-            </div>
-            
-            <div id="notificationsList" class="space-y-4">
-                <p class="text-gray-500 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải thông báo...</p>
-            </div>
-        </div>
     </main>
 
     <!-- Footer -->
@@ -155,14 +157,16 @@
         // =============== NOTIFICATIONS ===============
         async function loadNotifications(userId) {
             const notiDiv = document.getElementById('notificationsList');
-            notiDiv.innerHTML = '<p class="text-gray-500 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải thông báo...</p>';
+            const notiBadge = document.getElementById('notiBadge');
+            notiDiv.innerHTML = '<p class="text-gray-500 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải...</p>';
             
             try {
                 const res = await fetch(`${API_URL}/api/notifications/${userId}`);
                 const data = await res.json();
                 if (data.notifications && data.notifications.length > 0) {
+                    notiBadge.classList.remove('hidden'); // Hiện dấu chấm đỏ
+                    
                     notiDiv.innerHTML = data.notifications.map(n => {
-                        // Nhận diện loại thông báo để đổi màu icon
                         let iconClass = 'fa-info-circle text-blue-500';
                         let bgClass = 'bg-blue-50';
                         if (n.title.toLowerCase().includes('nạp token') || n.title.toLowerCase().includes('thành công')) {
@@ -176,31 +180,47 @@
                             bgClass = 'bg-yellow-50';
                         }
 
+                        // Click vào thông báo sẽ mở ra alert (hoặc link tới trang khác)
                         return `
-                        <div class="flex items-start p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
-                            <div class="w-10 h-10 ${bgClass} rounded-full flex items-center justify-center flex-shrink-0 mr-4">
-                                <i class="fas ${iconClass} text-lg"></i>
+                        <div onclick="alert('${n.title}\\n\\n${n.content}')" class="flex items-start p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition">
+                            <div class="w-8 h-8 ${bgClass} rounded-full flex items-center justify-center flex-shrink-0 mr-3 mt-1">
+                                <i class="fas ${iconClass} text-sm"></i>
                             </div>
                             <div class="flex-grow">
-                                <div class="flex justify-between items-start">
-                                    <h4 class="font-bold text-gray-800">${n.title}</h4>
-                                    <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full"><i class="far fa-clock mr-1"></i>${new Date(n.created_at).toLocaleString('vi-VN')}</span>
-                                </div>
-                                <p class="text-gray-600 text-sm mt-1">${n.content}</p>
+                                <h4 class="font-bold text-gray-800 text-sm leading-tight">${n.title}</h4>
+                                <p class="text-gray-600 text-xs mt-1 line-clamp-2">${n.content}</p>
+                                <span class="text-[10px] text-gray-400 mt-1 block"><i class="far fa-clock mr-1"></i>${new Date(n.created_at).toLocaleString('vi-VN')}</span>
                             </div>
                         </div>`;
                     }).join('');
                 } else {
+                    notiBadge.classList.add('hidden');
                     notiDiv.innerHTML = `
-                    <div class="text-center py-8">
-                        <div class="inline-block p-4 bg-gray-50 rounded-full mb-3 text-gray-300 text-3xl"><i class="fas fa-bell-slash"></i></div>
-                        <p class="text-gray-500">Bạn không có thông báo nào mới.</p>
+                    <div class="text-center py-6">
+                        <div class="inline-block p-3 bg-gray-50 rounded-full mb-2 text-gray-300 text-xl"><i class="fas fa-bell-slash"></i></div>
+                        <p class="text-gray-500 text-sm">Chưa có thông báo mới.</p>
                     </div>`;
                 }
             } catch(err) {
-                notiDiv.innerHTML = '<p class="text-red-500 text-sm text-center py-4"><i class="fas fa-exclamation-triangle mr-2"></i>Lỗi tải thông báo.</p>';
+                notiDiv.innerHTML = '<p class="text-red-500 text-sm text-center py-4"><i class="fas fa-exclamation-triangle mr-1"></i>Lỗi tải thông báo.</p>';
             }
         }
+
+        // =============== UI INTERACTIONS ===============
+        // Toggle Dropdown
+        document.getElementById('bellBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('notiDropdown').classList.toggle('hidden');
+        });
+
+        // Click outside to close dropdown
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('notiDropdown');
+            const bellBtn = document.getElementById('bellBtn');
+            if (!bellBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
 
         // =============== LOGOUT ===============
         document.getElementById('logoutBtn').addEventListener('click', () => { 

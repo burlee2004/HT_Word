@@ -42,16 +42,59 @@
 
                 <!-- Cột Hiển thị QR -->
                 <div id="qrSection" class="hidden flex flex-col items-center justify-center border-l border-gray-200 pl-4">
-                    <p class="text-sm text-gray-600 mb-2 font-medium">Quét mã để thanh toán <span id="qrAmount" class="font-bold text-blue-600"></span> VNĐ</p>
-                    <img id="qrImage" src="" alt="VietQR" class="w-48 h-48 border border-gray-300 p-2 rounded shadow-sm">
+                    <p class="text-sm text-gray-600 mb-2 font-medium">Quét mã để thanh toán <span id="qrAmount" class="font-bold text-red-600 text-lg"></span> VNĐ</p>
+                    
+                    <!-- Ảnh QR to hơn, có viền đẹp, bo góc -->
+                    <div class="relative group cursor-pointer" onclick="openQrModal()">
+                        <img id="qrImage" src="" alt="VietQR" class="w-64 h-64 border border-gray-300 p-2 rounded-xl shadow-lg bg-white group-hover:scale-105 transition-transform">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 rounded-xl hidden group-hover:flex items-center justify-center transition-all">
+                            <span class="text-white font-bold"><i class="fas fa-search-plus mr-1"></i>Phóng to</span>
+                        </div>
+                    </div>
+
+                    <button onclick="downloadQR()" class="mt-4 bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-900 transition flex items-center">
+                        <i class="fas fa-download mr-2"></i> Tải ảnh QR xuống
+                    </button>
                     <p class="text-xs text-gray-500 mt-3 text-center">Sau khi chuyển khoản thành công, hệ thống Admin sẽ duyệt và cộng Token vào ví bạn.</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal Phóng To QR -->
+    <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full">
+            <button onclick="closeQrModal()" class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-8 h-8 font-bold text-lg hover:bg-red-700 shadow-lg">&times;</button>
+            <h3 class="text-center font-bold text-gray-800 mb-4 text-xl">Quét Mã Thanh Toán</h3>
+            <img id="qrModalImage" src="" alt="VietQR To" class="w-full h-auto rounded-lg border p-2">
+            <p class="text-center mt-4 text-gray-600">Số tiền: <span id="qrModalAmount" class="font-bold text-red-600 text-xl"></span> VNĐ</p>
+            <p class="text-center mt-1 text-sm text-gray-500">Ngân hàng: Vietcombank (VCB)</p>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script>
+        function openQrModal() { document.getElementById('qrModal').classList.remove('hidden'); }
+        function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
+        
+        async function downloadQR() {
+            const qrUrl = document.getElementById('qrImage').src;
+            try {
+                const response = await fetch(qrUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'QR_Thanh_Toan_HTWork.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch(e) {
+                // Nếu bị CORS chặn thì mở sang tab mới cho khách tự lưu
+                window.open(qrUrl, '_blank');
+            }
+        }
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
@@ -94,15 +137,17 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    // Tạo mã VietQR (Giả lập cấu hình ngân hàng HTWORK)
-                    const bankId = '970415'; // Vietinbank (Ví dụ)
-                    const accountNo = '1133668899';
+                    // Tạo mã VietQR Vietcombank (VCB)
+                    const bankId = 'VCB'; // Vietcombank
+                    const accountNo = '1026403009';
                     const accountName = 'HT WORK CO LTD';
                     const addInfo = `HTWORK NAP ${currentUser.email}`;
                     const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(accountName)}`;
                     
                     document.getElementById('qrImage').src = qrUrl;
+                    document.getElementById('qrModalImage').src = qrUrl; // Cập nhật cả ảnh trong Modal
                     document.getElementById('qrAmount').textContent = parseInt(amount).toLocaleString();
+                    document.getElementById('qrModalAmount').textContent = parseInt(amount).toLocaleString();
                     document.getElementById('qrSection').classList.remove('hidden');
                     
                     alert('Đã tạo lệnh nạp! Vui lòng quét mã QR để chuyển khoản. Admin sẽ duyệt sau khi nhận được tiền.');

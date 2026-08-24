@@ -117,7 +117,43 @@ app.post('/upload-file', uploadFile.single('file'), (req, res) => {
 });
 
 // ==========================================
-// API DÀNH CHO JOBS & ESCROW (PHASE 1 MVP)
+// API DÀNH CHO NGƯỜI DÙNG (PROFILE & BIO)
+// ==========================================
+
+// 1. Xem Hồ sơ cá nhân (Profile)
+app.get('/api/users/:id', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('id, full_name, email, role, avatar_url, bio, skills, created_at')
+            .eq('id', req.params.id)
+            .single();
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+// 2. Cập nhật Hồ sơ cá nhân
+app.put('/api/users/:id', async (req, res) => {
+    const { full_name, avatar_url, bio, skills } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .update({ full_name, avatar_url, bio, skills })
+            .eq('id', req.params.id)
+            .select('id, full_name, email, role, avatar_url, bio, skills, created_at')
+            .single();
+        if (error) throw error;
+        res.status(200).json({ message: 'Cập nhật thành công', user: data });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+// ==========================================
+// CÁC API VỀ CÔNG VIỆC (JOB)
 // ==========================================
 
 // 1. API: Khách hàng đăng Job mới

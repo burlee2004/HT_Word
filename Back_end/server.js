@@ -773,6 +773,18 @@ app.delete('/api/notifications/:id', async (req, res) => {
     }
 });
 
+// 16. API: Đánh dấu thông báo đã đọc
+app.put('/api/notifications/:id/read', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { error } = await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+        if (error) throw error;
+        res.status(200).json({ message: 'Đã đánh dấu đã đọc' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 // 15. API: Lấy thông tin ví của user
 app.get('/api/wallet/:user_id', async (req, res) => {
     const { user_id } = req.params;

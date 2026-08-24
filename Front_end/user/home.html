@@ -163,8 +163,16 @@
                 const res = await fetch(`${API_URL}/api/notifications/${userId}`);
                 const data = await res.json();
                 if (data.notifications && data.notifications.length > 0) {
-                    notiBadge.classList.remove('hidden'); 
-                    notiBadge.textContent = data.notifications.length;
+                    // Đếm số lượng thông báo CHƯA đọc
+                    const unreadCount = data.notifications.filter(n => !n.is_read).length;
+                    
+                    if (unreadCount > 0) {
+                        notiBadge.classList.remove('hidden'); 
+                        notiBadge.textContent = unreadCount;
+                    } else {
+                        notiBadge.classList.add('hidden');
+                        notiBadge.textContent = '';
+                    }
                     
                     notiDiv.innerHTML = data.notifications.map(n => {
                         let iconClass = 'fa-info-circle text-blue-500';
@@ -180,13 +188,25 @@
                             bgClass = 'bg-yellow-50';
                         }
 
+                        const safeTitle = n.title.replace(/"/g, '&quot;');
+                        const safeContent = n.content.replace(/"/g, '&quot;').replace(/\n/g, '\\n');
+
                         return `
-                        <div id="noti-${n.id}" class="flex items-start p-3 border-b border-gray-100 hover:bg-gray-50 transition relative group">
-                            <div onclick="alert('${n.title}\\n\\n${n.content}')" class="w-8 h-8 ${bgClass} rounded-full flex items-center justify-center flex-shrink-0 mr-3 mt-1 cursor-pointer">
+                        <div id="noti-${n.id}" 
+                             data-id="${n.id}" 
+                             data-title="${safeTitle}" 
+                             data-content="${safeContent}" 
+                             data-is-read="${n.is_read}" 
+                             onclick="handleNotificationClick(this)"
+                             class="flex items-start p-3 border-b border-gray-100 hover:bg-gray-50 transition relative group cursor-pointer ${n.is_read ? 'opacity-70' : 'bg-blue-50/40'}">
+                            
+                            ${n.is_read ? '' : `<span id="dot-${n.id}" class="absolute top-1/2 left-2 -translate-y-1/2 w-2 h-2 bg-blue-600 rounded-full"></span>`}
+                            
+                            <div class="w-8 h-8 ${bgClass} rounded-full flex items-center justify-center flex-shrink-0 ml-3 mr-3 mt-1">
                                 <i class="fas ${iconClass} text-sm"></i>
                             </div>
-                            <div onclick="alert('${n.title}\\n\\n${n.content}')" class="flex-grow cursor-pointer pr-6">
-                                <h4 class="font-bold text-gray-800 text-sm leading-tight">${n.title}</h4>
+                            <div class="flex-grow pr-6">
+                                <h4 id="title-${n.id}" class="${n.is_read ? 'font-medium text-gray-700' : 'font-bold text-gray-900'} text-sm leading-tight">${n.title}</h4>
                                 <p class="text-gray-600 text-xs mt-1 line-clamp-2">${n.content}</p>
                                 <span class="text-[10px] text-gray-400 mt-1 block"><i class="far fa-clock mr-1"></i>${new Date(n.created_at).toLocaleString('vi-VN')}</span>
                             </div>
@@ -197,6 +217,7 @@
                     }).join('');
                 } else {
                     notiBadge.classList.add('hidden');
+                    notiBadge.textContent = '';
                     notiDiv.innerHTML = `
                     <div class="text-center py-6">
                         <div class="inline-block p-3 bg-gray-50 rounded-full mb-2 text-gray-300 text-xl"><i class="fas fa-bell-slash"></i></div>
@@ -208,22 +229,77 @@
             }
         }
 
+        async function handleNotificationClick(element) {
+            const id = element.getAttribute('data-id');
+            const title = element.getAttribute('data-title');
+            // Decode the escaped newline chars for the alert
+            const content = element.getAttribute('data-content').replace(/\\n/g, '\n');
+            const isRead = element.getAttribute('data-is-read') === 'true';
+
+            // Mở thông báo
+            alert(title + '\\n\\n' + content);
+
+            // Nếu chưa đọc thì call API cập nhật
+            if (!isRead) {
+                try {
+                    const res = await fetch(`${API_URL}/api/notifications/${id}/read`, { method: 'PUT' });
+                    if (res.ok) {
+                        // Cập nhật giao diện: Đã đọc
+                        element.setAttribute('data-is-read', 'true');
+                        element.classList.remove('bg-blue-50/40');
+                        element.classList.add('opacity-70');
+                        
+                        const dot = document.getElementById(`dot-${id}`);
+                        if (dot) dot.remove();
+
+                        const titleEl = document.getElementById(`title-${id}`);
+                        if (titleEl) {
+                            titleEl.classList.remove('font-bold', 'text-gray-900');
+                            titleEl.classList.add('font-medium', 'text-gray-700');
+                        }
+
+                        // Giảm số lượng đếm trên chuông
+                        const badge = document.getElementById('notiBadge');
+                        let currentCount = parseInt(badge.textContent) || 0;
+                        if (currentCount > 1) {
+                            badge.textContent = currentCount - 1;
+                        } else {
+                            badge.classList.add('hidden');
+                            badge.textContent = '';
+                        }
+                    }
+                } catch (err) {
+                    console.error('Lỗi khi đánh dấu đã đọc', err);
+                }
+            }
+        }
+
         async function deleteNotification(id, event) {
             event.stopPropagation(); // Ngăn hiển thị nội dung khi bấm xóa
             try {
+                // Lấy phần tử thông báo
+                const notiElement = document.getElementById(`noti-${id}`);
+                const isRead = notiElement ? notiElement.getAttribute('data-is-read') === 'true' : true;
+
                 const res = await fetch(`${API_URL}/api/notifications/${id}`, { method: 'DELETE' });
                 if (res.ok) {
-                    const notiElement = document.getElementById(`noti-${id}`);
                     if (notiElement) notiElement.remove();
                     
-                    // Cập nhật số lượng Badge
-                    let currentCount = parseInt(document.getElementById('notiBadge').textContent) || 0;
-                    if (currentCount > 1) {
-                        document.getElementById('notiBadge').textContent = currentCount - 1;
-                    } else {
-                        document.getElementById('notiBadge').classList.add('hidden');
-                        document.getElementById('notiBadge').textContent = '';
-                        document.getElementById('notificationsList').innerHTML = `
+                    // Nếu thông báo đó CHƯA ĐỌC, thì khi xóa cũng phải giảm số lượng đếm trên chuông
+                    if (!isRead) {
+                        let currentCount = parseInt(document.getElementById('notiBadge').textContent) || 0;
+                        if (currentCount > 1) {
+                            document.getElementById('notiBadge').textContent = currentCount - 1;
+                        } else {
+                            document.getElementById('notiBadge').classList.add('hidden');
+                            document.getElementById('notiBadge').textContent = '';
+                        }
+                    }
+
+                    // Nếu danh sách trống
+                    const notiDiv = document.getElementById('notificationsList');
+                    if (notiDiv.children.length === 0) {
+                        notiDiv.innerHTML = `
                             <div class="text-center py-6">
                                 <div class="inline-block p-3 bg-gray-50 rounded-full mb-2 text-gray-300 text-xl"><i class="fas fa-bell-slash"></i></div>
                                 <p class="text-gray-500 text-sm">Chưa có thông báo mới.</p>

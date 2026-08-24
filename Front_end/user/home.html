@@ -2,97 +2,211 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Portal - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
 </head>
-<body class="bg-blue-50 h-screen flex flex-col">
-    <nav class="bg-blue-600 p-4 text-white flex justify-between shadow-md">
-        <div class="font-bold flex items-center space-x-4">
-            <a href="home.html" class="hover:text-blue-200">HT Work - Client Portal</a>
-            <span class="text-blue-300">|</span>
-            <a href="profile.html" class="font-medium hover:text-blue-200 underline">Hồ sơ của tôi</a>
-        </div>
-        <div>
-            <span id="clientName" class="mr-4 font-medium"></span>
-            <button id="logoutBtn" class="bg-blue-800 px-3 py-1 rounded">Đăng xuất</button>
+<body class="bg-gray-50 h-screen flex flex-col font-sans text-gray-800">
+    <!-- Navbar -->
+    <nav class="bg-gradient-to-r from-blue-700 to-blue-900 p-4 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="font-bold flex items-center space-x-6">
+                <a href="home.html" class="flex items-center space-x-2 text-xl hover:opacity-90 transition">
+                    <i class="fas fa-briefcase"></i>
+                    <span>HT Work <span class="font-light text-blue-200">| Client Portal</span></span>
+                </a>
+                <div class="hidden md:flex space-x-4 text-sm font-medium border-l border-blue-500 pl-6">
+                    <a href="home.html" class="text-white border-b-2 border-white pb-1">Bảng điều khiển</a>
+                    <a href="profile.html" class="text-blue-200 hover:text-white transition">Hồ sơ cá nhân</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:block text-right">
+                    <div id="clientName" class="font-bold text-sm"></div>
+                    <div class="text-xs text-blue-300">Khách hàng</div>
+                </div>
+                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center border-2 border-blue-300 overflow-hidden">
+                    <img id="navAvatar" src="https://ui-avatars.com/api/?name=C&background=0D8ABC&color=fff" alt="Avatar" class="w-full h-full object-cover">
+                </div>
+                <button id="logoutBtn" class="bg-white text-blue-800 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 shadow transition flex items-center">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
+                </button>
+            </div>
         </div>
     </nav>
-    <main class="p-10">
-        <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
-            <h2 class="text-2xl font-bold text-gray-800">Dự án của tôi</h2>
-            <div class="mt-4 flex flex-wrap gap-4">
-                <a href="wallet.html" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 inline-block">Quản lý Ví (Nạp Token)</a>
-                <a href="post-job.html" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 inline-block">+ Đăng Yêu Cầu Mới</a>
-                <a href="my-requests.html" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 inline-block">Yêu Cầu Của Tôi (Đã đăng)</a>
-                <a href="escrow-test.html" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 inline-block">Mô phỏng Khóa Escrow</a>
-                <a href="review-work.html" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block">Nghiệm thu & Giải ngân</a>
+
+    <main class="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full">
+        <!-- Welcome Banner -->
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 border border-gray-100 flex flex-col md:flex-row justify-between items-center bg-gradient-to-br from-white to-blue-50">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Chào mừng trở lại! 👋</h1>
+                <p class="text-gray-600">Quản lý dự án, thuê freelancer chuyên nghiệp và thanh toán an toàn ngay trên một nền tảng.</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a href="post-job.html" class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-blue-700 transition flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Đăng Dự Án Mới Ngay
+                </a>
             </div>
         </div>
 
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Đăng Yêu cầu -->
+            <a href="post-job.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Quản lý Yêu cầu (Post Job)</h3>
+                <p class="text-gray-500 text-sm flex-grow">Điền form đăng dự án chi tiết, đặt ngân sách và deadline để tìm kiếm nhân sự.</p>
+            </a>
+
+            <!-- Chợ nhân sự -->
+            <a href="my-requests.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Chợ Nhân sự & Đấu thầu</h3>
+                <p class="text-gray-500 text-sm flex-grow">Quản lý dự án đã đăng, xem báo giá, duyệt hồ sơ (Bio) và chốt thuê Freelancer.</p>
+            </a>
+
+            <!-- Nghiệm thu -->
+            <a href="review-work.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Tiến độ & Nghiệm thu</h3>
+                <p class="text-gray-500 text-sm flex-grow">Theo dõi Milestones, tải file minh chứng, phê duyệt và giải ngân Token an toàn.</p>
+            </a>
+
+            <!-- Ví Token -->
+            <a href="wallet.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Quản lý Ví Token</h3>
+                <p class="text-gray-500 text-sm flex-grow">Tạo lệnh nạp Token qua VietQR tự động, quản lý số dư khả dụng và số dư Escrow.</p>
+            </a>
+
+            <!-- Kênh Chat -->
+            <a href="escrow-test.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Tương tác Kênh Chat</h3>
+                <p class="text-gray-500 text-sm flex-grow">Nhắn tin nội bộ 1-1, gửi file tốc độ cao, thảo luận dự án và đánh giá chấm sao.</p>
+            </a>
+        </div>
+
         <!-- Cột Thông báo -->
-        <div class="mt-8 bg-white p-6 rounded-lg shadow border-l-4 border-yellow-400">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                🔔 Thông báo mới nhất
-            </h2>
-            <div id="notificationsList" class="space-y-3">
-                <p class="text-gray-500 text-sm">Đang tải thông báo...</p>
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-6 border-b pb-4">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <div class="w-8 h-8 bg-red-100 text-red-500 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    Thông báo mới nhất
+                </h2>
+                <button onclick="loadNotifications(JSON.parse(localStorage.getItem('user')).id)" class="text-blue-600 text-sm hover:underline"><i class="fas fa-sync-alt mr-1"></i>Làm mới</button>
+            </div>
+            
+            <div id="notificationsList" class="space-y-4">
+                <p class="text-gray-500 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải thông báo...</p>
             </div>
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12 py-6 text-center text-gray-500 text-sm">
+        &copy; 2026 HT Work. Hệ thống chuẩn Core Banking Escrow.
+    </footer>
+
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
-    console.log("Đang kiểm tra quyền truy cập vào Client Portal...");
-    const userStr = localStorage.getItem('user');
-    
-    if (!userStr) {
-        console.warn("Chưa đăng nhập -> Bị đá về Login");
-        window.location.replace('../sharedFolder/login.html');
-    } else {
-        const user = JSON.parse(userStr);
-        console.log("User hợp lệ, role là:", user.role);
-
-        // NẾU ROLE KHÔNG PHẢI LÀ CLIENT -> BẮT BUỘC XÓA DỮ LIỆU RỒI MỚI ĐÁ RA NGOÀI
-        if (user.role !== 'client') {
-            console.error("Sai quyền! Đang là", user.role, "nhưng trang này cần client");
-            alert("Bạn không có quyền truy cập trang này!");
-            localStorage.removeItem('user'); // Dòng này cực kỳ quan trọng để cắt vòng lặp
+        
+        // =============== AUTH CHECK & PROFILE LOAD ===============
+        const userStr = localStorage.getItem('user');
+        
+        if (!userStr) {
             window.location.replace('../sharedFolder/login.html');
         } else {
-            // Hợp lệ, cho vào nhà
-            document.getElementById('clientName').textContent = user.full_name;
-            loadNotifications(user.id);
-        }
-    }
-
-    // Load Notifications
-    async function loadNotifications(userId) {
-        const notiDiv = document.getElementById('notificationsList');
-        try {
-            const res = await fetch(`${API_URL}/api/notifications/${userId}`);
-            const data = await res.json();
-            if (data.notifications && data.notifications.length > 0) {
-                notiDiv.innerHTML = data.notifications.map(n => `
-                    <div class="p-3 bg-gray-50 rounded border border-gray-100">
-                        <strong class="block text-gray-800">${n.title}</strong>
-                        <span class="text-gray-600 text-sm">${n.content}</span>
-                        <div class="text-xs text-gray-400 mt-1">${new Date(n.created_at).toLocaleString('vi-VN')}</div>
-                    </div>
-                `).join('');
+            const user = JSON.parse(userStr);
+            if (user.role !== 'client') {
+                alert("Bạn không có quyền truy cập trang Khách hàng!");
+                localStorage.removeItem('user'); 
+                window.location.replace('../sharedFolder/login.html');
             } else {
-                notiDiv.innerHTML = '<p class="text-gray-500 text-sm">Không có thông báo nào.</p>';
-            }
-        } catch(err) {
-            notiDiv.innerHTML = '<p class="text-red-500 text-sm">Lỗi tải thông báo.</p>';
-        }
-    }
+                // Hợp lệ, render info
+                document.getElementById('clientName').textContent = user.full_name;
+                
+                // Hiển thị Avatar nếu có
+                if(user.avatar_url) {
+                    document.getElementById('navAvatar').src = user.avatar_url;
+                } else {
+                    document.getElementById('navAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=0D8ABC&color=fff`;
+                }
 
-    // Xử lý nút đăng xuất
-    document.getElementById('logoutBtn').addEventListener('click', () => { 
-        localStorage.clear(); 
-        window.location.replace('../sharedFolder/login.html'); 
-    });
-</script>
+                loadNotifications(user.id);
+            }
+        }
+
+        // =============== NOTIFICATIONS ===============
+        async function loadNotifications(userId) {
+            const notiDiv = document.getElementById('notificationsList');
+            notiDiv.innerHTML = '<p class="text-gray-500 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải thông báo...</p>';
+            
+            try {
+                const res = await fetch(`${API_URL}/api/notifications/${userId}`);
+                const data = await res.json();
+                if (data.notifications && data.notifications.length > 0) {
+                    notiDiv.innerHTML = data.notifications.map(n => {
+                        // Nhận diện loại thông báo để đổi màu icon
+                        let iconClass = 'fa-info-circle text-blue-500';
+                        let bgClass = 'bg-blue-50';
+                        if (n.title.toLowerCase().includes('nạp token') || n.title.toLowerCase().includes('thành công')) {
+                            iconClass = 'fa-check-circle text-green-500';
+                            bgClass = 'bg-green-50';
+                        } else if (n.title.toLowerCase().includes('báo cáo')) {
+                            iconClass = 'fa-file-alt text-purple-500';
+                            bgClass = 'bg-purple-50';
+                        } else if (n.title.toLowerCase().includes('kế hoạch') || n.title.toLowerCase().includes('milestone')) {
+                            iconClass = 'fa-tasks text-yellow-500';
+                            bgClass = 'bg-yellow-50';
+                        }
+
+                        return `
+                        <div class="flex items-start p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                            <div class="w-10 h-10 ${bgClass} rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                                <i class="fas ${iconClass} text-lg"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-bold text-gray-800">${n.title}</h4>
+                                    <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full"><i class="far fa-clock mr-1"></i>${new Date(n.created_at).toLocaleString('vi-VN')}</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mt-1">${n.content}</p>
+                            </div>
+                        </div>`;
+                    }).join('');
+                } else {
+                    notiDiv.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="inline-block p-4 bg-gray-50 rounded-full mb-3 text-gray-300 text-3xl"><i class="fas fa-bell-slash"></i></div>
+                        <p class="text-gray-500">Bạn không có thông báo nào mới.</p>
+                    </div>`;
+                }
+            } catch(err) {
+                notiDiv.innerHTML = '<p class="text-red-500 text-sm text-center py-4"><i class="fas fa-exclamation-triangle mr-2"></i>Lỗi tải thông báo.</p>';
+            }
+        }
+
+        // =============== LOGOUT ===============
+        document.getElementById('logoutBtn').addEventListener('click', () => { 
+            localStorage.clear(); 
+            window.location.replace('../sharedFolder/login.html'); 
+        });
+    </script>
 </body>
 </html>

@@ -161,8 +161,18 @@
                 method: 'POST',
                 body: formData
             });
-            if (!res.ok) throw new Error('Lỗi khi tải ảnh lên server');
-            const data = await res.json();
+            
+            // Đọc cục Data trả về từ Server để lấy lỗi chi tiết
+            let data;
+            try {
+                data = await res.json();
+            } catch (err) {
+                throw new Error('Server không phản hồi bằng JSON. Có thể bạn chưa Push code Backend lên Render!');
+            }
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Lỗi không xác định từ server');
+            }
             return data.url;
         }
 
@@ -269,7 +279,13 @@
                     body: JSON.stringify(payload)
                 });
                 
-                const data = await res.json();
+                let data;
+                try {
+                    data = await res.json();
+                } catch (err) {
+                    throw new Error('Bạn chưa Push (đẩy) Backend lên Render, hoặc API Server đang bị lỗi! Vui lòng đẩy code Backend lên.');
+                }
+                
                 if (!res.ok) throw new Error(data.error || 'Cập nhật thất bại');
 
                 // Cập nhật localStorage

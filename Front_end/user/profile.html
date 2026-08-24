@@ -246,11 +246,11 @@
         // Cập nhật Profile
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const submitBtn = document.querySelector('button[form="profileForm"]');
             const btnText = document.getElementById('saveBtnText');
             const spinner = document.getElementById('saveSpinner');
             
-            submitBtn.disabled = true;
+            if(submitBtn) submitBtn.disabled = true;
             btnText.innerText = 'Đang lưu...';
             spinner.classList.remove('hidden');
 

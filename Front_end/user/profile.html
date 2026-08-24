@@ -4,54 +4,117 @@
     <meta charset="UTF-8">
     <title>Hồ sơ của tôi - Khách hàng</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
-<body class="bg-blue-50 h-screen flex flex-col">
+<body class="bg-blue-50 h-screen flex flex-col font-sans">
     <!-- Navbar -->
-    <nav class="bg-blue-600 p-4 text-white flex justify-between shadow-md">
-        <div class="font-bold flex items-center space-x-4">
-            <a href="home.html" class="hover:text-blue-200">HT Work - Client Portal</a>
-            <span class="text-blue-300">|</span>
-            <a href="profile.html" class="font-semibold underline">Hồ sơ của tôi</a>
+    <nav class="bg-blue-600 p-4 flex justify-between items-center shadow sticky top-0 z-50 text-white">
+        <div class="font-bold text-xl flex items-center space-x-4">
+            <a href="home.html" class="hover:text-blue-200"><i class="fas fa-home"></i> HT Work</a>
         </div>
-        <div>
-            <span id="clientName" class="mr-4 font-medium"></span>
-            <button id="logoutBtn" class="bg-blue-800 px-3 py-1 rounded">Đăng xuất</button>
+        <div class="flex items-center space-x-4">
+            <a href="profile.html" class="font-semibold text-white underline">Hồ sơ cá nhân</a>
+            <span id="clientName" class="font-medium"></span>
+            <button id="logoutBtn" class="bg-blue-800 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-900 transition"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="p-10 max-w-4xl mx-auto w-full flex-grow">
-        <div class="bg-white p-8 rounded-lg shadow-md border-t-4 border-blue-500">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Thông tin cá nhân (Profile)</h2>
+    <main class="flex-grow w-full max-w-5xl mx-auto mt-4">
+        <!-- Cover & Avatar Section -->
+        <div class="bg-white shadow rounded-lg overflow-hidden relative border-t-4 border-blue-500">
+            <!-- Cover Photo -->
+            <div id="coverContainer" class="h-64 bg-gray-300 w-full bg-cover bg-center" style="background-image: url('https://via.placeholder.com/1200x400?text=Ảnh+Bìa');">
+            </div>
             
-            <form id="profileForm" class="space-y-6">
-                <!-- Avatar -->
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Đường dẫn Ảnh đại diện (Avatar URL)</label>
-                    <input type="text" id="avatar_url" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com/avatar.jpg">
+            <!-- Profile Header -->
+            <div class="px-8 pb-6 flex flex-col sm:flex-row justify-between items-end -mt-12 sm:-mt-16 relative z-10">
+                <div class="flex flex-col sm:flex-row items-center sm:items-end">
+                    <img id="avatarContainer" src="https://via.placeholder.com/150" alt="Avatar" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-md object-cover bg-white">
+                    <div class="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left mb-2">
+                        <h1 id="displayName" class="text-3xl font-bold text-gray-900">Đang tải...</h1>
+                        <p class="text-gray-600 font-medium mt-1">Khách hàng tại HT Work</p>
+                    </div>
                 </div>
-
-                <!-- Full Name -->
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Họ và tên / Tên công ty</label>
-                    <input type="text" id="full_name" required class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="mt-4 sm:mt-0 mb-2">
+                    <button onclick="openEditModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md shadow-sm flex items-center transition">
+                        <i class="fas fa-pen mr-2"></i> Chỉnh sửa trang cá nhân
+                    </button>
                 </div>
+            </div>
+        </div>
 
-                <!-- Bio -->
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Giới thiệu ngắn (Bio)</label>
-                    <textarea id="bio" rows="4" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Giới thiệu về bạn hoặc doanh nghiệp của bạn..."></textarea>
-                </div>
-
-                <!-- Nút Submit -->
-                <div class="flex justify-end">
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 transition">Lưu thay đổi</button>
-                </div>
-            </form>
-
-            <div id="statusMessage" class="mt-4 hidden p-3 rounded"></div>
+        <!-- Info Grid -->
+        <div class="mt-4 pb-10">
+            <!-- Intro -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Giới thiệu về tôi / Công ty</h2>
+                <div class="text-gray-700 whitespace-pre-line text-lg" id="displayBio">Chưa có thông tin giới thiệu.</div>
+            </div>
         </div>
     </main>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-900">Chỉnh sửa trang cá nhân</h3>
+                <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 overflow-y-auto flex-grow">
+                <form id="profileForm" class="space-y-6">
+                    <!-- Ảnh đại diện -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-gray-800 text-lg">Ảnh đại diện</label>
+                            <label for="avatarUpload" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded cursor-pointer transition">Thêm ảnh</label>
+                            <input type="file" id="avatarUpload" class="hidden" accept="image/*">
+                        </div>
+                        <div class="flex justify-center">
+                            <img id="previewAvatar" src="https://via.placeholder.com/150" class="w-32 h-32 rounded-full border border-gray-200 object-cover">
+                        </div>
+                        <input type="hidden" id="avatar_url">
+                    </div>
+
+                    <!-- Ảnh bìa -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-gray-800 text-lg">Ảnh bìa</label>
+                            <label for="coverUpload" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded cursor-pointer transition">Thêm ảnh</label>
+                            <input type="file" id="coverUpload" class="hidden" accept="image/*">
+                        </div>
+                        <div class="flex justify-center">
+                            <img id="previewCover" src="https://via.placeholder.com/1200x400" class="w-full h-40 rounded-lg border border-gray-200 object-cover">
+                        </div>
+                        <input type="hidden" id="cover_url">
+                    </div>
+
+                    <!-- Thông tin cơ bản -->
+                    <div>
+                        <label class="font-bold text-gray-800 text-lg block mb-2">Họ và tên / Tên công ty</label>
+                        <input type="text" id="full_name" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                    </div>
+
+                    <div>
+                        <label class="font-bold text-gray-800 text-lg block mb-2">Giới thiệu (Bio)</label>
+                        <textarea id="bio" rows="4" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Mô tả ngắn gọn về bạn hoặc doanh nghiệp..."></textarea>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t bg-gray-50 flex justify-end">
+                <button type="button" onclick="closeEditModal()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-semibold mr-3 hover:bg-gray-300">Hủy</button>
+                <button type="submit" form="profileForm" class="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 flex items-center">
+                    <span id="saveBtnText">Lưu</span>
+                    <i id="saveSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
@@ -64,11 +127,74 @@
             window.location.href = '../sharedFolder/login.html';
         }
 
-        document.getElementById('clientName').innerText = `Xin chào, ${user.full_name || user.email}`;
         document.getElementById('logoutBtn').addEventListener('click', () => { 
             localStorage.clear(); 
             window.location.href = '../sharedFolder/login.html'; 
         });
+
+        // Xử lý Modal
+        const editModal = document.getElementById('editModal');
+        function openEditModal() { editModal.classList.remove('hidden'); }
+        function closeEditModal() { editModal.classList.add('hidden'); }
+
+        // Upload Helper
+        async function uploadImageFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch(`${API_URL}/api/upload/image`, {
+                method: 'POST',
+                body: formData
+            });
+            if (!res.ok) throw new Error('Lỗi khi tải ảnh lên server');
+            const data = await res.json();
+            return data.url;
+        }
+
+        // Handle Avatar File Selection
+        document.getElementById('avatarUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('previewAvatar').src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
+            try {
+                const url = await uploadImageFile(file);
+                document.getElementById('avatar_url').value = url;
+                document.getElementById('previewAvatar').src = url;
+            } catch (err) { alert(err.message); }
+        });
+
+        // Handle Cover File Selection
+        document.getElementById('coverUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('previewCover').src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
+            try {
+                const url = await uploadImageFile(file);
+                document.getElementById('cover_url').value = url;
+                document.getElementById('previewCover').src = url;
+            } catch (err) { alert(err.message); }
+        });
+
+        // Render UI
+        function renderUI(data) {
+            const name = data.full_name || data.email;
+            document.getElementById('clientName').innerText = name;
+            document.getElementById('displayName').innerText = name;
+            
+            if (data.avatar_url) {
+                document.getElementById('avatarContainer').src = data.avatar_url;
+                document.getElementById('previewAvatar').src = data.avatar_url;
+                document.getElementById('avatar_url').value = data.avatar_url;
+            }
+            if (data.cover_url) {
+                document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
+                document.getElementById('previewCover').src = data.cover_url;
+                document.getElementById('cover_url').value = data.cover_url;
+            }
+            
+            document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu.';
+            document.getElementById('full_name').value = data.full_name || '';
+            document.getElementById('bio').value = data.bio || '';
+        }
 
         // Load profile data
         async function loadProfile() {
@@ -76,30 +202,30 @@
                 const res = await fetch(`${API_URL}/api/users/${user.id}`);
                 if (!res.ok) throw new Error('Không thể tải thông tin profile');
                 const data = await res.json();
-                
-                document.getElementById('full_name').value = data.full_name || '';
-                document.getElementById('avatar_url').value = data.avatar_url || '';
-                document.getElementById('bio').value = data.bio || '';
+                renderUI(data);
             } catch (error) {
                 console.error(error);
+                alert('Có lỗi xảy ra khi tải dữ liệu. Bạn đã cập nhật Backend lên Render chưa?');
             }
         }
 
         // Cập nhật Profile
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitBtn = e.target.querySelector('button');
-            const statusMessage = document.getElementById('statusMessage');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const btnText = document.getElementById('saveBtnText');
+            const spinner = document.getElementById('saveSpinner');
             
             submitBtn.disabled = true;
-            submitBtn.innerText = 'Đang lưu...';
-            statusMessage.classList.add('hidden');
+            btnText.innerText = 'Đang lưu...';
+            spinner.classList.remove('hidden');
 
             const payload = {
                 full_name: document.getElementById('full_name').value,
                 avatar_url: document.getElementById('avatar_url').value,
+                cover_url: document.getElementById('cover_url').value,
                 bio: document.getElementById('bio').value,
-                skills: '' // Khách hàng không cần nhập skills
+                skills: ''
             };
 
             try {
@@ -112,19 +238,20 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Cập nhật thất bại');
 
-                // Cập nhật lại localStorage để Tên hiển thị trên Nav thay đổi ngay lập tức
+                // Cập nhật localStorage
                 const updatedUser = { ...user, full_name: data.user.full_name, avatar_url: data.user.avatar_url };
                 localStorage.setItem('user', JSON.stringify(updatedUser));
-                document.getElementById('clientName').innerText = `Xin chào, ${updatedUser.full_name}`;
-
-                statusMessage.innerText = 'Cập nhật hồ sơ thành công!';
-                statusMessage.className = 'mt-4 p-3 rounded bg-green-100 text-green-700 border border-green-200 block';
+                
+                // Đóng modal và render lại
+                renderUI(data.user);
+                closeEditModal();
+                
             } catch (error) {
-                statusMessage.innerText = error.message;
-                statusMessage.className = 'mt-4 p-3 rounded bg-red-100 text-red-700 border border-red-200 block';
+                alert('Lỗi: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = 'Lưu thay đổi';
+                btnText.innerText = 'Lưu';
+                spinner.classList.add('hidden');
             }
         });
 

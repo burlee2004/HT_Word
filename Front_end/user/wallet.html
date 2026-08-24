@@ -23,20 +23,34 @@
         </div>
 
         <!-- Form Nạp Tiền -->
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-bold mb-4">Nạp Thêm Token (Mô phỏng)</h2>
-            <form id="depositForm" class="space-y-4">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2"><i class="fas fa-qrcode mr-2 text-blue-600"></i>Nạp Thêm Token (Tự Động)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Cột Nhập Số Lượng -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Số lượng Token muốn nạp:</label>
-                    <input type="number" id="amount" required min="1" class="mt-1 block w-full border p-2 rounded" placeholder="Ví dụ: 5000">
+                    <form id="depositForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tỷ giá: 1 Token = 1 VNĐ</label>
+                            <label class="block text-sm font-medium text-gray-700 mt-2">Số lượng Token muốn nạp:</label>
+                            <input type="number" id="amount" required min="10000" step="1000" class="mt-1 block w-full border p-2 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="Tối thiểu: 10,000">
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded hover:bg-blue-700 shadow w-full transition">
+                            Tạo Mã QR Chuyển Khoản
+                        </button>
+                    </form>
                 </div>
-                <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded hover:bg-blue-700 shadow w-full">
-                    Gửi Yêu Cầu Nạp
-                </button>
-            </form>
+
+                <!-- Cột Hiển thị QR -->
+                <div id="qrSection" class="hidden flex flex-col items-center justify-center border-l border-gray-200 pl-4">
+                    <p class="text-sm text-gray-600 mb-2 font-medium">Quét mã để thanh toán <span id="qrAmount" class="font-bold text-blue-600"></span> VNĐ</p>
+                    <img id="qrImage" src="" alt="VietQR" class="w-48 h-48 border border-gray-300 p-2 rounded shadow-sm">
+                    <p class="text-xs text-gray-500 mt-3 text-center">Sau khi chuyển khoản thành công, hệ thống Admin sẽ duyệt và cộng Token vào ví bạn.</p>
+                </div>
+            </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
@@ -54,12 +68,12 @@
             currentUser = JSON.parse(userStr);
 
             try {
-                const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
+                const response = await fetch(`${API_URL}/api/test/wallet/${currentUser.id}`); // Dùng API test wallet để lấy số dư (hoặc api thật)
                 const data = await response.json();
                 
                 if (response.ok && data.wallet) {
-                    document.getElementById('balance').textContent = `${data.wallet.balance} Token`;
-                    document.getElementById('locked_balance').textContent = `${data.wallet.locked_balance} Token`;
+                    document.getElementById('balance').textContent = `${data.wallet.balance.toLocaleString()} Token`;
+                    document.getElementById('locked_balance').textContent = `${data.wallet.locked_balance.toLocaleString()} Token`;
                 }
             } catch (err) {
                 console.error('Lỗi tải ví', err);
@@ -69,6 +83,7 @@
         document.getElementById('depositForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const amount = document.getElementById('amount').value;
+            if(amount < 10000) { alert('Số lượng tối thiểu là 10,000 Token'); return; }
             
             try {
                 const response = await fetch(`${API_URL}/api/deposit`, {
@@ -79,7 +94,18 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    alert('Thành công: ' + data.message);
+                    // Tạo mã VietQR (Giả lập cấu hình ngân hàng HTWORK)
+                    const bankId = '970415'; // Vietinbank (Ví dụ)
+                    const accountNo = '1133668899';
+                    const accountName = 'HT WORK CO LTD';
+                    const addInfo = `HTWORK NAP ${currentUser.email}`;
+                    const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(accountName)}`;
+                    
+                    document.getElementById('qrImage').src = qrUrl;
+                    document.getElementById('qrAmount').textContent = parseInt(amount).toLocaleString();
+                    document.getElementById('qrSection').classList.remove('hidden');
+                    
+                    alert('Đã tạo lệnh nạp! Vui lòng quét mã QR để chuyển khoản. Admin sẽ duyệt sau khi nhận được tiền.');
                     document.getElementById('amount').value = '';
                 } else {
                     alert('Lỗi: ' + data.error);

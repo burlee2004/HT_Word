@@ -705,43 +705,34 @@ app.get('/api/admin/deposits', async (req, res) => {
     }
 });
 
-// 13. API: Admin duyệt nạp tiền
+// 13. API: Admin duyệt nạp tiền (Chuẩn Core Banking)
 app.post('/api/admin/deposits/approve', async (req, res) => {
     const { request_id } = req.body;
     try {
-        const { data: request, error: reqErr } = await supabase.from('deposit_requests').select('*').eq('id', request_id).single();
-        if (reqErr || !request) throw new Error('Không tìm thấy yêu cầu nạp tiền');
+        // Gọi Stored Function xử lý ACID
+        const { data: rpcResult, error: rpcError } = await supabase.rpc('fn_approve_deposit', {
+            p_request_id: request_id,
+            p_admin_id: '00000000-0000-0000-0000-000000000000'
+        });
 
-        // Lấy ví user
-        const { data: wallet, error: walErr } = await supabase.from('wallets').select('*').eq('user_id', request.user_id).single();
-        
-        let newBalance = parseFloat(request.amount);
-        if (wallet) {
-            newBalance += parseFloat(wallet.balance);
-            await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', request.user_id);
-        } else {
-            await supabase.from('wallets').insert([{ user_id: request.user_id, balance: request.amount }]);
+        if (rpcError) throw rpcError;
+
+        if (!rpcResult.success) {
+            return res.status(400).json({ error: rpcResult.error });
         }
 
-        // Cập nhật trạng thái request
-        await supabase.from('deposit_requests').update({ status: 'approved' }).eq('id', request_id);
+        // Lấy thông tin user_id để gửi thông báo
+        const { data: reqData } = await supabase.from('deposit_requests').select('user_id, amount').eq('id', request_id).single();
 
-        // Ghi transaction
-        await supabase.from('transactions').insert([{
-            user_id: request.user_id,
-            amount: request.amount,
-            type: 'deposit',
-            status: 'success'
-        }]);
+        if (reqData) {
+            await supabase.from('notifications').insert([{
+                user_id: reqData.user_id,
+                title: '💰 Nạp Token Thành Công',
+                content: `Lệnh nạp ${reqData.amount} Token của bạn đã được duyệt và cộng vào ví khả dụng.`
+            }]);
+        }
 
-        // Thông báo cho user
-        await supabase.from('notifications').insert([{
-            user_id: request.user_id,
-            title: 'Nạp Token Thành Công',
-            content: `Admin đã duyệt lệnh nạp ${request.amount} Token của bạn. Tiền đã được cộng vào ví khả dụng.`
-        }]);
-
-        res.status(200).json({ message: 'Duyệt nạp tiền thành công!' });
+        res.status(200).json({ message: rpcResult.message });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

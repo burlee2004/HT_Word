@@ -682,9 +682,16 @@ app.post('/api/milestones/advanced/approve', async (req, res) => {
 app.post('/api/deposit', async (req, res) => {
     const { user_id, amount } = req.body;
     try {
-        const { error } = await supabase.from('deposit_requests').insert([{ user_id, amount }]);
+        const { data, error } = await supabase.from('deposit_requests').insert([{ user_id, amount }]).select('id').single();
         if (error) throw error;
-        res.status(200).json({ message: 'Đã gửi lệnh nạp tiền. Vui lòng chờ Admin duyệt.' });
+        
+        // Tạo mã chuyển khoản từ 6 ký tự đầu của ID
+        const transferCode = 'HTword ' + data.id.substring(0, 6).toUpperCase();
+
+        res.status(200).json({ 
+            message: 'Đã gửi lệnh nạp tiền. Vui lòng chờ Admin duyệt.',
+            transferCode: transferCode 
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

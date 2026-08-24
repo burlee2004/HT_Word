@@ -44,6 +44,17 @@
                 <div id="qrSection" class="hidden flex flex-col items-center justify-center border-l border-gray-200 pl-4">
                     <p class="text-sm text-gray-600 mb-2 font-medium">Quét mã để thanh toán <span id="qrAmount" class="font-bold text-red-600 text-lg"></span> VNĐ</p>
                     
+                    <!-- Thời gian đếm ngược -->
+                    <div id="countdownTimer" class="text-red-500 font-bold text-xl mb-3 flex items-center">
+                        <i class="fas fa-clock mr-2"></i><span id="timeDisplay">05:00</span>
+                    </div>
+
+                    <!-- Nội dung chuyển khoản -->
+                    <div class="bg-gray-100 px-4 py-2 rounded-lg mb-3 w-full text-center border border-dashed border-gray-400">
+                        <p class="text-xs text-gray-500 mb-1">Nội dung chuyển khoản (BẮT BUỘC):</p>
+                        <p id="transferContentDisplay" class="font-bold text-blue-700 text-lg tracking-widest"></p>
+                    </div>
+                    
                     <!-- Ảnh QR to hơn, có viền đẹp, bo góc -->
                     <div class="relative group cursor-pointer" onclick="openQrModal()">
                         <img id="qrImage" src="" alt="VietQR" class="w-64 h-64 border border-gray-300 p-2 rounded-xl shadow-lg bg-white group-hover:scale-105 transition-transform">
@@ -55,7 +66,7 @@
                     <button onclick="downloadQR()" class="mt-4 bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-900 transition flex items-center">
                         <i class="fas fa-download mr-2"></i> Tải ảnh QR xuống
                     </button>
-                    <p class="text-xs text-gray-500 mt-3 text-center">Sau khi chuyển khoản thành công, hệ thống Admin sẽ duyệt và cộng Token vào ví bạn.</p>
+                    <p class="text-xs text-gray-500 mt-3 text-center text-red-600 font-medium">Lưu ý: Nếu quá 5 phút chưa thanh toán, vui lòng tạo mã mới.</p>
                 </div>
             </div>
         </div>
@@ -65,7 +76,17 @@
     <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4">
         <div class="relative bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full">
             <button onclick="closeQrModal()" class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-8 h-8 font-bold text-lg hover:bg-red-700 shadow-lg">&times;</button>
-            <h3 class="text-center font-bold text-gray-800 mb-4 text-xl">Quét Mã Thanh Toán</h3>
+            <h3 class="text-center font-bold text-gray-800 mb-2 text-xl">Quét Mã Thanh Toán</h3>
+            
+            <div class="text-center mb-3 text-red-500 font-bold text-lg">
+                <i class="fas fa-clock mr-1"></i><span id="modalTimeDisplay">05:00</span>
+            </div>
+
+            <div class="bg-blue-50 px-3 py-2 rounded mb-3 text-center border border-blue-200">
+                <p class="text-xs text-gray-500">Nội dung chuyển khoản:</p>
+                <p id="modalTransferContent" class="font-bold text-blue-700 text-lg"></p>
+            </div>
+
             <img id="qrModalImage" src="" alt="VietQR To" class="w-full h-auto rounded-lg border p-2">
             <p class="text-center mt-4 text-gray-600">Số tiền: <span id="qrModalAmount" class="font-bold text-red-600 text-xl"></span> VNĐ</p>
             <p class="text-center mt-1 text-sm text-gray-500">Ngân hàng: Vietcombank (VCB)</p>
@@ -100,6 +121,38 @@
             : 'https://htwork-backend.onrender.com';
 
         let currentUser = null;
+        let countdownInterval = null;
+
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            let time = 300; // 5 phút = 300 giây
+            
+            const displayTime = () => {
+                const minutes = Math.floor(time / 60);
+                const seconds = time % 60;
+                const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                document.getElementById('timeDisplay').textContent = formatted;
+                document.getElementById('modalTimeDisplay').textContent = formatted;
+                
+                if (time <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('timeDisplay').textContent = "HẾT GIỜ";
+                    document.getElementById('modalTimeDisplay').textContent = "HẾT GIỜ";
+                    document.getElementById('qrImage').style.opacity = '0.2';
+                    document.getElementById('qrModalImage').style.opacity = '0.2';
+                    alert('Thời gian thanh toán đã hết! Vui lòng tải lại trang và tạo lệnh mới.');
+                }
+                time--;
+            };
+            
+            displayTime();
+            countdownInterval = setInterval(displayTime, 1000);
+            
+            // Reset opacity trong trường hợp tạo lại
+            document.getElementById('qrImage').style.opacity = '1';
+            document.getElementById('qrModalImage').style.opacity = '1';
+        }
 
         async function loadWallet() {
             const userStr = localStorage.getItem('user');
@@ -137,20 +190,30 @@
                 const data = await response.json();
                 
                 if (response.ok) {
+                    // Dùng mã chuyển khoản từ Backend (Ví dụ: HTword ABCDEF)
+                    const transferCode = data.transferCode;
+                    
                     // Tạo mã VietQR Vietcombank (VCB)
                     const bankId = 'VCB'; // Vietcombank
                     const accountNo = '1026403009';
                     const accountName = 'HT WORK CO LTD';
-                    const addInfo = `HTWORK NAP ${currentUser.email}`;
-                    const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(accountName)}`;
+                    const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferCode)}&accountName=${encodeURIComponent(accountName)}`;
                     
                     document.getElementById('qrImage').src = qrUrl;
-                    document.getElementById('qrModalImage').src = qrUrl; // Cập nhật cả ảnh trong Modal
+                    document.getElementById('qrModalImage').src = qrUrl; 
+                    
                     document.getElementById('qrAmount').textContent = parseInt(amount).toLocaleString();
                     document.getElementById('qrModalAmount').textContent = parseInt(amount).toLocaleString();
+                    
+                    document.getElementById('transferContentDisplay').textContent = transferCode;
+                    document.getElementById('modalTransferContent').textContent = transferCode;
+                    
                     document.getElementById('qrSection').classList.remove('hidden');
                     
-                    alert('Đã tạo lệnh nạp! Vui lòng quét mã QR để chuyển khoản. Admin sẽ duyệt sau khi nhận được tiền.');
+                    // Bắt đầu đếm ngược 5 phút
+                    startCountdown();
+                    
+                    alert('Đã tạo lệnh nạp! Vui lòng thanh toán trong vòng 5 phút.');
                     document.getElementById('amount').value = '';
                 } else {
                     alert('Lỗi: ' + data.error);

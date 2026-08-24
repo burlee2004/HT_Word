@@ -209,12 +209,25 @@
         async function loadProfile() {
             try {
                 const res = await fetch(`${API_URL}/api/users/${user.id}`);
-                if (!res.ok) throw new Error('Không thể tải thông tin profile');
-                const data = await res.json();
+                
+                let data;
+                try {
+                    data = await res.json();
+                } catch(e) {
+                    throw new Error('Lỗi 404: Bạn CHƯA PUSH code backend lên Render! Vui lòng làm Bước 2.');
+                }
+
+                if (!res.ok) {
+                    if (data.error && data.error.includes('cover_url')) {
+                        throw new Error('Lỗi Database: Bạn CHƯA CHẠY LỆNH SQL tạo cột cover_url trên Supabase! Vui lòng làm Bước 1.');
+                    }
+                    throw new Error(data.error || 'Lỗi không tải được thông tin');
+                }
+
                 renderUI(data);
             } catch (error) {
                 console.error(error);
-                alert('Có lỗi xảy ra khi tải dữ liệu. Bạn đã cập nhật Backend lên Render chưa?');
+                alert(error.message);
             }
         }
 

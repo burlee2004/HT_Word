@@ -167,6 +167,13 @@
 </div>
 
 <script>
+// Check Admin Auth
+const user = JSON.parse(localStorage.getItem('user'));
+if (!user || user.role !== 'admin') {
+    alert('Cấm truy cập! Trang này chỉ dành cho Admin.');
+    window.location.href = '../sharedFolder/login.html';
+}
+
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000'
     : 'https://htwork-backend.onrender.com';

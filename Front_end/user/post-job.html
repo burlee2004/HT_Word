@@ -3,38 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Đăng Dự Án</title>
+    <title>Quản lý Yêu Cầu - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
 </head>
-<body class="bg-gray-50 p-10">
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">Đăng Dự Án Mới (Khách Hàng)</h1>
-        
-        <form id="postJobForm" class="space-y-4">
-            <!-- Client ID được tự động lấy từ localStorage, không cần nhập -->
-            <input type="hidden" id="client_id">
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Tiêu đề dự án:</label>
-                <input type="text" id="title" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Vd: Làm website bán hàng">
+<body class="bg-gray-50 min-h-screen flex flex-col font-sans text-gray-800">
+    <!-- Navbar -->
+    <nav class="bg-gradient-to-r from-blue-700 to-blue-900 p-4 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="font-bold flex items-center space-x-6">
+                <a href="home.html" class="flex items-center space-x-2 text-xl hover:opacity-90 transition">
+                    <i class="fas fa-briefcase"></i>
+                    <span>HT Work <span class="font-light text-blue-200">| Client Portal</span></span>
+                </a>
+                <div class="hidden md:flex space-x-4 text-sm font-medium border-l border-blue-500 pl-6">
+                    <a href="home.html" class="text-blue-200 hover:text-white transition">Bảng điều khiển</a>
+                    <a href="post-job.html" class="text-white border-b-2 border-white pb-1">Quản lý Yêu cầu</a>
+                </div>
             </div>
+            <a href="home.html" class="bg-blue-800 hover:bg-blue-900 px-4 py-2 rounded text-sm transition">Quay lại</a>
+        </div>
+    </nav>
 
+    <main class="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full">
+        <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700">Mô tả công việc:</label>
-                <textarea id="description" required rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                <h1 class="text-3xl font-extrabold text-gray-800">Quản lý Dự án & Yêu cầu</h1>
+                <p class="text-gray-500 mt-1">Quản lý các dự án đã đăng, đang thực hiện hoặc đã hoàn thành.</p>
             </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Ngân sách (Token/VNĐ):</label>
-                <input type="number" id="budget" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="1000000">
+            <div class="flex space-x-3">
+                <button onclick="cleanupOldJobs()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center" title="Xóa dự án Đã Nghiệm Thu & thanh toán quá 1 tháng">
+                    <i class="fas fa-broom mr-2"></i> Dọn dẹp
+                </button>
+                <button onclick="openPostModal()" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold shadow hover:bg-blue-700 transition flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Đăng Dự Án Mới
+                </button>
             </div>
+        </div>
 
-            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">
-                Đăng Dự Án
-            </button>
-        </form>
+        <!-- Filter & Search Bar -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 mb-6">
+            <div class="flex-grow relative">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="searchInput" placeholder="Tìm kiếm theo tiêu đề..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <div class="w-full md:w-64">
+                <select id="statusFilter" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="open">Đang mở (Open)</option>
+                    <option value="in_progress">Đang thực hiện (In Progress)</option>
+                    <option value="completed">Đã hoàn thành (Completed)</option>
+                </select>
+            </div>
+        </div>
 
-        <div id="message" class="mt-4 text-green-600 font-bold hidden"></div>
+        <!-- Job List -->
+        <div id="jobsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-gray-500 col-span-full text-center py-10"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</p>
+        </div>
+    </main>
+
+    <!-- Modal Đăng Dự Án -->
+    <div id="postModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">Đăng Dự Án Mới</h2>
+                <button onclick="closePostModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <form id="postJobForm" class="space-y-5">
+                    <input type="hidden" id="client_id">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tiêu đề dự án <span class="text-red-500">*</span></label>
+                        <input type="text" id="title" required class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500" placeholder="Vd: Thiết kế Website Bán Hàng">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Mô tả công việc <span class="text-red-500">*</span></label>
+                        <textarea id="description" required rows="5" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500" placeholder="Mô tả chi tiết yêu cầu, ngôn ngữ, framework..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Ngân sách (Token/VNĐ) <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold">💎</span>
+                            <input type="number" id="budget" required min="10000" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="1000000">
+                        </div>
+                    </div>
+                    <div id="postMessage" class="hidden font-bold text-center"></div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow-lg">
+                        Xác nhận Đăng Dự Án
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Dự Án -->
+    <div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-start">
+                <div>
+                    <h2 id="detailTitle" class="text-2xl font-bold text-gray-800">Tên dự án</h2>
+                    <p class="text-sm text-gray-500 mt-1"><i class="far fa-calendar-alt mr-1"></i> Ngày đăng: <span id="detailDate"></span></p>
+                </div>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span id="detailStatus" class="px-3 py-1 rounded-full text-sm font-bold border">Trạng thái</span>
+                    <span class="px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-700 border border-green-200"><i class="fas fa-coins mr-1"></i> <span id="detailBudget"></span> Token</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 text-lg border-b pb-2 mb-3">Mô tả công việc</h3>
+                    <p id="detailDesc" class="text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50 p-4 rounded-lg border"></p>
+                </div>
+            </div>
+            <div class="p-6 border-t bg-gray-50 rounded-b-2xl flex justify-end">
+                <button onclick="closeDetailModal()" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-bold hover:bg-gray-400 transition">Đóng</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -42,19 +128,143 @@
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
 
-        // Lấy thông tin user từ LocalStorage
+        let currentUser = null;
+        let allJobs = [];
+
+        // Kiểm tra Auth
         const userStr = localStorage.getItem('user');
         if (!userStr) {
-            alert('Bạn chưa đăng nhập!');
             window.location.replace('../sharedFolder/login.html');
         } else {
-            const user = JSON.parse(userStr);
-            document.getElementById('client_id').value = user.id;
+            currentUser = JSON.parse(userStr);
+            document.getElementById('client_id').value = currentUser.id;
+            loadJobs();
         }
 
+        // Tải danh sách dự án
+        async function loadJobs() {
+            const listDiv = document.getElementById('jobsList');
+            listDiv.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</p>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/client/${currentUser.id}/my-jobs`);
+                const data = await response.json();
+                
+                if (response.ok && data.jobs) {
+                    allJobs = data.jobs;
+                    renderJobs(allJobs);
+                } else {
+                    allJobs = [];
+                    renderJobs([]);
+                }
+            } catch (err) {
+                listDiv.innerHTML = '<p class="text-red-500 col-span-full text-center py-10">Lỗi kết nối Server!</p>';
+            }
+        }
+
+        // Render dự án ra UI
+        function renderJobs(jobsToRender) {
+            const listDiv = document.getElementById('jobsList');
+            if (jobsToRender.length === 0) {
+                listDiv.innerHTML = `
+                <div class="col-span-full bg-white p-10 rounded-xl shadow-sm text-center border">
+                    <div class="text-gray-300 text-5xl mb-4"><i class="fas fa-folder-open"></i></div>
+                    <p class="text-gray-500 text-lg">Không tìm thấy dự án nào.</p>
+                </div>`;
+                return;
+            }
+
+            listDiv.innerHTML = jobsToRender.map(job => {
+                let statusClass = 'bg-gray-100 text-gray-700 border-gray-300';
+                let statusText = job.status;
+                let iconClass = 'fa-file-alt';
+
+                if (job.status === 'open') {
+                    statusClass = 'bg-blue-50 text-blue-700 border-blue-300';
+                    statusText = 'Đang mở';
+                    iconClass = 'fa-door-open';
+                } else if (job.status === 'in_progress') {
+                    statusClass = 'bg-yellow-50 text-yellow-700 border-yellow-300';
+                    statusText = 'Đang thực hiện';
+                    iconClass = 'fa-spinner fa-spin';
+                } else if (job.status === 'completed' || job.status === 'closed') {
+                    statusClass = 'bg-green-50 text-green-700 border-green-300';
+                    statusText = 'Đã nghiệm thu';
+                    iconClass = 'fa-check-circle';
+                }
+
+                return `
+                <div onclick="viewJobDetails('${job.id}')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-blue-300 transition cursor-pointer flex flex-col h-full group">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold border flex items-center ${statusClass}"><i class="fas ${iconClass} mr-1"></i> ${statusText}</span>
+                        <span class="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded border"><i class="far fa-calendar-alt mr-1"></i>${new Date(job.created_at).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2 group-hover:text-blue-600 transition line-clamp-2">${job.title}</h3>
+                    <p class="text-gray-500 text-sm mb-4 line-clamp-3 flex-grow">${job.description}</p>
+                    <div class="pt-4 border-t border-gray-50 flex justify-between items-center mt-auto">
+                        <span class="font-bold text-green-600"><i class="fas fa-coins mr-1"></i>${parseInt(job.budget).toLocaleString()} Token</span>
+                        <span class="text-blue-500 text-sm group-hover:underline">Xem chi tiết <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Lọc và Tìm kiếm
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+        function applyFilters() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const statusVal = document.getElementById('statusFilter').value;
+
+            const filtered = allJobs.filter(job => {
+                const matchSearch = job.title.toLowerCase().includes(searchText) || job.description.toLowerCase().includes(searchText);
+                const matchStatus = (statusVal === 'all') || (job.status === statusVal) || (statusVal === 'completed' && job.status === 'closed');
+                return matchSearch && matchStatus;
+            });
+            renderJobs(filtered);
+        }
+
+        // Xem Chi tiết (Modal)
+        function viewJobDetails(jobId) {
+            const job = allJobs.find(j => j.id === jobId);
+            if(!job) return;
+
+            document.getElementById('detailTitle').textContent = job.title;
+            document.getElementById('detailDate').textContent = new Date(job.created_at).toLocaleString('vi-VN');
+            document.getElementById('detailBudget').textContent = parseInt(job.budget).toLocaleString();
+            document.getElementById('detailDesc').textContent = job.description;
+
+            const statusEl = document.getElementById('detailStatus');
+            if (job.status === 'open') {
+                statusEl.className = 'px-3 py-1 rounded-full text-sm font-bold border bg-blue-50 text-blue-700 border-blue-300';
+                statusEl.innerHTML = '<i class="fas fa-door-open mr-1"></i> Đang mở';
+            } else if (job.status === 'in_progress') {
+                statusEl.className = 'px-3 py-1 rounded-full text-sm font-bold border bg-yellow-50 text-yellow-700 border-yellow-300';
+                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang thực hiện';
+            } else {
+                statusEl.className = 'px-3 py-1 rounded-full text-sm font-bold border bg-green-50 text-green-700 border-green-300';
+                statusEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Đã nghiệm thu';
+            }
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // Modal Đăng Dự Án
+        function openPostModal() { document.getElementById('postModal').classList.remove('hidden'); }
+        function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
+
+        // Đăng Dự Án Xử lý
         document.getElementById('postJobForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+            btn.disabled = true;
+
             const payload = {
                 client_id: document.getElementById('client_id').value,
                 title: document.getElementById('title').value,
@@ -63,7 +273,6 @@
             };
 
             try {
-                // Đổi http://localhost:5000 thành domain của backend Render sau này
                 const response = await fetch(`${API_URL}/api/jobs`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -71,23 +280,47 @@
                 });
                 
                 const data = await response.json();
-                const msgDiv = document.getElementById('message');
+                const msgDiv = document.getElementById('postMessage');
                 msgDiv.classList.remove('hidden');
                 
                 if (response.ok) {
                     msgDiv.textContent = data.message;
                     msgDiv.className = "mt-4 text-green-600 font-bold block";
                     document.getElementById('postJobForm').reset();
-                    alert('Đăng tin thành công!');
-                    window.location.href = 'home.html';
+                    setTimeout(() => {
+                        closePostModal();
+                        msgDiv.classList.add('hidden');
+                        loadJobs(); // Load lại DS
+                    }, 1500);
                 } else {
                     msgDiv.textContent = 'Lỗi: ' + data.error;
                     msgDiv.className = "mt-4 text-red-600 font-bold block";
                 }
             } catch (err) {
                 alert('Không thể kết nối đến Backend');
+            } finally {
+                btn.innerHTML = 'Xác nhận Đăng Dự Án';
+                btn.disabled = false;
             }
         });
+
+        // Dọn dẹp Dự án cũ (> 1 tháng)
+        async function cleanupOldJobs() {
+            if(!confirm('Hành động này sẽ xóa các dự án đã NGHIỆM THU trên 1 tháng để giải phóng dung lượng. Các dự án đang làm sẽ KHÔNG bị ảnh hưởng. Bạn có chắc chắn?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/jobs/cleanup/${currentUser.id}`, { method: 'DELETE' });
+                const data = await response.json();
+                if(response.ok) {
+                    alert('Thành công: ' + data.message);
+                    loadJobs();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Lỗi kết nối server khi dọn dẹp!');
+            }
+        }
     </script>
 </body>
 </html>

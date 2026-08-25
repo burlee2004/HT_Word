@@ -950,8 +950,31 @@ app.post('/api/test/simulate-release', async (req, res) => {
     } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// Khởi động Server
+// 17. API: Dọn dẹp dự án cũ
+app.delete('/api/jobs/cleanup/:client_id', async (req, res) => {
+    const { client_id } = req.params;
+    try {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        
+        // Supabase REST không trả về count delete trực tiếp nếu không cài đặt đặc biệt, 
+        // nhưng ta có thể chạy query. (Lưu ý: status 'completed' hoặc 'closed')
+        const { data, error } = await supabase
+            .from('jobs')
+            .delete()
+            .eq('client_id', client_id)
+            .in('status', ['completed', 'closed'])
+            .lt('created_at', oneMonthAgo.toISOString());
+            
+        if (error) throw error;
+        res.status(200).json({ message: 'Đã dọn dẹp các dự án cũ đã hoàn thành quá 1 tháng!' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Khởi chạy server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`✅ Server đang chạy tại http://localhost:${PORT}`);
-});
+});

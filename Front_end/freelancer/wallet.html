@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ví Token Của Tôi - HT Work (Freelancer)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col font-sans text-gray-800">
+    <!-- Navbar -->
+    <nav class="bg-gradient-to-r from-indigo-700 to-purple-800 p-4 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="font-bold flex items-center space-x-6">
+                <a href="home.html" class="flex items-center space-x-2 text-xl hover:opacity-90 transition">
+                    <i class="fas fa-bolt"></i>
+                    <span>HT Work <span class="font-light text-indigo-200">| Freelancer Portal</span></span>
+                </a>
+            </div>
+            <a href="home.html" class="bg-indigo-900 hover:bg-indigo-950 px-4 py-2 rounded text-sm transition font-bold"><i class="fas fa-arrow-left mr-2"></i>Quay lại</a>
+        </div>
+    </nav>
+
+    <div class="max-w-3xl mx-auto w-full p-8 mt-10">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2"><i class="fas fa-wallet text-indigo-600 mr-2"></i>Ví Token của tôi</h1>
+        <p class="text-gray-500 mb-8">Quản lý thu nhập từ các dự án đã hoàn thành trên hệ thống.</p>
+        
+        <!-- Hiển thị số dư -->
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col md:flex-row justify-between items-center bg-gradient-to-br from-indigo-50 to-white">
+            <div class="text-center md:text-left mb-4 md:mb-0">
+                <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Số dư khả dụng</h2>
+                <div class="flex items-center justify-center md:justify-start">
+                    <i class="fas fa-coins text-yellow-500 text-4xl mr-3 shadow-sm rounded-full bg-white p-1"></i>
+                    <p id="balance" class="text-5xl font-extrabold text-green-600">0</p>
+                    <span class="text-xl text-gray-500 ml-2 font-bold mt-3">Token</span>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-inner border w-full md:w-auto text-center">
+                <h2 class="text-xs font-bold text-gray-500 uppercase">Token Đang Khóa</h2>
+                <p id="locked_balance" class="text-2xl font-bold text-gray-400 mt-1">0</p>
+                <p class="text-[10px] text-gray-400 mt-1">(Dự án đang làm)</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-sm border mt-8 text-center">
+            <i class="fas fa-university text-gray-300 text-5xl mb-4"></i>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">Tính năng Rút Tiền (Withdraw)</h2>
+            <p class="text-gray-500">Tính năng quy đổi Token ra tiền mặt (VNĐ) và chuyển về tài khoản ngân hàng đang được phát triển. Vui lòng quay lại sau!</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let currentUser = null;
+
+        async function loadWallet() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('Bạn chưa đăng nhập!');
+                window.location.replace('../sharedFolder/login.html');
+                return;
+            }
+            currentUser = JSON.parse(userStr);
+
+            try {
+                const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('balance').textContent = parseInt(data.balance).toLocaleString();
+                    document.getElementById('locked_balance').textContent = parseInt(data.locked_balance).toLocaleString();
+                } else {
+                    alert('Lỗi tải ví: ' + data.error);
+                }
+            } catch (err) {
+                alert('Lỗi kết nối đến Backend');
+            }
+        }
+
+        loadWallet();
+    </script>
+</body>
+</html>

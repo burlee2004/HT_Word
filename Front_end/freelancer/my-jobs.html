@@ -182,9 +182,9 @@
                     links = `<a href="${m.evidence_url}" target="_blank" class="text-blue-500 underline">Xem minh chứng</a>`;
                 }
                 actionHtml = `<div class="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700"><strong>Minh chứng đã nộp:</strong><br>${links}</div>`;
-            } else if (m.status === 'APPROVED') {
-                statusHtml = '<span class="text-green-600 font-bold">Đã Nghiệm Thu (APPROVED)</span>';
-                actionHtml = `<p class="mt-2 text-sm text-gray-500">Tiền đã được xử lý theo cấu hình: ${m.payment_mode}</p>`;
+            } else if (m.status === 'APPROVED' || m.status === 'approved' || m.status === 'PAID') {
+                statusHtml = '<span class="text-green-600 font-bold">Đã Nghiệm Thu (Đã Thanh Toán Token)</span>';
+                actionHtml = `<p class="mt-2 text-sm text-gray-500">Tiền đã được cộng vào Ví Token của bạn theo cấu hình: ${m.payment_mode}</p>`;
             }
 
             return `

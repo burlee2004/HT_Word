@@ -665,6 +665,19 @@ app.post('/api/milestones/advanced/approve', async (req, res) => {
             content: `Khách hàng đã nghiệm thu. ${mData.amount} Token đã được chuyển vào ví của bạn.`
         }]);
 
+        // Cập nhật trạng thái job nếu tất cả milestones đã PAID
+        const { data: allMilestones, error: checkErr } = await supabase
+            .from('milestones')
+            .select('status')
+            .eq('job_id', mData.job_id);
+            
+        if (!checkErr && allMilestones) {
+            const allPaid = allMilestones.every(m => m.status === 'PAID');
+            if (allPaid) {
+                await supabase.from('jobs').update({ status: 'completed' }).eq('id', mData.job_id);
+            }
+        }
+
         res.status(200).json({ 
             message: 'Nghiệm thu và giải ngân thành công!',
             detail: rpcResult.message

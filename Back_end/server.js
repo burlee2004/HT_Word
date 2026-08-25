@@ -364,12 +364,13 @@ app.get('/api/client/:client_id/applications', async (req, res) => {
     }
 });
 
-// 6. API: Admin xem toàn bộ Giao dịch và Thống kê
+// 6. API: Admin xem toàn bộ Sổ cái (Ledger)
 app.get('/api/admin/transactions', async (req, res) => {
     try {
+        // Lấy từ Sổ cái (wallet_ledger) thay vì transactions cũ
         const { data, error } = await supabase
-            .from('transactions')
-            .select('*, users(full_name, email, role)')
+            .from('wallet_ledger')
+            .select('*, sender:sender_id(full_name, email), receiver:receiver_id(full_name, email)')
             .order('created_at', { ascending: false });
             
         if (error) throw error;

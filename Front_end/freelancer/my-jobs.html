@@ -22,6 +22,7 @@
             <p class="text-gray-600 mb-4">Chia nhỏ dự án thành các giai đoạn để dễ quản lý và nghiệm thu.</p>
             
             <input type="hidden" id="modal_job_id">
+            <input type="hidden" id="modal_job_budget">
             
             <div id="milestonesContainer" class="space-y-4">
                 <!-- Các form nhập milestone sẽ chèn vào đây -->
@@ -107,7 +108,7 @@
                 contentHtml = `
                     <div class="bg-blue-50 p-4 rounded border border-blue-200 mt-4">
                         <p class="text-blue-800">Khách hàng đã chọn bạn! Vui lòng lập kế hoạch (Milestones) để bắt đầu.</p>
-                        <button onclick="openPlanModal('${job.id}')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 shadow">Lập Kế Hoạch (Milestone Builder)</button>
+                        <button onclick="openPlanModal('${job.id}', ${job.budget})" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 shadow">Lập Kế Hoạch (Milestone Builder)</button>
                     </div>
                 `;
             } else if (job.status === 'pending_plan_approval') {
@@ -205,8 +206,9 @@
         // ---------- MILESTONE BUILDER LOGIC ----------
         let milestoneCount = 0;
 
-        function openPlanModal(jobId) {
+        function openPlanModal(jobId, jobBudget) {
             document.getElementById('modal_job_id').value = jobId;
+            document.getElementById('modal_job_budget').value = jobBudget; // Store for validation
             document.getElementById('milestonesContainer').innerHTML = '';
             milestoneCount = 0;
             addMilestoneForm(); // add the first form
@@ -267,26 +269,36 @@
                 return;
             }
 
+            const jobBudget = parseFloat(document.getElementById('modal_job_budget').value);
             const milestones = [];
+            let totalAmount = 0;
+
             for (let item of items) {
                 const title = item.querySelector('.m-title').value;
-                const amount = item.querySelector('.m-amount').value;
+                const amount = parseFloat(item.querySelector('.m-amount').value);
                 const desc = item.querySelector('.m-desc').value;
                 const deliver = item.querySelector('.m-deliver').value;
                 const payment = item.querySelector('.m-payment').value;
 
-                if (!title || !amount) {
-                    alert('Tiêu đề và Trị giá không được bỏ trống!');
+                if (!title || isNaN(amount) || amount <= 0) {
+                    alert('Tiêu đề và Trị giá (lớn hơn 0) không được bỏ trống!');
                     return;
                 }
 
+                totalAmount += amount;
+
                 milestones.push({
                     title: title,
-                    amount: parseFloat(amount),
+                    amount: amount,
                     description: desc,
                     expected_deliverables: deliver,
                     payment_mode: payment
                 });
+            }
+
+            if (totalAmount > jobBudget) {
+                alert('LỖI: Tổng trị giá các giai đoạn (' + totalAmount + ' Token) vượt quá giá thỏa thuận của dự án (' + jobBudget + ' Token)! Vui lòng điều chỉnh lại.');
+                return;
             }
 
             try {

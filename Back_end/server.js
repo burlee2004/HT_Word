@@ -226,8 +226,8 @@ app.post('/api/jobs/accept-freelancer', async (req, res) => {
             
         if (appErr) throw appErr;
 
-        // Đổi trạng thái Job sang 'planning'
-        await supabase.from('jobs').update({ status: 'planning' }).eq('id', updatedApp.job_id);
+        // Đổi trạng thái Job sang 'planning' và cập nhật Ngân sách dự án thành Giá thỏa thuận của Freelancer
+        await supabase.from('jobs').update({ status: 'planning', budget: updatedApp.bid_amount }).eq('id', updatedApp.job_id);
 
         // Gửi thông báo cho Freelancer yêu cầu lập kế hoạch
         await supabase.from('notifications').insert([{

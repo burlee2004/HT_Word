@@ -93,6 +93,26 @@
         </div>
     </div>
 
+    <!-- Khối Lịch sử Giao dịch -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-xl font-bold mb-4 border-b pb-2"><i class="fas fa-history mr-2 text-blue-600"></i>Lịch sử Giao dịch</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="px-4 py-3 font-bold text-gray-700">Thời gian</th>
+                        <th class="px-4 py-3 font-bold text-gray-700">Loại GD</th>
+                        <th class="px-4 py-3 font-bold text-gray-700">Số lượng (Token)</th>
+                        <th class="px-4 py-3 font-bold text-gray-700">Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionList" class="divide-y divide-gray-100">
+                    <tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">Đang tải lịch sử...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script>
         function openQrModal() { document.getElementById('qrModal').classList.remove('hidden'); }
@@ -164,13 +184,38 @@
             currentUser = JSON.parse(userStr);
 
             try {
-                const response = await fetch(`${API_URL}/api/test/wallet/${currentUser.id}`); // Dùng API test wallet để lấy số dư (hoặc api thật)
+                // Tải thông tin ví
+                const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
                 const data = await response.json();
                 
                 if (response.ok && data.wallet) {
                     document.getElementById('balance').textContent = `${data.wallet.balance.toLocaleString()} Token`;
                     document.getElementById('locked_balance').textContent = `${data.wallet.locked_balance.toLocaleString()} Token`;
                 }
+
+                // Tải lịch sử giao dịch
+                const txRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}/transactions`);
+                const txData = await txRes.json();
+                const tbody = document.getElementById('transactionList');
+                if (txRes.ok && txData.transactions && txData.transactions.length > 0) {
+                    tbody.innerHTML = txData.transactions.map(tx => {
+                        const dateStr = new Date(tx.created_at).toLocaleString('vi-VN');
+                        const isReceiver = tx.receiver_id === currentUser.id;
+                        const amountColor = isReceiver ? 'text-green-600' : 'text-red-600';
+                        const amountSign = isReceiver ? '+' : '-';
+                        return `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-gray-500">${dateStr}</td>
+                                <td class="px-4 py-3"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold">${tx.type}</span></td>
+                                <td class="px-4 py-3 font-bold ${amountColor}">${amountSign}${parseInt(tx.amount).toLocaleString()}</td>
+                                <td class="px-4 py-3 text-gray-600">${tx.note || ''}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">Chưa có giao dịch nào.</td></tr>';
+                }
+
             } catch (err) {
                 console.error('Lỗi tải ví', err);
             }

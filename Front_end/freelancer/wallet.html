@@ -42,6 +42,25 @@
             </div>
         </div>
 
+        <div class="mt-10">
+            <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-history mr-2 text-indigo-500"></i>Lịch sử Giao dịch</h2>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <table class="min-w-full text-left text-sm">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-6 py-4 font-bold text-gray-700">Thời gian</th>
+                            <th class="px-6 py-4 font-bold text-gray-700">Loại GD</th>
+                            <th class="px-6 py-4 font-bold text-gray-700">Số lượng (Token)</th>
+                            <th class="px-6 py-4 font-bold text-gray-700">Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionList" class="divide-y divide-gray-100">
+                        <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Đang tải lịch sử...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="bg-white p-8 rounded-2xl shadow-sm border mt-8 text-center">
             <i class="fas fa-university text-gray-300 text-5xl mb-4"></i>
             <h2 class="text-xl font-bold text-gray-800 mb-2">Tính năng Rút Tiền (Withdraw)</h2>
@@ -66,6 +85,7 @@
             currentUser = JSON.parse(userStr);
 
             try {
+                // Tải ví
                 const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
                 const data = await response.json();
                 
@@ -74,6 +94,29 @@
                     document.getElementById('locked_balance').textContent = parseInt(data.locked_balance).toLocaleString();
                 } else {
                     alert('Lỗi tải ví: ' + data.error);
+                }
+
+                // Tải lịch sử giao dịch
+                const txRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}/transactions`);
+                const txData = await txRes.json();
+                const tbody = document.getElementById('transactionList');
+                if (txRes.ok && txData.transactions && txData.transactions.length > 0) {
+                    tbody.innerHTML = txData.transactions.map(tx => {
+                        const dateStr = new Date(tx.created_at).toLocaleString('vi-VN');
+                        const isReceiver = tx.receiver_id === currentUser.id;
+                        const amountColor = isReceiver ? 'text-green-600' : 'text-red-600';
+                        const amountSign = isReceiver ? '+' : '-';
+                        return `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-gray-500">${dateStr}</td>
+                                <td class="px-6 py-4"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold">${tx.type}</span></td>
+                                <td class="px-6 py-4 font-bold ${amountColor}">${amountSign}${parseInt(tx.amount).toLocaleString()}</td>
+                                <td class="px-6 py-4 text-gray-600">${tx.note || ''}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Chưa có giao dịch nào.</td></tr>';
                 }
             } catch (err) {
                 alert('Lỗi kết nối đến Backend');

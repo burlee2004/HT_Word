@@ -727,12 +727,13 @@ app.get('/api/admin/deposits', async (req, res) => {
 
 // 13. API: Admin duyệt nạp tiền (Chuẩn Core Banking)
 app.post('/api/admin/deposits/approve', async (req, res) => {
-    const { request_id } = req.body;
+    const { request_id, admin_id } = req.body;
     try {
+        const admin_id_to_use = admin_id || '11111111-1111-1111-1111-111111111111';
         // Gọi Stored Function xử lý ACID
         const { data: rpcResult, error: rpcError } = await supabase.rpc('fn_approve_deposit', {
             p_request_id: request_id,
-            p_admin_id: '00000000-0000-0000-0000-000000000000'
+            p_admin_id: admin_id_to_use
         });
 
         if (rpcError) throw rpcError;
@@ -804,7 +805,29 @@ app.get('/api/wallet/:user_id', async (req, res) => {
     try {
         const { data, error } = await supabase.from('wallets').select('*').eq('user_id', user_id).single();
         if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
-        res.status(200).json({ wallet: data || { balance: 0, locked_balance: 0 } });
+        res.status(200).json({ 
+            balance: data ? data.balance : 0, 
+            locked_balance: data ? data.locked_balance : 0,
+            wallet: data || { balance: 0, locked_balance: 0 }
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 15.1 API: Lấy lịch sử giao dịch (Sổ cái) của user
+app.get('/api/wallet/:user_id/transactions', async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('wallet_ledger')
+            .select('*')
+            .or(`sender_id.eq.${user_id},receiver_id.eq.${user_id}`)
+            .order('created_at', { ascending: false })
+            .limit(50);
+            
+        if (error) throw error;
+        res.status(200).json({ transactions: data });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

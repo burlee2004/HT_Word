@@ -24,6 +24,8 @@
                 <input type="hidden" id="modal_client_id">
 
                 <p class="text-sm text-gray-600">Bạn có chắc chắn muốn chọn Freelancer này cho dự án không? Token sẽ được giữ trong Escrow.</p>
+                
+                <div id="message" class="hidden text-sm"></div>
 
                 <div class="flex justify-end space-x-2 mt-4">
                     <button type="button" onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Hủy</button>
@@ -114,7 +116,8 @@
                     msgDiv.className = "mt-4 text-red-600 font-bold block";
                 }
             } catch (err) {
-                alert('Không thể kết nối đến Backend');
+                console.error('Error during API call:', err);
+                alert('Có lỗi xảy ra: ' + err.message);
             }
         });
 

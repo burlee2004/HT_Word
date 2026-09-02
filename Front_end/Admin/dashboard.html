@@ -5,12 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 p-10 font-sans">
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-4">
             <h1 class="text-3xl font-bold text-gray-800">Bảng điều khiển Quản Trị Viên (Admin)</h1>
-            <button onclick="loadTransactions()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Làm mới dữ liệu</button>
+            <div class="flex space-x-3">
+                <button onclick="window.location.href='projects-monitor.html'" class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-700 flex items-center font-bold">
+                    <i class="fas fa-satellite-dish mr-2"></i> Tranh Chấp & Giám Sát
+                </button>
+                <button onclick="window.location.href='blockchain-audit.html'" class="bg-gray-800 text-white px-4 py-2 rounded shadow hover:bg-black flex items-center font-bold">
+                    <i class="fas fa-shield-alt mr-2"></i> Audit (Kiểm toán)
+                </button>
+                <button onclick="window.location.href='deposits.html'" class="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700">Duyệt Nạp Tiền</button>
+                <button onclick="window.location.href='withdrawals.html'" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">Duyệt Rút Tiền</button>
+                <button onclick="loadTransactions()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Làm mới dữ liệu</button>
+            </div>
         </div>
         
         <div class="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -19,70 +30,78 @@
                 <table class="min-w-full bg-white">
                     <thead class="bg-gray-50 text-gray-600 uppercase text-sm leading-normal">
                         <tr>
-                            <th class="py-3 px-6 text-left">Thời gian</th>
-                            <th class="py-3 px-6 text-left">Người dùng</th>
-                            <th class="py-3 px-6 text-left">Loại giao dịch</th>
-                            <th class="py-3 px-6 text-right">Số lượng (Token)</th>
-                            <th class="py-3 px-6 text-center">Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionTableBody" class="text-gray-600 text-sm font-light">
-                        <tr>
-                            <td colspan="5" class="py-3 px-6 text-center">Đang tải dữ liệu...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                        <th class="py-3 px-6 text-left">Thời gian</th>
+                        <th class="py-3 px-6 text-left">Người dùng</th>
+                        <th class="py-3 px-6 text-left">Mã Giao Dịch</th>
+                        <th class="py-3 px-6 text-left">Loại giao dịch</th>
+                        <th class="py-3 px-6 text-right">Số lượng (Token)</th>
+                        <th class="py-3 px-6 text-center">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionTableBody" class="text-gray-600 text-sm font-light">
+                    <tr>
+                        <td colspan="6" class="py-3 px-6 text-center">Đang tải dữ liệu...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
-    <script>
-        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+<script>
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:5000' 
+        : 'https://htwork-backend.onrender.com';
 
-        async function loadTransactions() {
-            const tbody = document.getElementById('transactionTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" class="py-3 px-6 text-center">Đang tải dữ liệu...</td></tr>';
+    async function loadTransactions() {
+        const tbody = document.getElementById('transactionTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" class="py-3 px-6 text-center">Đang tải dữ liệu...</td></tr>';
 
-            try {
-                const response = await fetch(`${API_URL}/api/admin/transactions`);
-                const data = await response.json();
+        try {
+            const response = await fetch(`${API_URL}/api/admin/transactions`);
+            const data = await response.json();
 
-                if (data.transactions && data.transactions.length > 0) {
-                    tbody.innerHTML = data.transactions.map(t => {
-                        const date = new Date(t.created_at).toLocaleString('vi-VN');
-                        
-                        // Xác định User liên quan chính
-                        // Với nạp tiền, rút tiền, nhận tiền... người thụ hưởng/bị trừ thường nằm ở receiver hoặc sender
-                        const relatedUser = t.receiver ? t.receiver.full_name : (t.sender ? t.sender.full_name : 'Hệ thống');
-                        
-                        let typeHtml = '';
-                        // Chuyển sang uppercase để dễ map
-                        const tType = t.type ? t.type.toUpperCase() : '';
-                        
-                        switch(tType) {
-                            case 'ESCROW_LOCK':
-                                typeHtml = '<span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-xs">Khóa Escrow</span>';
-                                break;
-                            case 'ESCROW_RELEASE':
-                                typeHtml = '<span class="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-xs">Thanh toán Escrow</span>';
-                                break;
-                            case 'DEPOSIT':
-                                typeHtml = '<span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs">Nạp Token</span>';
-                                break;
-                            case 'WITHDRAW':
-                                typeHtml = '<span class="bg-red-100 text-red-800 py-1 px-3 rounded-full text-xs">Rút Tiền</span>';
-                                break;
-                            default:
-                                typeHtml = `<span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-xs">${t.type}</span>`;
-                        }
+            if (data.transactions && data.transactions.length > 0) {
+                tbody.innerHTML = data.transactions.map(t => {
+                    const date = new Date(t.created_at).toLocaleString('vi-VN');
+                    
+                    // Xác định User liên quan chính
+                    const relatedUser = t.receiver ? t.receiver.full_name : (t.sender ? t.sender.full_name : 'Hệ thống');
+                    
+                    let typeHtml = '';
+                    const tType = t.type ? t.type.toUpperCase() : '';
+                    let transferCode = '-';
+                    
+                    if (tType === 'DEPOSIT' && t.idempotency_key && t.idempotency_key.startsWith('DEPOSIT_')) {
+                        const requestId = t.idempotency_key.replace('DEPOSIT_', '');
+                        transferCode = 'HTword ' + requestId.substring(0, 6).toUpperCase();
+                    }
+                    
+                    switch(tType) {
+                        case 'ESCROW_LOCK':
+                            typeHtml = '<span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-xs">Khóa Escrow</span>';
+                            break;
+                        case 'ESCROW_RELEASE':
+                            typeHtml = '<span class="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-xs">Thanh toán Escrow</span>';
+                            break;
+                        case 'DEPOSIT':
+                            typeHtml = '<span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs">Nạp Token</span>';
+                            break;
+                        case 'WITHDRAW':
+                            typeHtml = '<span class="bg-red-100 text-red-800 py-1 px-3 rounded-full text-xs">Rút Tiền</span>';
+                            break;
+                        default:
+                            typeHtml = `<span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-xs">${t.type}</span>`;
+                    }
 
-                        return `
-                            <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                <td class="py-3 px-6 text-left whitespace-nowrap text-sm text-gray-500">${date}</td>
-                                <td class="py-3 px-6 text-left font-medium text-gray-800">${relatedUser}</td>
-                                <td class="py-3 px-6 text-left">${typeHtml}</td>
+                    return `
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-3 px-6 text-left whitespace-nowrap text-sm text-gray-500">${date}</td>
+                            <td class="py-3 px-6 text-left font-medium text-gray-800">${relatedUser}</td>
+                            <td class="py-3 px-6 text-left">
+                                ${transferCode !== '-' ? `<span class="bg-gray-100 text-blue-700 font-bold px-2 py-1 rounded border border-gray-200 tracking-wider text-xs">${transferCode}</span>` : '<span class="text-gray-400">-</span>'}
+                            </td>
+                            <td class="py-3 px-6 text-left">${typeHtml}</td>
                                 <td class="py-3 px-6 text-right font-bold text-gray-700">
                                     ${parseInt(t.amount).toLocaleString()}
                                 </td>
@@ -93,10 +112,11 @@
                         `;
                     }).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="py-3 px-6 text-center text-gray-500">Chưa có giao dịch nào trên hệ thống.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="py-3 px-6 text-center text-gray-500">Chưa có giao dịch nào trên hệ thống.</td></tr>';
                 }
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="5" class="py-3 px-6 text-center text-red-500">Lỗi kết nối Backend.</td></tr>';
+                console.error(error);
+                tbody.innerHTML = '<tr><td colspan="6" class="py-3 px-6 text-center text-red-500">Lỗi khi tải Sổ cái giao dịch</td></tr>';
             }
         }
 

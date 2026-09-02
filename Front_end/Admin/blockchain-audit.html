@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trung tâm Kiểm toán Blockchain (Audit) - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Tích hợp Ethers.js để tương tác trực tiếp Blockchain -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 p-10 font-sans">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-shield-alt text-indigo-600 mr-2"></i>Trung tâm Kiểm toán Blockchain (Web2.5)</h1>
+            <div class="flex space-x-3">
+                <button onclick="window.location.href='dashboard.html'" class="bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 font-bold">Trở về Dashboard</button>
+            </div>
+        </div>
+        
+        <!-- THÔNG TIN SMART CONTRACT -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-indigo-600">
+            <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-file-contract mr-2"></i>Thông tin Smart Contract</h2>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500 font-semibold">Mạng lưới (Network):</p>
+                    <p class="font-bold text-indigo-600">Ethereum Sepolia (Testnet)</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 font-semibold">Địa chỉ Hợp đồng (Contract Address):</p>
+                    <p class="font-bold text-gray-800 font-mono" id="txtContractAddress">0xCe6A4e01aB3fd44be7f538B28e284f103426A54b</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button onclick="openEtherscanContract()" class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2 rounded font-bold hover:bg-indigo-100 transition flex items-center">
+                    <i class="fas fa-external-link-alt mr-2"></i> Xem Smart Contract trên Etherscan
+                </button>
+            </div>
+        </div>
+
+        <!-- MÁY QUÉT TOÀN VẸN (INTEGRITY SCANNER) -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-700"><i class="fas fa-radar mr-2 text-green-500"></i>Máy Quét Toàn Vẹn Dữ Liệu</h2>
+                <button id="btnScan" onclick="startIntegrityScan()" class="bg-green-600 text-white px-5 py-2 rounded shadow hover:bg-green-700 font-bold flex items-center transition">
+                    <i class="fas fa-sync-alt mr-2"></i> Bắt đầu Quét Toàn Vẹn
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">Hệ thống sẽ đối chiếu số dư của toàn bộ người dùng trong <b>Database (Supabase)</b> với sổ cái phi tập trung trên <b>Blockchain (Ethereum Sepolia)</b> theo thời gian thực.</p>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-50 text-gray-600 uppercase text-xs leading-normal">
+                        <tr>
+                            <th class="py-3 px-6 text-left">Email Người Dùng</th>
+                            <th class="py-3 px-6 text-right">Số Dư (Database)</th>
+                            <th class="py-3 px-6 text-right">Số Dư (Blockchain)</th>
+                            <th class="py-3 px-6 text-center">Trạng Thái Kiểm Định</th>
+                            <th class="py-3 px-6 text-center">Thao tác tra cứu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scanTableBody" class="text-gray-600 font-light text-sm">
+                        <tr><td colspan="5" class="py-4 px-6 text-center text-gray-500 font-medium">Bấm "Bắt đầu Quét" để lấy dữ liệu.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' : 'https://htwork-backend.onrender.com';
+        
+        // Cấu hình Blockchain
+        const RPC_URL = 'https://ethereum-sepolia-rpc.publicnode.com'; // Hoặc rpc.sepolia.org
+        const CONTRACT_ADDRESS = '0xCe6A4e01aB3fd44be7f538B28e284f103426A54b';
+        
+        // ABI siêu nhỏ chỉ cần hàm getBalance và 2 Events
+        const ABI = [
+            "function getBalance(string memory userId) public view returns (uint256)",
+            "event BalanceAdded(string userId, uint256 amount, uint256 newBalance)",
+            "event BalanceDeducted(string userId, uint256 amount, uint256 newBalance)"
+        ];
+
+        let provider;
+        let contract;
+
+        function openEtherscanContract() {
+            window.open(`https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}`, '_blank');
+        }
+        
+        function openEtherscanSearch(userId) {
+            // Không tra được trực tiếp số dư mapping trên web etherscan, 
+            // nên ta cho họ xem toàn bộ transactions của contract
+            window.open(`https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}#internaltx`, '_blank');
+        }
+
+        async function startIntegrityScan() {
+            const btn = document.getElementById('btnScan');
+            const tbody = document.getElementById('scanTableBody');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang kết nối Blockchain...';
+            tbody.innerHTML = '<tr><td colspan="5" class="py-4 px-6 text-center text-blue-600 font-bold">Đang kết nối RPC Node...</td></tr>';
+
+            try {
+                // 1. Khởi tạo Ethers.js
+                provider = new ethers.JsonRpcProvider(RPC_URL);
+                contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+
+                // 2. Gọi API lấy danh sách User + Số dư DB
+                tbody.innerHTML = '<tr><td colspan="5" class="py-4 px-6 text-center text-indigo-600 font-bold">Đang tải Database...</td></tr>';
+                const res = await fetch(`${API_URL}/api/admin/audit/users`);
+                if (!res.ok) throw new Error('Không lấy được dữ liệu Database');
+                const users = await res.json();
+
+                tbody.innerHTML = '';
+                
+                // 3. Quét từng user
+                for (const user of users) {
+                    const rowId = `row-${user.id}`;
+                    // Tính tổng số dư kỳ vọng trên Database (Balance khả dụng + Lock đang treo)
+                    const dbExpectedTotal = parseInt(user.balance) + parseInt(user.locked_balance);
+                    
+                    const rowHTML = `
+                        <tr id="${rowId}" class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-3 px-6 text-left whitespace-nowrap">
+                                <div class="font-bold text-gray-800">${user.email}</div>
+                                <div class="text-xs text-gray-400">ID: ${user.id.substring(0, 8)}...</div>
+                            </td>
+                            <td class="py-3 px-6 text-right font-bold text-blue-600">
+                                ${dbExpectedTotal.toLocaleString()}
+                                <div class="text-xs text-gray-500 font-normal">(Khả dụng: ${user.balance} | Khóa: ${user.locked_balance})</div>
+                            </td>
+                            <td class="py-3 px-6 text-right font-bold" id="bc-${user.id}">
+                                <i class="fas fa-spinner fa-spin text-gray-400"></i> Đang quét...
+                            </td>
+                            <td class="py-3 px-6 text-center" id="status-${user.id}">
+                                -
+                            </td>
+                            <td class="py-3 px-6 text-center">
+                                <button onclick="showUserHistory('${user.id}', '${user.email}')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded text-xs font-bold transition flex items-center justify-center mx-auto">
+                                    <i class="fas fa-history mr-1"></i> TxHash
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', rowHTML);
+
+                    // Tra cứu trực tiếp bằng JS
+                    try {
+                        const bcBalanceRaw = await contract.getBalance(user.id);
+                        const bcBalance = Number(bcBalanceRaw);
+                        
+                        document.getElementById(`bc-${user.id}`).innerText = bcBalance.toLocaleString();
+                        
+                        const statusCell = document.getElementById(`status-${user.id}`);
+                        if (dbExpectedTotal === bcBalance) {
+                            document.getElementById(`bc-${user.id}`).classList.add('text-green-600');
+                            statusCell.innerHTML = '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-check-circle mr-1"></i> An toàn tuyệt đối</span>';
+                        } else {
+                            document.getElementById(`bc-${user.id}`).classList.add('text-red-600');
+                            statusCell.innerHTML = '<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-exclamation-triangle mr-1"></i> Cảnh báo Hack/Lệch</span>';
+                            // Đánh dấu dòng đỏ
+                            document.getElementById(rowId).classList.add('bg-red-50');
+                        }
+                    } catch (bcError) {
+                        document.getElementById(`bc-${user.id}`).innerText = 'Lỗi RPC';
+                        document.getElementById(`status-${user.id}`).innerHTML = '<span class="text-red-500">Lỗi kết nối</span>';
+                    }
+                }
+
+                if (users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="py-4 px-6 text-center">Không có dữ liệu người dùng.</td></tr>';
+                }
+
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+                tbody.innerHTML = `<tr><td colspan="5" class="py-4 px-6 text-center text-red-500 font-bold">${error.message}</td></tr>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> Bắt đầu Quét Toàn Vẹn (Quét lại)';
+            }
+        }
+
+        // --- TÍNH NĂNG XEM LỊCH SỬ TXHASH ---
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        async function showUserHistory(userId, email) {
+            document.getElementById('modalEmail').innerText = email;
+            const modal = document.getElementById('historyModal');
+            const tbody = document.getElementById('historyTableBody');
+            
+            modal.classList.remove('hidden');
+            tbody.innerHTML = '<tr><td colspan="4" class="py-4 px-6 text-center text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Đang trích xuất dữ liệu từ Mạng lưới Ethereum...</td></tr>';
+
+            if (!contract) {
+                provider = new ethers.JsonRpcProvider(RPC_URL);
+                contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+            }
+
+            try {
+                // Quét 2 loại sự kiện từ Blockchain
+                const addFilter = contract.filters.BalanceAdded(userId);
+                const deductFilter = contract.filters.BalanceDeducted(userId);
+                
+                // Fetch logs (Lấy 5000 block gần nhất)
+                const currentBlock = await provider.getBlockNumber();
+                const addLogs = await contract.queryFilter(addFilter, currentBlock - 5000, currentBlock);
+                const deductLogs = await contract.queryFilter(deductFilter, currentBlock - 5000, currentBlock);
+
+                // Gom chung và sắp xếp
+                let allEvents = [];
+                addLogs.forEach(log => {
+                    allEvents.push({ type: 'Nạp/Cộng', amount: log.args[1], hash: log.transactionHash, block: log.blockNumber, color: 'text-green-600', sign: '+' });
+                });
+                deductLogs.forEach(log => {
+                    allEvents.push({ type: 'Rút/Trừ', amount: log.args[1], hash: log.transactionHash, block: log.blockNumber, color: 'text-red-600', sign: '-' });
+                });
+
+                // Sắp xếp giảm dần theo Block
+                allEvents.sort((a, b) => b.block - a.block);
+
+                if (allEvents.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="py-4 px-6 text-center text-gray-500">Không tìm thấy giao dịch nào trên Blockchain trong 5000 block gần đây.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = allEvents.map(ev => `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-bold text-gray-600">Block #${ev.block}</td>
+                        <td class="py-3 px-4"><span class="bg-gray-200 px-2 py-1 rounded text-xs font-bold">${ev.type}</span></td>
+                        <td class="py-3 px-4 font-bold ${ev.color}">${ev.sign}${Number(ev.amount).toLocaleString()}</td>
+                        <td class="py-3 px-4">
+                            <a href="https://sepolia.etherscan.io/tx/${ev.hash}" target="_blank" class="text-blue-600 hover:text-blue-800 underline font-mono text-xs flex items-center">
+                                ${ev.hash.substring(0,10)}...${ev.hash.substring(60)} <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="4" class="py-4 px-6 text-center text-red-500">Lỗi khi đọc sự kiện Blockchain.</td></tr>`;
+            }
+        }
+    </script>
+
+    <!-- MODAL LỊCH SỬ TXHASH -->
+    <div id="historyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden">
+            <div class="bg-indigo-600 p-4 flex justify-between items-center text-white">
+                <h2 class="text-xl font-bold"><i class="fas fa-history mr-2"></i>Bằng chứng Giao dịch Blockchain</h2>
+                <button onclick="closeHistoryModal()" class="text-white hover:text-gray-200 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-gray-600 mb-4">Mạng Ethereum phân tán ghi nhận các biến động số dư (Smart Contract Events) của <span id="modalEmail" class="font-bold text-indigo-600"></span>:</p>
+                <div class="max-h-96 overflow-y-auto border rounded">
+                    <table class="min-w-full text-left text-sm">
+                        <thead class="bg-gray-50 sticky top-0 border-b">
+                            <tr>
+                                <th class="py-3 px-4 text-gray-600">Block</th>
+                                <th class="py-3 px-4 text-gray-600">Hành Động</th>
+                                <th class="py-3 px-4 text-gray-600">Số lượng</th>
+                                <th class="py-3 px-4 text-gray-600">Mã TxHash (Xem chi tiết)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Dữ liệu render từ JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 flex justify-end">
+                <button onclick="closeHistoryModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded font-bold transition">Đóng</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

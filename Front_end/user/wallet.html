@@ -5,43 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ví Token Của Tôi - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            #printReceiptArea, #printReceiptArea * { visibility: visible; }
+            #printReceiptArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-50 p-10">
     <div class="max-w-2xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Quản Lý Ví Token</h1>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Quản Lý Ví Token</h1>
+            <button id="btnDevReset" onclick="resetWalletDev()" class="hidden bg-red-600 text-white px-3 py-1 rounded shadow text-sm font-bold"><i class="fas fa-trash-alt mr-1"></i> [DEV] Reset Ví Về 0</button>
+        </div>
         
-        <!-- Hiển thị số dư -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8 flex justify-between items-center border-l-4 border-blue-500">
-            <div>
-                <h2 class="text-lg font-medium text-gray-600">Số dư khả dụng</h2>
-                <p id="balance" class="text-3xl font-bold text-green-600">0 Token</p>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center mb-6">
+            <div class="flex flex-col mb-4 md:mb-0">
+                <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Số dư khả dụng</h2>
+                <div class="flex items-baseline">
+                    <p id="balance" class="text-4xl font-extrabold text-gray-800">0</p>
+                    <span class="ml-2 text-lg text-gray-500 font-medium">Token</span>
+                </div>
+                
+                <div class="mt-2 text-sm">
+                    <span class="text-gray-500">Đang bị khóa (Escrow): </span>
+                    <span id="locked_balance" class="font-bold text-yellow-600">0 Token</span>
+                </div>
             </div>
-            <div class="text-right">
-                <h2 class="text-sm font-medium text-gray-500">Đang bị khóa (Escrow)</h2>
-                <p id="locked_balance" class="text-xl font-bold text-yellow-600">0 Token</p>
+            <div class="flex space-x-3">
+                <button onclick="toggleDepositForm()" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-full hover:bg-blue-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center">
+                    <i class="fas fa-plus-circle mr-2"></i> Nạp Tiền
+                </button>
+                <button onclick="toggleWithdrawForm()" class="bg-green-600 text-white font-bold py-3 px-6 rounded-full hover:bg-green-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center">
+                    <i class="fas fa-money-bill-wave mr-2"></i> Rút Tiền
+                </button>
             </div>
         </div>
 
-        <!-- Form Nạp Tiền -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 class="text-xl font-bold mb-4 border-b pb-2"><i class="fas fa-qrcode mr-2 text-blue-600"></i>Nạp Thêm Token (Tự Động)</h2>
+        <!-- Form Nạp Tiền (Ẩn mặc định) -->
+        <div id="depositContainer" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 transition-all">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-qrcode mr-2 text-blue-600"></i>Nạp Thêm Token</h2>
+                <button onclick="toggleDepositForm()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Cột Nhập Số Lượng -->
                 <div>
-                    <form id="depositForm" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Tỷ giá: 1 Token = 1 VNĐ</label>
-                            <label class="block text-sm font-medium text-gray-700 mt-2">Số lượng Token muốn nạp:</label>
-                            <input type="number" id="amount" required min="10000" step="1000" class="mt-1 block w-full border p-2 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="Tối thiểu: 10,000">
+                    <form id="depositForm" class="space-y-5">
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <p class="text-sm text-gray-600 mb-2"><i class="fas fa-info-circle text-blue-500 mr-1"></i> Tỷ giá quy đổi mặc định:</p>
+                            <p class="text-lg font-bold text-gray-800">1 Token = 1 VNĐ</p>
                         </div>
-                        <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded hover:bg-blue-700 shadow w-full transition">
-                            Tạo Mã QR Chuyển Khoản
-                        </button>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nhập số lượng Token muốn nạp:</label>
+                            <div class="relative">
+                                <input type="number" id="amount" required min="10000" step="1000" class="block w-full border-2 border-gray-200 p-3 pl-10 rounded-xl focus:ring-0 focus:border-blue-500 transition text-lg font-bold text-gray-700" placeholder="Tối thiểu 10,000">
+                                <i class="fas fa-coins absolute left-4 top-4 text-yellow-500"></i>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mt-4">
+                            <button type="button" onclick="submitPayOS()" id="btnPayos" class="bg-green-600 text-white font-bold py-3 px-2 rounded-xl hover:bg-green-700 shadow-md w-full transition flex justify-center items-center text-sm">
+                                <i class="fas fa-bolt mr-2"></i> Tự Động (PayOS)
+                            </button>
+                            <button type="button" onclick="submitManual()" id="btnManual" class="bg-blue-600 text-white font-bold py-3 px-2 rounded-xl hover:bg-blue-700 shadow-md w-full transition flex justify-center items-center text-sm">
+                                <i class="fas fa-qrcode mr-2"></i> Thủ Công (Chờ Duyệt)
+                            </button>
+                        </div>
                     </form>
                 </div>
 
                 <!-- Cột Hiển thị QR -->
-                <div id="qrSection" class="hidden flex flex-col items-center justify-center border-l border-gray-200 pl-4">
+                <div id="qrSection" class="hidden flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-gray-200 pt-6 md:pt-0 md:pl-6">
                     <p class="text-sm text-gray-600 mb-2 font-medium">Quét mã để thanh toán <span id="qrAmount" class="font-bold text-red-600 text-lg"></span> VNĐ</p>
                     
                     <!-- Thời gian đếm ngược -->
@@ -63,17 +106,63 @@
                         </div>
                     </div>
 
-                    <button onclick="downloadQR()" class="mt-4 bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-900 transition flex items-center">
-                        <i class="fas fa-download mr-2"></i> Tải ảnh QR xuống
-                    </button>
+                    <!-- Nút Kiểm tra trạng thái -->
+                    <div class="mt-4 w-full flex flex-col items-center">
+                        <button id="btnCheckStatus" onclick="checkDepositStatus()" class="bg-yellow-500 text-white px-4 py-2 rounded font-bold hover:bg-yellow-600 transition w-full shadow flex justify-center items-center">
+                            <i class="fas fa-spinner fa-spin mr-2"></i> Đang chờ Admin duyệt...
+                        </button>
+                        <button onclick="downloadQR()" class="mt-2 bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-900 transition flex items-center w-full justify-center">
+                            <i class="fas fa-download mr-2"></i> Tải ảnh QR xuống
+                        </button>
+                    </div>
                     <p class="text-xs text-gray-500 mt-3 text-center text-red-600 font-medium">Lưu ý: Nếu quá 5 phút chưa thanh toán, vui lòng tạo mã mới.</p>
+                    <div class="mt-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-3 rounded text-xs text-left shadow-sm max-w-xs mx-auto">
+                        <p><i class="fas fa-shield-alt text-blue-600 mr-1"></i> <strong>Xác minh bảo mật:</strong> Tên người nhận trên mã QR được hệ thống tự động hiển thị tên gốc là <strong>TRINH HUY HOANG</strong>. Đây là tài khoản chính thức của chúng tôi, quý khách hoàn toàn yên tâm giao dịch.</p>
+                    </div>
                 </div>
             </div>
         </div>
+        </div>
+
+        <!-- Form Rút Tiền (Ẩn mặc định) -->
+        <div id="withdrawContainer" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 transition-all">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-money-bill-wave mr-2 text-green-600"></i>Rút Tiền Về Ngân Hàng</h2>
+                <button onclick="toggleWithdrawForm()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded mb-6">
+                <div id="bankInfoDisplay" class="text-sm">
+                    <p class="font-bold mb-1">🏦 Ngân hàng nhận tiền:</p>
+                    <p id="txtBankName">Đang tải...</p>
+                    <p id="txtBankAccount">Đang tải...</p>
+                    <p id="txtBankOwner">Đang tải...</p>
+                </div>
+                <button onclick="window.location.href='profile.html'" class="mt-2 text-sm text-blue-600 underline font-semibold"><i class="fas fa-edit mr-1"></i>Chỉnh sửa ở Profile</button>
+            </div>
+
+            <form id="withdrawForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nhập số lượng Token muốn rút (Tối thiểu 10,000):</label>
+                    <div class="relative">
+                        <input type="number" id="withdrawAmount" required min="10000" step="1000" class="block w-full border-2 border-gray-200 p-3 pl-10 rounded-xl focus:ring-0 focus:border-green-500 transition text-lg font-bold text-gray-700" placeholder="Tối thiểu 10,000">
+                        <i class="fas fa-coins absolute left-4 top-4 text-yellow-500"></i>
+                    </div>
+                    <p id="withdrawErrorMsg" class="text-red-500 text-sm mt-2 hidden"></p>
+                </div>
+                <button type="submit" id="btnSubmitWithdraw" class="bg-green-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-green-700 shadow-md w-full transition flex justify-center items-center">
+                    <i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền
+                </button>
+            </form>
+        </div>
+
         <!-- Khối Lịch sử Giao dịch -->
-        <div class="bg-white p-6 rounded-lg shadow-md mt-8">
-            <h2 class="text-xl font-bold mb-4 border-b pb-2"><i class="fas fa-history mr-2 text-blue-600"></i>Lịch sử Giao dịch</h2>
-            <div class="overflow-x-auto">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mt-6 overflow-hidden">
+            <button onclick="toggleHistory()" class="w-full bg-gray-50 hover:bg-gray-100 p-4 flex justify-between items-center transition outline-none">
+                <h2 class="text-lg font-bold text-gray-800"><i class="fas fa-history mr-2 text-blue-600"></i>Lịch sử Giao dịch</h2>
+                <i id="historyToggleIcon" class="fas fa-chevron-down text-gray-500"></i>
+            </button>
+            <div id="historyContainer" class="hidden overflow-x-auto p-4 border-t border-gray-100">
                 <table class="min-w-full text-left text-sm">
                     <thead class="bg-gray-50 border-b">
                         <tr>
@@ -109,12 +198,52 @@
 
             <img id="qrModalImage" src="" alt="VietQR To" class="w-full h-auto rounded-lg border p-2">
             <p class="text-center mt-4 text-gray-600">Số tiền: <span id="qrModalAmount" class="font-bold text-red-600 text-xl"></span> VNĐ</p>
-            <p class="text-center mt-1 text-sm text-gray-500">Ngân hàng: Vietcombank (VCB)</p>
+            <p class="text-center mt-1 text-sm text-gray-500">Ngân hàng: MB Bank<br>Số tài khoản: 0347793976<br>Tên: Trịnh Huy Hoàng</p>
+            <div class="mt-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-3 rounded text-xs text-left shadow-sm">
+                <p><i class="fas fa-shield-alt text-blue-600 mr-1"></i> <strong>Lưu ý:</strong> Vui lòng chuyển đúng số tài khoản <strong>0347793976 (MB Bank)</strong> và chính xác nội dung chuyển khoản để hệ thống xác nhận nhanh nhất.</p>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script>
+        function toggleDepositForm() {
+            const container = document.getElementById('depositContainer');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                document.getElementById('withdrawContainer').classList.add('hidden'); // Hide the other one
+                container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function toggleWithdrawForm() {
+            const container = document.getElementById('withdrawContainer');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                document.getElementById('depositContainer').classList.add('hidden'); // Hide the other one
+                container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                checkBankInfo(); // Check bank info when opening
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function toggleHistory() {
+            const container = document.getElementById('historyContainer');
+            const icon = document.getElementById('historyToggleIcon');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                container.classList.add('hidden');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
         function openQrModal() { document.getElementById('qrModal').classList.remove('hidden'); }
         function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
         
@@ -142,10 +271,13 @@
 
         let currentUser = null;
         let countdownInterval = null;
+        let currentPendingRequestId = null;
+        let statusPollingInterval = null;
 
-        function startCountdown() {
+        function startCountdown(initialTimeSeconds = 300) {
             if (countdownInterval) clearInterval(countdownInterval);
-            let time = 300; // 5 phút = 300 giây
+            let time = initialTimeSeconds;
+            if (time <= 0) time = 0;
             
             const displayTime = () => {
                 const minutes = Math.floor(time / 60);
@@ -161,13 +293,14 @@
                     document.getElementById('modalTimeDisplay').textContent = "HẾT GIỜ";
                     document.getElementById('qrImage').style.opacity = '0.2';
                     document.getElementById('qrModalImage').style.opacity = '0.2';
-                    alert('Thời gian thanh toán đã hết! Vui lòng tải lại trang và tạo lệnh mới.');
                 }
                 time--;
             };
             
             displayTime();
-            countdownInterval = setInterval(displayTime, 1000);
+            if (time > 0) {
+                countdownInterval = setInterval(displayTime, 1000);
+            }
             
             // Reset opacity trong trường hợp tạo lại
             document.getElementById('qrImage').style.opacity = '1';
@@ -189,6 +322,7 @@
                 const data = await response.json();
                 
                 if (response.ok && data.wallet) {
+                    currentWalletBalance = data.wallet.balance;
                     document.getElementById('balance').textContent = `${data.wallet.balance.toLocaleString()} Token`;
                     document.getElementById('locked_balance').textContent = `${data.wallet.locked_balance.toLocaleString()} Token`;
                 }
@@ -203,17 +337,23 @@
                         const isReceiver = tx.receiver_id === currentUser.id;
                         const amountColor = isReceiver ? 'text-green-600' : 'text-red-600';
                         const amountSign = isReceiver ? '+' : '-';
+                        
                         return `
-                            <tr class="hover:bg-gray-50">
+                            <tr class="hover:bg-gray-50 border-b">
                                 <td class="px-4 py-3 text-gray-500">${dateStr}</td>
-                                <td class="px-4 py-3"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold">${tx.type}</span></td>
+                                <td class="px-4 py-3"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold border">${tx.type}</span></td>
                                 <td class="px-4 py-3 font-bold ${amountColor}">${amountSign}${parseInt(tx.amount).toLocaleString()}</td>
-                                <td class="px-4 py-3 text-gray-600">${tx.note || ''}</td>
+                                <td class="px-4 py-3 text-gray-600 text-xs">${tx.note || ''}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${tx.note || ''}')" class="bg-gray-800 hover:bg-black text-white px-3 py-1 rounded shadow text-xs font-bold transition flex items-center justify-center mx-auto">
+                                        <i class="fas fa-file-pdf mr-1"></i> Xuất PDF
+                                    </button>
+                                </td>
                             </tr>
                         `;
                     }).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">Chưa có giao dịch nào.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-3 text-center text-gray-500">Chưa có giao dịch nào.</td></tr>';
                 }
 
             } catch (err) {
@@ -221,10 +361,9 @@
             }
         }
 
-        document.getElementById('depositForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function submitManual() {
             const amount = document.getElementById('amount').value;
-            if(amount < 10000) { alert('Số lượng tối thiểu là 10,000 Token'); return; }
+            if(!amount || amount < 10000) { alert('Số lượng tối thiểu là 10,000 Token'); return; }
             
             try {
                 const response = await fetch(`${API_URL}/api/deposit`, {
@@ -235,13 +374,12 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    // Dùng mã chuyển khoản từ Backend (Ví dụ: HTword ABCDEF)
                     const transferCode = data.transferCode;
                     
-                    // Tạo mã VietQR Vietcombank (VCB)
-                    const bankId = 'VCB'; // Vietcombank
-                    const accountNo = '1026403009';
-                    const accountName = 'HT WORK CO LTD';
+                    // Tạo mã VietQR MB Bank
+                    const bankId = 'MB'; // Ngân hàng MB
+                    const accountNo = '0347793976'; 
+                    const accountName = 'TRINH HUY HOANG';
                     const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferCode)}&accountName=${encodeURIComponent(accountName)}`;
                     
                     document.getElementById('qrImage').src = qrUrl;
@@ -255,10 +393,14 @@
                     
                     document.getElementById('qrSection').classList.remove('hidden');
                     
-                    // Bắt đầu đếm ngược 5 phút
-                    startCountdown();
+                    currentPendingRequestId = data.request.id;
+                    disableDepositForm(true);
+                    startCountdown(300);
                     
-                    alert('Đã tạo lệnh nạp! Vui lòng thanh toán trong vòng 5 phút.');
+                    if(statusPollingInterval) clearInterval(statusPollingInterval);
+                    statusPollingInterval = setInterval(checkDepositStatus, 5000);
+                    
+                    alert('Đã tạo lệnh nạp thủ công! Vui lòng quét mã và chờ Admin duyệt.');
                     document.getElementById('amount').value = '';
                 } else {
                     alert('Lỗi: ' + data.error);
@@ -266,9 +408,306 @@
             } catch (err) {
                 alert('Không thể kết nối đến Backend');
             }
+        }
+
+        async function submitPayOS() {
+            const amount = document.getElementById('amount').value;
+            if(!amount || amount < 10000) { alert('Số lượng tối thiểu là 10,000 Token'); return; }
+
+            const btnPayos = document.getElementById('btnPayos');
+            btnPayos.disabled = true;
+            btnPayos.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang tạo mã...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/payment/create-payment-link`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, amount: amount })
+                });
+                const data = await response.json();
+                
+                if (response.ok && data.checkoutUrl) {
+                    // Chuyển hướng người dùng sang trang thanh toán của PayOS
+                    window.location.href = data.checkoutUrl;
+                } else {
+                    alert('Lỗi tạo link PayOS: ' + (data.error || 'Unknown Error'));
+                    btnPayos.disabled = false;
+                    btnPayos.innerHTML = '<i class="fas fa-bolt mr-2"></i> Tự Động (PayOS)';
+                }
+            } catch (err) {
+                alert('Không thể kết nối Backend PayOS');
+                btnPayos.disabled = false;
+                btnPayos.innerHTML = '<i class="fas fa-bolt mr-2"></i> Tự Động (PayOS)';
+            }
+        }
+
+        function disableDepositForm(disabled) {
+            const amountInput = document.getElementById('amount');
+            const btnPayos = document.getElementById('btnPayos');
+            const btnManual = document.getElementById('btnManual');
+            
+            amountInput.disabled = disabled;
+            if(btnPayos) btnPayos.disabled = disabled;
+            if(btnManual) btnManual.disabled = disabled;
+            
+            if (disabled && btnManual) {
+                btnManual.classList.add('opacity-50', 'cursor-not-allowed');
+                btnPayos.classList.add('opacity-50', 'cursor-not-allowed');
+            } else if (btnManual) {
+                btnManual.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnPayos.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        async function checkPendingDeposit() {
+            if(!currentUser) return;
+            try {
+                const res = await fetch(`${API_URL}/api/deposit/pending/${currentUser.id}`);
+                const data = await res.json();
+                
+                if(data.request) {
+                    const req = data.request;
+                    currentPendingRequestId = req.id;
+                    const amount = req.amount;
+                    const transferCode = 'HTword ' + req.id.substring(0, 6).toUpperCase();
+                    
+                    const bankId = 'vietinbank';
+                    const accountNo = 'HTWORKPAY';
+                    const accountName = 'TRINH HUY HOANG_107882187291';
+                    const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferCode)}&accountName=${encodeURIComponent(accountName)}`;
+                    
+                    document.getElementById('qrImage').src = qrUrl;
+                    document.getElementById('qrModalImage').src = qrUrl; 
+                    document.getElementById('qrAmount').textContent = parseInt(amount).toLocaleString();
+                    document.getElementById('qrModalAmount').textContent = parseInt(amount).toLocaleString();
+                    document.getElementById('transferContentDisplay').textContent = transferCode;
+                    document.getElementById('modalTransferContent').textContent = transferCode;
+                    
+                    // Khóa form và mở khu vực QR
+                    disableDepositForm(true);
+                    document.getElementById('depositContainer').classList.remove('hidden');
+                    document.getElementById('qrSection').classList.remove('hidden');
+                    
+                    const ageSeconds = Math.floor((new Date() - new Date(req.created_at)) / 1000);
+                    let remaining = 300 - ageSeconds;
+                    startCountdown(remaining);
+                    
+                    if(statusPollingInterval) clearInterval(statusPollingInterval);
+                    statusPollingInterval = setInterval(checkDepositStatus, 5000);
+                }
+            } catch (err) {
+                console.error('Lỗi kiểm tra pending deposit:', err);
+            }
+        }
+
+        async function checkDepositStatus() {
+            if(!currentPendingRequestId) return;
+            try {
+                const res = await fetch(`${API_URL}/api/deposit/check/${currentPendingRequestId}`);
+                const data = await res.json();
+                if(data.status === 'approved') {
+                    // Thành công!
+                    clearInterval(statusPollingInterval);
+                    currentPendingRequestId = null;
+                    
+                    const btn = document.getElementById('btnCheckStatus');
+                    btn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    btn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Nạp Thành Công! Đã cộng Token';
+                    
+                    alert('Chúc mừng! Giao dịch nạp Token đã được duyệt và cộng vào ví của bạn.');
+                    
+                    // Tải lại ví và lịch sử
+                    loadWallet();
+                    
+                    // Reset form sau 3 giây
+                    setTimeout(() => {
+                        document.getElementById('qrSection').classList.add('hidden');
+                        disableDepositForm(false);
+                        btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                        btn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang chờ Admin duyệt...';
+                    }, 3000);
+                } else if (data.status === 'rejected') {
+                    // Bị từ chối
+                    clearInterval(statusPollingInterval);
+                    currentPendingRequestId = null;
+                    
+                    alert('Lệnh nạp tiền của bạn đã BỊ TỪ CHỐI bởi Quản trị viên. Vui lòng kiểm tra thông báo và tạo lại lệnh nếu cần.');
+                    
+                    document.getElementById('qrSection').classList.add('hidden');
+                    disableDepositForm(false);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Logic Rút Tiền
+        let currentWalletBalance = 0;
+        
+        async function checkBankInfo() {
+            try {
+                const response = await fetch(`${API_URL}/api/users/${currentUser.id}`);
+                const user = await response.json();
+                
+                if (!user.bank_account) {
+                    document.getElementById('bankInfoDisplay').innerHTML = `
+                        <p class="text-red-600 font-bold"><i class="fas fa-exclamation-triangle"></i> Bạn chưa liên kết tài khoản ngân hàng!</p>
+                        <p class="text-gray-600 mt-1">Vui lòng sang trang Profile để cập nhật ngân hàng trước khi tạo lệnh rút tiền.</p>
+                    `;
+                    document.getElementById('btnSubmitWithdraw').disabled = true;
+                    document.getElementById('btnSubmitWithdraw').classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    document.getElementById('txtBankName').textContent = user.bank_name;
+                    document.getElementById('txtBankAccount').textContent = user.bank_account;
+                    document.getElementById('txtBankOwner').textContent = user.bank_owner;
+                    
+                    document.getElementById('btnSubmitWithdraw').disabled = false;
+                    document.getElementById('btnSubmitWithdraw').classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            } catch (err) {
+                console.error('Lỗi lấy thông tin ngân hàng:', err);
+            }
+        }
+
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            const errorMsg = document.getElementById('withdrawErrorMsg');
+            const btn = document.getElementById('btnSubmitWithdraw');
+            
+            errorMsg.classList.add('hidden');
+
+            if (amount > currentWalletBalance) {
+                errorMsg.textContent = 'Số dư khả dụng không đủ để rút số tiền này.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/withdraw`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, amount })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                alert('✅ Tạo lệnh rút tiền thành công! Vui lòng chờ Admin duyệt.');
+                
+                document.getElementById('withdrawAmount').value = '';
+                toggleWithdrawForm(); // Ẩn form
+                loadWallet(); // Tải lại số dư và lịch sử
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền';
+            }
         });
 
-        loadWallet();
+        // ==========================
+        // [DEV] CƠ CHẾ RESET VÍ
+        // ==========================
+        function checkDevMode() {
+            const allowedEmails = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+            if (currentUser && allowedEmails.includes(currentUser.email)) {
+                document.getElementById('btnDevReset').classList.remove('hidden');
+            }
+        }
+
+        async function resetWalletDev() {
+            if (!confirm('[DEV MODE] Chức năng này sẽ xóa sạch số dư, lịch sử giao dịch và reset Blockchain của bạn về 0. Bạn có chắc chắn?')) return;
+            
+            const btn = document.getElementById('btnDevReset');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang reset...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/api/test/reset-wallet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, email: currentUser.email })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    alert('✅ ' + data.message);
+                    window.location.reload();
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
+                }
+            } catch(e) {
+                alert('Lỗi kết nối: ' + e.message);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i> [DEV] Reset Ví Về 0';
+                btn.disabled = false;
+            }
+        }
+
+        async function printReceipt(txId, type, amount, date, note) {
+            document.getElementById('pr_id').innerText = txId.substring(0, 18).toUpperCase();
+            document.getElementById('pr_date').innerText = date;
+            document.getElementById('pr_name').innerText = currentUser.full_name || currentUser.email;
+            document.getElementById('pr_type').innerText = type;
+            document.getElementById('pr_amount').innerText = parseInt(amount).toLocaleString() + ' VNĐ';
+            document.getElementById('pr_note').innerText = note || 'Không có';
+            
+            // Mở hộp thoại in của trình duyệt
+            window.print();
+        }
+
+        async function initWallet() {
+            await loadWallet();
+            checkDevMode();
+        }
+
+        initWallet();
+        setTimeout(checkPendingDeposit, 500); // Check pending deposit sau khi load ví
     </script>
+
+    <!-- KHU VỰC IN BIÊN LAI (Ẩn trên Web, chỉ hiện khi in PDF) -->
+    <div id="printReceiptArea" class="hidden bg-white p-10 text-gray-800 w-full max-w-3xl mx-auto border-2 border-gray-200">
+        <div class="text-center mb-8 border-b-2 border-indigo-600 pb-4">
+            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">HT WORK</h1>
+            <p class="text-gray-500 font-bold mt-1">NỀN TẢNG FREELANCE IT HÀNG ĐẦU VIỆT NAM</p>
+        </div>
+        
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-gray-800 uppercase tracking-widest">Biên Lai Giao Dịch Điện Tử</h2>
+            <p class="text-gray-500 mt-2">Mã biên lai: <span id="pr_id" class="font-bold text-gray-800"></span></p>
+        </div>
+
+        <div class="mb-8">
+            <h3 class="text-lg font-bold text-indigo-700 border-b pb-2 mb-4">THÔNG TIN GIAO DỊCH</h3>
+            <table class="w-full text-left text-lg">
+                <tr class="border-b"><th class="py-3 text-gray-600 w-1/3">Ngày giao dịch:</th><td class="py-3 font-bold" id="pr_date"></td></tr>
+                <tr class="border-b"><th class="py-3 text-gray-600">Khách hàng:</th><td class="py-3 font-bold" id="pr_name"></td></tr>
+                <tr class="border-b"><th class="py-3 text-gray-600">Loại giao dịch:</th><td class="py-3 font-bold" id="pr_type"></td></tr>
+                <tr class="border-b"><th class="py-3 text-gray-600">Số tiền:</th><td class="py-3 font-bold text-2xl text-green-700" id="pr_amount"></td></tr>
+                <tr class="border-b"><th class="py-3 text-gray-600">Ghi chú:</th><td class="py-3 font-medium" id="pr_note"></td></tr>
+            </table>
+        </div>
+
+        <div class="flex items-center justify-center space-x-4 mb-10 border-t border-b py-4 border-gray-100">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-50 border border-gray-200">
+                <i class="fab fa-ethereum text-2xl text-gray-400"></i>
+            </div>
+            <div class="text-left text-sm text-gray-500">
+                <p class="font-bold text-gray-700 uppercase tracking-widest text-xs mb-1">Web3 Secured Transaction</p>
+                <p class="italic">Dữ liệu giao dịch được đồng bộ và xác thực trên mạng lưới Blockchain.</p>
+            </div>
+        </div>
+
+        <div class="text-center text-gray-500 text-sm border-t pt-4">
+            <p>Chứng từ này được tạo tự động bởi hệ thống HT Work. Có giá trị đối soát trên toàn hệ thống.</p>
+            <p>Trang web: https://htwork.vn | Email hỗ trợ: support@htwork.com</p>
+        </div>
+    </div>
 </body>
 </html>

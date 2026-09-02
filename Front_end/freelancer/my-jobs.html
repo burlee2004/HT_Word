@@ -5,13 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công việc của tôi - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 p-10">
-    <div class="max-w-5xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Dự án Đang thực hiện</h1>
+    <div class="max-w-6xl mx-auto">
+        <!-- CẢNH BÁO TRAO ĐỔI NGOÀI -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded mb-6 shadow-sm flex items-start">
+            <i class="fas fa-exclamation-triangle mt-1 mr-3 text-yellow-600 text-lg"></i>
+            <div>
+                <p class="font-bold text-yellow-900 mb-1">CẢNH BÁO BẢO VỆ NGƯỜI DÙNG</p>
+                <p class="text-sm">Hệ thống khuyến cáo mọi thỏa thuận, giao nộp sản phẩm và thanh toán phải được thực hiện <strong>trực tiếp trên nền tảng HT Work</strong>. Chúng tôi <strong>từ chối chịu trách nhiệm giải quyết khiếu nại</strong> đối với các rủi ro phát sinh (lừa đảo, quỵt tiền, mất code) nếu hai bên tự ý trao đổi và giao dịch bên ngoài hệ thống (Zalo, Facebook, v.v.).</p>
+            </div>
+        </div>
         
-        <div id="jobsList" class="space-y-6">
-            <p class="text-gray-500">Đang tải...</p>
+        <!-- MÀN HÌNH DANH SÁCH DỰ ÁN -->
+        <div id="listView">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
+                <h1 class="text-3xl font-bold text-gray-800">Quản lý Dự Án (My Jobs)</h1>
+                
+                <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full md:w-auto">
+                    <!-- BỘ LỌC TRẠNG THÁI (Thay cho Tabs) -->
+                    <div class="relative w-full sm:w-56">
+                        <select id="statusFilter" onchange="setTab(this.value)" class="appearance-none bg-white border border-gray-300 text-gray-700 py-2.5 pl-10 pr-8 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer w-full hover:bg-gray-50 transition">
+                            <option value="all">Tất cả (0)</option>
+                            <option value="planning">Cần lập Kế hoạch (0)</option>
+                            <option value="pending_plan_approval">Chờ duyệt Plan (0)</option>
+                            <option value="in_progress">Đang làm (0)</option>
+                            <option value="completed">Đã nghiệm thu (0)</option>
+                        </select>
+                        <i class="fas fa-filter absolute left-4 top-3.5 text-blue-500"></i>
+                        <i class="fas fa-chevron-down absolute right-4 top-4 text-gray-400 text-xs"></i>
+                    </div>
+
+                    <!-- TÌM KIẾM -->
+                    <div class="relative w-full sm:w-64">
+                        <input type="text" id="searchInput" oninput="filterJobs()" placeholder="Tìm kiếm dự án..." class="w-full bg-white border border-gray-300 p-2.5 pl-10 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="jobsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <p class="text-gray-500 col-span-2 text-center py-10">Đang tải...</p>
+            </div>
+        </div>
+
+        <!-- MÀN HÌNH CHI TIẾT DỰ ÁN -->
+        <div id="detailView" class="hidden">
+            <button onclick="showListView()" class="mb-4 text-blue-600 hover:text-blue-800 font-bold flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
+            </button>
+            <div id="jobDetailContainer">
+                <!-- Nội dung chi tiết sẽ render vào đây -->
+            </div>
         </div>
     </div>
 
@@ -30,13 +76,71 @@
             
             <button type="button" onclick="addMilestoneForm()" class="mt-4 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 font-bold">+ Thêm Giai Đoạn Mới</button>
 
+            <!-- TỔNG HỢP NGÂN SÁCH -->
+            <div class="mt-6 bg-blue-50 p-4 rounded-lg border border-blue-200 text-sm">
+                <h3 class="font-bold text-blue-800 mb-2">Bảng Tổng Hợp Kế Hoạch Thanh Toán</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-600">Tổng giá trị đã chốt:</p>
+                        <p id="summary_total_budget" class="font-bold text-lg text-gray-800">0 Token</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Đã phân bổ:</p>
+                        <p id="summary_allocated" class="font-bold text-lg text-blue-600">0 Token</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Còn thiếu (Chưa phân bổ):</p>
+                        <p id="summary_remaining" class="font-bold text-lg text-red-600">0 Token</p>
+                    </div>
+                </div>
+                <hr class="my-3 border-blue-200">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-600">Tổng thanh toán Từng giai đoạn:</p>
+                        <p id="summary_pay_per_milestone" class="font-bold text-orange-600">0 Token</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Tổng thanh toán Cuối dự án:</p>
+                        <p id="summary_pay_at_end" class="font-bold text-green-600">0 Token</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="mt-8 flex justify-end space-x-2 border-t pt-4">
                 <button type="button" onclick="closePlanModal()" class="bg-red-100 text-red-600 px-4 py-2 rounded font-bold hover:bg-red-200">Hủy</button>
                 <button type="button" onclick="submitPlan()" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700">Gửi Kế Hoạch Cho Khách Duyệt</button>
             </div>
         </div>
     </div>
-
+    <!-- Modal Khiếu Nại (Dispute) -->
+    <div id="disputeModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex justify-center items-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-[500px]">
+            <div class="flex items-center mb-4">
+                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-red-700">Khiếu Nại & Tranh Chấp</h2>
+            </div>
+            <p class="text-gray-600 mb-6 text-sm">Nếu Khách Hàng cố tình không nghiệm thu hoặc có hành vi gian lận, Admin sẽ đóng băng dự án và xem xét bằng chứng để bảo vệ công sức của bạn.</p>
+            <input type="hidden" id="dispute_job_id">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Lý do khiếu nại (*):</label>
+                    <textarea id="dispute_reason" rows="3" class="mt-1 block w-full border-2 border-gray-200 p-3 rounded-lg focus:border-red-500 text-sm" placeholder="Mô tả chi tiết việc Khách Hàng vi phạm..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Tải lên hình ảnh bằng chứng (Tối đa 7 ảnh):</label>
+                    <p class="text-xs text-red-600 font-semibold mb-2 italic">Rất quan trọng để chúng tôi giải quyết nhanh!</p>
+                    <input type="file" id="dispute_evidence" onchange="handleDisputeImageUpload(this)" multiple accept="image/*" class="mt-1 block w-full border-2 border-gray-200 p-2 rounded-lg text-sm">
+                    <div id="dispute_image_preview" class="flex flex-wrap gap-2 mt-3"></div>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end space-x-3">
+                <button onclick="closeDisputeModal()" class="px-5 py-2 rounded-lg font-bold text-gray-600 hover:bg-gray-100">Hủy bỏ</button>
+                <button id="btnSubmitDispute" onclick="submitDispute()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-700 shadow-lg flex items-center transition-all"><i class="fas fa-gavel mr-2"></i> Gửi Khiếu Nại</button>
+            </div>
+        </div>
+    </div>
     <!-- Modal Chat & Upload -->
     <div id="chatModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex justify-center items-center z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col" style="height: 80vh;">
@@ -74,6 +178,8 @@
             : 'https://htwork-backend.onrender.com';
 
         let currentUser = null;
+        let allJobs = [];
+        let currentTab = 'all';
 
         async function loadJobs() {
             const userStr = localStorage.getItem('user');
@@ -84,22 +190,105 @@
             }
             currentUser = JSON.parse(userStr);
 
-            const listDiv = document.getElementById('jobsList');
             try {
                 const response = await fetch(`${API_URL}/api/freelancer/${currentUser.id}/active-jobs`);
                 const data = await response.json();
                 
-                if (data.jobs && data.jobs.length > 0) {
-                    listDiv.innerHTML = data.jobs.map(job => renderJob(job)).join('');
+                if (data.jobs) {
+                    allJobs = data.jobs;
+                    updateTabCounts();
+                    renderJobsList();
                 } else {
-                    listDiv.innerHTML = '<p class="text-gray-500 bg-white p-6 rounded shadow">Bạn chưa có dự án nào đang chạy.</p>';
+                    document.getElementById('jobsList').innerHTML = '<p class="text-gray-500 bg-white p-6 rounded shadow col-span-2">Bạn chưa có dự án nào đang chạy.</p>';
                 }
             } catch (err) {
-                listDiv.innerHTML = '<p class="text-red-500">Lỗi kết nối Server!</p>';
+                document.getElementById('jobsList').innerHTML = '<p class="text-red-500 col-span-2">Lỗi kết nối Server!</p>';
             }
         }
 
-        function renderJob(job) {
+        function updateTabCounts() {
+            const countPlanning = allJobs.filter(j => j.status === 'planning').length;
+            const countPending = allJobs.filter(j => j.status === 'pending_plan_approval').length;
+            const countInProgress = allJobs.filter(j => j.status === 'in_progress').length;
+            const countCompleted = allJobs.filter(j => j.status === 'completed').length;
+            
+            const select = document.getElementById('statusFilter');
+            if(select) {
+                select.options[0].text = `Tất cả (${allJobs.length})`;
+                select.options[1].text = `Cần lập Kế hoạch (${countPlanning})`;
+                select.options[2].text = `Chờ duyệt Plan (${countPending})`;
+                select.options[3].text = `Đang làm (${countInProgress})`;
+                select.options[4].text = `Đã nghiệm thu (${countCompleted})`;
+            }
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
+            renderJobsList();
+        }
+
+        function filterJobs() {
+            renderJobsList();
+        }
+
+        function renderJobsList() {
+            const listDiv = document.getElementById('jobsList');
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filteredJobs = allJobs.filter(job => {
+                const matchTab = currentTab === 'all' || job.status === currentTab;
+                const matchSearch = job.title.toLowerCase().includes(searchKeyword);
+                return matchTab && matchSearch;
+            });
+
+            if (filteredJobs.length === 0) {
+                listDiv.innerHTML = '<p class="text-gray-500 bg-white p-6 rounded shadow col-span-2 text-center">Không tìm thấy dự án nào phù hợp.</p>';
+                return;
+            }
+
+            listDiv.innerHTML = filteredJobs.map(job => {
+                let badge = '';
+                if (job.status === 'planning') badge = '<span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Cần lập Kế hoạch</span>';
+                else if (job.status === 'pending_plan_approval') badge = '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Chờ duyệt Plan</span>';
+                else if (job.status === 'in_progress') badge = '<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Đang làm</span>';
+                else if (job.status === 'completed') badge = '<span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">Đã nghiệm thu</span>';
+
+                return `
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="showDetail('${job.id}')">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-lg text-gray-800 line-clamp-1">${job.title}</h3>
+                            </div>
+                            <p class="text-gray-500 text-sm line-clamp-2 mb-3">${job.description}</p>
+                            <p class="text-indigo-600 font-bold mb-3"><i class="fas fa-coins mr-1"></i> ${parseInt(job.budget).toLocaleString()} Token</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-2 border-t pt-3">
+                            ${badge}
+                            <span class="text-blue-500 font-medium text-sm hover:underline">Chi tiết <i class="fas fa-chevron-right ml-1 text-xs"></i></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showListView() {
+            document.getElementById('detailView').classList.add('hidden');
+            document.getElementById('listView').classList.remove('hidden');
+            // If they just approved a plan/submitted evidence, we should reload data
+            loadJobs();
+        }
+
+        function showDetail(jobId) {
+            const job = allJobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            document.getElementById('listView').classList.add('hidden');
+            document.getElementById('detailView').classList.remove('hidden');
+            
+            document.getElementById('jobDetailContainer').innerHTML = renderJobDetail(job);
+        }
+
+        function renderJobDetail(job) {
             let headerBadge = '';
             let contentHtml = '';
 
@@ -107,36 +296,84 @@
                 headerBadge = '<span class="bg-blue-100 text-blue-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Đang lập kế hoạch</span>';
                 contentHtml = `
                     <div class="bg-blue-50 p-4 rounded border border-blue-200 mt-4">
-                        <p class="text-blue-800">Khách hàng đã chọn bạn! Vui lòng lập kế hoạch (Milestones) để bắt đầu.</p>
-                        <button onclick="openPlanModal('${job.id}', ${job.budget})" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 shadow">Lập Kế Hoạch (Milestone Builder)</button>
+                        <p class="text-blue-800 mb-2">Khách hàng đã chọn bạn! Vui lòng lập kế hoạch (Milestones) để bắt đầu.</p>
+                        <button onclick="openPlanModal('${job.id}', ${job.budget})" class="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 shadow flex items-center">
+                            <i class="fas fa-stream mr-2"></i> Lập Kế Hoạch (Milestone Builder)
+                        </button>
                     </div>
                 `;
             } else if (job.status === 'pending_plan_approval') {
                 headerBadge = '<span class="bg-yellow-100 text-yellow-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Chờ khách duyệt Plan</span>';
-                contentHtml = '<p class="mt-4 text-gray-500 italic">Kế hoạch đã được gửi. Chờ khách hàng duyệt và khóa Escrow...</p>';
+                contentHtml = `
+                    <div class="mt-4 flex flex-col md:flex-row items-center justify-between bg-yellow-50 p-4 border border-yellow-200 rounded">
+                        <p class="text-yellow-800 italic mb-2 md:mb-0">Kế hoạch đã được gửi. Chờ khách hàng duyệt và khóa Escrow...</p>
+                        <button onclick="revokePlan('${job.id}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-bold shadow">
+                            <i class="fas fa-undo mr-1"></i> Thu hồi & Làm lại
+                        </button>
+                    </div>
+                `;
             } else if (job.status === 'in_progress') {
                 headerBadge = '<span class="bg-green-100 text-green-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Đang thực hiện (Escrow Locked)</span>';
                 contentHtml = `
-                    <div class="mt-4">
-                        <h3 class="font-bold text-gray-800 border-b pb-2">Các Giai Đoạn (Milestones)</h3>
-                        <ul class="mt-2 space-y-4">
+                    <div class="mt-6">
+                        <h3 class="font-bold text-gray-800 border-b pb-2 mb-4 text-lg">Các Giai Đoạn (Milestones)</h3>
+                        <div class="space-y-4">
                             ${job.milestones.map(m => renderMilestone(m)).join('')}
-                        </ul>
+                        </div>
+                    </div>
+                `;
+            } else if (job.status === 'disputed') {
+                headerBadge = '<span class="bg-red-100 text-red-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded"><i class="fas fa-gavel mr-1"></i> Đang Tranh Chấp</span>';
+                contentHtml = `
+                    <div class="mt-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+                        <i class="fas fa-gavel mr-2"></i> Dự án đang bị ĐÓNG BĂNG để chờ Admin phán quyết khiếu nại. Vui lòng chờ phản hồi.
+                    </div>
+                `;
+            } else if (job.status === 'completed') {
+                headerBadge = '<span class="bg-purple-100 text-purple-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Đã nghiệm thu</span>';
+                contentHtml = `
+                    <div class="bg-green-50 p-4 rounded border border-green-200 mt-4">
+                        <p class="text-green-800 font-bold"><i class="fas fa-check-circle mr-2"></i> Dự án đã hoàn tất và nghiệm thu toàn bộ!</p>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="font-bold text-gray-800 border-b pb-2 mb-4 text-lg">Chi tiết Giai Đoạn</h3>
+                        <div class="space-y-4">
+                            ${job.milestones.map(m => renderMilestone(m)).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (job.status === 'cancelled') {
+                headerBadge = '<span class="bg-gray-100 text-gray-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Đã Hủy</span>';
+                contentHtml = `
+                    <div class="bg-gray-50 p-4 rounded border border-gray-200 mt-4">
+                        <p class="text-gray-800 font-bold"><i class="fas fa-ban mr-2"></i> Dự án đã bị hủy và hoàn tiền.</p>
                     </div>
                 `;
             }
 
             return `
-                <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-indigo-500">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-bold text-indigo-700">${job.title}</h2>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="openChatModal('${job.id}', '${job.client_id}')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-sm font-bold shadow-sm flex items-center">💬 Thảo luận</button>
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-gray-100 relative ${job.status === 'disputed' ? 'border-red-400 border-2' : ''}">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
+                        <div>
                             ${headerBadge}
+                            <h2 class="text-2xl font-bold text-gray-900 mt-2">${job.title}</h2>
                         </div>
+                        <div class="mt-4 md:mt-0 flex space-x-2">
+                            ${job.status === 'in_progress' ? `<button onclick="openDisputeModal('${job.id}')" class="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded font-bold shadow-sm flex items-center transition"><i class="fas fa-exclamation-triangle mr-2"></i> Khiếu Nại</button>` : ''}
+                            <button onclick="openChatModal('${job.id}', '${job.client_id}')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-4 py-2 rounded font-bold shadow-sm flex items-center transition">
+                                <i class="fas fa-comments mr-2"></i> Thảo luận với Khách
+                            </button>
+                        </div>
+                        </button>
                     </div>
-                    <p class="text-gray-600 mt-2">${job.description}</p>
-                    <p class="text-gray-800 mt-2 font-bold">Ngân sách dự kiến: ${job.budget} Token</p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg border text-gray-700 mb-4 whitespace-pre-wrap">${job.description}</div>
+                    
+                    <div class="flex items-center text-lg">
+                        <span class="text-gray-500 mr-2">Ngân sách dự kiến:</span>
+                        <span class="font-bold text-indigo-700">${parseInt(job.budget).toLocaleString()} Token</span>
+                    </div>
+
                     ${contentHtml}
                 </div>
             `;
@@ -206,6 +443,46 @@
         // ---------- MILESTONE BUILDER LOGIC ----------
         let milestoneCount = 0;
 
+        function updatePlanSummary() {
+            const jobBudget = parseInt(document.getElementById('modal_job_budget').value) || 0;
+            const items = document.querySelectorAll('.milestone-item');
+            
+            let totalAllocated = 0;
+            let payPerMilestone = 0;
+            let payAtEnd = 0;
+
+            items.forEach(item => {
+                const amount = parseInt(item.querySelector('.m-amount').value) || 0;
+                const paymentMode = item.querySelector('.m-payment').value;
+                
+                totalAllocated += amount;
+                if (paymentMode === 'PAY_PER_MILESTONE') {
+                    payPerMilestone += amount;
+                } else if (paymentMode === 'PAY_AT_END') {
+                    payAtEnd += amount;
+                }
+            });
+
+            const remaining = jobBudget - totalAllocated;
+
+            document.getElementById('summary_total_budget').textContent = jobBudget.toLocaleString() + ' Token';
+            document.getElementById('summary_allocated').textContent = totalAllocated.toLocaleString() + ' Token';
+            
+            const elRemaining = document.getElementById('summary_remaining');
+            elRemaining.textContent = remaining.toLocaleString() + ' Token';
+            if (remaining < 0) {
+                elRemaining.classList.replace('text-red-600', 'text-purple-600'); // Quá lố
+                elRemaining.textContent = 'Dư/Lố: ' + Math.abs(remaining).toLocaleString() + ' Token';
+            } else if (remaining === 0) {
+                elRemaining.classList.replace('text-red-600', 'text-green-600');
+            } else {
+                elRemaining.className = 'font-bold text-lg text-red-600';
+            }
+
+            document.getElementById('summary_pay_per_milestone').textContent = payPerMilestone.toLocaleString() + ' Token';
+            document.getElementById('summary_pay_at_end').textContent = payAtEnd.toLocaleString() + ' Token';
+        }
+
         function openPlanModal(jobId, jobBudget) {
             document.getElementById('modal_job_id').value = jobId;
             document.getElementById('modal_job_budget').value = jobBudget; // Store for validation
@@ -226,7 +503,7 @@
             div.className = 'bg-gray-50 p-4 rounded border border-gray-300 relative milestone-item';
             div.innerHTML = `
                 <h3 class="font-bold mb-2">Giai đoạn ${milestoneCount}</h3>
-                <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-red-500 font-bold hover:text-red-700">Xóa</button>
+                <button type="button" onclick="this.parentElement.remove(); updatePlanSummary();" class="absolute top-2 right-2 text-red-500 font-bold hover:text-red-700">Xóa</button>
                 
                 <div class="grid grid-cols-2 gap-4 mb-2">
                     <div>
@@ -235,7 +512,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium">Trị giá (Token):</label>
-                        <input type="number" class="m-amount mt-1 block w-full border p-2 rounded text-sm" placeholder="VD: 500">
+                        <input type="number" oninput="updatePlanSummary()" class="m-amount mt-1 block w-full border p-2 rounded text-sm" placeholder="VD: 500">
                     </div>
                 </div>
                 
@@ -251,13 +528,14 @@
 
                 <div class="mb-2">
                     <label class="block text-sm font-medium">Phương thức thanh toán:</label>
-                    <select class="m-payment mt-1 block w-full border p-2 rounded text-sm">
+                    <select onchange="updatePlanSummary()" class="m-payment mt-1 block w-full border p-2 rounded text-sm">
                         <option value="PAY_PER_MILESTONE">Trả tiền ngay khi xong mốc này (Khuyến nghị)</option>
                         <option value="PAY_AT_END">Gom lại trả 1 lần ở cuối dự án</option>
                     </select>
                 </div>
             `;
             container.appendChild(div);
+            updatePlanSummary();
         }
 
         async function submitPlan() {
@@ -296,8 +574,8 @@
                 });
             }
 
-            if (totalAmount > jobBudget) {
-                alert('LỖI: Tổng trị giá các giai đoạn (' + totalAmount + ' Token) vượt quá giá thỏa thuận của dự án (' + jobBudget + ' Token)! Vui lòng điều chỉnh lại.');
+            if (totalAmount !== jobBudget) {
+                alert('LỖI: Tổng trị giá các giai đoạn (' + totalAmount + ' Token) phải bằng ĐÚNG VỚI giá trị đã chốt của dự án (' + jobBudget + ' Token)! Vui lòng điều chỉnh lại cho khớp.');
                 return;
             }
 
@@ -318,6 +596,138 @@
                 }
             } catch (err) {
                 alert('Không thể kết nối Backend');
+            }
+        }
+
+        async function revokePlan(jobId) {
+            if (!confirm('Bạn có chắc chắn muốn thu hồi Kế hoạch (Milestones) này để làm lại không?')) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/milestones/revoke-plan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ job_id: jobId })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('Đã thu hồi kế hoạch. Bạn có thể tạo Kế hoạch mới ngay bây giờ.');
+                    loadJobs();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối Backend');
+            }
+        }
+
+        // ---------- KHIẾU NẠI (DISPUTE) ----------
+        let uploadedDisputeEvidence = [];
+
+        async function handleDisputeImageUpload(input) {
+            const files = input.files;
+            if (files.length === 0) return;
+            if (files.length > 7) {
+                alert('Chỉ được tải lên tối đa 7 hình ảnh!');
+                input.value = '';
+                return;
+            }
+
+            const btnSubmit = document.getElementById('btnSubmitDispute');
+            const previewContainer = document.getElementById('dispute_image_preview');
+
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+            previewContainer.innerHTML = '<p class="text-blue-500 text-sm animate-pulse w-full"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải ' + files.length + ' ảnh lên máy chủ, vui lòng chờ...</p>';
+            
+            uploadedDisputeEvidence = [];
+            
+            try {
+                const uploadPromises = Array.from(files).map(async (file) => {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const res = await fetch(`${API_URL}/api/upload/image`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if(!res.ok) throw new Error(data.error);
+                    return data.url;
+                });
+
+                uploadedDisputeEvidence = await Promise.all(uploadPromises);
+
+                previewContainer.innerHTML = uploadedDisputeEvidence.map(url => `
+                    <div class="relative inline-block mt-2 mr-2">
+                        <img src="${url}" class="w-16 h-16 object-cover rounded border border-gray-300">
+                        <span class="absolute -top-2 -right-2 bg-green-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center"><i class="fas fa-check"></i></span>
+                    </div>
+                `).join('');
+                
+            } catch(err) {
+                previewContainer.innerHTML = '<p class="text-red-500 text-sm w-full"><i class="fas fa-exclamation-triangle mr-2"></i>Lỗi tải ảnh: ' + err.message + '</p>';
+                input.value = '';
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function openDisputeModal(jobId) {
+            document.getElementById('dispute_job_id').value = jobId;
+            document.getElementById('dispute_reason').value = '';
+            const fileInput = document.getElementById('dispute_evidence');
+            if(fileInput) fileInput.value = '';
+            const preview = document.getElementById('dispute_image_preview');
+            if(preview) preview.innerHTML = '';
+            uploadedDisputeEvidence = [];
+            
+            const btnSubmit = document.getElementById('btnSubmitDispute');
+            if(btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gửi Khiếu Nại';
+            }
+
+            document.getElementById('disputeModal').classList.remove('hidden');
+        }
+
+        function closeDisputeModal() {
+            document.getElementById('disputeModal').classList.add('hidden');
+        }
+
+        async function submitDispute() {
+            const jobId = document.getElementById('dispute_job_id').value;
+            const reason = document.getElementById('dispute_reason').value;
+
+            if (!reason) return alert('Vui lòng nhập lý do khiếu nại!');
+            if (!confirm('CẢNH BÁO: Hành động này sẽ đóng băng dự án và giao cho Tòa Án Admin phán quyết. Bạn có chắc chắn?')) return;
+
+            const btnSubmit = document.getElementById('btnSubmitDispute');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/jobs/dispute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        user_id: currentUser.id,
+                        reason: reason,
+                        evidence_url: uploadedDisputeEvidence.join(',')
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    closeDisputeModal();
+                    loadJobs();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gửi Khiếu Nại';
+                }
+            } catch (err) {
+                alert('Không thể kết nối Backend');
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gửi Khiếu Nại';
             }
         }
 

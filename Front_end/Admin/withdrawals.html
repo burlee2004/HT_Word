@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý Rút Tiền</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Thư viện SheetJS để xuất Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body class="bg-gray-100 p-10 font-sans">
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-money-check-alt text-green-600 mr-3"></i>Quản lý Yêu cầu Rút Tiền (Chi Hộ)</h1>
+                <p class="text-gray-500 mt-2">Tính năng Xuất Excel (Chuyển khoản lô) & Phê duyệt tự động Blockchain</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="window.location.href='dashboard.html'" class="bg-gray-200 text-gray-700 px-4 py-2 rounded shadow hover:bg-gray-300 font-bold">
+                    <i class="fas fa-arrow-left mr-2"></i> Trở về Dashboard
+                </button>
+                <button onclick="loadWithdrawals()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 font-bold">
+                    <i class="fas fa-sync-alt mr-2"></i> Làm mới
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8 border-t-4 border-green-500">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h2 class="text-xl font-bold text-gray-700">Danh sách lệnh rút chờ chuyển khoản</h2>
+                <div class="flex space-x-3">
+                    <button onclick="exportExcel()" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 font-bold transition flex items-center">
+                        <i class="fas fa-file-excel mr-2"></i> Xuất File Excel Lô
+                    </button>
+                    <!-- Nút Chi Hộ (Napas/PayOS Payout) -->
+                    <button onclick="openPayoutModal()" class="bg-purple-600 text-white px-4 py-2 rounded shadow hover:bg-purple-700 font-bold transition flex items-center shadow-lg border-2 border-purple-400">
+                        <i class="fas fa-rocket mr-2"></i> Auto Chi Hộ (Napas/API)
+                    </button>
+                    <button onclick="bulkApprove()" id="btnApprove" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 font-bold transition flex items-center">
+                        <i class="fas fa-check-double mr-2"></i> Xác nhận Blockchain
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white text-sm" id="withdrawTable">
+                    <thead class="bg-gray-50 text-gray-600 uppercase text-xs leading-normal">
+                        <tr>
+                            <th class="py-3 px-4 text-center">
+                                <input type="checkbox" id="selectAll" onclick="toggleAll(this)" class="w-4 h-4 text-blue-600 rounded">
+                            </th>
+                            <th class="py-3 px-4 text-left">Thời gian</th>
+                            <th class="py-3 px-4 text-left">Người Rút (Email)</th>
+                            <th class="py-3 px-4 text-left">Thông tin Ngân hàng</th>
+                            <th class="py-3 px-4 text-right">Số lượng (VNĐ)</th>
+                            <th class="py-3 px-4 text-center">Thao tác lẻ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="text-gray-600 font-light">
+                        <tr><td colspan="6" class="py-3 px-6 text-center">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHI HỘ TỰ ĐỘNG (PAYOUT API) -->
+    <div id="payoutModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-700 to-indigo-600 p-5 text-white flex justify-between items-center">
+                <h2 class="text-xl font-bold"><i class="fas fa-network-wired mr-2"></i>Cổng Thanh Toán Chi Hộ (Payout API)</h2>
+                <button onclick="closePayoutModal()" class="text-white hover:text-gray-200 text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-6">
+                <div class="bg-purple-50 border border-purple-200 p-4 rounded-lg mb-6 text-sm text-purple-800">
+                    <p class="font-bold mb-1"><i class="fas fa-info-circle mr-1"></i>Hệ thống kết nối Core Banking</p>
+                    <p>Web sẽ tự động gọi API Ngân hàng chuyển tiền mặt (VNĐ) đến số tài khoản của các Freelancer đã chọn, sau đó tự động Đốt Token trên Blockchain.</p>
+                </div>
+
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-600 font-semibold">Số lượng GD chờ duyệt:</span>
+                    <span id="payoutCount" class="font-bold text-lg text-purple-700">0</span>
+                </div>
+                <div class="flex justify-between items-center mb-6 pb-4 border-b">
+                    <span class="text-gray-600 font-semibold">Tổng tiền giải ngân (VNĐ):</span>
+                    <span id="payoutTotalAmount" class="font-black text-2xl text-green-600">0 đ</span>
+                </div>
+
+                <!-- Step 1: Nhập mã PIN -->
+                <div id="payoutStep1">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Nhập mã PIN Kế Toán Trưởng để xác thực chuyển tiền:</label>
+                    <div class="relative mb-4">
+                        <input type="password" id="payoutPin" class="block w-full border-2 border-gray-300 p-3 pl-10 rounded-lg focus:border-purple-500 font-bold tracking-widest text-lg text-center" placeholder="******" maxlength="6">
+                        <i class="fas fa-lock absolute left-4 top-4 text-gray-400"></i>
+                    </div>
+                    <p class="text-xs text-red-500 mb-4">* Chú ý: Tiền thật (VNĐ) sẽ được chuyển ngay lập tức. Hãy chắc chắn!</p>
+                    <button onclick="startAutoPayout()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition text-lg flex justify-center items-center">
+                        <i class="fas fa-paper-plane mr-2"></i> Uỷ quyền Chuyển Khoản & Đốt Token
+                    </button>
+                </div>
+
+                <!-- Step 2: Progress (Giả lập) -->
+                <div id="payoutStep2" class="hidden text-center py-4">
+                    <i class="fas fa-spinner fa-spin text-4xl text-purple-600 mb-4"></i>
+                    <h3 id="payoutStatusText" class="font-bold text-lg text-gray-700 mb-2">Đang kết nối cổng NAPAS...</h3>
+                    <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+                        <div id="payoutProgressBar" class="bg-green-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="payoutProgressDetail" class="text-sm text-gray-500">Đang xử lý: 0/0</p>
+                </div>
+
+                <!-- Step 3: Hoàn thành -->
+                <div id="payoutStep3" class="hidden text-center py-4">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-3xl text-green-600"></i>
+                    </div>
+                    <h3 class="font-bold text-xl text-gray-800 mb-2">Giải Ngân Hoàn Tất!</h3>
+                    <p class="text-gray-600 text-sm mb-6">Đã chuyển thành công VNĐ qua Ngân hàng và đồng bộ Blockchain xong.</p>
+                    <button onclick="closePayoutModalAndReload()" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded-lg shadow transition">
+                        Đóng và Tải lại danh sách
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let currentRequests = [];
+
+        async function loadWithdrawals() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="py-3 px-6 text-center">Đang tải...</td></tr>';
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/withdrawals`);
+                const data = await res.json();
+                
+                if(res.ok) {
+                    currentRequests = data.filter(r => r.status === 'pending');
+                    
+                    if (currentRequests.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="py-5 px-6 text-center text-gray-500 font-bold">Không có lệnh rút tiền nào đang chờ.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = currentRequests.map(req => {
+                        const date = new Date(req.created_at).toLocaleString('vi-VN');
+                        const amount = parseInt(req.amount).toLocaleString();
+                        const user = req.user || {};
+                        const bankInfo = user.bank_account ? 
+                            `<div class="font-bold text-gray-800">${user.bank_name}</div>
+                             <div class="text-blue-600 font-mono tracking-wider">${user.bank_account}</div>
+                             <div class="uppercase text-xs text-gray-500">${user.bank_owner}</div>` 
+                            : '<span class="text-red-500">Chưa có thông tin</span>';
+
+                        return `
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-3 px-4 text-center">
+                                <input type="checkbox" class="row-checkbox w-4 h-4 text-blue-600 rounded" value="${req.id}">
+                            </td>
+                            <td class="py-3 px-4 text-left whitespace-nowrap text-gray-500">${date}</td>
+                            <td class="py-3 px-4 text-left">
+                                <div class="font-bold">${user.full_name || 'N/A'}</div>
+                                <div class="text-xs text-gray-500">${user.email}</div>
+                            </td>
+                            <td class="py-3 px-4 text-left">${bankInfo}</td>
+                            <td class="py-3 px-4 text-right font-bold text-green-600">${amount}</td>
+                            <td class="py-3 px-4 text-center">
+                                <button onclick="rejectRequest('${req.id}')" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded text-xs font-bold transition">Từ chối (Hoàn tiền)</button>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-3 px-6 text-center text-red-500">Lỗi tải dữ liệu: ${err.message}</td></tr>`;
+            }
+        }
+
+        function toggleAll(source) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+        }
+
+        function getSelectedIds() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        // 1. Xuất Excel Lô
+        function exportExcel() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) return alert('Vui lòng chọn ít nhất 1 lệnh để xuất Excel!');
+
+            const selectedReqs = currentRequests.filter(r => selectedIds.includes(r.id));
+            
+            // Format theo chuẩn ngân hàng (Vietcombank/Techcombank)
+            const excelData = selectedReqs.map((req, index) => {
+                return {
+                    "STT": index + 1,
+                    "Số Tài Khoản Nhận": req.user.bank_account,
+                    "Tên Ngân Hàng": req.user.bank_name,
+                    "Tên Người Nhận": req.user.bank_owner,
+                    "Số Tiền": parseInt(req.amount),
+                    "Nội Dung": `HTWORK Thanh toan rut tien ${req.user.email}`
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachChiHo");
+            
+            // Tải file
+            XLSX.writeFile(workbook, `Danh_Sach_Rut_Tien_${new Date().getTime()}.xlsx`);
+        }
+
+        // 2. Duyệt Lô (Sau khi chuyển khoản thành công)
+        async function bulkApprove() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) return alert('Vui lòng chọn ít nhất 1 lệnh để duyệt!');
+
+            if(!confirm(`XÁC NHẬN: Bạn đã chắc chắn CHUYỂN KHOẢN THÀNH CÔNG cho ${selectedIds.length} người này?\nHệ thống sẽ trừ tiền trên Blockchain và không thể hoàn tác!`)) {
+                return;
+            }
+
+            const btn = document.getElementById('btnApprove');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang đồng bộ Blockchain...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/withdrawals/bulk-approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_ids: selectedIds })
+                });
+
+                const data = await res.json();
+                if(res.ok) {
+                    alert('✅ ' + data.message);
+                    loadWithdrawals();
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Lỗi kết nối: ' + error.message);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-check-double mr-2"></i> Phê Duyệt Đã Chọn';
+                btn.disabled = false;
+                document.getElementById('selectAll').checked = false;
+            }
+        }
+
+        // 3. Từ chối lẻ (Hoàn tiền)
+        async function rejectRequest(id) {
+            if(!confirm('Bạn có chắc chắn muốn TỪ CHỐI lệnh này? Tiền sẽ được hoàn lại vào ví Khách hàng.')) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/withdrawals/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: id })
+                });
+
+                const data = await res.json();
+                if(res.ok) {
+                    alert('✅ Đã từ chối và hoàn tiền thành công!');
+                    loadWithdrawals();
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Lỗi kết nối: ' + error.message);
+            }
+        }
+
+        // ===================================
+        // 4. GIẢ LẬP CỔNG CHI HỘ (PAYOUT API)
+        // ===================================
+        function openPayoutModal() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) return alert('Vui lòng chọn ít nhất 1 lệnh để sử dụng chức năng Auto Chi Hộ!');
+
+            const selectedReqs = currentRequests.filter(r => selectedIds.includes(r.id));
+            const totalVND = selectedReqs.reduce((sum, req) => sum + parseInt(req.amount), 0);
+
+            document.getElementById('payoutCount').innerText = selectedIds.length;
+            document.getElementById('payoutTotalAmount').innerText = totalVND.toLocaleString() + ' đ';
+            
+            // Reset modal state
+            document.getElementById('payoutStep1').classList.remove('hidden');
+            document.getElementById('payoutStep2').classList.add('hidden');
+            document.getElementById('payoutStep3').classList.add('hidden');
+            document.getElementById('payoutPin').value = '';
+
+            document.getElementById('payoutModal').classList.remove('hidden');
+        }
+
+        function closePayoutModal() {
+            document.getElementById('payoutModal').classList.add('hidden');
+        }
+
+        function closePayoutModalAndReload() {
+            closePayoutModal();
+            loadWithdrawals();
+        }
+
+        async function startAutoPayout() {
+            const pin = document.getElementById('payoutPin').value;
+            if (pin.length < 6) return alert('Vui lòng nhập đúng 6 số mã PIN Kế Toán!');
+
+            const selectedIds = getSelectedIds();
+            
+            // Hide Step 1, Show Step 2
+            document.getElementById('payoutStep1').classList.add('hidden');
+            document.getElementById('payoutStep2').classList.remove('hidden');
+
+            const progressBar = document.getElementById('payoutProgressBar');
+            const progressDetail = document.getElementById('payoutProgressDetail');
+            const statusText = document.getElementById('payoutStatusText');
+
+            // Giả lập từng bước gọi API Ngân Hàng (2-3 giây)
+            for(let i = 0; i < selectedIds.length; i++) {
+                // Update text
+                statusText.innerText = `Đang chi hộ tới TK số ${currentRequests.find(r => r.id === selectedIds[i]).user.bank_account}...`;
+                progressDetail.innerText = `Đang xử lý: ${i+1}/${selectedIds.length}`;
+                
+                // Animate progress
+                const percentage = Math.round(((i + 1) / selectedIds.length) * 100);
+                progressBar.style.width = percentage + '%';
+                
+                // Sleep 800ms per simulated API call
+                await new Promise(r => setTimeout(r, 800));
+            }
+
+            // Gọi API Thật (Bulk Approve) để đốt Blockchain
+            statusText.innerText = 'Đang đồng bộ Sổ cái Blockchain...';
+            try {
+                const res = await fetch(`${API_URL}/api/admin/withdrawals/bulk-approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_ids: selectedIds })
+                });
+
+                if(res.ok) {
+                    // Show Step 3
+                    document.getElementById('payoutStep2').classList.add('hidden');
+                    document.getElementById('payoutStep3').classList.remove('hidden');
+                } else {
+                    alert('Lỗi khi đồng bộ Blockchain!');
+                    closePayoutModal();
+                }
+            } catch (error) {
+                alert('Lỗi kết nối: ' + error.message);
+                closePayoutModal();
+            }
+        }
+
+        loadWithdrawals();
+    </script>
+</body>
+</html>

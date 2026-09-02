@@ -3,10 +3,21 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const { createClient } = require('@supabase/supabase-js');
+const blockchain = require('./blockchain');
 
 // Import cấu hình Upload
 const uploadImage = require('./config/cloudinary');
 const uploadFile = require('./config/s3');
+
+// Khởi tạo PayOS
+const payosModule = require('@payos/node');
+const PayOS = payosModule.PayOS || payosModule; // Xử lý cả 2 trường hợp version
+const payos = new PayOS(
+    process.env.PAYOS_CLIENT_ID,
+    process.env.PAYOS_API_KEY,
+    process.env.PAYOS_CHECKSUM_KEY
+);
+
 
 // 1. Khởi tạo Express app & Cấu hình
 const app = express();
@@ -125,7 +136,7 @@ app.get('/api/users/:id', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('users')
-            .select('id, full_name, email, role, avatar_url, cover_url, bio, skills, created_at')
+            .select('id, full_name, email, role, avatar_url, cover_url, bio, skills, bank_name, bank_account, bank_owner, created_at')
             .eq('id', req.params.id)
             .single();
         if (error) throw error;
@@ -137,13 +148,13 @@ app.get('/api/users/:id', async (req, res) => {
 
 // 2. Cập nhật Hồ sơ cá nhân
 app.put('/api/users/:id', async (req, res) => {
-    const { full_name, avatar_url, cover_url, bio, skills } = req.body;
+    const { full_name, avatar_url, cover_url, bio, skills, bank_name, bank_account, bank_owner } = req.body;
     try {
         const { data, error } = await supabase
             .from('users')
-            .update({ full_name, avatar_url, cover_url, bio, skills })
+            .update({ full_name, avatar_url, cover_url, bio, skills, bank_name, bank_account, bank_owner })
             .eq('id', req.params.id)
-            .select('id, full_name, email, role, avatar_url, cover_url, bio, skills, created_at')
+            .select('id, full_name, email, role, avatar_url, cover_url, bio, skills, bank_name, bank_account, bank_owner, created_at')
             .single();
         if (error) throw error;
         res.status(200).json({ message: 'Cập nhật thành công', user: data });
@@ -160,11 +171,17 @@ app.put('/api/users/:id', async (req, res) => {
 app.post('/api/jobs', async (req, res) => {
     const { client_id, title, description, budget } = req.body;
     try {
+        // KIỂM TRA SỐ DƯ VÍ TRƯỚC KHI CHO ĐĂNG DỰ ÁN
+        const { data: wallet, error: walletErr } = await supabase.from('wallets').select('balance').eq('user_id', client_id).single();
+        if (walletErr || !wallet) throw new Error('Không tìm thấy ví của bạn.');
+        if (wallet.balance < budget) throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${budget} Token, nhưng ví bạn chỉ có ${wallet.balance} Token. Vui lòng nạp thêm.`);
+
         const { data, error } = await supabase
             .from('jobs')
             .insert([{ client_id, title, description, budget, status: 'open' }])
             .select();
         
+
         if (error) throw error;
 
         // Gửi thông báo cho Client
@@ -271,6 +288,32 @@ app.post('/api/milestones/create-plan', async (req, res) => {
         }
 
         res.status(200).json({ message: 'Tạo kế hoạch thành công, chờ Khách duyệt.' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 4.1.1 API: Freelancer hủy/thu hồi Kế hoạch (khi đang ở pending_plan_approval)
+app.post('/api/milestones/revoke-plan', async (req, res) => {
+    const { job_id } = req.body;
+    try {
+        // Kiểm tra xem job có đang ở trạng thái pending_plan_approval không
+        const { data: job, error: jobErr } = await supabase.from('jobs').select('status').eq('id', job_id).single();
+        if (jobErr) throw jobErr;
+        
+        if (job.status !== 'pending_plan_approval') {
+            return res.status(400).json({ error: 'Chỉ có thể thu hồi khi kế hoạch đang chờ duyệt.' });
+        }
+
+        // Xóa tất cả milestones PENDING của job này
+        const { error: delErr } = await supabase.from('milestones').delete().match({ job_id: job_id, status: 'PENDING' });
+        if (delErr) throw delErr;
+
+        // Trả trạng thái job về lại planning
+        const { error: updateErr } = await supabase.from('jobs').update({ status: 'planning' }).eq('id', job_id);
+        if (updateErr) throw updateErr;
+
+        res.status(200).json({ message: 'Đã thu hồi kế hoạch thành công. Bạn có thể làm lại.' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -516,6 +559,16 @@ app.post('/api/escrow/release', async (req, res) => {
         await supabase.from('wallets').update({ locked_balance: clientWallet.locked_balance - amount }).eq('user_id', client_id);
         await supabase.from('wallets').update({ balance: freeWallet.balance + amount }).eq('user_id', freelancer_id);
 
+        // Đồng bộ lên Blockchain (Chuyển tiền thực tế trên Sổ cái)
+        if (blockchain.isConfigured()) {
+            try {
+                await blockchain.transferBalance(client_id, freelancer_id, amount);
+            } catch (err) {
+                console.error('Lỗi khi gọi smart contract transfer:', err);
+                // Bạn có thể rollback nếu cần ở môi trường thật
+            }
+        }
+
         // Cập nhật milestone thành approved
         await supabase.from('milestones').update({ status: 'approved' }).eq('id', milestone_id);
 
@@ -641,6 +694,14 @@ app.post('/api/milestones/advanced/approve', async (req, res) => {
 
         const freelancer_id = appData.freelancer_id;
 
+        // KIỂM TRA & TẠO VÍ CHO FREELANCER NẾU CHƯA CÓ
+        // Sửa lỗi: Nếu Freelancer chưa có ví, lệnh UPDATE trong fn_release_milestone sẽ update 0 dòng (tiền biến mất)
+        const { data: fWallet } = await supabase.from('wallets').select('id').eq('user_id', freelancer_id).single();
+        if (!fWallet) {
+            await supabase.from('wallets').insert([{ user_id: freelancer_id, balance: 0, locked_balance: 0 }]);
+        }
+
+
         // Tạo Idempotency Key duy nhất cho giao dịch này
         const idempotency_key = `RELEASE_${milestone_id}`;
 
@@ -659,11 +720,16 @@ app.post('/api/milestones/advanced/approve', async (req, res) => {
             return res.status(400).json({ error: rpcResult.error });
         }
 
+        // ĐỒNG BỘ LÊN BLOCKCHAIN (WEB2.5)
+        if (blockchain.isConfigured()) {
+            await blockchain.transferBalance(client_id, freelancer_id, mData.amount);
+        }
+
         // Gửi thông báo cho Freelancer sau khi giải ngân thành công
         await supabase.from('notifications').insert([{
             user_id: freelancer_id,
             title: '💰 Đã nhận thanh toán!',
-            content: `Khách hàng đã nghiệm thu. ${mData.amount} Token đã được chuyển vào ví của bạn.`
+            content: `Khách hàng đã nghiệm thu. ${mData.amount} Token đã được chuyển vào ví của bạn (Blockchain Synced).`
         }]);
 
         // Cập nhật trạng thái job nếu tất cả milestones đã PAID
@@ -689,14 +755,112 @@ app.post('/api/milestones/advanced/approve', async (req, res) => {
 });
 
 // ==========================================
-// API DÀNH CHO PHASE 3 (NẠP TOKEN & THÔNG BÁO)
+// API DÀNH CHO PHASE 3 (NẠP TOKEN & THÔNG BÁO & PAYOS)
 // ==========================================
 
-// 11. API: Khách hàng tạo lệnh nạp Token
+// API PayOS: Tạo Link Thanh Toán
+app.post('/api/payment/create-payment-link', async (req, res) => {
+    const { user_id, amount } = req.body;
+    try {
+        const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(Math.random() * 1000));
+        
+        // Lưu vào bảng deposit_requests với payos_order_code
+        const { data, error } = await supabase.from('deposit_requests').insert([{
+            user_id,
+            amount,
+            status: 'pending',
+            payos_order_code: orderCode
+        }]).select('id').single();
+        if (error) throw error;
+
+        // Tạo body cho PayOS
+        const requestData = {
+            orderCode: orderCode,
+            amount: Number(amount),
+            description: `Nap Token ${orderCode}`,
+            cancelUrl: `http://127.0.0.1:5500/Front_end/user/wallet.html?status=cancel`,
+            returnUrl: `http://127.0.0.1:5500/Front_end/user/wallet.html?status=success`
+        };
+
+        const paymentLink = await payos.createPaymentLink(requestData);
+        res.json({ checkoutUrl: paymentLink.checkoutUrl });
+    } catch (error) {
+        console.error('Lỗi PayOS:', error);
+        res.status(500).json({ error: 'Không thể tạo link thanh toán PayOS' });
+    }
+});
+
+// API PayOS: Webhook nhận tín hiệu thanh toán thành công
+app.post('/api/payment/payos-webhook', async (req, res) => {
+    try {
+        // PayOS gửi dạng JSON body. Xác thực signature
+        const webhookData = payos.verifyPaymentWebhookData(req.body);
+        
+        // webhookData chính là phần 'data' bên trong, ta chỉ cần kiểm tra orderCode
+        if (webhookData && webhookData.orderCode) {
+            const orderCode = webhookData.orderCode;
+            const amount = webhookData.amount;
+            
+            // Tìm lệnh nạp tiền
+            const { data: request, error: reqErr } = await supabase.from('deposit_requests').select('*').eq('payos_order_code', orderCode).eq('status', 'pending').single();
+            if (reqErr || !request) {
+                return res.json({ success: true }); // Bỏ qua nếu không tìm thấy hoặc đã xử lý
+            }
+
+            // 1. Cập nhật trạng thái
+            await supabase.from('deposit_requests').update({ status: 'approved' }).eq('id', request.id);
+            
+            // 2. Cộng tiền cho User
+            const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', request.user_id).single();
+            const newBalance = wallet ? wallet.balance + amount : amount;
+            
+            if (wallet) {
+                await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', request.user_id);
+            } else {
+                await supabase.from('wallets').insert([{ user_id: request.user_id, balance: newBalance, locked_balance: 0 }]);
+            }
+            
+            // 3. Ghi log transactions
+            await supabase.from('transactions').insert([{
+                user_id: request.user_id,
+                amount: amount,
+                type: 'deposit',
+                status: 'success'
+            }]);
+            
+            // 4. Gửi thông báo
+            await supabase.from('notifications').insert([{
+                user_id: request.user_id,
+                title: 'Nạp tiền tự động thành công!',
+                content: `Bạn vừa nạp thành công ${amount} Token thông qua PayOS.`
+            }]);
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Webhook error:', error.message);
+        res.json({ success: false, error: error.message });
+    }
+});
+
+// 11. API: Khách hàng tạo lệnh nạp Token (Có chống Spam)
 app.post('/api/deposit', async (req, res) => {
     const { user_id, amount } = req.body;
     try {
-        const { data, error } = await supabase.from('deposit_requests').insert([{ user_id, amount }]).select('id').single();
+        // Kiểm tra xem user có lệnh pending nào không
+        const { data: existing } = await supabase
+            .from('deposit_requests')
+            .select('*')
+            .eq('user_id', user_id)
+            .eq('status', 'pending');
+            
+        if (existing && existing.length > 0) {
+            // Nếu có lệnh pending, lấy luôn lệnh đó không tạo mới (ghi đè số tiền nếu muốn, hoặc báo lỗi)
+            // Ở đây ta báo lỗi để client dùng lệnh cũ
+            return res.status(400).json({ error: 'Bạn đang có một lệnh nạp tiền chờ xử lý. Vui lòng thanh toán hoặc chờ lệnh cũ hết hạn.' });
+        }
+
+        const { data, error } = await supabase.from('deposit_requests').insert([{ user_id, amount }]).select('id, created_at').single();
         if (error) throw error;
         
         // Tạo mã chuyển khoản từ 6 ký tự đầu của ID
@@ -704,8 +868,61 @@ app.post('/api/deposit', async (req, res) => {
 
         res.status(200).json({ 
             message: 'Đã gửi lệnh nạp tiền. Vui lòng chờ Admin duyệt.',
-            transferCode: transferCode 
+            transferCode: transferCode,
+            request: data
         });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// API: Lấy lệnh nạp đang Pending của User
+app.get('/api/deposit/pending/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('deposit_requests')
+            .select('id, amount, created_at, status')
+            .eq('user_id', user_id)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        if (error) throw error;
+        
+        let activeRequest = null;
+        if (data && data.length > 0) {
+            const reqData = data[0];
+            const ageMinutes = (new Date() - new Date(reqData.created_at)) / 60000;
+            
+            // Nếu lệnh pending quá 15 phút, tự động bỏ qua (coi như hết hạn)
+            if (reqData.status === 'pending' && ageMinutes > 15) {
+                // Tùy chọn: Gọi cập nhật status = 'expired' trong database
+                await supabase.from('deposit_requests').update({ status: 'expired' }).eq('id', reqData.id);
+            } else if (reqData.status === 'pending') {
+                // Trả về lệnh nếu vẫn còn hạn pending
+                activeRequest = reqData;
+            }
+        }
+
+        res.status(200).json({ request: activeRequest });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// API: Kiểm tra trạng thái của một lệnh nạp cụ thể
+app.get('/api/deposit/check/:request_id', async (req, res) => {
+    const { request_id } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('deposit_requests')
+            .select('status')
+            .eq('id', request_id)
+            .single();
+
+        if (error) throw error;
+        res.status(200).json({ status: data.status });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -747,6 +964,11 @@ app.post('/api/admin/deposits/approve', async (req, res) => {
         const { data: reqData } = await supabase.from('deposit_requests').select('user_id, amount').eq('id', request_id).single();
 
         if (reqData) {
+            // ĐỒNG BỘ LÊN BLOCKCHAIN (WEB2.5)
+            if (blockchain.isConfigured()) {
+                await blockchain.addBalance(reqData.user_id, reqData.amount);
+            }
+
             await supabase.from('notifications').insert([{
                 user_id: reqData.user_id,
                 title: '💰 Nạp Token Thành Công',
@@ -755,6 +977,35 @@ app.post('/api/admin/deposits/approve', async (req, res) => {
         }
 
         res.status(200).json({ message: rpcResult.message });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// API: Admin từ chối lệnh nạp tiền
+app.post('/api/admin/deposits/reject', async (req, res) => {
+    const { request_id } = req.body;
+    try {
+        // Cập nhật trạng thái thành 'rejected'
+        const { data, error } = await supabase
+            .from('deposit_requests')
+            .update({ status: 'rejected' })
+            .eq('id', request_id)
+            .select('user_id, amount')
+            .single();
+
+        if (error) throw error;
+
+        // Gửi thông báo cho user
+        if (data) {
+            await supabase.from('notifications').insert([{
+                user_id: data.user_id,
+                title: '❌ Lệnh Nạp Tiền Bị Từ Chối',
+                content: `Lệnh nạp ${data.amount} Token của bạn đã bị từ chối. Vui lòng kiểm tra lại thông tin giao dịch.`
+            }]);
+        }
+
+        res.status(200).json({ message: 'Đã từ chối lệnh nạp tiền.' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -806,10 +1057,37 @@ app.get('/api/wallet/:user_id', async (req, res) => {
     try {
         const { data, error } = await supabase.from('wallets').select('*').eq('user_id', user_id).single();
         if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
+        
+        let dbBalance = data ? data.balance : 0;
+        let dbLocked = data ? data.locked_balance : 0;
+
+        // BẢO MẬT WEB2.5: ĐỐI CHIẾU BLOCKCHAIN (SOURCE OF TRUTH)
+        if (blockchain.isConfigured() && data) {
+            const bcBalance = await blockchain.getBalance(user_id);
+            if (bcBalance !== null) {
+                // Trên blockchain, số dư = số dư khả dụng + số dư đang bị khóa (escrow)
+                const expectedTotal = dbBalance + dbLocked;
+                
+                if (bcBalance !== expectedTotal) {
+                    console.error(`[CẢNH BÁO HACK] User ${user_id} bị lệch số dư! DB: ${expectedTotal} != Blockchain: ${bcBalance}`);
+                    // Cơ chế tự động sửa lỗi: Đè lại dữ liệu DB bằng Blockchain (Lấy Blockchain làm gốc)
+                    // Giả định: Không thay đổi số tiền đang bị khóa, chỉ điều chỉnh lại số dư khả dụng
+                    let correctedBalance = bcBalance - dbLocked;
+                    if (correctedBalance < 0) {
+                        correctedBalance = 0; // Nếu âm, reset về 0 (có thể escrow bị lỗi)
+                    }
+                    
+                    await supabase.from('wallets').update({ balance: correctedBalance }).eq('user_id', user_id);
+                    console.log(`[Khắc phục] Đã đồng bộ lại DB cho User ${user_id}: Balance = ${correctedBalance}`);
+                    dbBalance = correctedBalance;
+                }
+            }
+        }
+
         res.status(200).json({ 
-            balance: data ? data.balance : 0, 
-            locked_balance: data ? data.locked_balance : 0,
-            wallet: data || { balance: 0, locked_balance: 0 }
+            balance: dbBalance, 
+            locked_balance: dbLocked,
+            wallet: { ...data, balance: dbBalance, locked_balance: dbLocked } || { balance: 0, locked_balance: 0 }
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -829,6 +1107,208 @@ app.get('/api/wallet/:user_id/transactions', async (req, res) => {
             
         if (error) throw error;
         res.status(200).json({ transactions: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// ==========================================
+// API DEV / TESTER (DỌN DẸP VÍ)
+// ==========================================
+const ALLOWED_TESTERS = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+
+app.post('/api/test/reset-wallet', async (req, res) => {
+    const { user_id, email } = req.body;
+    try {
+        if (!ALLOWED_TESTERS.includes(email)) {
+            return res.status(403).json({ error: 'Truy cập bị từ chối! Bạn không nằm trong danh sách Tester.' });
+        }
+
+        // 1. Reset Database
+        await supabase.from('wallets').update({ balance: 0, locked_balance: 0 }).eq('user_id', user_id);
+        
+        // 2. Xóa các giao dịch đang treo và Job (Escrow)
+        await supabase.from('wallet_ledger').delete().or(`sender_id.eq.${user_id},receiver_id.eq.${user_id}`);
+        await supabase.from('withdraw_requests').delete().eq('user_id', user_id);
+        await supabase.from('jobs').delete().or(`client_id.eq.${user_id},freelancer_id.eq.${user_id}`);
+        
+        // 3. Reset Blockchain
+        if (blockchain.isConfigured()) {
+            const bcBalance = await blockchain.getBalance(user_id);
+            if (bcBalance > 0) {
+                await blockchain.deductBalance(user_id, bcBalance);
+            }
+        }
+
+        res.status(200).json({ message: 'Đã reset toàn bộ Ví và Blockchain về 0 thành công!' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/admin/audit/users', async (req, res) => {
+    try {
+        const { data: users, error } = await supabase
+            .from('users')
+            .select(`
+                id, email, 
+                wallets (balance, locked_balance)
+            `);
+            
+        if (error) throw error;
+        
+        const formatData = users.map(u => ({
+            id: u.id,
+            email: u.email,
+            balance: u.wallets?.[0]?.balance || 0,
+            locked_balance: u.wallets?.[0]?.locked_balance || 0
+        }));
+        
+        res.status(200).json(formatData);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==========================================
+// API DÀNH CHO VÍ (WALLET & TRANSACTIONS)
+// ==========================================
+
+// 1. Tạo lệnh rút tiền (Web2.5)
+app.post('/api/withdraw', async (req, res) => {
+    const { user_id, amount } = req.body;
+    try {
+        if (!user_id || !amount || amount <= 0) throw new Error('Dữ liệu không hợp lệ');
+
+        // Kiểm tra thông tin ngân hàng
+        const { data: user } = await supabase.from('users').select('bank_name, bank_account, bank_owner').eq('id', user_id).single();
+        if (!user || !user.bank_account) {
+            return res.status(400).json({ error: 'Vui lòng cập nhật tài khoản ngân hàng trong Profile trước khi rút tiền.' });
+        }
+
+        // Kiểm tra ví DB
+        const { data: wallet } = await supabase.from('wallets').select('balance, locked_balance').eq('user_id', user_id).single();
+        if (!wallet || wallet.balance < amount) {
+            return res.status(400).json({ error: 'Không đủ số dư khả dụng để rút tiền.' });
+        }
+
+        // BẢO MẬT WEB2.5: ĐỐI CHIẾU BLOCKCHAIN
+        if (blockchain.isConfigured()) {
+            const bcBalance = await blockchain.getBalance(user_id);
+            if (bcBalance !== null) {
+                const expectedTotal = wallet.balance + wallet.locked_balance;
+                if (bcBalance < expectedTotal || bcBalance < amount) {
+                    return res.status(400).json({ error: '[BẢO MẬT] Lệch số dư với Blockchain. Giao dịch bị từ chối.' });
+                }
+            }
+        }
+
+        // Xử lý logic DB: Trừ balance, cộng locked_balance, tạo lệnh
+        await supabase.from('wallets').update({ 
+            balance: wallet.balance - amount,
+            locked_balance: wallet.locked_balance + amount 
+        }).eq('user_id', user_id);
+
+        const { data: request, error: reqErr } = await supabase.from('withdraw_requests').insert([{
+            user_id, amount, status: 'pending'
+        }]).select().single();
+
+        if (reqErr) throw reqErr;
+
+        res.status(200).json({ message: 'Tạo lệnh rút tiền thành công. Vui lòng chờ Admin duyệt.', request });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 2. Admin lấy danh sách rút tiền
+app.get('/api/admin/withdrawals', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('withdraw_requests')
+            .select('*, user:users(full_name, email, bank_name, bank_account, bank_owner)')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 3. Admin duyệt lô (Bulk Approve)
+app.post('/api/admin/withdrawals/bulk-approve', async (req, res) => {
+    const { request_ids } = req.body;
+    try {
+        if (!request_ids || request_ids.length === 0) throw new Error('Không có lệnh nào được chọn');
+
+        // Lấy danh sách lệnh
+        const { data: requests } = await supabase.from('withdraw_requests').select('*').in('id', request_ids).eq('status', 'pending');
+        
+        for (let reqData of requests) {
+            const user_id = reqData.user_id;
+            const amount = reqData.amount;
+
+            // Lấy ví
+            const { data: wallet } = await supabase.from('wallets').select('locked_balance').eq('user_id', user_id).single();
+            if (wallet) {
+                // Trừ tiền tạm giữ trong DB
+                await supabase.from('wallets').update({ locked_balance: wallet.locked_balance - amount }).eq('user_id', user_id);
+                
+                // Đồng bộ trừ Blockchain
+                if (blockchain.isConfigured()) {
+                    await blockchain.deductBalance(user_id, amount);
+                }
+
+                // Đổi trạng thái lệnh
+                await supabase.from('withdraw_requests').update({ status: 'approved' }).eq('id', reqData.id);
+
+                // Ghi transaction vào wallet_ledger
+                await supabase.from('wallet_ledger').insert([{
+                    sender_id: user_id, 
+                    receiver_id: '11111111-1111-1111-1111-111111111111', 
+                    amount: amount, 
+                    type: 'WITHDRAW', 
+                    idempotency_key: `WITHDRAW_${reqData.id}`,
+                    note: 'Giải ngân rút tiền (Chuyển khoản lô)'
+                }]);
+
+                // Báo notification
+                await supabase.from('notifications').insert([{
+                    user_id: user_id, title: 'Tiền đã về ví!', content: `Lệnh rút ${amount} Token của bạn đã được Admin giải ngân thành công.`
+                }]);
+            }
+        }
+        res.status(200).json({ message: `Đã duyệt thành công ${requests.length} lệnh rút tiền.` });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 4. Admin từ chối rút tiền (Hoàn tiền)
+app.post('/api/admin/withdrawals/reject', async (req, res) => {
+    const { request_id } = req.body;
+    try {
+        const { data: reqData } = await supabase.from('withdraw_requests').select('*').eq('id', request_id).eq('status', 'pending').single();
+        if (!reqData) throw new Error('Lệnh không tồn tại hoặc đã xử lý');
+
+        const user_id = reqData.user_id;
+        const amount = reqData.amount;
+
+        const { data: wallet } = await supabase.from('wallets').select('balance, locked_balance').eq('user_id', user_id).single();
+        if (wallet) {
+            // Hoàn lại tiền tạm giữ về khả dụng
+            await supabase.from('wallets').update({ 
+                locked_balance: wallet.locked_balance - amount,
+                balance: wallet.balance + amount 
+            }).eq('user_id', user_id);
+
+            await supabase.from('withdraw_requests').update({ status: 'rejected' }).eq('id', request_id);
+
+            await supabase.from('notifications').insert([{
+                user_id: user_id, title: 'Lệnh rút tiền bị từ chối', content: `Lệnh rút ${amount} Token bị từ chối. Tiền đã được hoàn lại vào ví.`
+            }]);
+        }
+        res.status(200).json({ message: 'Đã từ chối lệnh và hoàn tiền thành công.' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -1007,6 +1487,137 @@ app.delete('/api/jobs/cleanup/:client_id', async (req, res) => {
         res.status(200).json({ message: 'Đã dọn dẹp các dự án cũ đã hoàn thành quá 1 tháng!' });
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+});
+
+// ==========================================
+// TÒA ÁN BLOCKCHAIN (DISPUTE CENTER)
+// ==========================================
+const fs = require('fs');
+const path = require('path');
+const disputesFilePath = path.join(__dirname, 'disputes.json');
+
+// Hàm đọc/ghi DB phụ (File JSON)
+function getDisputes() {
+    if (fs.existsSync(disputesFilePath)) {
+        return JSON.parse(fs.readFileSync(disputesFilePath, 'utf8'));
+    }
+    return {};
+}
+function saveDisputes(data) {
+    fs.writeFileSync(disputesFilePath, JSON.stringify(data, null, 2));
+}
+
+// 1. Tạo Khiếu nại (Dispute)
+app.post('/api/jobs/dispute', async (req, res) => {
+    const { job_id, user_id, reason, evidence_url } = req.body;
+    try {
+        const { data, error } = await supabase.from('jobs').update({ status: 'disputed' }).eq('id', job_id);
+        if (error) throw error;
+        
+        let disputes = getDisputes();
+        disputes[job_id] = { user_id, reason, evidence_url, created_at: new Date().toISOString() };
+        saveDisputes(disputes);
+
+        res.status(200).json({ message: 'Đã gửi khiếu nại thành công. Hệ thống đã đóng băng dự án.' });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+// 2. Lấy danh sách dự án cho Admin Giám sát & Xử lý Tranh chấp
+app.get('/api/admin/projects', async (req, res) => {
+    try {
+        const { data: jobs, error } = await supabase.from('jobs').select('*, clients:client_id(full_name, email), milestones(*)');
+        if (error) throw error;
+
+        // Fetch applications to get freelancers for these jobs
+        const { data: apps } = await supabase.from('job_applications').select('job_id, freelancer_id, freelancers:freelancer_id(full_name, email)').eq('status', 'accepted');
+        
+        const disputes = getDisputes();
+
+        const fullJobs = jobs.map(j => {
+            const app = (apps || []).find(a => a.job_id === j.id);
+            return {
+                ...j,
+                freelancer: app ? app.freelancers : null,
+                freelancer_id: app ? app.freelancer_id : null,
+                dispute: disputes[j.id] || null
+            };
+        });
+
+        res.status(200).json({ projects: fullJobs });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+// 3. Admin Phán Quyết Tranh Chấp (Resolve Dispute)
+app.post('/api/admin/projects/resolve-dispute', async (req, res) => {
+    const { job_id, winner } = req.body; // winner: 'client' | 'freelancer'
+    try {
+        const { data: job, error: jobErr } = await supabase.from('jobs').select('*').eq('id', job_id).single();
+        if (jobErr) throw jobErr;
+
+        const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', job_id).eq('status', 'accepted').single();
+        if (!appData) throw new Error('Không tìm thấy Freelancer');
+
+        const client_id = job.client_id;
+        const freelancer_id = appData.freelancer_id;
+
+        // TÍNH TOÁN SỐ TIỀN THỰC TẾ CÒN BỊ KHÓA CỦA DỰ ÁN NÀY (Tổng các Milestone chưa PAID)
+        const { data: pendingMilestones } = await supabase.from('milestones').select('amount').eq('job_id', job_id).neq('status', 'PAID');
+        const amount = (pendingMilestones || []).reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
+
+        const { data: clientWallet } = await supabase.from('wallets').select('*').eq('user_id', client_id).single();
+        const { data: freeWallet } = await supabase.from('wallets').select('*').eq('user_id', freelancer_id).single();
+
+        if (clientWallet.locked_balance < amount) throw new Error(`Số dư đóng băng không khớp! Chỉ còn ${clientWallet.locked_balance} Token trong ví nhưng dự án yêu cầu xử lý ${amount} Token.`);
+
+        if (winner === 'client') {
+            // Hoàn tiền Khách Hàng (trả lại những gì chưa giải ngân)
+            if (amount > 0) {
+                await supabase.from('wallets').update({ 
+                    locked_balance: clientWallet.locked_balance - amount,
+                    balance: clientWallet.balance + amount 
+                }).eq('user_id', client_id);
+            }
+            await supabase.from('jobs').update({ status: 'cancelled' }).eq('id', job_id);
+            
+        } else if (winner === 'freelancer') {
+            // Ép Giải Ngân Freelancer (trả nốt những gì chưa giải ngân)
+            if (amount > 0) {
+                await supabase.from('wallets').update({ locked_balance: clientWallet.locked_balance - amount }).eq('user_id', client_id);
+                
+                // Cập nhật ví Freelancer nếu chưa có
+                const currentFreeBalance = freeWallet ? freeWallet.balance : 0;
+                if (!freeWallet) {
+                    await supabase.from('wallets').insert([{ user_id: freelancer_id, balance: amount, locked_balance: 0 }]);
+                } else {
+                    await supabase.from('wallets').update({ balance: currentFreeBalance + amount }).eq('user_id', freelancer_id);
+                }
+                
+                // ĐỒNG BỘ BLOCKCHAIN ÉP BUỘC
+                if (blockchain.isConfigured()) {
+                    await blockchain.transferBalance(client_id, freelancer_id, amount);
+                }
+                
+                // Đánh dấu tất cả milestone còn lại thành PAID
+                await supabase.from('milestones').update({ status: 'PAID' }).eq('job_id', job_id).neq('status', 'PAID');
+            }
+            await supabase.from('jobs').update({ status: 'completed' }).eq('id', job_id);
+        }
+
+        // Cleanup dispute record
+        let disputes = getDisputes();
+        if(disputes[job_id]) {
+            delete disputes[job_id];
+            saveDisputes(disputes);
+        }
+
+        res.status(200).json({ message: `Đã phán quyết thành công cho ${winner === 'client' ? 'Khách Hàng' : 'Freelancer'}!` });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
     }
 });
 

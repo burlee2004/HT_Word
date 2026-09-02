@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trung Tâm Giám Sát & Giải Quyết Tranh Chấp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-satellite-dish text-blue-600 mr-3"></i>Trung Tâm Giám Sát Dự Án (Overseer)</h1>
+                <p class="text-gray-600 mt-2">Theo dõi mọi dự án đang chạy trên nền tảng và đưa ra phán quyết Tòa án Blockchain.</p>
+            </div>
+            <button onclick="window.location.href='dashboard.html'" class="bg-gray-200 text-gray-700 px-4 py-2 rounded shadow hover:bg-gray-300 font-bold transition">
+                <i class="fas fa-arrow-left mr-2"></i> Trở về Admin Dashboard
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
+                <div class="text-sm text-gray-500 font-bold uppercase">Tổng dự án</div>
+                <div class="text-3xl font-black text-gray-800 mt-1" id="stat_total">0</div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
+                <div class="text-sm text-gray-500 font-bold uppercase">Đang chạy êm đẹp</div>
+                <div class="text-3xl font-black text-green-600 mt-1" id="stat_active">0</div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">
+                <div class="text-sm text-gray-500 font-bold uppercase">Đang Tranh Chấp</div>
+                <div class="text-3xl font-black text-red-600 mt-1" id="stat_disputed">0</div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-500">
+                <div class="text-sm text-gray-500 font-bold uppercase">Đã Hoàn Thành</div>
+                <div class="text-3xl font-black text-purple-600 mt-1" id="stat_completed">0</div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-800 text-white text-sm uppercase">
+                        <th class="p-4">Tên Dự Án</th>
+                        <th class="p-4">Khách Hàng</th>
+                        <th class="p-4">Freelancer</th>
+                        <th class="p-4">Ngân Sách (Escrow)</th>
+                        <th class="p-4">Trạng Thái</th>
+                        <th class="p-4">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="projectsTable" class="divide-y divide-gray-200">
+                    <tr><td colspan="6" class="p-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Phán Quyết Tranh Chấp -->
+    <div id="disputeModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex justify-center items-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl" style="max-height: 90vh; overflow-y: auto;">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h2 class="text-2xl font-bold text-red-700"><i class="fas fa-balance-scale mr-2"></i> Hồ Sơ Phán Quyết Tranh Chấp</h2>
+                <button onclick="closeDisputeModal()" class="text-gray-500 hover:text-red-500 text-3xl">&times;</button>
+            </div>
+            
+            <input type="hidden" id="modal_job_id">
+            
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Cột trái: Thông tin hợp đồng -->
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">1. Thông tin Hợp đồng</h3>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Dự án:</strong> <span id="m_job_title"></span></p>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Escrow Đóng băng:</strong> <span id="m_job_budget" class="text-blue-600 font-bold"></span> Token</p>
+                    <p class="text-sm text-gray-600 mb-4"><strong>Mô tả gốc:</strong> <br><span id="m_job_desc" class="italic"></span></p>
+                    
+                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2 mt-4">2. Bằng chứng Sản phẩm (Proof of Work)</h3>
+                    <p class="text-xs text-gray-500 mb-2">Admin kiểm tra các mốc Freelancer đã nộp để xem họ có làm việc thật không.</p>
+                    <div id="m_milestones_container" class="space-y-3 max-h-64 overflow-y-auto pr-2 mt-3">
+                        <!-- Milestones sẽ được render ở đây -->
+                    </div>
+                </div>
+
+                <!-- Cột phải: Đơn khiếu nại -->
+                <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <h3 class="font-bold text-red-800 mb-3 border-b border-red-200 pb-2">3. Đơn Khiếu Nại (Từ người dùng)</h3>
+                    <p class="text-sm text-gray-700 mb-2"><strong>Lý do:</strong> <br><span id="m_dispute_reason" class="text-red-600 font-semibold"></span></p>
+                    <p class="text-sm text-gray-700 mb-2"><strong>Hình ảnh bằng chứng:</strong></p>
+                    <div id="m_dispute_evidence_container" class="grid grid-cols-3 gap-2 mt-2">
+                        <!-- Ảnh sẽ được render ở đây -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 border-t pt-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">TÒA ÁN QUYẾT ĐỊNH</h3>
+                <div class="flex justify-center space-x-6">
+                    <button onclick="resolveDispute('client')" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 shadow-lg flex flex-col items-center w-64">
+                        <i class="fas fa-undo text-2xl mb-2"></i>
+                        <span>Khách Hàng Thắng</span>
+                        <span class="text-xs font-normal mt-1 opacity-80">(Hoàn lại tiền Escrow về ví Khách)</span>
+                    </button>
+                    <button onclick="resolveDispute('freelancer')" class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg flex flex-col items-center w-64">
+                        <i class="fas fa-bolt text-2xl mb-2"></i>
+                        <span>Freelancer Thắng</span>
+                        <span class="text-xs font-normal mt-1 opacity-80">(Ép buộc giải ngân thẳng cho Freelancer)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let projects = [];
+
+        async function loadProjects() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/projects`);
+                const data = await res.json();
+                if(res.ok) {
+                    projects = data.projects || [];
+                    renderTable();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function renderTable() {
+            const table = document.getElementById('projectsTable');
+            let statTotal = 0, statActive = 0, statDisputed = 0, statCompleted = 0;
+
+            if(projects.length === 0) {
+                table.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Không có dự án nào.</td></tr>';
+                return;
+            }
+
+            table.innerHTML = projects.map(p => {
+                statTotal++;
+                let badge = '';
+                if(p.status === 'disputed') { statDisputed++; badge = '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold animate-pulse">🔴 Tranh Chấp</span>'; }
+                else if(p.status === 'in_progress') { statActive++; badge = '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">Đang chạy</span>'; }
+                else if(p.status === 'completed') { statCompleted++; badge = '<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-bold">Hoàn Thành</span>'; }
+                else if(p.status === 'cancelled') badge = '<span class="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs font-bold">Đã Hủy</span>';
+                else badge = `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold">${p.status}</span>`;
+
+                let actionBtn = '';
+                if(p.status === 'disputed') {
+                    actionBtn = `<button onclick='openDispute("${p.id}")' class="bg-red-600 text-white px-3 py-1 rounded shadow hover:bg-red-700 text-sm font-bold">Phân Xử Ngay</button>`;
+                } else {
+                    actionBtn = `<button class="bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 text-sm font-bold">Xem Live</button>`;
+                }
+
+                return `
+                    <tr class="hover:bg-gray-50 border-b">
+                        <td class="p-4 font-bold text-gray-800">${p.title}</td>
+                        <td class="p-4 text-sm text-gray-600">${p.clients?.full_name || 'N/A'}</td>
+                        <td class="p-4 text-sm text-gray-600">${p.freelancer?.full_name || 'Chưa có'}</td>
+                        <td class="p-4 font-bold text-indigo-600">${p.budget} Token</td>
+                        <td class="p-4">${badge}</td>
+                        <td class="p-4">${actionBtn}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('stat_total').innerText = statTotal;
+            document.getElementById('stat_active').innerText = statActive;
+            document.getElementById('stat_disputed').innerText = statDisputed;
+            document.getElementById('stat_completed').innerText = statCompleted;
+        }
+
+        function openDispute(jobId) {
+            const job = projects.find(j => j.id === jobId);
+            if(!job) return;
+
+            document.getElementById('modal_job_id').value = jobId;
+            document.getElementById('m_job_title').innerText = job.title;
+            document.getElementById('m_job_budget').innerText = job.budget;
+            document.getElementById('m_job_desc').innerText = job.description;
+
+            // Render Proof of Work (Milestones)
+            const milestonesContainer = document.getElementById('m_milestones_container');
+            if (job.milestones && job.milestones.length > 0) {
+                milestonesContainer.innerHTML = job.milestones.map((m, i) => {
+                    let statusColor = 'gray';
+                    if (m.status === 'COMPLETED') statusColor = 'green';
+                    else if (m.status === 'PENDING_REVIEW') statusColor = 'blue';
+                    else if (m.status === 'REVISION_REQUESTED') statusColor = 'red';
+                    
+                    let proofHtml = '';
+                    if (m.proof_urls && m.proof_urls.length > 0) {
+                        proofHtml = m.proof_urls.map((u, idx) => `<a href="${u}" target="_blank" class="text-blue-600 underline text-xs mr-2">🔗 Tệp ${idx+1}</a>`).join('');
+                    } else if (m.evidence_url) {
+                        proofHtml = `<a href="${m.evidence_url}" target="_blank" class="text-blue-600 underline text-xs">🔗 Xem Minh Chứng</a>`;
+                    } else {
+                        proofHtml = `<span class="text-xs text-gray-400">Chưa nộp bài</span>`;
+                    }
+
+                    return `
+                        <div class="bg-white border border-${statusColor}-200 p-3 rounded shadow-sm text-sm border-l-4 border-l-${statusColor}-500">
+                            <div class="font-bold text-gray-800 flex justify-between">
+                                <span>Mốc ${i+1}: ${m.title}</span>
+                                <span class="text-${statusColor}-600 text-xs">${m.status}</span>
+                            </div>
+                            <div class="text-gray-500 text-xs mt-1">Trị giá: ${m.amount} Token</div>
+                            <div class="mt-2 bg-gray-50 p-2 rounded border border-gray-100">
+                                <strong>Sản phẩm đã nộp:</strong><br>
+                                ${proofHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                milestonesContainer.innerHTML = '<p class="text-sm text-gray-500 italic">Chưa có kế hoạch/mốc công việc nào.</p>';
+            }
+
+            const evidenceContainer = document.getElementById('m_dispute_evidence_container');
+            evidenceContainer.innerHTML = '';
+
+            if(job.dispute) {
+                document.getElementById('m_dispute_reason').innerText = job.dispute.reason;
+                
+                if (job.dispute.evidence_url) {
+                    const urls = job.dispute.evidence_url.split(',');
+                    urls.forEach(url => {
+                        if (url.trim()) {
+                            evidenceContainer.innerHTML += `
+                                <a href="${url.trim()}" target="_blank" class="block border rounded p-1 hover:border-red-500 bg-white">
+                                    <img src="${url.trim()}" class="w-full h-24 object-cover rounded" alt="Evidence" onerror="this.src='https://via.placeholder.com/150?text=File'">
+                                </a>
+                            `;
+                        }
+                    });
+                } else {
+                    evidenceContainer.innerHTML = '<span class="text-gray-500 text-sm">Không có đính kèm</span>';
+                }
+            } else {
+                document.getElementById('m_dispute_reason').innerText = "Không có thông tin";
+                evidenceContainer.innerHTML = '<span class="text-gray-500 text-sm">Không có đính kèm</span>';
+            }
+
+            document.getElementById('disputeModal').classList.remove('hidden');
+        }
+
+        function closeDisputeModal() {
+            document.getElementById('disputeModal').classList.add('hidden');
+        }
+
+        async function resolveDispute(winner) {
+            const jobId = document.getElementById('modal_job_id').value;
+            const confirmMsg = winner === 'client' 
+                ? "BẠN ĐANG HOÀN TIỀN LẠI CHO KHÁCH HÀNG. Chắc chắn chứ?" 
+                : "BẠN ĐANG LẤY TIỀN TRONG ESCROW ÉP CHUYỂN CHO FREELANCER (BLOCKCHAIN). Chắc chắn chứ?";
+
+            if(!confirm(confirmMsg)) return;
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/projects/resolve-dispute`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ job_id: jobId, winner })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    alert(data.message);
+                    closeDisputeModal();
+                    loadProjects();
+                } else {
+                    alert("Lỗi: " + data.error);
+                }
+            } catch(e) {
+                alert("Lỗi kết nối");
+            }
+        }
+
+        loadProjects();
+    </script>
+</body>
+</html>

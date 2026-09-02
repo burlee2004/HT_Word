@@ -102,6 +102,25 @@
                         <label class="font-bold text-gray-800 text-lg block mb-2">Giới thiệu (Bio)</label>
                         <textarea id="bio" rows="4" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Mô tả ngắn gọn về bạn hoặc doanh nghiệp..."></textarea>
                     </div>
+
+                    <!-- Ngân hàng rút tiền -->
+                    <div class="border-t pt-4">
+                        <label class="font-bold text-gray-800 text-lg block mb-4">💳 Thông tin ngân hàng (Để rút tiền)</label>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-semibold text-gray-600 block mb-1">Tên ngân hàng (Vd: MB Bank, Vietcombank)</label>
+                                <input type="text" id="bank_name" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="text-sm font-semibold text-gray-600 block mb-1">Số tài khoản</label>
+                                <input type="text" id="bank_account" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="text-sm font-semibold text-gray-600 block mb-1">Tên chủ tài khoản</label>
+                                <input type="text" id="bank_owner" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50 uppercase">
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             
@@ -215,6 +234,11 @@
             document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu.';
             document.getElementById('full_name').value = data.full_name || '';
             document.getElementById('bio').value = data.bio || '';
+            
+            // Ngân hàng
+            document.getElementById('bank_name').value = data.bank_name || '';
+            document.getElementById('bank_account').value = data.bank_account || '';
+            document.getElementById('bank_owner').value = data.bank_owner || '';
         }
 
         // Load profile data
@@ -259,6 +283,9 @@
                 avatar_url: document.getElementById('avatar_url').value,
                 cover_url: document.getElementById('cover_url').value,
                 bio: document.getElementById('bio').value,
+                bank_name: document.getElementById('bank_name').value,
+                bank_account: document.getElementById('bank_account').value,
+                bank_owner: document.getElementById('bank_owner').value,
                 skills: ''
             };
 

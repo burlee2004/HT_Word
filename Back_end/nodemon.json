@@ -1,0 +1,9 @@
+{
+  "ignore": [
+    "data/*",
+    "*.json",
+    "disputes.json",
+    "node_modules/*"
+  ],
+  "ext": "js,mjs,cjs"
+}

@@ -6,123 +6,534 @@
     <title>Quản lý Yêu Cầu - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Sleek Modern Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.35);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.6);
+        }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col font-sans text-gray-800">
-    <!-- Navbar -->
-    <nav class="bg-gradient-to-r from-blue-700 to-blue-900 p-4 text-white shadow-lg sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="font-bold flex items-center space-x-6">
-                <a href="home.html" class="flex items-center space-x-2 text-xl hover:opacity-90 transition">
-                    <i class="fas fa-briefcase"></i>
-                    <span>HT Work <span class="font-light text-blue-200">| Client Portal</span></span>
-                </a>
-                <div class="hidden md:flex space-x-4 text-sm font-medium border-l border-blue-500 pl-6">
-                    <a href="home.html" class="text-blue-200 hover:text-white transition">Bảng điều khiển</a>
-                    <a href="post-job.html" class="text-white border-b-2 border-white pb-1">Quản lý Yêu cầu</a>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 dark:text-gray-100 h-screen flex overflow-hidden">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-10 max-w-7xl mx-auto w-full relative">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800 dark:text-gray-100 flex items-center">
+                        <i class="fas fa-briefcase mr-3 text-indigo-600"></i> Quản lý Dự án & Yêu cầu
+                    </h1>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Theo dõi, chỉnh sửa các dự án đã đăng và quản lý ngân sách ký quỹ.</p>
+                </div>
+                <div class="flex flex-wrap gap-2.5 w-full md:w-auto">
+                    <button onclick="cleanupOldJobs()" class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-xl font-bold transition flex items-center text-sm shadow-sm">
+                        <i class="fas fa-broom mr-2 text-gray-500"></i> Dọn dẹp
+                    </button>
+                    <button onclick="openAiAssistantModal()" class="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md hover:shadow-lg transition flex items-center text-sm">
+                        <i class="fas fa-wand-magic-sparkles mr-2 text-yellow-300"></i> Trợ Lý AI (Soạn Dự Án)
+                    </button>
+                    <button onclick="openPostModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md hover:shadow-lg transition flex items-center text-sm">
+                        <i class="fas fa-plus mr-2"></i> Đăng Dự Án Mới
+                    </button>
                 </div>
             </div>
-            <a href="home.html" class="bg-blue-800 hover:bg-blue-900 px-4 py-2 rounded text-sm transition">Quay lại</a>
-        </div>
-    </nav>
 
-    <main class="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full">
-        <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-extrabold text-gray-800">Quản lý Dự án & Yêu cầu</h1>
-                <p class="text-gray-500 mt-1">Quản lý các dự án đã đăng, đang thực hiện hoặc đã hoàn thành.</p>
+            <!-- Filter & Search Bar -->
+            <div class="bg-white dark:bg-gray-800 dark:border-gray-700 p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 mb-6">
+                <div class="flex-grow relative">
+                    <i class="fas fa-search absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm theo tiêu đề dự án hoặc kỹ năng..." class="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-50 dark:bg-gray-700 text-sm">
+                </div>
+                <div class="w-full md:w-64">
+                    <select id="statusFilter" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-50 dark:bg-gray-700 text-sm font-medium">
+                        <option value="all">🔍 Tất cả trạng thái</option>
+                        <option value="open">🟢 Đang mở (Open)</option>
+                        <option value="planning">🟡 Lập kế hoạch (Planning)</option>
+                        <option value="pending_plan_approval">🟠 Chờ duyệt kế hoạch</option>
+                        <option value="in_progress">🔵 Đang thực hiện</option>
+                        <option value="completed">🟣 Đã hoàn thành</option>
+                        <option value="cancelled">🔴 Đã hủy</option>
+                    </select>
+                </div>
             </div>
-            <div class="flex space-x-3">
-                <button onclick="cleanupOldJobs()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center" title="Xóa dự án Đã Nghiệm Thu & thanh toán quá 1 tháng">
-                    <i class="fas fa-broom mr-2"></i> Dọn dẹp
-                </button>
-                <button onclick="openPostModal()" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold shadow hover:bg-blue-700 transition flex items-center">
-                    <i class="fas fa-plus mr-2"></i> Đăng Dự Án Mới
-                </button>
-            </div>
-        </div>
 
-        <!-- Filter & Search Bar -->
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 mb-6">
-            <div class="flex-grow relative">
-                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="searchInput" placeholder="Tìm kiếm theo tiêu đề..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <!-- Job List -->
+            <div id="jobsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="text-gray-500 dark:text-gray-400 col-span-full text-center py-10"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</p>
             </div>
-            <div class="w-full md:w-64">
-                <select id="statusFilter" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50">
-                    <option value="all">Tất cả trạng thái</option>
-                    <option value="open">Đang mở (Open)</option>
-                    <option value="in_progress">Đang thực hiện (In Progress)</option>
-                    <option value="completed">Đã hoàn thành (Completed)</option>
-                </select>
-            </div>
-        </div>
+        </main>
+    </div>
 
-        <!-- Job List -->
-        <div id="jobsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <p class="text-gray-500 col-span-full text-center py-10"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</p>
-        </div>
-    </main>
-
-    <!-- Modal Đăng Dự Án -->
-    <div id="postModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
-            <div class="p-6 border-b flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-800">Đăng Dự Án Mới</h2>
-                <button onclick="closePostModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+    <!-- MODAL ĐĂNG DỰ ÁN MỚI (Multi-step) -->
+    <div id="postModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col my-auto border border-gray-100 overflow-hidden">
+            <div class="p-5 md:p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750 rounded-t-2xl shrink-0">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
+                        <i class="fas fa-magic text-indigo-600 mr-2"></i> Đăng Dự Án Mới
+                    </h2>
+                    <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-0.5" id="stepIndicator">Bước 1/3: Chọn Lĩnh Vực Chuyên Môn</p>
+                </div>
+                <button onclick="closePostModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold w-8 h-8 rounded-lg flex items-center justify-center">&times;</button>
             </div>
-            <div class="p-6 overflow-y-auto">
-                <form id="postJobForm" class="space-y-5">
+            
+            <div class="p-5 md:p-6 overflow-y-auto flex-grow space-y-5">
+                <form id="postJobForm" onsubmit="submitPostJob(event)">
                     <input type="hidden" id="client_id">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tiêu đề dự án <span class="text-red-500">*</span></label>
-                        <input type="text" id="title" required class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500" placeholder="Vd: Thiết kế Website Bán Hàng">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Mô tả công việc <span class="text-red-500">*</span></label>
-                        <textarea id="description" required rows="5" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500" placeholder="Mô tả chi tiết yêu cầu, ngôn ngữ, framework..."></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Ngân sách (Token/VNĐ) <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold">💎</span>
-                            <input type="number" id="budget" required min="10000" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="1000000">
+                    
+                    <!-- BƯỚC 1: Chọn Danh Mục Chính -->
+                    <div id="step1">
+                        <!-- Banner Trợ Lý AI Gợi Ý Nhanh -->
+                        <div class="bg-gradient-to-r from-purple-50 via-indigo-50 to-pink-50 dark:from-purple-950/40 dark:via-indigo-950/40 dark:to-pink-950/40 p-3.5 rounded-2xl border border-purple-200 dark:border-purple-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 shadow-sm">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-lg shrink-0 shadow">
+                                    🤖
+                                </div>
+                                <div>
+                                    <h4 class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 flex items-center">
+                                        Trợ Lý AI HT Work <span class="ml-2 text-[10px] bg-yellow-400/20 text-yellow-600 dark:text-yellow-300 px-1.5 py-0.5 rounded font-bold border border-yellow-300/40">Groq AI</span>
+                                    </h4>
+                                    <p class="text-[11px] text-gray-500 dark:text-gray-400">Bạn chỉ cần mô tả ý tưởng, AI sẽ lập đặc tả & tự động điền form trọn gói.</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="openAiAssistantModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center justify-center">
+                                <i class="fas fa-wand-magic-sparkles mr-1.5 text-yellow-300"></i> Mở Chat AI
+                            </button>
+                        </div>
+
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">
+                                <span class="text-indigo-600 mr-1.5"><i class="fas fa-folder-open"></i></span> Chọn 1 Danh mục chính cho dự án của bạn <span class="text-red-500">*</span>
+                            </label>
+                            <span class="text-xs text-gray-400 font-medium">Bắt buộc</span>
+                        </div>
+                        <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <div class="col-span-full text-center py-8 text-gray-400">
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải danh mục...
+                            </div>
                         </div>
                     </div>
-                    <div id="postMessage" class="hidden font-bold text-center"></div>
-                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow-lg">
-                        Xác nhận Đăng Dự Án
+
+                    <!-- BƯỚC 2: Điền thông tin chi tiết -->
+                    <div id="step2" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                                Tiêu đề dự án <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="title" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-semibold" placeholder="Vd: Thiết kế Website Bán Hàng Thương Mại Điện Tử">
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">
+                                    Mô tả yêu cầu công việc <span class="text-red-500">*</span>
+                                </label>
+                                <button type="button" onclick="suggestAI()" class="text-xs bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-2.5 py-1 rounded-lg shadow hover:shadow-md transition font-bold flex items-center">
+                                    <i class="fas fa-wand-magic-sparkles mr-1"></i> Gợi ý bằng AI
+                                </button>
+                            </div>
+                            <textarea id="description" rows="4" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm leading-relaxed" placeholder="Mô tả chi tiết yêu cầu kỹ thuật, chức năng cần có, giao diện mong muốn..."></textarea>
+                        </div>
+
+                        <!-- Hạn chót hoàn thành (Deadline) -->
+                        <div class="bg-indigo-50/60 dark:bg-indigo-950/30 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/40">
+                            <label class="block text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase mb-2">
+                                <i class="far fa-calendar-check mr-1"></i> Thời Gian Cần Hoàn Thành (Deadline / Dự Kiến)
+                            </label>
+                            <div class="flex flex-wrap gap-2 mb-2.5">
+                                <button type="button" onclick="setQuickDeadline(3, this)" class="deadline-pill text-xs px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold hover:border-indigo-500 transition">⚡ 3 Ngày (Gấp)</button>
+                                <button type="button" onclick="setQuickDeadline(7, this)" class="deadline-pill text-xs px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold hover:border-indigo-500 transition ring-2 ring-indigo-500 bg-indigo-100">🚀 7 Ngày</button>
+                                <button type="button" onclick="setQuickDeadline(14, this)" class="deadline-pill text-xs px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold hover:border-indigo-500 transition">📅 14 Ngày</button>
+                                <button type="button" onclick="setQuickDeadline(30, this)" class="deadline-pill text-xs px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold hover:border-indigo-500 transition">📦 1 Tháng</button>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Hoặc chọn ngày cụ thể:</span>
+                                <input type="date" id="deadlineDate" class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-xs bg-white dark:bg-gray-700 font-semibold">
+                            </div>
+                        </div>
+
+                        <!-- Loại Freelancer -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1.5">Loại Freelancer mong muốn</label>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 dark:bg-gray-750 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600">
+                                    <input type="radio" name="freelancer_type" value="Cá nhân" checked class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Cá nhân (Tối ưu chi phí)</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 dark:bg-gray-750 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600">
+                                    <input type="radio" name="freelancer_type" value="Đội nhóm/Agency" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Đội nhóm / Agency (Tiến độ nhanh, DA lớn)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Tags kỹ năng -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">
+                                    <i class="fas fa-tags mr-1 text-indigo-500"></i> Kỹ Năng & Thẻ Tags Yêu Cầu
+                                </label>
+                                <span class="text-[11px] text-gray-400">Chọn gợi ý hoặc gõ + Enter / phẩy (,)</span>
+                            </div>
+                            <div id="tagsPresetContainer" class="flex flex-wrap gap-1.5 mb-2"></div>
+                            
+                            <!-- Interactive Tag Badges Box -->
+                            <div id="tagInputBox" onclick="document.getElementById('customTagsInput').focus()" class="w-full min-h-[46px] border border-gray-300 dark:border-gray-600 rounded-xl p-2 bg-white dark:bg-gray-750 flex flex-wrap items-center gap-1.5 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition cursor-text shadow-inner">
+                                <div id="selectedTagBadges" class="flex flex-wrap items-center gap-1.5"></div>
+                                <input type="text" id="customTagsInput" placeholder="Nhập thêm kỹ năng..." class="flex-grow min-w-[130px] border-none outline-none bg-transparent text-xs sm:text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 p-1" onkeydown="handleTagKeydown(event, 'post')" onblur="handleTagBlur('post')">
+                            </div>
+                        </div>
+                        
+                        <!-- Upload File Đính Kèm Thực Tế -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1.5">
+                                <i class="fas fa-paperclip mr-1 text-indigo-500"></i> Tài liệu đính kèm (Quy trình, Design Mockup, File mô tả)
+                            </label>
+                            <div id="dropZone" onclick="document.getElementById('fileUploadInput').click()" class="border-2 border-dashed border-indigo-200 dark:border-indigo-800/60 rounded-xl p-4 text-center hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition cursor-pointer bg-gray-50/50 dark:bg-gray-800">
+                                <input type="file" id="fileUploadInput" class="hidden" onchange="handleFileUpload(this)">
+                                <i class="fas fa-cloud-upload-alt text-2xl text-indigo-500 mb-1"></i>
+                                <p class="text-xs text-gray-600 dark:text-gray-300 font-semibold">Kéo thả file vào đây hoặc <span class="text-indigo-600 underline">Chọn file</span></p>
+                                <p class="text-[11px] text-gray-400 mt-0.5">(Tối đa 25MB: PDF, Word, Ảnh Mockup, Zip)</p>
+                            </div>
+                            <div id="uploadedFilesList" class="flex flex-wrap gap-2 mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- BƯỚC 3: Ngân sách & Xác nhận -->
+                    <div id="step3" class="hidden space-y-4">
+                        <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/60">
+                            <h3 class="font-bold text-indigo-900 dark:text-indigo-300 text-sm mb-2 flex items-center">
+                                <i class="fas fa-clipboard-check mr-1.5"></i> Tóm tắt Thông Tin Dự Án
+                            </h3>
+                            <ul class="text-xs text-indigo-950 dark:text-indigo-200 space-y-1.5" id="summaryList"></ul>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                                Ngân sách Ký quỹ (Token) <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-lg">💎</span>
+                                <input type="number" id="budget" min="10000" step="1000" class="w-full pl-11 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 text-lg font-bold text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-700" placeholder="VD: 500000">
+                            </div>
+                            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2 flex items-start">
+                                <i class="fas fa-shield-alt text-emerald-500 mt-0.5 mr-1.5 text-sm shrink-0"></i>
+                                Số Token này sẽ được Ký quỹ (Tạm khóa) trên hệ thống để đảm bảo uy tín với Freelancer. Bạn có thể Rút hoặc Hủy dự án để nhận lại 100% Token nếu chưa chọn ai.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="postMessage" class="hidden font-bold text-center mt-3 text-sm"></div>
+                </form>
+            </div>
+            
+            <div class="p-4 md:p-6 border-t border-gray-100 dark:border-gray-700 flex justify-between bg-gray-50 dark:bg-gray-750 rounded-b-2xl">
+                <button type="button" id="prevBtn" onclick="nextStep(-1)" class="hidden px-5 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm">Quay lại</button>
+                <div class="flex-grow"></div>
+                <button type="button" id="nextBtn" onclick="nextStep(1)" class="bg-indigo-600 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-indigo-700 transition shadow text-sm flex items-center">
+                    Tiếp tục <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                </button>
+                <button type="button" id="submitBtn" onclick="submitPostJob(event)" class="hidden bg-emerald-600 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-emerald-700 transition shadow text-sm flex items-center">
+                    <i class="fas fa-check mr-2"></i> Đăng Dự Án Ký Quỹ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SỬA DỰ ÁN TOÀN BỘ THÔNG TIN (Edit Job Modal) -->
+    <div id="editJobModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col my-auto border border-gray-100 overflow-hidden">
+            <!-- Header -->
+            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750 rounded-t-2xl shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800 dark:text-gray-100 flex items-center">
+                        <i class="fas fa-edit text-indigo-600 mr-2"></i> Chỉnh Sửa Thông Tin Dự Án
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Cập nhật toàn bộ các thông tin chi tiết của bài đăng</p>
+                </div>
+                <button onclick="closeEditJobModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold w-8 h-8 rounded-lg flex items-center justify-center">&times;</button>
+            </div>
+            
+            <div class="p-5 md:p-6 overflow-y-auto flex-grow space-y-4">
+                <input type="hidden" id="edit_job_id">
+
+                <!-- 1. Tiêu đề -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                        Tiêu đề dự án <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="edit_title" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-semibold">
+                </div>
+
+                <!-- 2. Danh mục & Ngân sách (2 cột) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                            Lĩnh vực / Danh mục <span class="text-red-500">*</span>
+                        </label>
+                        <select id="edit_category" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-semibold">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                            Ngân sách Ký quỹ (Token) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="edit_budget" min="10000" step="1000" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                    </div>
+                </div>
+
+                <!-- 3. Hạn chót hoàn thành -->
+                <div class="bg-indigo-50/60 dark:bg-indigo-950/30 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/40 space-y-2.5">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase">
+                            <i class="far fa-calendar-check mr-1"></i> Thời Gian Hoàn Thành (Deadline)
+                        </label>
+                        <input type="date" id="edit_deadlineDate" class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-xs bg-white dark:bg-gray-700 font-semibold">
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="setEditQuickDeadline(3, this)" class="edit-deadline-pill text-xs px-3 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold hover:border-indigo-500 transition">⚡ 3 Ngày</button>
+                        <button type="button" onclick="setEditQuickDeadline(7, this)" class="edit-deadline-pill text-xs px-3 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold hover:border-indigo-500 transition">🚀 7 Ngày</button>
+                        <button type="button" onclick="setEditQuickDeadline(14, this)" class="edit-deadline-pill text-xs px-3 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold hover:border-indigo-500 transition">📅 14 Ngày</button>
+                        <button type="button" onclick="setEditQuickDeadline(30, this)" class="edit-deadline-pill text-xs px-3 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold hover:border-indigo-500 transition">📦 1 Tháng</button>
+                    </div>
+                </div>
+
+                <!-- 4. Loại Freelancer -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1.5">Loại Freelancer mong muốn</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 dark:bg-gray-750 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <input type="radio" name="edit_freelancer_type" value="Cá nhân" id="edit_ft_personal" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Cá nhân (Tối ưu chi phí)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 dark:bg-gray-750 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <input type="radio" name="edit_freelancer_type" value="Đội nhóm/Agency" id="edit_ft_agency" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Đội nhóm / Agency</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 5. Kỹ năng & Thẻ tags -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">
+                            <i class="fas fa-tags mr-1 text-indigo-500"></i> Kỹ Năng & Thẻ Tags
+                        </label>
+                        <span class="text-[11px] text-gray-400">Gõ từ khóa + Enter hoặc phẩy (,)</span>
+                    </div>
+                    <div id="editTagInputBox" onclick="document.getElementById('editCustomTagsInput').focus()" class="w-full min-h-[46px] border border-gray-300 dark:border-gray-600 rounded-xl p-2 bg-white dark:bg-gray-750 flex flex-wrap items-center gap-1.5 focus-within:ring-2 focus-within:ring-indigo-500 transition cursor-text shadow-inner">
+                        <div id="editSelectedTagBadges" class="flex flex-wrap items-center gap-1.5"></div>
+                        <input type="text" id="editCustomTagsInput" placeholder="Nhập thêm tag..." class="flex-grow min-w-[120px] border-none outline-none bg-transparent text-xs sm:text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 p-1" onkeydown="handleTagKeydown(event, 'edit')" onblur="handleTagBlur('edit')">
+                    </div>
+                </div>
+
+                <!-- 6. Mô tả chi tiết -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                        Mô tả yêu cầu công việc <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="edit_description" rows="5" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm leading-relaxed"></textarea>
+                </div>
+
+                <!-- 7. Tài liệu đính kèm -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1.5">
+                        <i class="fas fa-paperclip mr-1 text-indigo-500"></i> Tài liệu đính kèm
+                    </label>
+                    <div id="editUploadedFilesList" class="flex flex-wrap gap-2 mb-2"></div>
+                    <div onclick="document.getElementById('editFileUploadInput').click()" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-3 text-center hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20 transition cursor-pointer bg-gray-50/50 dark:bg-gray-800 flex items-center justify-center space-x-2">
+                        <input type="file" id="editFileUploadInput" class="hidden" onchange="handleEditFileUpload(this)">
+                        <i class="fas fa-plus text-indigo-600 text-xs"></i>
+                        <span class="text-xs text-indigo-600 font-bold">Thêm tài liệu mới</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 md:p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex justify-end space-x-3 rounded-b-2xl shrink-0">
+                <button type="button" onclick="closeEditJobModal()" class="px-5 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition">Hủy bỏ</button>
+                <button type="button" onclick="submitEditJob()" id="btnSaveEdit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center">
+                    <i class="fas fa-check mr-2"></i> Lưu Toàn Bộ Thay Đổi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL XEM CHI TIẾT DỰ ÁN TOÀN BỘ THÔNG TIN -->
+    <div id="detailModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col my-auto border border-gray-100 overflow-hidden">
+            <!-- Header -->
+            <div class="p-5 md:p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-start bg-gray-50 dark:bg-gray-750 rounded-t-2xl shrink-0">
+                <div class="pr-4">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span id="detailStatus" class="px-3 py-1 rounded-full text-xs font-bold border">Trạng thái</span>
+                        <span class="text-xs text-gray-400 font-mono" id="detailJobId">#ID</span>
+                    </div>
+                    <h2 id="detailTitle" class="text-lg md:text-xl font-extrabold text-gray-800 dark:text-gray-100 leading-tight">Tên dự án</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center">
+                        <i class="far fa-clock mr-1.5"></i> Đăng ngày: <span id="detailDate" class="font-medium ml-1"></span>
+                    </p>
+                </div>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold w-8 h-8 rounded-lg flex items-center justify-center transition shrink-0">&times;</button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-5 md:p-6 overflow-y-auto flex-grow space-y-5">
+                <!-- Thông số tóm tắt (Grid 4 ô) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-gray-50 dark:bg-gray-750 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase mb-1">💰 Ngân sách</p>
+                        <p class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400" id="detailBudget">0 Token</p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-750 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase mb-1">📁 Danh mục</p>
+                        <p class="text-xs font-bold text-gray-800 dark:text-gray-200 truncate" id="detailCategory">Chung</p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-750 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase mb-1">⏰ Thời hạn</p>
+                        <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400" id="detailDeadline">Thỏa thuận</p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-750 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase mb-1">👥 Loại hình</p>
+                        <p class="text-xs font-bold text-purple-600 dark:text-purple-400" id="detailFreelancerType">Cá nhân</p>
+                    </div>
+                </div>
+
+                <!-- Kỹ năng & Tags -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-2 flex items-center">
+                        <i class="fas fa-tags mr-1.5 text-indigo-500"></i> Kỹ Năng & Thẻ Tags Yêu Cầu:
+                    </h4>
+                    <div id="detailTags" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <!-- Chi tiết mô tả yêu cầu -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-2 flex items-center">
+                        <i class="fas fa-file-alt mr-1.5 text-indigo-500"></i> Mô Tả Chi Tiết Yêu Cầu:
+                    </h4>
+                    <div id="detailDesc" class="text-gray-800 dark:text-gray-200 text-xs sm:text-sm whitespace-pre-wrap leading-relaxed bg-gray-50/80 dark:bg-gray-750 p-4.5 rounded-xl border border-gray-200 dark:border-gray-700 font-sans"></div>
+                </div>
+
+                <!-- Tài liệu đính kèm -->
+                <div id="detailFilesSection" class="hidden">
+                    <h4 class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-2 flex items-center">
+                        <i class="fas fa-paperclip mr-1.5 text-indigo-500"></i> Tài Liệu Đính Kèm:
+                    </h4>
+                    <div id="detailFilesList" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="p-4 md:p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 rounded-b-2xl flex flex-wrap justify-between items-center gap-3 shrink-0">
+                <div id="detailActions" class="flex flex-wrap items-center gap-2"></div>
+                <button onclick="closeDetailModal()" class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition ml-auto">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TRỢ LÝ AI SOẠN DỰ ÁN & AUTO-FILL -->
+    <div id="aiAssistantModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col my-auto border border-gray-100 overflow-hidden">
+            <!-- Header -->
+            <div class="p-4 md:p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 text-white shrink-0 rounded-t-2xl">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl shadow-inner border border-white/30">
+                        🤖
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h2 class="text-base md:text-lg font-bold">Trợ Lý AI HT Work</h2>
+                            <span class="text-[10px] bg-yellow-400/20 text-yellow-200 border border-yellow-300/30 px-2 py-0.5 rounded-full font-bold">⚡ Groq Ultra-Fast</span>
+                        </div>
+                        <p class="text-xs text-purple-100 mt-0.5">Tự động chuẩn hóa yêu cầu & Điền bài đăng chỉ với 1 cú click</p>
+                    </div>
+                </div>
+                <button onclick="closeAiAssistantModal()" class="text-white/80 hover:text-white text-2xl font-bold w-8 h-8 rounded-lg flex items-center justify-center transition">&times;</button>
+            </div>
+
+            <!-- Chat Message History -->
+            <div id="aiChatHistory" class="p-4 md:p-6 overflow-y-auto flex-grow space-y-4 bg-gray-50/50 dark:bg-gray-900/50 min-h-[340px] max-h-[55vh]">
+                <!-- Tin nhắn mở đầu của AI -->
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-sm shrink-0 shadow">
+                        🤖
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 dark:border-gray-700 max-w-[92%] text-sm text-gray-800 dark:text-gray-200 space-y-2">
+                        <p class="font-medium">👋 Xin chào! Tôi là <b>Trợ Lý AI</b> của sàn HT Work.</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-xs leading-relaxed">
+                            Hãy mô tả ý tưởng dự án của bạn (văn nói/văn viết). Tôi sẽ giúp bạn phân tích, soạn thảo đặc tả 4 phần chuyên nghiệp và <b>tự động điền đầy đủ vào Form đăng bài</b>.
+                        </p>
+                        
+                        <!-- Gợi ý nhanh -->
+                        <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <p class="text-[11px] font-bold text-gray-400 uppercase mb-2">💡 Bạn có thể thử các mẫu gợi ý nhanh:</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" onclick="sendAiQuickPrompt('Làm website thương mại điện tử bán quần áo thời trang, có giỏ hàng, thanh toán MoMo, làm trong 10 ngày, ngân sách 500k token')" class="text-[11px] bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 px-2.5 py-1.5 rounded-xl transition text-left font-semibold">
+                                    🌐 Web E-Commerce & MoMo
+                                </button>
+                                <button type="button" onclick="sendAiQuickPrompt('Thiết kế UI/UX app quản lý tài chính cá nhân trên Figma, phong cách hiện đại pastel, làm trong 7 ngày, ngân sách 300k token')" class="text-[11px] bg-pink-50 dark:bg-pink-950/60 hover:bg-pink-100 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800 px-2.5 py-1.5 rounded-xl transition text-left font-semibold">
+                                    🎨 Thiết kế UI/UX Figma
+                                </button>
+                                <button type="button" onclick="sendAiQuickPrompt('Lập trình app mobile Flutter đặt món & giao đồ ăn cho nhà hàng, có thông báo đẩy, làm trong 15 ngày, ngân sách 1tr token')" class="text-[11px] bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 px-2.5 py-1.5 rounded-xl transition text-left font-semibold">
+                                    📱 App Flutter Đặt Đồ Ăn
+                                </button>
+                                <button type="button" onclick="sendAiQuickPrompt('Tích hợp Chatbot AI chăm sóc khách hàng bằng OpenAI API cho website, làm trong 5 ngày, ngân sách 250k token')" class="text-[11px] bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1.5 rounded-xl transition text-left font-semibold">
+                                    🤖 Chatbot AI OpenAI
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-3 md:p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+                <form id="aiChatForm" onsubmit="submitAiChat(event)" class="flex items-center gap-2">
+                    <input type="text" id="aiChatInput" placeholder="Nhập mô tả dự án của bạn (Vd: Cần làm web bán đồ nội thất trong 2 tuần ngân sách 400k...)" class="flex-grow border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                    <button type="submit" id="aiSendBtn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold px-5 py-3 rounded-xl transition shadow flex items-center shrink-0">
+                        <span>Gửi</span>
+                        <i class="fas fa-paper-plane ml-2 text-xs"></i>
                     </button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Modal Xem Chi Tiết Dự Án -->
-    <div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col">
-            <div class="p-6 border-b flex justify-between items-start">
-                <div>
-                    <h2 id="detailTitle" class="text-2xl font-bold text-gray-800">Tên dự án</h2>
-                    <p class="text-sm text-gray-500 mt-1"><i class="far fa-calendar-alt mr-1"></i> Ngày đăng: <span id="detailDate"></span></p>
-                </div>
-                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
-            </div>
-            <div class="p-6 overflow-y-auto space-y-4">
-                <div class="flex items-center space-x-3 mb-4">
-                    <span id="detailStatus" class="px-3 py-1 rounded-full text-sm font-bold border">Trạng thái</span>
-                    <span class="px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-700 border border-green-200"><i class="fas fa-coins mr-1"></i> <span id="detailBudget"></span> Token</span>
-                </div>
-                <div>
-                    <h3 class="font-bold text-gray-800 text-lg border-b pb-2 mb-3">Mô tả công việc</h3>
-                    <p id="detailDesc" class="text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50 p-4 rounded-lg border"></p>
-                </div>
-            </div>
-            <div class="p-6 border-t bg-gray-50 rounded-b-2xl flex justify-end">
-                <button onclick="closeDetailModal()" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-bold hover:bg-gray-400 transition">Đóng</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Main Page Script -->
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
@@ -130,121 +541,609 @@
 
         let currentUser = null;
         let allJobs = [];
+        let categories = [];
+        let selectedCategory = null;
+        let selectedTags = [];
+        let uploadedFiles = [];
+        let currentStep = 1;
 
-        // Kiểm tra Auth
-        const userStr = localStorage.getItem('user');
-        if (!userStr) {
-            window.location.replace('../sharedFolder/login.html');
-        } else {
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                window.location.replace('../sharedFolder/login.html');
+                return;
+            }
             currentUser = JSON.parse(userStr);
-            document.getElementById('client_id').value = currentUser.id;
-            loadJobs();
-        }
+            const clientIdInput = document.getElementById('client_id');
+            if (clientIdInput) clientIdInput.value = currentUser.id;
 
-        // Tải danh sách dự án
-        async function loadJobs() {
-            const listDiv = document.getElementById('jobsList');
-            listDiv.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</p>';
-            
+            // Set min deadline date to today
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('deadlineDate');
+            if (dateInput) {
+                dateInput.min = today;
+                const defDate = new Date();
+                defDate.setDate(defDate.getDate() + 7);
+                dateInput.value = defDate.toISOString().split('T')[0];
+            }
+
+            await loadCategories();
+            await loadJobs();
+        });
+
+        // 1. Tải danh mục từ API
+        async function loadCategories() {
             try {
-                const response = await fetch(`${API_URL}/api/client/${currentUser.id}/my-jobs`);
-                const data = await response.json();
-                
-                if (response.ok && data.jobs) {
-                    allJobs = data.jobs;
-                    renderJobs(allJobs);
-                } else {
-                    allJobs = [];
-                    renderJobs([]);
-                }
+                const res = await fetch(`${API_URL}/api/categories`);
+                const data = await res.json();
+                categories = data.categories || [];
+                renderCategoriesGrid();
+                populateEditCategoryDropdown();
             } catch (err) {
-                listDiv.innerHTML = '<p class="text-red-500 col-span-full text-center py-10">Lỗi kết nối Server!</p>';
+                console.error('Lỗi tải danh mục:', err);
+                const grid = document.getElementById('categoryGrid');
+                if (grid) grid.innerHTML = '<p class="col-span-full text-center text-red-500 text-xs">Không thể tải danh mục.</p>';
             }
         }
 
-        // Render dự án ra UI
-        function renderJobs(jobsToRender) {
-            const listDiv = document.getElementById('jobsList');
-            if (jobsToRender.length === 0) {
-                listDiv.innerHTML = `
-                <div class="col-span-full bg-white p-10 rounded-xl shadow-sm text-center border">
-                    <div class="text-gray-300 text-5xl mb-4"><i class="fas fa-folder-open"></i></div>
-                    <p class="text-gray-500 text-lg">Không tìm thấy dự án nào.</p>
-                </div>`;
+        function populateEditCategoryDropdown() {
+            const sel = document.getElementById('edit_category');
+            if (!sel) return;
+            sel.innerHTML = categories.map(c => `
+                <option value="${c.id}">${c.name}</option>
+            `).join('');
+        }
+
+        const catStyles = {
+            'cat_web': { emoji: '🌐', fa: 'fas fa-laptop-code', bg: 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800' },
+            'cat_app': { emoji: '📱', fa: 'fas fa-mobile-screen-button', bg: 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800' },
+            'cat_uiux': { emoji: '🎨', fa: 'fas fa-palette', bg: 'bg-pink-50 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800' },
+            'cat_ai': { emoji: '🤖', fa: 'fas fa-brain', bg: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' },
+            'cat_blockchain': { emoji: '🔒', fa: 'fas fa-link', bg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800' },
+            'cat_devops': { emoji: '🔧', fa: 'fas fa-server', bg: 'bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800' },
+            'cat_other': { emoji: '💡', fa: 'fas fa-lightbulb', bg: 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800' }
+        };
+
+        function renderCategoriesGrid() {
+            const grid = document.getElementById('categoryGrid');
+            if (!grid) return;
+
+            if (categories.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center text-gray-400 text-xs">Chưa có danh mục nào.</p>';
                 return;
             }
 
-            listDiv.innerHTML = jobsToRender.map(job => {
-                let statusClass = 'bg-gray-100 text-gray-700 border-gray-300';
-                let statusText = job.status;
-                let iconClass = 'fa-file-alt';
-
-                if (job.status === 'open') {
-                    statusClass = 'bg-blue-50 text-blue-700 border-blue-300';
-                    statusText = 'Đang mở';
-                    iconClass = 'fa-door-open';
-                } else if (job.status === 'in_progress') {
-                    statusClass = 'bg-yellow-50 text-yellow-700 border-yellow-300';
-                    statusText = 'Đang thực hiện';
-                    iconClass = 'fa-spinner fa-spin';
-                } else if (job.status === 'completed' || job.status === 'closed') {
-                    statusClass = 'bg-green-50 text-green-700 border-green-300';
-                    statusText = 'Đã nghiệm thu';
-                    iconClass = 'fa-check-circle';
-                }
-
+            grid.innerHTML = categories.map(c => {
+                const style = catStyles[c.id] || { emoji: c.icon || '📁', fa: 'fas fa-folder', bg: 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200' };
                 return `
-                <div onclick="viewJobDetails('${job.id}')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-blue-300 transition cursor-pointer flex flex-col h-full group">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold border flex items-center ${statusClass}"><i class="fas ${iconClass} mr-1"></i> ${statusText}</span>
-                        <span class="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded border"><i class="far fa-calendar-alt mr-1"></i>${new Date(job.created_at).toLocaleDateString('vi-VN')}</span>
+                    <div onclick="selectCategory('${c.id}')" id="cat-card-${c.id}" class="cat-card p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-750 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md cursor-pointer transition flex items-start space-x-3.5 group">
+                        <div class="w-12 h-12 rounded-2xl ${style.bg} border flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 shadow-sm transition">
+                            <span>${style.emoji}</span>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h4 class="text-sm font-bold text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition truncate">${c.name}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1 leading-relaxed">${c.description || 'Lĩnh vực công nghệ'}</p>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-lg text-gray-800 mb-2 group-hover:text-blue-600 transition line-clamp-2">${job.title}</h3>
-                    <p class="text-gray-500 text-sm mb-4 line-clamp-3 flex-grow">${job.description}</p>
-                    <div class="pt-4 border-t border-gray-50 flex justify-between items-center mt-auto">
-                        <span class="font-bold text-green-600"><i class="fas fa-coins mr-1"></i>${parseInt(job.budget).toLocaleString()} Token</span>
-                        <span class="text-blue-500 text-sm group-hover:underline">Xem chi tiết <i class="fas fa-arrow-right text-xs ml-1"></i></span>
-                    </div>
-                </div>`;
+                `;
             }).join('');
         }
 
-        // Lọc và Tìm kiếm
-        document.getElementById('searchInput').addEventListener('input', applyFilters);
-        document.getElementById('statusFilter').addEventListener('change', applyFilters);
-
-        function applyFilters() {
-            const searchText = document.getElementById('searchInput').value.toLowerCase();
-            const statusVal = document.getElementById('statusFilter').value;
-
-            const filtered = allJobs.filter(job => {
-                const matchSearch = job.title.toLowerCase().includes(searchText) || job.description.toLowerCase().includes(searchText);
-                const matchStatus = (statusVal === 'all') || (job.status === statusVal) || (statusVal === 'completed' && job.status === 'closed');
-                return matchSearch && matchStatus;
+        function selectCategory(id) {
+            selectedCategory = categories.find(c => c.id === id);
+            document.querySelectorAll('.cat-card').forEach(el => {
+                el.classList.remove('border-indigo-600', 'bg-indigo-50/50', 'ring-2', 'ring-indigo-500');
             });
-            renderJobs(filtered);
+            const activeCard = document.getElementById(`cat-card-${id}`);
+            if (activeCard) {
+                activeCard.classList.add('border-indigo-600', 'bg-indigo-50/50', 'ring-2', 'ring-indigo-500');
+            }
+            renderSkillPresets();
         }
 
-        // Xem Chi tiết (Modal)
-        function viewJobDetails(jobId) {
-            const job = allJobs.find(j => j.id === jobId);
-            if(!job) return;
+        // --- XỬ LÝ KỸ NĂNG & THẺ TAGS TƯƠNG TÁC (Interactive Tag Component) ---
+        let editTags = [];
+        let editUploadedFiles = [];
 
-            document.getElementById('detailTitle').textContent = job.title;
-            document.getElementById('detailDate').textContent = new Date(job.created_at).toLocaleString('vi-VN');
-            document.getElementById('detailBudget').textContent = parseInt(job.budget).toLocaleString();
-            document.getElementById('detailDesc').textContent = job.description;
+        function renderSkillPresets() {
+            const container = document.getElementById('tagsPresetContainer');
+            if (!container) return;
 
-            const statusEl = document.getElementById('detailStatus');
-            if (job.status === 'open') {
-                statusEl.className = 'px-3 py-1 rounded-full text-sm font-bold border bg-blue-50 text-blue-700 border-blue-300';
-                statusEl.innerHTML = '<i class="fas fa-door-open mr-1"></i> Đang mở';
-            } else if (job.status === 'in_progress') {
-                statusEl.className = 'px-3 py-1 rounded-full text-sm font-bold border bg-yellow-50 text-yellow-700 border-yellow-300';
-                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang thực hiện';
+            let presets = ['ReactJS', 'NodeJS', 'TypeScript', 'TailwindCSS', 'Figma', 'API'];
+            if (selectedCategory && selectedCategory.tags) {
+                if (Array.isArray(selectedCategory.tags)) presets = selectedCategory.tags;
+                else if (typeof selectedCategory.tags === 'string') presets = selectedCategory.tags.split(',').map(s => s.trim());
+            }
+
+            container.innerHTML = presets.map(t => {
+                const isActive = selectedTags.includes(t);
+                const activeClasses = isActive 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' 
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-indigo-400';
+                return `
+                    <button type="button" data-tag="${escapeHtml(t)}" onclick="toggleTag('${escapeHtml(t)}')" class="tag-pill text-[11px] px-2.5 py-1 rounded-lg border transition font-medium ${activeClasses}">
+                        ${isActive ? '✓' : '+'} ${escapeHtml(t)}
+                    </button>
+                `;
+            }).join('');
+
+            renderTagBadges('post');
+        }
+
+        function renderTagBadges(mode = 'post') {
+            const isPost = mode === 'post';
+            const tagList = isPost ? selectedTags : editTags;
+            const container = document.getElementById(isPost ? 'selectedTagBadges' : 'editSelectedTagBadges');
+            if (!container) return;
+
+            container.innerHTML = tagList.map(tag => `
+                <span class="inline-flex items-center bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-xs">
+                    #${escapeHtml(tag)}
+                    <button type="button" onclick="removeTag('${escapeHtml(tag)}', '${mode}')" class="ml-1.5 text-indigo-400 hover:text-red-500 font-bold focus:outline-none transition leading-none">&times;</button>
+                </span>
+            `).join('');
+
+            if (isPost) {
+                document.querySelectorAll('#tagsPresetContainer .tag-pill').forEach(btn => {
+                    const t = btn.getAttribute('data-tag');
+                    if (selectedTags.includes(t)) {
+                        btn.className = 'tag-pill text-[11px] px-2.5 py-1 rounded-lg border transition font-medium bg-indigo-600 text-white border-indigo-600 shadow-xs';
+                        btn.innerText = '✓ ' + t;
+                    } else {
+                        btn.className = 'tag-pill text-[11px] px-2.5 py-1 rounded-lg border transition font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-indigo-400';
+                        btn.innerText = '+ ' + t;
+                    }
+                });
+            }
+        }
+
+        function addTag(tagText, mode = 'post') {
+            const clean = (tagText || '').replace(/^[#,]/, '').trim();
+            if (!clean) return;
+            const isPost = mode === 'post';
+            const tagList = isPost ? selectedTags : editTags;
+            if (!tagList.includes(clean)) {
+                tagList.push(clean);
+                renderTagBadges(mode);
+            }
+        }
+
+        function removeTag(tagText, mode = 'post') {
+            if (mode === 'post') {
+                selectedTags = selectedTags.filter(t => t !== tagText);
             } else {
-                statusEl.className = 'px-3 py-1 rounded-full text-sm font-bold border bg-green-50 text-green-700 border-green-300';
-                statusEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Đã nghiệm thu';
+                editTags = editTags.filter(t => t !== tagText);
+            }
+            renderTagBadges(mode);
+        }
+
+        function toggleTag(tag) {
+            if (selectedTags.includes(tag)) {
+                removeTag(tag, 'post');
+            } else {
+                addTag(tag, 'post');
+            }
+        }
+
+        function handleTagKeydown(e, mode = 'post') {
+            const input = e.target;
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const val = input.value;
+                val.split(',').forEach(t => addTag(t, mode));
+                input.value = '';
+            } else if (e.key === 'Backspace' && !input.value) {
+                const tagList = mode === 'post' ? selectedTags : editTags;
+                if (tagList.length > 0) {
+                    removeTag(tagList[tagList.length - 1], mode);
+                }
+            }
+        }
+
+        function handleTagBlur(mode = 'post') {
+            const input = document.getElementById(mode === 'post' ? 'customTagsInput' : 'editCustomTagsInput');
+            if (input && input.value.trim()) {
+                input.value.split(',').forEach(t => addTag(t, mode));
+                input.value = '';
+            }
+        }
+
+        // --- HÀM BÓC TÁCH METADATA DỰ ÁN (PARSER) ---
+        function parseJobMetadata(job) {
+            const rawDesc = job.description || '';
+            
+            // 1. Danh mục
+            let categoryName = '';
+            const catMatch = rawDesc.match(/\[Danh mục:\s*([^\]]+)\]/i);
+            if (catMatch) categoryName = catMatch[1].trim();
+
+            // 2. Deadline
+            let deadline = '';
+            const dlMatch = rawDesc.match(/⏰\s*\[Hạn chót mong muốn:\s*([^\]]+)\]/i) || rawDesc.match(/\[Hạn chót:\s*([^\]]+)\]/i);
+            if (dlMatch) deadline = dlMatch[1].trim();
+
+            // 3. Freelancer Type
+            let freelancerType = 'Cá nhân';
+            const ftMatch = rawDesc.match(/👥\s*\[Đối tượng:\s*([^\]]+)\]/i) || rawDesc.match(/\[Đối tượng:\s*([^\]]+)\]/i);
+            if (ftMatch) freelancerType = ftMatch[1].trim();
+
+            // 4. Tags
+            let tags = [];
+            const tagsMatch = rawDesc.match(/🏷️\s*\[Kỹ năng yêu cầu:\s*([^\]]+)\]/i) || rawDesc.match(/\[Kỹ năng yêu cầu:\s*([^\]]+)\]/i);
+            if (tagsMatch) {
+                tags = tagsMatch[1].split(',').map(t => t.trim()).filter(Boolean);
+            }
+
+            // 5. Files / Attachments
+            let files = [];
+            const filesMatch = rawDesc.match(/📎\s*\[Tài liệu đính kèm:\s*([\s\S]*?)\]/i);
+            if (filesMatch) {
+                const lines = filesMatch[1].split('\n');
+                lines.forEach(line => {
+                    const parts = line.match(/\d+\.\s*(.*?)\s*->\s*(https?:\/\/[^\s]+)/);
+                    if (parts) {
+                        files.push({ name: parts[1].trim(), url: parts[2].trim() });
+                    }
+                });
+            }
+
+            // 6. Clean Description
+            let cleanDesc = rawDesc
+                .replace(/\[Danh mục:\s*[^\]]+\]\s*/gi, '')
+                .replace(/⏰\s*\[Hạn chót mong muốn:\s*[^\]]+\]/gi, '')
+                .replace(/👥\s*\[Đối tượng:\s*[^\]]+\]/gi, '')
+                .replace(/🏷️\s*\[Kỹ năng yêu cầu:\s*[^\]]+\]/gi, '')
+                .replace(/📎\s*\[Tài liệu đính kèm:\s*[\s\S]*?\]/gi, '')
+                .trim();
+
+            return {
+                categoryName,
+                deadline,
+                freelancerType,
+                tags,
+                files,
+                cleanDesc
+            };
+        }
+
+        // 2. Chọn Deadline nhanh
+        function setQuickDeadline(days, btn) {
+            document.querySelectorAll('.deadline-pill').forEach(el => {
+                el.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-100', 'dark:bg-indigo-900/60');
+            });
+            if (btn) btn.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-100', 'dark:bg-indigo-900/60');
+
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            const dateInput = document.getElementById('deadlineDate');
+            if (dateInput) dateInput.value = d.toISOString().split('T')[0];
+        }
+
+        function setEditQuickDeadline(days, btn) {
+            document.querySelectorAll('.edit-deadline-pill').forEach(el => {
+                el.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-100', 'dark:bg-indigo-900/60');
+            });
+            if (btn) btn.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-100', 'dark:bg-indigo-900/60');
+
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            const dateInput = document.getElementById('edit_deadlineDate');
+            if (dateInput) dateInput.value = d.toISOString().split('T')[0];
+        }
+
+        // 3. Xử lý Upload file đính kèm
+        async function handleFileUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            
+            if (file.size > 25 * 1024 * 1024) {
+                alert('File vượt quá kích thước tối đa 25MB!');
+                return;
+            }
+
+            const formData = new FormData();
+            const isImg = file.type.startsWith('image/');
+            formData.append(isImg ? 'image' : 'file', file);
+
+            const endpoint = isImg ? `${API_URL}/upload-image` : `${API_URL}/upload-file`;
+
+            const listDiv = document.getElementById('uploadedFilesList');
+            const tempId = 'file_' + Date.now();
+            listDiv.innerHTML += `
+                <div id="${tempId}" class="inline-flex items-center bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-indigo-200 dark:border-indigo-800">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải lên ${file.name}...
+                </div>
+            `;
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                const url = data.imageUrl || data.fileUrl;
+
+                if (url) {
+                    uploadedFiles.push({ name: file.name, url: url, size: file.size });
+                    const el = document.getElementById(tempId);
+                    if (el) {
+                        el.innerHTML = `
+                            <i class="${isImg ? 'fas fa-image' : 'fas fa-file-alt'} mr-1.5"></i>
+                            <span class="max-w-[150px] truncate">${file.name}</span>
+                            <button type="button" onclick="removeFile('${url}', '${tempId}')" class="ml-2 text-red-500 hover:text-red-700 font-bold">&times;</button>
+                        `;
+                    }
+                } else {
+                    throw new Error(data.error || 'Upload thất bại');
+                }
+            } catch (err) {
+                alert('Lỗi tải file: ' + err.message);
+                const el = document.getElementById(tempId);
+                if (el) el.remove();
+            } finally {
+                input.value = '';
+            }
+        }
+
+        function removeFile(url, elemId) {
+            uploadedFiles = uploadedFiles.filter(f => f.url !== url);
+            const el = document.getElementById(elemId);
+            if (el) el.remove();
+        }
+
+        // Upload file trong Modal Edit
+        async function handleEditFileUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            
+            if (file.size > 25 * 1024 * 1024) {
+                alert('File vượt quá kích thước tối đa 25MB!');
+                return;
+            }
+
+            const formData = new FormData();
+            const isImg = file.type.startsWith('image/');
+            formData.append(isImg ? 'image' : 'file', file);
+
+            const endpoint = isImg ? `${API_URL}/upload-image` : `${API_URL}/upload-file`;
+
+            const listDiv = document.getElementById('editUploadedFilesList');
+            const tempId = 'edit_file_' + Date.now();
+            listDiv.innerHTML += `
+                <div id="${tempId}" class="inline-flex items-center bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-indigo-200 dark:border-indigo-800">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải lên ${file.name}...
+                </div>
+            `;
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                const url = data.imageUrl || data.fileUrl;
+
+                if (url) {
+                    editUploadedFiles.push({ name: file.name, url: url });
+                    renderEditFiles();
+                } else {
+                    throw new Error(data.error || 'Upload thất bại');
+                }
+            } catch (err) {
+                alert('Lỗi tải file: ' + err.message);
+                const el = document.getElementById(tempId);
+                if (el) el.remove();
+            } finally {
+                input.value = '';
+            }
+        }
+
+        function renderEditFiles() {
+            const listDiv = document.getElementById('editUploadedFilesList');
+            if (!listDiv) return;
+            if (editUploadedFiles.length === 0) {
+                listDiv.innerHTML = '<span class="text-xs text-gray-400 italic">Chưa có tài liệu đính kèm</span>';
+                return;
+            }
+            listDiv.innerHTML = editUploadedFiles.map((f, i) => `
+                <div class="inline-flex items-center bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-gray-200 dark:border-gray-600">
+                    <i class="fas fa-paperclip mr-1.5 text-indigo-500"></i>
+                    <a href="${f.url}" target="_blank" class="max-w-[160px] truncate hover:text-indigo-600 underline">${f.name || ('Tài liệu ' + (i+1))}</a>
+                    <button type="button" onclick="removeEditFile('${f.url}')" class="ml-2 text-red-500 hover:text-red-700 font-bold">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function removeEditFile(url) {
+            editUploadedFiles = editUploadedFiles.filter(f => f.url !== url);
+            renderEditFiles();
+        }
+
+        // 4. Tải danh sách bài đăng của Client
+        async function loadJobs() {
+            const listDiv = document.getElementById('jobsList');
+            if (!listDiv) return;
+            listDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400 col-span-full text-center py-10"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</p>';
+
+            try {
+                const res = await fetch(`${API_URL}/api/client/${currentUser.id}/my-jobs`);
+                const data = await res.json();
+                allJobs = data.jobs || [];
+                renderJobs(allJobs);
+            } catch (err) {
+                console.error('Lỗi tải danh sách dự án:', err);
+                listDiv.innerHTML = '<p class="text-red-500 col-span-full text-center py-10">Không thể kết nối đến máy chủ để tải dự án.</p>';
+            }
+        }
+
+        // 5. Render danh sách dự án
+        function renderJobs(jobs) {
+            const listDiv = document.getElementById('jobsList');
+            if (!listDiv) return;
+            
+            if (!jobs || jobs.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="col-span-full text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
+                        <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-950 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">Chưa có dự án nào</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs mb-5">Bạn chưa đăng tải dự án nào hoặc không có dự án phù hợp với bộ lọc.</p>
+                        <button onclick="openPostModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition inline-flex items-center">
+                            <i class="fas fa-plus mr-2"></i> Đăng Dự Án Ngay
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const statusMap = {
+                'open': { text: 'Đang mở', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+                'planning': { text: 'Lập kế hoạch', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+                'pending_plan_approval': { text: 'Chờ duyệt kế hoạch', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+                'in_progress': { text: 'Đang thực hiện', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+                'completed': { text: 'Đã hoàn thành', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+                'cancelled': { text: 'Đã hủy', color: 'bg-red-100 text-red-800 border-red-200' }
+            };
+
+            listDiv.innerHTML = jobs.map(j => {
+                const st = statusMap[j.status] || { text: j.status, color: 'bg-gray-100 text-gray-800 border-gray-200' };
+                const canEdit = j.status === 'open';
+                const created = new Date(j.created_at).toLocaleDateString('vi-VN');
+                const parsed = parseJobMetadata(j);
+
+                return `
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start gap-2 mb-3">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${st.color}">${st.text}</span>
+                                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-100 dark:border-emerald-900">
+                                    <i class="fas fa-coins mr-1"></i> ${(j.budget || 0).toLocaleString()} Token
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base mb-2 line-clamp-2 hover:text-indigo-600 transition cursor-pointer" onclick="openDetailModal('${j.id}')">
+                                ${escapeHtml(j.title)}
+                            </h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-xs line-clamp-3 mb-4 leading-relaxed">
+                                ${escapeHtml(parsed.cleanDesc || j.description || 'Không có mô tả chi tiết.')}
+                            </p>
+                            ${parsed.tags && parsed.tags.length > 0 ? `
+                                <div class="flex flex-wrap gap-1 mb-3">
+                                    ${parsed.tags.slice(0, 3).map(t => `<span class="bg-gray-100 dark:bg-gray-750 text-gray-600 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded font-medium">#${escapeHtml(t)}</span>`).join('')}
+                                    ${parsed.tags.length > 3 ? `<span class="text-[10px] text-gray-400">+${parsed.tags.length - 3}</span>` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                            <span class="text-[11px] text-gray-400"><i class="far fa-clock mr-1"></i> ${created}</span>
+                            <div class="flex items-center space-x-2">
+                                ${canEdit ? `
+                                    <button onclick="openEditJobModal('${j.id}')" title="Chỉnh sửa toàn bộ" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 p-2 rounded-xl transition">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="cancelJob('${j.id}')" title="Hủy dự án" class="text-xs bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 hover:bg-red-100 p-2 rounded-xl transition">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                ` : ''}
+                                <button onclick="openDetailModal('${j.id}')" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 text-gray-700 dark:text-gray-300 font-bold px-3 py-1.5 rounded-xl transition">
+                                    Chi tiết
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- 6. MODAL XEM CHI TIẾT DỰ ÁN (Detail Modal) ---
+        function openDetailModal(jobId) {
+            const job = allJobs.find(j => j.id === jobId);
+            if (!job) {
+                alert('Không tìm thấy thông tin dự án!');
+                return;
+            }
+
+            const parsed = parseJobMetadata(job);
+            const created = new Date(job.created_at).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const statusMap = {
+                'open': { text: '🟢 Đang mở tuyển dụng', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+                'planning': { text: '🟡 Đang lập kế hoạch', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+                'pending_plan_approval': { text: '🟠 Chờ duyệt kế hoạch', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+                'in_progress': { text: '🔵 Đang thực hiện', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+                'completed': { text: '🟣 Đã hoàn thành', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+                'cancelled': { text: '🔴 Đã hủy', color: 'bg-red-100 text-red-800 border-red-200' }
+            };
+            const st = statusMap[job.status] || { text: job.status, color: 'bg-gray-100 text-gray-800 border-gray-200' };
+
+            document.getElementById('detailTitle').innerText = job.title;
+            document.getElementById('detailJobId').innerText = `#${job.id.substring(0, 8)}`;
+            document.getElementById('detailDate').innerText = created;
+            
+            const stEl = document.getElementById('detailStatus');
+            stEl.innerText = st.text;
+            stEl.className = `px-3 py-1 rounded-full text-xs font-bold border ${st.color}`;
+
+            document.getElementById('detailBudget').innerText = `${(job.budget || 0).toLocaleString()} Token`;
+            document.getElementById('detailCategory').innerText = parsed.categoryName || 'Chung';
+            document.getElementById('detailDeadline').innerText = parsed.deadline || 'Thỏa thuận';
+            document.getElementById('detailFreelancerType').innerText = parsed.freelancerType || 'Cá nhân';
+
+            // Render Tags
+            const tagsContainer = document.getElementById('detailTags');
+            if (parsed.tags && parsed.tags.length > 0) {
+                tagsContainer.innerHTML = parsed.tags.map(t => `
+                    <span class="inline-flex items-center bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                        #${escapeHtml(t)}
+                    </span>
+                `).join('');
+            } else {
+                tagsContainer.innerHTML = '<span class="text-xs text-gray-400 italic">Chưa gắn thẻ kỹ năng</span>';
+            }
+
+            // Render Description
+            document.getElementById('detailDesc').innerText = parsed.cleanDesc || job.description || 'Không có mô tả chi tiết.';
+
+            // Render Attachments
+            const filesSection = document.getElementById('detailFilesSection');
+            const filesList = document.getElementById('detailFilesList');
+            if (parsed.files && parsed.files.length > 0) {
+                filesSection.classList.remove('hidden');
+                filesList.innerHTML = parsed.files.map((f, i) => `
+                    <a href="${f.url}" target="_blank" download class="inline-flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-indigo-500 text-gray-800 dark:text-gray-200 hover:text-indigo-600 px-3 py-2 rounded-xl text-xs font-semibold shadow-xs transition">
+                        <i class="fas fa-file-download mr-2 text-indigo-500 text-sm"></i>
+                        <span class="max-w-[200px] truncate">${escapeHtml(f.name || ('Tài liệu ' + (i+1)))}</span>
+                    </a>
+                `).join('');
+            } else {
+                filesSection.classList.add('hidden');
+                filesList.innerHTML = '';
+            }
+
+            // Render Action Buttons
+            const actionsContainer = document.getElementById('detailActions');
+            if (job.status === 'open') {
+                actionsContainer.innerHTML = `
+                    <button onclick="closeDetailModal(); openEditJobModal('${job.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center">
+                        <i class="fas fa-edit mr-1.5"></i> Chỉnh Sửa Dự Án
+                    </button>
+                    <a href="my-requests.html" class="bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center">
+                        <i class="fas fa-users mr-1.5"></i> Xem Ứng Viên
+                    </a>
+                    <button onclick="closeDetailModal(); cancelJob('${job.id}')" class="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 hover:bg-red-100 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center">
+                        <i class="fas fa-trash-alt mr-1.5"></i> Hủy Bài Đăng
+                    </button>
+                `;
+            } else if (['planning', 'pending_plan_approval', 'in_progress'].includes(job.status)) {
+                actionsContainer.innerHTML = `
+                    <a href="review-work.html" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center">
+                        <i class="fas fa-tasks mr-1.5"></i> Theo Dõi Kế Hoạch & Tiến Độ
+                    </a>
+                `;
+            } else {
+                actionsContainer.innerHTML = '';
             }
 
             document.getElementById('detailModal').classList.remove('hidden');
@@ -254,23 +1153,401 @@
             document.getElementById('detailModal').classList.add('hidden');
         }
 
-        // Modal Đăng Dự Án
-        function openPostModal() { document.getElementById('postModal').classList.remove('hidden'); }
-        function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
+        // --- 7. MODAL SỬA DỰ ÁN TOÀN BỘ THÔNG TIN (Edit Job Modal) ---
+        function openEditJobModal(jobId) {
+            const job = allJobs.find(j => j.id === jobId);
+            if (!job) {
+                alert('Không tìm thấy thông tin dự án để chỉnh sửa!');
+                return;
+            }
 
-        // Đăng Dự Án Xử lý
-        document.getElementById('postJobForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
-            btn.disabled = true;
+            const parsed = parseJobMetadata(job);
+
+            document.getElementById('edit_job_id').value = job.id;
+            document.getElementById('edit_title').value = job.title;
+            document.getElementById('edit_description').value = parsed.cleanDesc || job.description || '';
+            document.getElementById('edit_budget').value = job.budget;
+
+            // Populate category select
+            const catSel = document.getElementById('edit_category');
+            if (catSel) {
+                catSel.innerHTML = categories.map(c => `
+                    <option value="${c.id}" ${c.name === parsed.categoryName || c.id === job.category_id ? 'selected' : ''}>${c.name}</option>
+                `).join('');
+            }
+
+            // Deadline
+            const dateInput = document.getElementById('edit_deadlineDate');
+            if (dateInput) {
+                if (parsed.deadline && /^\d{4}-\d{2}-\d{2}$/.test(parsed.deadline)) {
+                    dateInput.value = parsed.deadline;
+                } else {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 7);
+                    dateInput.value = d.toISOString().split('T')[0];
+                }
+            }
+
+            // Freelancer Type
+            const isAgency = parsed.freelancerType && parsed.freelancerType.includes('Đội');
+            if (document.getElementById('edit_ft_agency')) document.getElementById('edit_ft_agency').checked = isAgency;
+            if (document.getElementById('edit_ft_personal')) document.getElementById('edit_ft_personal').checked = !isAgency;
+
+            // Tags
+            editTags = [...parsed.tags];
+            renderTagBadges('edit');
+
+            // Attachments
+            editUploadedFiles = [...parsed.files];
+            renderEditFiles();
+
+            document.getElementById('editJobModal').classList.remove('hidden');
+        }
+
+        function closeEditJobModal() {
+            document.getElementById('editJobModal').classList.add('hidden');
+            editTags = [];
+            editUploadedFiles = [];
+        }
+
+
+
+        // --- TRỢ LÝ AI SOẠN DỰ ÁN & AUTO-FILL ---
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function openAiAssistantModal() {
+            const modal = document.getElementById('aiAssistantModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    const input = document.getElementById('aiChatInput');
+                    if (input) input.focus();
+                }, 100);
+            }
+        }
+
+        function closeAiAssistantModal() {
+            const modal = document.getElementById('aiAssistantModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function sendAiQuickPrompt(promptText) {
+            const input = document.getElementById('aiChatInput');
+            if (input) {
+                input.value = promptText;
+                submitAiChat();
+            }
+        }
+
+        function suggestAI() {
+            const titleVal = document.getElementById('title')?.value?.trim();
+            openAiAssistantModal();
+            if (titleVal) {
+                const input = document.getElementById('aiChatInput');
+                if (input) {
+                    input.value = `Soạn thảo yêu cầu chi tiết cho dự án: "${titleVal}"`;
+                    submitAiChat();
+                }
+            }
+        }
+
+        async function submitAiChat(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('aiChatInput');
+            if (!input) return;
+            const promptText = input.value.trim();
+            if (!promptText) return;
+
+            const history = document.getElementById('aiChatHistory');
+            const sendBtn = document.getElementById('aiSendBtn');
+
+            // 1. Render User Message
+            const userMsgHtml = `
+                <div class="flex items-start justify-end space-x-2.5">
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3.5 rounded-2xl rounded-tr-sm shadow-sm max-w-[85%] text-xs md:text-sm leading-relaxed">
+                        ${escapeHtml(promptText)}
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0 shadow">
+                        👤
+                    </div>
+                </div>
+            `;
+            history.insertAdjacentHTML('beforeend', userMsgHtml);
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
+
+            // 2. Render Loading Indicator
+            const loadingId = 'ai-loading-' + Date.now();
+            const loadingHtml = `
+                <div id="${loadingId}" class="flex items-start space-x-2.5">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-sm shrink-0 shadow animate-pulse">
+                        🤖
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 dark:border-gray-700 max-w-[90%] text-sm text-gray-800 dark:text-gray-200 flex items-center space-x-3">
+                        <i class="fas fa-circle-notch fa-spin text-indigo-600 text-lg"></i>
+                        <div>
+                            <p class="font-bold text-xs text-indigo-600 dark:text-indigo-400">Trợ lý AI đang soạn thảo đặc tả...</p>
+                            <p class="text-[11px] text-gray-500 dark:text-gray-400">Đang chuẩn hóa 4 phần, bóc tách kỹ năng, ngân sách và thời hạn...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            history.insertAdjacentHTML('beforeend', loadingHtml);
+            history.scrollTop = history.scrollHeight;
+
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/ai/suggest-job`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: promptText,
+                        current_category: selectedCategory ? selectedCategory.id : null
+                    })
+                });
+
+                const data = await res.json();
+                const loadingElem = document.getElementById(loadingId);
+                if (loadingElem) loadingElem.remove();
+
+                if (res.ok && data.job) {
+                    renderAiResponseCard(data.job, data.source || 'Groq AI');
+                } else {
+                    throw new Error(data.error || 'Không nhận được phản hồi từ AI');
+                }
+            } catch (err) {
+                const loadingElem = document.getElementById(loadingId);
+                if (loadingElem) loadingElem.remove();
+
+                const errHtml = `
+                    <div class="flex items-start space-x-2.5">
+                        <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-sm shrink-0 shadow">
+                            ⚠️
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-950/50 p-3.5 rounded-2xl rounded-tl-sm border border-red-200 dark:border-red-900 max-w-[90%] text-xs text-red-600 dark:text-red-400">
+                            <p class="font-bold mb-1">Rất tiếc, đã xảy ra lỗi:</p>
+                            <p>${escapeHtml(err.message)}</p>
+                        </div>
+                    </div>
+                `;
+                history.insertAdjacentHTML('beforeend', errHtml);
+            } finally {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                }
+                history.scrollTop = history.scrollHeight;
+            }
+        }
+
+        function renderAiResponseCard(job, source) {
+            const history = document.getElementById('aiChatHistory');
+            const jobJsonString = encodeURIComponent(JSON.stringify(job));
+
+            const tagsHtml = (job.tags || []).map(t => `<span class="bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[11px] px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800 font-semibold">#${escapeHtml(t)}</span>`).join(' ');
+
+            const formattedDesc = escapeHtml(job.description || '').replace(/\n/g, '<br>');
+
+            const responseHtml = `
+                <div class="flex items-start space-x-2.5">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-sm shrink-0 shadow">
+                        🤖
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-4 md:p-5 rounded-2xl rounded-tl-sm shadow-md border border-purple-100 dark:border-gray-700 max-w-[95%] text-sm text-gray-800 dark:text-gray-200 space-y-3">
+                        <!-- AI Header & Model Badge -->
+                        <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+                            <span class="text-xs font-bold text-purple-600 dark:text-purple-400 flex items-center">
+                                <i class="fas fa-sparkles mr-1.5 text-yellow-500"></i> Đã soạn thảo đặc tả dự án
+                            </span>
+                            <span class="text-[10px] bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-full font-mono font-bold">
+                                ⚡ ${escapeHtml(source)}
+                            </span>
+                        </div>
+
+                        ${job.ai_summary ? `<p class="text-xs text-gray-600 dark:text-gray-300 italic bg-gray-50 dark:bg-gray-750 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700">💬 "${escapeHtml(job.ai_summary)}"</p>` : ''}
+
+                        <!-- Job Preview Card -->
+                        <div class="bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-white dark:from-gray-900 dark:via-gray-850 dark:to-gray-800 rounded-xl p-3.5 border border-indigo-100 dark:border-indigo-900/50 space-y-2.5">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="text-[11px] bg-indigo-600 text-white font-bold px-2.5 py-0.5 rounded-lg shadow-sm">
+                                    📁 ${escapeHtml(job.category_name || job.category_id || 'Chung')}
+                                </span>
+                                <span class="text-[11px] bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 font-semibold px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800">
+                                    👥 ${escapeHtml(job.freelancer_type || 'Cá nhân')}
+                                </span>
+                                <span class="text-[11px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800 ml-auto">
+                                    💰 ${(job.estimated_budget || 0).toLocaleString()} Token
+                                </span>
+                            </div>
+
+                            <h4 class="font-bold text-gray-900 dark:text-white text-sm">
+                                ${escapeHtml(job.title)}
+                            </h4>
+
+                            <div class="flex flex-wrap gap-1">
+                                ${tagsHtml}
+                            </div>
+
+                            <!-- Description Preview -->
+                            <div class="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 max-h-48 overflow-y-auto font-sans leading-relaxed">
+                                ${formattedDesc}
+                            </div>
+
+                            <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center justify-between pt-1">
+                                <span>⏰ Thời hạn đề xuất: <b>${job.deadline_days || 7} ngày</b></span>
+                            </div>
+                        </div>
+
+                        <!-- Action Button: Approve & Auto-fill -->
+                        <div class="pt-1">
+                            <button type="button" onclick="applyAiJobToForm(decodeURIComponent('${jobJsonString}'))" class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-700 hover:to-indigo-700 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-2 transform active:scale-98">
+                                <i class="fas fa-bolt text-yellow-300"></i>
+                                <span>Duyệt & Tự Động Điền Vào Bài Đăng</span>
+                                <i class="fas fa-arrow-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            history.insertAdjacentHTML('beforeend', responseHtml);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        function applyAiJobToForm(rawJob) {
+            try {
+                const job = typeof rawJob === 'string' ? JSON.parse(rawJob) : rawJob;
+                if (!job) return;
+
+                // 1. Select Category
+                if (job.category_id) {
+                    selectCategory(job.category_id);
+                }
+
+                // 2. Fill Title
+                if (job.title) {
+                    document.getElementById('title').value = job.title;
+                }
+
+                // 3. Fill Description
+                if (job.description) {
+                    document.getElementById('description').value = job.description;
+                }
+
+                // 4. Fill Deadline
+                if (job.deadline_days) {
+                    const d = new Date();
+                    d.setDate(d.getDate() + parseInt(job.deadline_days));
+                    const dateInput = document.getElementById('deadlineDate');
+                    if (dateInput) dateInput.value = d.toISOString().split('T')[0];
+                }
+
+                // 5. Fill Freelancer Type
+                if (job.freelancer_type) {
+                    const radios = document.querySelectorAll('input[name="freelancer_type"]');
+                    radios.forEach(r => {
+                        if (r.value === job.freelancer_type || (r.value === 'Cá nhân' && job.freelancer_type.includes('nhân')) || (r.value === 'Đội nhóm/Agency' && job.freelancer_type.includes('Đội'))) {
+                            r.checked = true;
+                        }
+                    });
+                }
+
+                // 6. Fill Tags
+                if (job.tags && Array.isArray(job.tags)) {
+                    selectedTags = [...job.tags];
+                    renderTagBadges('post');
+                }
+
+                // 7. Fill Budget
+                if (job.estimated_budget) {
+                    document.getElementById('budget').value = job.estimated_budget;
+                }
+
+                // 8. Close AI Assistant Modal & Open Post Modal at Step 2
+                closeAiAssistantModal();
+
+                const postModal = document.getElementById('postModal');
+                if (postModal) postModal.classList.remove('hidden');
+
+                currentStep = 2;
+                showStep(2);
+
+                setTimeout(() => {
+                    alert('🎉 Trợ lý AI đã tự động điền đầy đủ dữ liệu dự án!\n\n👉 Bạn hãy kiểm tra lại thông tin ở Bước 2 và bấm "Tiếp tục" để hoàn tất đăng bài.');
+                }, 150);
+
+            } catch (err) {
+                console.error('Lỗi khi apply AI job:', err);
+                alert('Có lỗi xảy ra khi tự động điền dữ liệu: ' + err.message);
+            }
+        }
+
+        // 10. Gửi dữ liệu Đăng Dự Án
+        async function submitPostJob(e) {
+            if (e) e.preventDefault();
+
+            const title = document.getElementById('title').value.trim();
+            let description = document.getElementById('description').value.trim();
+            const budgetVal = document.getElementById('budget').value;
+            const budget = parseFloat(budgetVal);
+
+            const fType = document.querySelector('input[name="freelancer_type"]:checked')?.value || "Cá nhân";
+            const deadlineVal = document.getElementById('deadlineDate').value;
+            
+            // Add any leftover text in tag input
+            const customTags = document.getElementById('customTagsInput')?.value?.trim();
+            if (customTags) {
+                customTags.split(',').forEach(t => addTag(t, 'post'));
+                document.getElementById('customTagsInput').value = '';
+            }
+            const allTags = [...selectedTags];
+
+            if (!title || !description || isNaN(budget) || budget <= 0) {
+                alert('Vui lòng điền đầy đủ Tiêu đề, Mô tả và Ngân sách hợp lệ!');
+                return;
+            }
+
+            let fullDescription = description;
+            if (deadlineVal) {
+                fullDescription += `\n\n⏰ [Hạn chót mong muốn: ${deadlineVal}]`;
+            }
+            fullDescription += `\n👥 [Đối tượng: ${fType}]`;
+
+            if (uploadedFiles.length > 0) {
+                fullDescription += `\n\n📎 [Tài liệu đính kèm:`;
+                uploadedFiles.forEach((f, i) => {
+                    fullDescription += `\n${i+1}. ${f.name} -> ${f.url}`;
+                });
+                fullDescription += `]`;
+            }
 
             const payload = {
-                client_id: document.getElementById('client_id').value,
-                title: document.getElementById('title').value,
-                description: document.getElementById('description').value,
-                budget: document.getElementById('budget').value
+                client_id: currentUser.id,
+                title: title,
+                description: fullDescription,
+                budget: budget,
+                category_id: selectedCategory ? selectedCategory.id : null,
+                category_name: selectedCategory ? selectedCategory.name : null,
+                tags: allTags
             };
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang đăng tải...';
+            btn.disabled = true;
+
+            const msgDiv = document.getElementById('postMessage');
+            if (msgDiv) msgDiv.classList.add('hidden');
 
             try {
                 const response = await fetch(`${API_URL}/api/jobs`, {
@@ -280,38 +1557,66 @@
                 });
                 
                 const data = await response.json();
-                const msgDiv = document.getElementById('postMessage');
-                msgDiv.classList.remove('hidden');
                 
+                if (msgDiv) msgDiv.classList.remove('hidden');
+
                 if (response.ok) {
-                    msgDiv.textContent = data.message;
-                    msgDiv.className = "mt-4 text-green-600 font-bold block";
+                    msgDiv.textContent = '✅ ' + (data.message || 'Đăng dự án thành công!');
+                    msgDiv.className = "mt-3 text-emerald-600 font-bold block text-center text-sm";
                     document.getElementById('postJobForm').reset();
+                    
                     setTimeout(() => {
                         closePostModal();
-                        msgDiv.classList.add('hidden');
-                        loadJobs(); // Load lại DS
-                    }, 1500);
+                        loadJobs();
+                    }, 1000);
                 } else {
-                    msgDiv.textContent = 'Lỗi: ' + data.error;
-                    msgDiv.className = "mt-4 text-red-600 font-bold block";
+                    msgDiv.textContent = '❌ Lỗi: ' + (data.error || 'Không thể đăng dự án');
+                    msgDiv.className = "mt-3 text-red-600 font-bold block text-center text-sm";
+
+                    if (data.error && (data.error.includes('Số dư ví không đủ') || data.error.includes('Không tìm thấy ví'))) {
+                        setTimeout(() => {
+                            if (confirm('Số dư Token trong ví không đủ để ký quỹ cho dự án này.\nBạn có muốn chuyển đến trang Quản lý Ví để nạp thêm Token không?')) {
+                                window.location.href = 'wallet.html';
+                            }
+                        }, 400);
+                    }
                 }
             } catch (err) {
-                alert('Không thể kết nối đến Backend');
+                alert('Không thể kết nối đến Backend Server!');
             } finally {
-                btn.innerHTML = 'Xác nhận Đăng Dự Án';
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i> Đăng Dự Án Ký Quỹ';
                 btn.disabled = false;
+            }
+        }
+
+        // 11. Tìm kiếm & Lọc
+        document.getElementById('searchInput')?.addEventListener('input', (e) => {
+            const kw = e.target.value.toLowerCase().trim();
+            const filtered = allJobs.filter(j => 
+                j.title.toLowerCase().includes(kw) || 
+                (j.description || '').toLowerCase().includes(kw)
+            );
+            renderJobs(filtered);
+        });
+
+        document.getElementById('statusFilter')?.addEventListener('change', (e) => {
+            const st = e.target.value;
+            if (st === 'all') {
+                renderJobs(allJobs);
+            } else {
+                const filtered = allJobs.filter(j => j.status === st);
+                renderJobs(filtered);
             }
         });
 
-        // Dọn dẹp Dự án cũ (> 1 tháng)
+        // 12. Dọn dẹp Dự án cũ (> 1 tháng)
         async function cleanupOldJobs() {
-            if(!confirm('Hành động này sẽ xóa các dự án đã NGHIỆM THU trên 1 tháng để giải phóng dung lượng. Các dự án đang làm sẽ KHÔNG bị ảnh hưởng. Bạn có chắc chắn?')) return;
+            if (!confirm('Hành động này sẽ xóa các dự án đã NGHIỆM THU trên 1 tháng để giải phóng dung lượng.\nCác dự án đang làm sẽ KHÔNG bị ảnh hưởng. Bạn có chắc chắn?')) return;
             
             try {
                 const response = await fetch(`${API_URL}/api/jobs/cleanup/${currentUser.id}`, { method: 'DELETE' });
                 const data = await response.json();
-                if(response.ok) {
+                if (response.ok) {
                     alert('Thành công: ' + data.message);
                     loadJobs();
                 } else {
@@ -322,5 +1627,13 @@
             }
         }
     </script>
-</body>
+
+        </main>
+    </div>
+    
+    <!-- Shared UI Script -->
+    <script src="ui.js"></script>
+        </body>
 </html>
+
+

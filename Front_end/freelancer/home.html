@@ -2,75 +2,296 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Workspace - HT Work</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển - HT Work Freelancer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4f46e5',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-50 h-screen flex flex-col">
-    <nav class="bg-indigo-600 p-4 text-white flex justify-between shadow-md">
-        <div class="font-bold flex items-center space-x-4">
-            <a href="home.html" class="hover:text-indigo-200">HT Work - Freelancer Workspace</a>
-            <span class="text-indigo-300">|</span>
-            <a href="profile.html" class="font-medium hover:text-indigo-200 underline">Hồ sơ của tôi</a>
-        </div>
-        <div>
-            <span id="freelancerName" class="mr-4 font-medium"></span>
-            <button id="logoutBtn" class="bg-indigo-800 px-3 py-1 rounded">Đăng xuất</button>
-        </div>
-    </nav>
-    <main class="p-10">
-        <div class="bg-white p-6 rounded-lg shadow border-l-4 border-indigo-500">
-            <h2 class="text-2xl font-bold text-gray-800">Bảng Công Việc (Task Board)</h2>
-            <p class="mt-2 text-gray-600">Đang chờ khách hàng duyệt báo giá dự án mới...</p>
-            <div class="mt-4 flex flex-wrap gap-4">
-                <a href="job-board.html" class="bg-indigo-600 text-white px-4 py-2 rounded font-bold hover:bg-indigo-700 inline-flex items-center shadow-sm"><i class="fas fa-search mr-2"></i>Tìm việc mới</a>
-                <a href="my-jobs.html" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 inline-flex items-center shadow-sm"><i class="fas fa-tasks mr-2"></i>Dự án Đang thực hiện</a>
-                <a href="wallet.html" class="bg-yellow-500 text-white px-4 py-2 rounded font-bold hover:bg-yellow-600 inline-flex items-center shadow-sm"><i class="fas fa-wallet mr-2"></i>Ví Token</a>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative">
+            <!-- Welcome Banner -->
+            <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden mb-6 sm:mb-8">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 inline-block">
+                        🚀 Freelancer Pro Workspace
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-black">Xin chào, <span id="homeFreelancerName">Freelancer</span>! 👋</h1>
+                    <p class="mt-2 text-xs sm:text-sm text-indigo-100 leading-relaxed">Chúc bạn một ngày làm việc hiệu quả. Hãy kiểm tra các dự án đang chạy và khám phá các cơ hội đấu thầu mới trên sàn hôm nay.</p>
+                    
+                    <div class="mt-5 flex flex-wrap gap-2.5 sm:gap-3">
+                        <a href="job-board.html" class="bg-white text-indigo-700 hover:bg-indigo-50 px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm shadow-md transition flex items-center">
+                            <i class="fas fa-search mr-2 text-indigo-600"></i> Tìm việc mới
+                        </a>
+                        <a href="direct-chat.html" class="bg-black/30 hover:bg-black/40 text-white backdrop-blur-sm px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm transition flex items-center border border-white/20">
+                            <i class="fas fa-comments mr-2 text-teal-400"></i> Tin nhắn 1-1
+                        </a>
+                        <a href="my-jobs.html" class="bg-black/30 hover:bg-black/40 text-white backdrop-blur-sm px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm transition flex items-center border border-white/20">
+                            <i class="fas fa-tasks mr-2 text-emerald-400"></i> Dự án đang làm
+                        </a>
+                        <a href="wallet.html" class="bg-black/30 hover:bg-black/40 text-white backdrop-blur-sm px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm transition flex items-center border border-white/20">
+                            <i class="fas fa-wallet mr-2 text-amber-400"></i> Rút tiền VietQR
+                        </a>
+                    </div>
+                </div>
+                <!-- Decorative Icon Background -->
+                <div class="absolute -right-8 -bottom-10 opacity-15 text-white text-9xl pointer-events-none">
+                    <i class="fas fa-code"></i>
+                </div>
             </div>
-        </div>
 
-        <!-- Cột Thông báo -->
-        <div class="mt-8 bg-white p-6 rounded-lg shadow border-l-4 border-yellow-400">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                🔔 Thông báo mới nhất
-            </h2>
-            <div id="notificationsList" class="space-y-3">
-                <p class="text-gray-500 text-sm">Đang tải thông báo...</p>
+            <!-- KPI Metric Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 mb-6 sm:mb-8">
+                <!-- KPI 1: Active Jobs -->
+                <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl font-black shrink-0">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Dự án đang làm</p>
+                        <p id="kpiActiveJobs" class="text-xl sm:text-2xl font-black text-gray-800 dark:text-white">0</p>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Completed -->
+                <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-black shrink-0">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Đã hoàn thành</p>
+                        <p id="kpiCompletedJobs" class="text-xl sm:text-2xl font-black text-gray-800 dark:text-white">0</p>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Available Balance -->
+                <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center text-xl font-black shrink-0">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Số dư khả dụng</p>
+                        <p id="kpiBalance" class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">0 Token</p>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Rating -->
+                <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl font-black shrink-0">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Đánh giá tín nhiệm</p>
+                        <p class="text-xl sm:text-2xl font-black text-yellow-500">5.0 / 5.0</p>
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
+
+            <!-- Dual Column Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left 2 Cols: Active Work & Recommended Jobs -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Dự án đang thực hiện -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-spinner mr-2 text-indigo-500"></i> Dự Án Đang Thực Hiện
+                            </h2>
+                            <a href="my-jobs.html" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Xem tất cả &rarr;</a>
+                        </div>
+                        <div id="homeActiveJobsContainer" class="space-y-3">
+                            <p class="text-gray-400 text-xs py-4 text-center">Đang tải danh sách...</p>
+                        </div>
+                    </div>
+
+                    <!-- Việc làm gợi ý phù hợp -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                    <i class="fas fa-bullseye mr-2 text-purple-500"></i> Cơ Hội Việc Làm Gợi Ý
+                                </h2>
+                                <p class="text-[11px] text-gray-400 mt-0.5">Dự án mới phù hợp với chuyên môn của bạn</p>
+                            </div>
+                            <a href="job-board.html" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Sàn việc làm &rarr;</a>
+                        </div>
+                        <div id="homeRecommendedJobsContainer" class="space-y-3">
+                            <p class="text-gray-400 text-xs py-4 text-center">Đang tìm việc làm phù hợp...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Col: Activity & Pro Tips -->
+                <div class="space-y-6">
+                    <!-- Bảng thông báo hoạt động -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4 flex items-center">
+                            <i class="fas fa-bell mr-2 text-amber-500"></i> Hoạt Động & Thông Báo
+                        </h2>
+                        <div id="homeNotificationsList" class="space-y-3 max-h-80 overflow-y-auto">
+                            <p class="text-gray-400 text-xs text-center py-4">Đang tải thông báo...</p>
+                        </div>
+                    </div>
+
+                    <!-- Mẹo Pro Freelancer -->
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-750 p-6 rounded-3xl border border-indigo-100 dark:border-gray-700 text-xs">
+                        <div class="flex items-center space-x-2 text-indigo-700 dark:text-indigo-300 font-black mb-2 text-sm">
+                            <i class="fas fa-lightbulb text-yellow-500"></i>
+                            <span>Bí Quyết Tăng Thu Nhập</span>
+                        </div>
+                        <ul class="space-y-2 text-gray-600 dark:text-gray-300 leading-relaxed list-disc list-inside">
+                            <li><strong>Phân kỳ Milestones hợp lý</strong> giúp Khách hàng dễ nghiệm thu và nhận tiền từng mốc.</li>
+                            <li>Sử dụng <strong>Trợ lý AI Đấu Thầu</strong> trên Sàn việc làm để soạn đề xuất ấn tượng.</li>
+                            <li>Cập nhật <strong>Thông tin Ngân hàng</strong> tại Hồ sơ để rút tiền qua VietQR tức thì.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load UI Framework -->
+    <script src="freelancer-ui.js"></script>
+
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.role !== 'freelancer') { window.location.href = '../sharedFolder/login.html'; }
-        document.getElementById('freelancerName').textContent = user.full_name;
 
-        // Tải thông báo
-        async function loadNotifications(userId) {
-            const notiDiv = document.getElementById('notificationsList');
+        const user = JSON.parse(localStorage.getItem('user'));
+        document.getElementById('homeFreelancerName').innerText = user.full_name || 'Freelancer';
+
+        // Tải tổng quan Dashboard
+        async function loadDashboardData() {
             try {
-                const res = await fetch(`${API_URL}/api/notifications/${userId}`);
-                const data = await res.json();
-                if (data.notifications && data.notifications.length > 0) {
-                    notiDiv.innerHTML = data.notifications.map(n => `
-                        <div class="p-3 bg-gray-50 rounded border border-gray-100">
-                            <strong class="block text-gray-800">${n.title}</strong>
-                            <span class="text-gray-600 text-sm">${n.content}</span>
-                            <div class="text-xs text-gray-400 mt-1">${new Date(n.created_at).toLocaleString('vi-VN')}</div>
-                        </div>
-                    `).join('');
-                } else {
-                    notiDiv.innerHTML = '<p class="text-gray-500 text-sm">Không có thông báo nào.</p>';
+                // 1. Tải ví & số dư
+                const walletRes = await fetch(`${API_URL}/api/wallet/${user.id}`);
+                if (walletRes.ok) {
+                    const wData = await walletRes.json();
+                    document.getElementById('kpiBalance').innerText = (wData.balance || 0).toLocaleString() + ' Token';
                 }
-            } catch(err) {
-                notiDiv.innerHTML = '<p class="text-red-500 text-sm">Lỗi kết nối Server.</p>';
+
+                // 2. Tải Active Jobs
+                const jobsRes = await fetch(`${API_URL}/api/freelancer/${user.id}/active-jobs`);
+                if (jobsRes.ok) {
+                    const jData = await jobsRes.json();
+                    const jobs = jData.jobs || [];
+                    const inProgress = jobs.filter(j => j.status === 'in_progress' || j.status === 'planning' || j.status === 'pending_plan_approval');
+                    const completed = jobs.filter(j => j.status === 'completed');
+
+                    document.getElementById('kpiActiveJobs').innerText = inProgress.length;
+                    document.getElementById('kpiCompletedJobs').innerText = completed.length;
+
+                    const container = document.getElementById('homeActiveJobsContainer');
+                    if (inProgress.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-6 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700">
+                                <p class="text-gray-400 text-xs">Hiện tại bạn chưa có dự án nào đang chạy.</p>
+                                <a href="job-board.html" class="inline-block mt-2 text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Tìm việc ngay &rarr;</a>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = inProgress.slice(0, 3).map(j => {
+                            const totalM = j.milestones ? j.milestones.length : 0;
+                            const doneM = j.milestones ? j.milestones.filter(m => ['APPROVED', 'approved', 'PAID'].includes(m.status)).length : 0;
+                            const pct = totalM > 0 ? Math.round((doneM / totalM) * 100) : 0;
+                            return `
+                                <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-750 border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                    <div>
+                                        <h4 class="font-bold text-sm text-gray-900 dark:text-white">${j.title}</h4>
+                                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">💎 ${parseInt(j.budget).toLocaleString()} Token</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
+                                        <span class="text-xs text-gray-500 font-semibold">${doneM}/${totalM} Mốc (${pct}%)</span>
+                                        <a href="my-jobs.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow transition">
+                                            Tiếp tục
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+
+                // 3. Tải gợi ý việc làm
+                const openJobsRes = await fetch(`${API_URL}/api/jobs`);
+                if (openJobsRes.ok) {
+                    const oData = await openJobsRes.json();
+                    const openJobs = (oData.jobs || []).slice(0, 3);
+                    const recContainer = document.getElementById('homeRecommendedJobsContainer');
+                    if (openJobs.length === 0) {
+                        recContainer.innerHTML = '<p class="text-gray-400 text-xs py-4 text-center">Chưa có dự án mới trên sàn.</p>';
+                    } else {
+                        recContainer.innerHTML = openJobs.map(job => `
+                            <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-750 border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div>
+                                    <span class="text-[10px] bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">${job.category_name || 'IT'}</span>
+                                    <h4 class="font-bold text-sm text-gray-900 dark:text-white mt-1 line-clamp-1">${job.title}</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-semibold">Ngân sách: <span class="text-emerald-600 dark:text-emerald-400 font-black">💎 ${parseInt(job.budget).toLocaleString()} Token</span></p>
+                                </div>
+                                <a href="job-board.html" class="px-3.5 py-1.5 bg-white dark:bg-gray-700 hover:bg-indigo-50 border border-gray-200 dark:border-gray-600 text-indigo-600 dark:text-indigo-300 rounded-xl text-xs font-bold transition shrink-0">
+                                    Ứng tuyển
+                                </a>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                // 4. Tải Thông báo
+                const notiRes = await fetch(`${API_URL}/api/notifications/${user.id}`);
+                if (notiRes.ok) {
+                    const nData = await notiRes.json();
+                    const notis = (nData.notifications || []).slice(0, 5);
+                    const notiContainer = document.getElementById('homeNotificationsList');
+                    if (notis.length === 0) {
+                        notiContainer.innerHTML = '<p class="text-gray-400 text-xs py-4 text-center">Không có thông báo mới.</p>';
+                    } else {
+                        notiContainer.innerHTML = notis.map(n => `
+                            <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700 text-xs">
+                                <strong class="text-gray-800 dark:text-white block font-bold">${n.title}</strong>
+                                <p class="text-gray-600 dark:text-gray-300 mt-0.5 text-[11px] leading-relaxed">${n.content}</p>
+                                <span class="text-[9px] text-gray-400 mt-1 block">${new Date(n.created_at).toLocaleString('vi-VN')}</span>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
             }
         }
-        loadNotifications(user.id);
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '../sharedFolder/login.html'; });
+        loadDashboardData();
     </script>
 </body>
 </html>

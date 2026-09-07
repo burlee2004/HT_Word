@@ -3,334 +3,912 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Portal - HT Work</title>
+    <title>Chợ Nhân Sự IT & Săn Freelancer - HT Work</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; }
+    </style>
 </head>
-<body class="bg-gray-50 h-screen flex flex-col font-sans text-gray-800">
-    <!-- Navbar -->
-    <nav class="bg-gradient-to-r from-blue-700 to-blue-900 p-4 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="font-bold flex items-center space-x-6">
-                <a href="home.html" class="flex items-center space-x-2 text-xl hover:opacity-90 transition">
-                    <i class="fas fa-briefcase"></i>
-                    <span>HT Work <span class="font-light text-blue-200">| Client Portal</span></span>
-                </a>
-                <div class="hidden md:flex space-x-4 text-sm font-medium border-l border-blue-500 pl-6">
-                    <a href="home.html" class="text-white border-b-2 border-white pb-1">Bảng điều khiển</a>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-8 pb-24 md:pb-10 max-w-7xl mx-auto w-full relative space-y-6">
+            
+            <!-- Hero Banner: Chợ Nhân Sự & Săn Đầu Người -->
+            <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl relative overflow-hidden border border-indigo-700/50">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                    <i class="fas fa-users-gear"></i>
+                </div>
+                <div class="relative z-10 max-w-3xl">
+                    <div class="flex items-center space-x-2 mb-3">
+                        <span class="bg-yellow-400 text-gray-900 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                            ⭐ Top Nhân Sự IT & Mối Ruột Đã Xác Minh
+                        </span>
+                        <span class="text-xs text-indigo-200"><i class="fas fa-shield-alt text-green-400 mr-1"></i>Ký quỹ bảo vệ 100%</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-black mb-3 leading-tight">
+                        Mạng Lưới Chuyên Gia & Giao Việc Trực Tiếp
+                    </h1>
+                    <p class="text-indigo-200 text-sm sm:text-base mb-6 leading-relaxed">
+                        Kết nối, kết bạn, nhắn tin 1-1 trao đổi tự do trước khi chốt hợp đồng và giao việc trực tiếp cho các Freelancer mối ruột của bạn.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="post-job.html" class="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center text-xs sm:text-sm">
+                            <i class="fas fa-plus-circle mr-2"></i> Đăng Dự Án Mới
+                        </a>
+                        <a href="direct-chat.html" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-md transition flex items-center text-xs sm:text-sm">
+                            <i class="fas fa-comments mr-2"></i> Tin Nhắn 1-1 & Bạn Bè
+                        </a>
+                        <button onclick="toggleMyFriendsView()" id="btnMyFriendsToggle" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold px-4 py-2.5 rounded-xl transition flex items-center text-xs sm:text-sm backdrop-blur-sm">
+                            <i class="fas fa-user-friends mr-2 text-indigo-300"></i> Mối Ruột Của Tôi (<span id="myFriendsCount">0</span>)
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center space-x-6">
-                <!-- Nút Thông báo (Dropdown) -->
-                <div class="relative">
-                    <button id="bellBtn" class="text-blue-200 hover:text-white text-2xl relative focus:outline-none transition">
-                        <i class="fas fa-bell"></i>
-                        <span id="notiBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center hidden">!</span>
+
+            <!-- Thanh Tìm Kiếm & Bộ Lọc Đa Năng -->
+            <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <!-- Search box -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                    <div class="relative flex-1">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="talentSearchInput" oninput="handleSearchChange()" placeholder="Tìm kiếm theo tên Freelancer, kỹ năng (React, Node, Python, Figma, Solidity...), vị trí..." class="w-full pl-11 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-750 text-gray-800 dark:text-gray-100 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <button onclick="loadFreelancers()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow transition flex items-center justify-center shrink-0">
+                        <i class="fas fa-filter mr-2"></i> Lọc Nhân Sự
                     </button>
-                    <!-- Khung Dropdown -->
-                    <div id="notiDropdown" class="hidden absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden transform origin-top-right transition-all">
-                        <div class="bg-gray-50 px-4 py-3 border-b flex justify-between items-center text-gray-800">
-                            <span class="font-bold"><i class="fas fa-bell text-blue-500 mr-2"></i>Thông báo</span>
-                            <button onclick="loadNotifications(JSON.parse(localStorage.getItem('user')).id)" class="text-blue-600 text-xs hover:underline"><i class="fas fa-sync-alt mr-1"></i>Làm mới</button>
+                </div>
+
+                <!-- Category Tabs Filter -->
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">
+                        <i class="fas fa-folder mr-1 text-indigo-500"></i> Lọc theo Lĩnh vực Chuyên môn
+                    </p>
+                    <div class="flex items-center space-x-2 overflow-x-auto pb-1 custom-scrollbar" id="categoryFilterTabs">
+                        <button onclick="setCategoryFilter('all', this)" id="tab-cat-all" class="cat-pill active px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap bg-indigo-600 text-white shadow-sm transition">
+                            ✨ Tất Cả Lĩnh Vực
+                        </button>
+                        <!-- Dynamic category pills -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh Sách Freelancer (Talent Cards Grid) -->
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center" id="gridSectionTitle">
+                        <i class="fas fa-user-astronaut mr-2 text-indigo-600"></i> Danh Sách Chuyên Gia Phù Hợp
+                        <span id="freelancerCountBadge" class="ml-2.5 bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-0.5 rounded-full">--</span>
+                    </h2>
+                    <span class="text-xs text-gray-400">Bấm vào hồ sơ để xem lịch sử dự án</span>
+                </div>
+
+                <div id="freelancerGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Freelancer cards rendered dynamically -->
+                    <div class="col-span-full text-center py-12 text-gray-400">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải danh sách nhân sự...
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 1: HỒ SƠ NĂNG LỰC & LỊCH SỬ DỰ ÁN ĐÃ LÀM (WORK HISTORY) -->
+    <!-- ============================================================== -->
+    <div id="profileModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-gray-200 dark:border-gray-700 flex flex-col max-h-[90vh] animate-in fade-in duration-200">
+            
+            <!-- Modal Header -->
+            <div class="p-6 bg-gradient-to-r from-indigo-900 to-purple-900 text-white flex justify-between items-start shrink-0">
+                <div class="flex items-center space-x-4">
+                    <img id="mAvatar" src="" class="w-16 h-16 rounded-2xl object-cover border-2 border-white/20 shadow-md">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-lg sm:text-xl font-black" id="mFullName">--</h3>
+                            <span id="mFriendBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">Chưa kết bạn</span>
                         </div>
-                        <div id="notificationsList" class="max-h-80 overflow-y-auto bg-white">
-                            <p class="text-gray-500 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải...</p>
-                        </div>
+                        <p class="text-xs text-indigo-200 mt-0.5" id="mEmail">--</p>
+                        <p class="text-xs text-indigo-300 mt-1 flex items-center gap-1">
+                            <i class="fas fa-map-marker-alt text-rose-400"></i> <span id="mLocation">Việt Nam</span>
+                        </p>
+                    </div>
+                </div>
+                <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg">&times;</button>
+            </div>
+
+            <!-- Modal Action Buttons Bar -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-750 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                <div class="flex items-center gap-2">
+                    <button id="mBtnFriend" onclick="handleToggleFriend()" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                        <i class="fas fa-user-plus"></i> <span>Kết Bạn</span>
+                    </button>
+                    <button id="mBtnChat" onclick="openDirectChatFromModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                        <i class="fas fa-comments"></i> <span>Nhắn Tin 1-1</span>
+                    </button>
+                </div>
+                <button id="mBtnDirectHire" onclick="openDirectHireFromModal()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                    <i class="fas fa-paper-plane"></i> <span>Giao Việc Trực Tiếp</span>
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Content -->
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+                <!-- Trust Stats -->
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase block">Đánh giá</span>
+                        <span class="text-base font-black text-yellow-500" id="mRating">⭐ 5.0 / 5.0</span>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase block">Đã Hoàn Thành</span>
+                        <span class="text-base font-black text-indigo-600 dark:text-indigo-400" id="mCompletedCount">0 Dự án</span>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase block">Đang Làm</span>
+                        <span class="text-base font-black text-emerald-600 dark:text-emerald-400" id="mInProgressCount">0 Dự án</span>
                     </div>
                 </div>
 
-                <div class="hidden md:block text-right">
-                    <div id="clientName" class="font-bold text-sm"></div>
-                    <div class="text-xs text-blue-300">Khách hàng</div>
+                <!-- Bio & Skills -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Giới Thiệu Chuyên Môn</h4>
+                    <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-700/30 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700" id="mBio">--</p>
                 </div>
-                <!-- Avatar Clickable -->
-                <a href="profile.html" title="Chỉnh sửa hồ sơ" class="w-11 h-11 bg-blue-500 rounded-full flex items-center justify-center border-2 border-blue-300 overflow-hidden cursor-pointer hover:border-white transition shadow">
-                    <img id="navAvatar" src="" alt="Avatar" class="w-full h-full object-cover">
-                </a>
-                <button id="logoutBtn" class="bg-white text-blue-800 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 shadow transition flex items-center">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
-                </button>
+
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Kỹ Năng Nổi Bật</h4>
+                    <div class="flex flex-wrap gap-1.5" id="mSkills">--</div>
+                </div>
+
+                <!-- Work History & Client Reviews -->
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fas fa-history text-indigo-500"></i> Lịch Sử Dự Án Đã Làm & Đánh Giá
+                        </h4>
+                        <span class="text-[11px] text-gray-400" id="mWorkHistoryCount">0 dự án</span>
+                    </div>
+
+                    <div class="space-y-3" id="mWorkHistoryList">
+                        <div class="text-center text-gray-400 py-6 text-xs">Đang tải lịch sử công việc...</div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </nav>
 
-    <main class="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full">
-        <!-- Welcome Banner -->
-        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 border border-gray-100 flex flex-col md:flex-row justify-between items-center bg-gradient-to-br from-white to-blue-50">
-            <div>
-                <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Chào mừng trở lại! 👋</h1>
-                <p class="text-gray-600">Quản lý dự án, thuê freelancer chuyên nghiệp và thanh toán an toàn ngay trên một nền tảng.</p>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 2: GIAO VIỆC TRỰC TIẾP CHO MỐI RUỘT (DIRECT HIRE) -->
+    <!-- ============================================================== -->
+    <div id="directHireModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-200 dark:border-gray-700 animate-in fade-in duration-200">
+            <div class="p-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <img id="dhAvatar" src="" class="w-10 h-10 rounded-full object-cover border-2 border-white/20">
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base">Giao Việc Trực Tiếp (Direct Hire)</h3>
+                        <p class="text-xs text-indigo-100">Chỉ định riêng cho <strong id="dhName">--</strong></p>
+                    </div>
+                </div>
+                <button onclick="closeDirectHireModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg">&times;</button>
             </div>
-            <div class="mt-4 md:mt-0">
-                <a href="post-job.html" class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-blue-700 transition flex items-center">
-                    <i class="fas fa-plus mr-2"></i> Đăng Dự Án Mới Ngay
-                </a>
+
+            <form onsubmit="submitDirectHire(event)" class="p-6 space-y-4">
+                <input type="hidden" id="dhFreelancerId">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                        Tiêu Đề Dự Án <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="dhTitle" required placeholder="VD: Xây dựng Website Bán Hàng E-commerce" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl text-xs sm:text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                            Lĩnh Vực Chuyên Môn
+                        </label>
+                        <select id="dhCategory" class="w-full p-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white">
+                            <option value="Phát triển Website & Web App">Phát triển Website & Web App</option>
+                            <option value="Lập trình Mobile App">Lập trình Mobile App</option>
+                            <option value="Thiết kế UI/UX & Đồ họa">Thiết kế UI/UX & Đồ họa</option>
+                            <option value="Blockchain & Smart Contract">Blockchain & Smart Contract</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                            Ngân Sách (Token) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="dhBudget" required min="10" placeholder="VD: 500" class="w-full p-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-bold text-indigo-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                        Kỹ Năng Yêu Cầu (Phân cách bằng dấu phẩy)
+                    </label>
+                    <input type="text" id="dhTags" placeholder="ReactJS, NodeJS, TailwindCSS..." class="w-full p-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                        Mô Tả Chi Tiết Yêu Cầu Dự Án
+                    </label>
+                    <textarea id="dhDescription" rows="3" required placeholder="Mô tả các tính năng, mục tiêu, yêu cầu kỹ thuật và deadline hoàn thành..." class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white leading-relaxed"></textarea>
+                </div>
+
+                <div class="bg-indigo-50 dark:bg-indigo-950/30 p-3 rounded-xl text-[11px] text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50">
+                    <i class="fas fa-info-circle text-indigo-600 mr-1"></i> Dự án sẽ được chuyển thẳng sang trạng thái <strong>Lập Kế Hoạch (Planning)</strong> cho Freelancer tạo Milestones mà không cần đấu thầu.
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" onclick="closeDirectHireModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50">Hủy</button>
+                    <button type="submit" id="btnSubmitDirectHire" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
+                        <i class="fas fa-check-circle"></i> Xác Nhận Giao Việc
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL GỬI LỜI MỜI KẾT BẠN KIỂU ZALO (CLIENT -> FREELANCER) -->
+    <div id="friendRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-200">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-750 dark:to-gray-800">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-base text-gray-900 dark:text-white">Gửi Lời Mời Kết Bạn</h3>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Trở thành Mối Ruột để giao việc trực tiếp</p>
+                    </div>
+                </div>
+                <button onclick="closeFriendRequestModal()" class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-white flex items-center justify-center shadow-xs">&times;</button>
             </div>
+            
+            <!-- Modal Body -->
+            <form onsubmit="submitFriendRequest(event)" class="p-6 space-y-4">
+                <input type="hidden" id="frFreelancerId">
+                
+                <!-- Partner Info Card -->
+                <div class="flex items-center space-x-3.5 p-3.5 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <img id="frPartnerAvatar" src="https://via.placeholder.com/60" class="w-12 h-12 rounded-2xl object-cover border-2 border-indigo-200 dark:border-gray-600 shrink-0">
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-bold text-sm sm:text-base text-gray-900 dark:text-white truncate" id="frPartnerName">Tên</h4>
+                        <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">Freelancer Chuyên Nghiệp</span>
+                    </div>
+                </div>
+
+                <!-- Note / Lời nhắn phong cách Zalo -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span>Lời Nhắn Gửi Kèm:</span>
+                        <span class="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">Phong cách Zalo</span>
+                    </label>
+                    <textarea id="frNote" rows="3" class="w-full p-3 text-xs sm:text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-800 dark:text-white leading-relaxed" placeholder="Nhập lời chào gửi đến chuyên gia..."></textarea>
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        <button type="button" onclick="setQuickFrNote('Xin chào bạn! Mình thấy hồ sơ của bạn rất phù hợp với các dự án bên mình. Mình muốn kết bạn để tiện trao đổi và hợp tác nhé!')" class="text-[11px] px-2.5 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300 transition">💡 Hợp tác dự án</button>
+                        <button type="button" onclick="setQuickFrNote('Chào bạn! Rất ấn tượng với các đánh giá 5 sao và kinh nghiệm của bạn, mình muốn kết nối làm Mối Ruột.')" class="text-[11px] px-2.5 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300 transition">⭐ Ấn tượng hồ sơ</button>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="pt-3 flex justify-end space-x-2.5 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" onclick="closeFriendRequestModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50">Hủy</button>
+                    <button type="submit" id="btnSubmitFr" class="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
+                        <i class="fas fa-paper-plane text-xs"></i> <span>Gửi Lời Mời</span>
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <!-- Dashboard Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Đăng Yêu cầu -->
-            <a href="post-job.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer flex flex-col items-start">
-                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Quản lý Yêu cầu (Post Job)</h3>
-                <p class="text-gray-500 text-sm flex-grow">Điền form đăng dự án chi tiết, đặt ngân sách và deadline để tìm kiếm nhân sự.</p>
-            </a>
-
-            <!-- Chợ nhân sự -->
-            <a href="my-requests.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
-                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Chợ Nhân sự & Đấu thầu</h3>
-                <p class="text-gray-500 text-sm flex-grow">Quản lý dự án đã đăng, xem báo giá, duyệt hồ sơ (Bio) và chốt thuê Freelancer.</p>
-            </a>
-
-            <!-- Nghiệm thu -->
-            <a href="review-work.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
-                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Tiến độ & Nghiệm thu</h3>
-                <p class="text-gray-500 text-sm flex-grow">Theo dõi Milestones, tải file minh chứng, phê duyệt và giải ngân Token an toàn.</p>
-            </a>
-
-            <!-- Ví Token -->
-            <a href="wallet.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
-                <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Quản lý Ví Token</h3>
-                <p class="text-gray-500 text-sm flex-grow">Tạo lệnh nạp Token qua VietQR tự động, quản lý số dư khả dụng và số dư Escrow.</p>
-            </a>
-
-            <!-- Kênh Chat -->
-            <a href="escrow-test.html" class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
-                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-comments"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">Tương tác Kênh Chat</h3>
-                <p class="text-gray-500 text-sm flex-grow">Nhắn tin nội bộ 1-1, gửi file tốc độ cao, thảo luận dự án và đánh giá chấm sao.</p>
-            </a>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t mt-12 py-6 text-center text-gray-500 text-sm">
-        &copy; 2026 HT Work. Hệ thống chuẩn Core Banking Escrow.
-    </footer>
+    <!-- Shared UI Script (Drawer, Header, Bottom Nav) -->
+    <script src="ui.js"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
-        
-        // =============== AUTH CHECK & PROFILE LOAD ===============
+
+        let currentUser = null;
+        let allFreelancers = [];
+        let clientJobs = [];
+        let selectedCategoryFilter = 'all';
+        let myConnections = { friends: [], pending_sent: [], pending_received: [] };
+        let activeProfileFreelancer = null;
+        let isViewingOnlyFriends = false;
+
+        // 1. Kiểm tra xác thực Client
         const userStr = localStorage.getItem('user');
-        
         if (!userStr) {
             window.location.replace('../sharedFolder/login.html');
         } else {
-            const user = JSON.parse(userStr);
-            if (user.role !== 'client') {
-                alert("Bạn không có quyền truy cập trang Khách hàng!");
-                localStorage.removeItem('user'); 
+            currentUser = JSON.parse(userStr);
+            if (currentUser.role !== 'client') {
+                alert('Trang này dành cho Khách hàng (Client)!');
                 window.location.replace('../sharedFolder/login.html');
-            } else {
-                // Hợp lệ, render info
-                document.getElementById('clientName').textContent = user.full_name;
-                
-                // Hiển thị Avatar nếu có
-                if(user.avatar_url) {
-                    document.getElementById('navAvatar').src = user.avatar_url;
-                } else {
-                    document.getElementById('navAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=0D8ABC&color=fff`;
-                }
-
-                loadNotifications(user.id);
             }
         }
 
-        // =============== NOTIFICATIONS ===============
-        async function loadNotifications(userId) {
-            const notiDiv = document.getElementById('notificationsList');
-            const notiBadge = document.getElementById('notiBadge');
-            notiDiv.innerHTML = '<p class="text-gray-500 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải...</p>';
-            
+        // 2. Tải danh mục Master Data
+        async function loadCategories() {
             try {
-                const res = await fetch(`${API_URL}/api/notifications/${userId}`);
+                const res = await fetch(`${API_URL}/api/categories`);
                 const data = await res.json();
-                if (data.notifications && data.notifications.length > 0) {
-                    // Đếm số lượng thông báo CHƯA đọc
-                    const unreadCount = data.notifications.filter(n => !n.is_read).length;
-                    
-                    if (unreadCount > 0) {
-                        notiBadge.classList.remove('hidden'); 
-                        notiBadge.textContent = unreadCount;
-                    } else {
-                        notiBadge.classList.add('hidden');
-                        notiBadge.textContent = '';
-                    }
-                    
-                    notiDiv.innerHTML = data.notifications.map(n => {
-                        let iconClass = 'fa-info-circle text-blue-500';
-                        let bgClass = 'bg-blue-50';
-                        if (n.title.toLowerCase().includes('nạp token') || n.title.toLowerCase().includes('thành công')) {
-                            iconClass = 'fa-check-circle text-green-500';
-                            bgClass = 'bg-green-50';
-                        } else if (n.title.toLowerCase().includes('báo cáo')) {
-                            iconClass = 'fa-file-alt text-purple-500';
-                            bgClass = 'bg-purple-50';
-                        } else if (n.title.toLowerCase().includes('kế hoạch') || n.title.toLowerCase().includes('milestone')) {
-                            iconClass = 'fa-tasks text-yellow-500';
-                            bgClass = 'bg-yellow-50';
-                        }
-
-                        const safeTitle = n.title.replace(/"/g, '&quot;');
-                        const safeContent = n.content.replace(/"/g, '&quot;').replace(/\n/g, '\\n');
-
-                        return `
-                        <div id="noti-${n.id}" 
-                             data-id="${n.id}" 
-                             data-title="${safeTitle}" 
-                             data-content="${safeContent}" 
-                             data-is-read="${n.is_read}" 
-                             onclick="handleNotificationClick(this)"
-                             class="flex items-start p-3 border-b border-gray-100 hover:bg-gray-50 transition relative group cursor-pointer ${n.is_read ? 'opacity-70' : 'bg-blue-50/40'}">
-                            
-                            ${n.is_read ? '' : `<span id="dot-${n.id}" class="absolute top-1/2 left-2 -translate-y-1/2 w-2 h-2 bg-blue-600 rounded-full"></span>`}
-                            
-                            <div class="w-8 h-8 ${bgClass} rounded-full flex items-center justify-center flex-shrink-0 ml-3 mr-3 mt-1">
-                                <i class="fas ${iconClass} text-sm"></i>
-                            </div>
-                            <div class="flex-grow pr-6">
-                                <h4 id="title-${n.id}" class="${n.is_read ? 'font-medium text-gray-700' : 'font-bold text-gray-900'} text-sm leading-tight">${n.title}</h4>
-                                <p class="text-gray-600 text-xs mt-1 line-clamp-2">${n.content}</p>
-                                <span class="text-[10px] text-gray-400 mt-1 block"><i class="far fa-clock mr-1"></i>${new Date(n.created_at).toLocaleString('vi-VN')}</span>
-                            </div>
-                            <button onclick="deleteNotification('${n.id}', event)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition" title="Xóa thông báo">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>`;
-                    }).join('');
-                } else {
-                    notiBadge.classList.add('hidden');
-                    notiBadge.textContent = '';
-                    notiDiv.innerHTML = `
-                    <div class="text-center py-6">
-                        <div class="inline-block p-3 bg-gray-50 rounded-full mb-2 text-gray-300 text-xl"><i class="fas fa-bell-slash"></i></div>
-                        <p class="text-gray-500 text-sm">Chưa có thông báo mới.</p>
-                    </div>`;
+                if (data.success && data.categories) {
+                    renderCategoryTabs(data.categories);
                 }
-            } catch(err) {
-                notiDiv.innerHTML = '<p class="text-red-500 text-sm text-center py-4"><i class="fas fa-exclamation-triangle mr-1"></i>Lỗi tải thông báo.</p>';
+            } catch (e) {
+                console.error('Lỗi tải categories:', e);
             }
         }
 
-        async function handleNotificationClick(element) {
-            const id = element.getAttribute('data-id');
-            const title = element.getAttribute('data-title');
-            // Decode the escaped newline chars for the alert
-            const content = element.getAttribute('data-content').replace(/\\n/g, '\n');
-            const isRead = element.getAttribute('data-is-read') === 'true';
+        function renderCategoryTabs(cats) {
+            const container = document.getElementById('categoryFilterTabs');
+            if (!container) return;
 
-            // Mở thông báo
-            alert(title + '\\n\\n' + content);
+            const tabsHtml = cats.map(c => `
+                <button onclick="setCategoryFilter('${c.name}', this)" id="tab-cat-${c.id}" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 flex items-center">
+                    <span class="mr-1.5">${c.icon || '📁'}</span> ${c.name}
+                </button>
+            `).join('');
 
-            // Nếu chưa đọc thì call API cập nhật
-            if (!isRead) {
-                try {
-                    const res = await fetch(`${API_URL}/api/notifications/${id}/read`, { method: 'PUT' });
-                    if (res.ok) {
-                        // Cập nhật giao diện: Đã đọc
-                        element.setAttribute('data-is-read', 'true');
-                        element.classList.remove('bg-blue-50/40');
-                        element.classList.add('opacity-70');
-                        
-                        const dot = document.getElementById(`dot-${id}`);
-                        if (dot) dot.remove();
-
-                        const titleEl = document.getElementById(`title-${id}`);
-                        if (titleEl) {
-                            titleEl.classList.remove('font-bold', 'text-gray-900');
-                            titleEl.classList.add('font-medium', 'text-gray-700');
-                        }
-
-                        // Giảm số lượng đếm trên chuông
-                        const badge = document.getElementById('notiBadge');
-                        let currentCount = parseInt(badge.textContent) || 0;
-                        if (currentCount > 1) {
-                            badge.textContent = currentCount - 1;
-                        } else {
-                            badge.classList.add('hidden');
-                            badge.textContent = '';
-                        }
-                    }
-                } catch (err) {
-                    console.error('Lỗi khi đánh dấu đã đọc', err);
-                }
-            }
+            container.innerHTML = `
+                <button onclick="setCategoryFilter('all', this)" id="tab-cat-all" class="cat-pill active px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap bg-indigo-600 text-white shadow-sm transition">
+                    ✨ Tất Cả Lĩnh Vực
+                </button>
+                ${tabsHtml}
+            `;
         }
 
-        async function deleteNotification(id, event) {
-            event.stopPropagation(); // Ngăn hiển thị nội dung khi bấm xóa
+        function setCategoryFilter(catName, btn) {
+            selectedCategoryFilter = catName;
+
+            document.querySelectorAll('.cat-pill').forEach(b => {
+                b.className = "cat-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 flex items-center";
+            });
+
+            if (catName === 'all') {
+                const allBtn = document.getElementById('tab-cat-all');
+                if (allBtn) allBtn.className = "cat-pill active px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap bg-indigo-600 text-white shadow-sm transition";
+            } else if (btn) {
+                btn.className = "cat-pill active px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap bg-indigo-600 text-white shadow-sm transition flex items-center";
+            }
+
+            renderFreelancerGrid();
+        }
+
+        function handleSearchChange() {
+            renderFreelancerGrid();
+        }
+
+        // 3. Tải danh sách Mạng Lưới Bạn Bè (Connections)
+        async function loadUserConnections() {
             try {
-                // Lấy phần tử thông báo
-                const notiElement = document.getElementById(`noti-${id}`);
-                const isRead = notiElement ? notiElement.getAttribute('data-is-read') === 'true' : true;
+                const res = await fetch(`${API_URL}/api/connections/${currentUser.id}`);
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    myConnections = data;
+                    const countEl = document.getElementById('myFriendsCount');
+                    if (countEl) countEl.innerText = data.total_friends || 0;
+                }
+            } catch (e) {
+                console.error('Lỗi tải connections:', e);
+            }
+        }
 
-                const res = await fetch(`${API_URL}/api/notifications/${id}`, { method: 'DELETE' });
-                if (res.ok) {
-                    if (notiElement) notiElement.remove();
-                    
-                    // Nếu thông báo đó CHƯA ĐỌC, thì khi xóa cũng phải giảm số lượng đếm trên chuông
-                    if (!isRead) {
-                        let currentCount = parseInt(document.getElementById('notiBadge').textContent) || 0;
-                        if (currentCount > 1) {
-                            document.getElementById('notiBadge').textContent = currentCount - 1;
-                        } else {
-                            document.getElementById('notiBadge').classList.add('hidden');
-                            document.getElementById('notiBadge').textContent = '';
-                        }
+        function toggleMyFriendsView() {
+            isViewingOnlyFriends = !isViewingOnlyFriends;
+            const btn = document.getElementById('btnMyFriendsToggle');
+            const title = document.getElementById('gridSectionTitle');
+
+            if (isViewingOnlyFriends) {
+                btn.className = "bg-yellow-400 text-gray-900 font-black px-4 py-2.5 rounded-xl transition flex items-center text-xs sm:text-sm shadow-md";
+                title.innerHTML = `<i class="fas fa-heart mr-2 text-rose-500"></i> Danh Sách Mối Ruột Của Bạn <span id="freelancerCountBadge" class="ml-2.5 bg-yellow-100 text-yellow-800 text-xs font-bold px-2.5 py-0.5 rounded-full">${myConnections.total_friends} Mối Ruột</span>`;
+            } else {
+                btn.className = "bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold px-4 py-2.5 rounded-xl transition flex items-center text-xs sm:text-sm backdrop-blur-sm";
+                title.innerHTML = `<i class="fas fa-user-astronaut mr-2 text-indigo-600"></i> Danh Sách Chuyên Gia Phù Hợp <span id="freelancerCountBadge" class="ml-2.5 bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-0.5 rounded-full">${allFreelancers.length}</span>`;
+            }
+
+            renderFreelancerGrid();
+        }
+
+        // 4. Tải danh sách Freelancers từ API
+        async function loadFreelancers() {
+            const grid = document.getElementById('freelancerGrid');
+            grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải danh sách nhân sự...</div>';
+
+            try {
+                await loadUserConnections();
+                const res = await fetch(`${API_URL}/api/freelancers`);
+                const data = await res.json();
+                if (data.success && data.freelancers) {
+                    allFreelancers = data.freelancers;
+                    renderFreelancerGrid();
+                } else {
+                    grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">Không có dữ liệu Freelancer.</div>';
+                }
+            } catch (err) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-red-500">Lỗi kết nối Server: ${err.message}</div>`;
+            }
+        }
+
+        function getFriendshipState(freelancerId) {
+            const friend = (myConnections.friends || []).find(f => f.partner_id === freelancerId);
+            if (friend) return { state: 'friend', label: 'Mối Ruột ✓', badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400' };
+
+            const sent = (myConnections.pending_sent || []).find(f => f.partner_id === freelancerId);
+            if (sent) return { state: 'sent', label: 'Đã gửi lời mời', badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400' };
+
+            const received = (myConnections.pending_received || []).find(f => f.partner_id === freelancerId);
+            if (received) return { state: 'received', label: 'Chấp nhận kết bạn', badgeClass: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-400' };
+
+            return { state: 'none', label: '+ Kết Bạn', badgeClass: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' };
+        }
+
+        function renderFreelancerGrid() {
+            const grid = document.getElementById('freelancerGrid');
+            const searchVal = document.getElementById('talentSearchInput').value.trim().toLowerCase();
+            
+            let filtered = allFreelancers;
+
+            if (isViewingOnlyFriends) {
+                const friendIds = (myConnections.friends || []).map(f => f.partner_id);
+                filtered = filtered.filter(f => friendIds.includes(f.id));
+            }
+
+            if (selectedCategoryFilter !== 'all') {
+                const catLower = selectedCategoryFilter.toLowerCase();
+                filtered = filtered.filter(f => 
+                    (f.primary_category || '').toLowerCase().includes(catLower) ||
+                    (f.skills || []).some(s => s.toLowerCase().includes(catLower)) ||
+                    (f.bio || '').toLowerCase().includes(catLower)
+                );
+            }
+
+            if (searchVal) {
+                filtered = filtered.filter(f => 
+                    (f.full_name || '').toLowerCase().includes(searchVal) ||
+                    (f.bio || '').toLowerCase().includes(searchVal) ||
+                    (f.skills || []).some(s => s.toLowerCase().includes(searchVal)) ||
+                    (f.primary_category || '').toLowerCase().includes(searchVal) ||
+                    (f.location || '').toLowerCase().includes(searchVal)
+                );
+            }
+
+            const badgeCount = document.getElementById('freelancerCountBadge');
+            if (badgeCount) badgeCount.innerText = `${filtered.length} Chuyên gia`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16 bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700">
+                        <span class="text-4xl">🔍</span>
+                        <h3 class="font-extrabold text-gray-800 dark:text-white mt-2">${isViewingOnlyFriends ? 'Bạn chưa có Mối Ruột nào phù hợp' : 'Không tìm thấy Freelancer phù hợp'}</h3>
+                        <p class="text-xs text-gray-500 mt-1">Hãy thử kết bạn hoặc tìm với từ khóa lĩnh vực chuyên môn khác.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(f => {
+                const avatar = f.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(f.full_name)}&background=4f46e5&color=fff`;
+                
+                const skillBadges = (f.skills || []).slice(0, 3).map(s => 
+                    `<span class="bg-indigo-50 dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-md mr-1 mb-1 inline-block border border-indigo-100 dark:border-gray-600">${s}</span>`
+                ).join('');
+
+                const friendInfo = getFriendshipState(f.id);
+
+                return `
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-indigo-400 transition-all flex flex-col justify-between group">
+                    <div>
+                        <!-- Header Freelancer Card (Click để xem Profile & Work History) -->
+                        <div class="flex items-start space-x-3.5 mb-3.5 cursor-pointer" onclick="openProfileModal('${f.id}')">
+                            <div class="relative w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] shrink-0">
+                                <img src="${avatar}" alt="${escapeHtml(f.full_name)}" class="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-2xl object-cover border-2 border-indigo-100 dark:border-gray-700 shadow-sm group-hover:scale-105 transition duration-200">
+                                <span class="w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full absolute -bottom-0.5 -right-0.5 shadow-sm" title="Sẵn sàng nhận việc"></span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-extrabold text-gray-900 dark:text-white text-sm sm:text-base truncate group-hover:text-indigo-600 transition leading-snug">${escapeHtml(f.full_name)}</h3>
+                                </div>
+                                <div class="mt-1">
+                                    <span class="inline-block bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-indigo-100 dark:border-indigo-900 truncate max-w-full">
+                                        📁 ${escapeHtml(f.primary_category || 'Chuyên gia IT')}
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-gray-400 mt-1 flex items-center truncate">
+                                    <i class="fas fa-map-marker-alt text-rose-400 mr-1.5 shrink-0"></i> <span class="truncate">${escapeHtml(f.location || 'Việt Nam')}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Trust Metrics Badge -->
+                        <div class="bg-gray-50 dark:bg-gray-750 p-2.5 rounded-2xl mb-3.5 grid grid-cols-2 gap-2 text-center text-xs border border-gray-100 dark:border-gray-700/60">
+                            <div>
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Đánh giá</span>
+                                <span class="font-black text-amber-500 text-xs mt-0.5 block">⭐ ${f.rating_score || '5.0'} / 5.0</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Đã hoàn thành</span>
+                                <span class="font-black text-indigo-600 dark:text-indigo-400 text-xs mt-0.5 block">${f.completed_projects || 0} Dự án</span>
+                            </div>
+                        </div>
+
+                        <!-- Bio -->
+                        <p class="text-xs text-gray-600 dark:text-gray-300 mb-3.5 line-clamp-2 leading-relaxed cursor-pointer" onclick="openProfileModal('${f.id}')">${escapeHtml(f.bio || 'Chuyên gia lập trình và phát triển phần mềm trên sàn HT Work.')}</p>
+
+                        <!-- Skills -->
+                        <div class="flex flex-wrap mb-2">
+                            ${skillBadges}
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-3.5 border-t border-gray-100 dark:border-gray-700 flex items-center space-x-2">
+                        <button onclick="handleQuickFriendAction('${f.id}')" class="px-3 py-2 rounded-xl ${friendInfo.badgeClass} text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-xs" title="${friendInfo.label}">
+                            <i class="fas ${friendInfo.state === 'friend' ? 'fa-heart text-rose-500' : 'fa-user-plus'}"></i>
+                            <span class="inline">${friendInfo.label}</span>
+                        </button>
+
+                        <button onclick="openDirectChat('${f.id}', '${f.full_name.replace(/'/g, "\\'")}', '${avatar}')" class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 text-xs font-bold transition flex items-center justify-center shrink-0 border border-emerald-200 dark:border-emerald-900 shadow-xs" title="Nhắn tin 1-1 trực tiếp">
+                            <i class="fas fa-comments"></i>
+                        </button>
+
+                        <button onclick="openDirectHireModal('${f.id}', '${f.full_name.replace(/'/g, "\\'")}', '${avatar}')" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-paper-plane text-[11px]"></i> <span>Mời Nhận Việc</span>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // ==============================================================
+        // 5. MODAL HỒ SƠ NĂNG LỰC & LỊCH SỬ DỰ ÁN ĐÃ LÀM (WORK HISTORY)
+        // ==============================================================
+        async function openProfileModal(freelancerId) {
+            const modal = document.getElementById('profileModal');
+            modal.classList.remove('hidden');
+
+            document.getElementById('mFullName').innerText = 'Đang tải...';
+            document.getElementById('mWorkHistoryList').innerHTML = '<div class="text-center text-gray-400 py-6 text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Đang trích xuất lịch sử công việc...</div>';
+
+            try {
+                const res = await fetch(`${API_URL}/api/freelancers/${freelancerId}/work-history`);
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    const f = data.freelancer;
+                    activeProfileFreelancer = f;
+
+                    const avatar = f.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(f.full_name)}&background=4f46e5&color=fff`;
+                    document.getElementById('mAvatar').src = avatar;
+                    document.getElementById('mFullName').innerText = f.full_name;
+                    document.getElementById('mEmail').innerText = f.email;
+                    document.getElementById('mLocation').innerText = f.location || 'Việt Nam';
+                    document.getElementById('mRating').innerText = `⭐ ${f.rating_score} / 5.0`;
+                    document.getElementById('mCompletedCount').innerText = `${f.completed_count} Dự án`;
+                    document.getElementById('mInProgressCount').innerText = `${f.in_progress_count} Dự án`;
+                    document.getElementById('mBio').innerText = f.bio || 'Chưa cập nhật giới thiệu cá nhân.';
+
+                    // Friend status badge
+                    const friendInfo = getFriendshipState(f.id);
+                    document.getElementById('mFriendBadge').innerText = friendInfo.label;
+                    document.getElementById('mBtnFriend').innerHTML = `<i class="fas ${friendInfo.state === 'friend' ? 'fa-heart text-rose-500' : 'fa-user-plus'}"></i> <span>${friendInfo.label}</span>`;
+                    document.getElementById('mBtnFriend').className = `px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs ${friendInfo.badgeClass}`;
+
+                    // Render Skills
+                    const skillsEl = document.getElementById('mSkills');
+                    if (f.skills && Array.isArray(f.skills) && f.skills.length > 0) {
+                        skillsEl.innerHTML = f.skills.map(s => 
+                            `<span class="bg-indigo-50 dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-1 rounded-lg border border-indigo-100 dark:border-gray-600">${s}</span>`
+                        ).join('');
+                    } else {
+                        skillsEl.innerHTML = '<span class="text-xs text-gray-400">Chưa cập nhật kỹ năng</span>';
                     }
 
-                    // Nếu danh sách trống
-                    const notiDiv = document.getElementById('notificationsList');
-                    if (notiDiv.children.length === 0) {
-                        notiDiv.innerHTML = `
-                            <div class="text-center py-6">
-                                <div class="inline-block p-3 bg-gray-50 rounded-full mb-2 text-gray-300 text-xl"><i class="fas fa-bell-slash"></i></div>
-                                <p class="text-gray-500 text-sm">Chưa có thông báo mới.</p>
-                            </div>`;
+                    // Render Work History & Reviews
+                    const historyList = document.getElementById('mWorkHistoryList');
+                    const completed = data.completed_jobs || [];
+                    document.getElementById('mWorkHistoryCount').innerText = `${completed.length} dự án đã xong`;
+
+                    if (completed.length === 0) {
+                        historyList.innerHTML = '<div class="text-center text-gray-400 py-6 text-xs italic">Chuyên gia chưa có dự án hoàn thành trên sàn. Hãy là người đầu tiên hợp tác!</div>';
+                    } else {
+                        historyList.innerHTML = completed.map(j => `
+                            <div class="bg-gray-50 dark:bg-gray-700/40 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-1.5">
+                                <div class="flex justify-between items-start">
+                                    <span class="font-bold text-gray-900 dark:text-white text-xs sm:text-sm">${escapeHtml(j.title)}</span>
+                                    <span class="text-indigo-600 dark:text-indigo-400 font-black text-xs">${j.budget.toLocaleString()} Token</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-[11px] text-gray-400">
+                                    <span>Khách hàng: <strong class="text-gray-700 dark:text-gray-300">${escapeHtml(j.client.full_name)}</strong></span>
+                                    <span>•</span>
+                                    <span class="text-yellow-500 font-bold">⭐ ${j.rating} / 5.0</span>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded-xl text-xs text-gray-600 dark:text-gray-300 italic border border-gray-100 dark:border-gray-700">
+                                    "${escapeHtml(j.review_comment)}"
+                                </div>
+                            </div>
+                        `).join('');
                     }
                 }
             } catch (err) {
-                console.error('Lỗi khi xóa', err);
+                console.error('Lỗi load profile work history:', err);
             }
         }
 
-        // =============== UI INTERACTIONS ===============
-        // Toggle Dropdown
-        document.getElementById('bellBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.getElementById('notiDropdown').classList.toggle('hidden');
-        });
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+            activeProfileFreelancer = null;
+        }
 
-        // Click outside to close dropdown
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('notiDropdown');
-            const bellBtn = document.getElementById('bellBtn');
-            if (!bellBtn.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.classList.add('hidden');
+        // ==============================================================
+        // 6. XỬ LÝ KẾT BẠN (FRIENDSHIP ACTIONS - ZALO STYLE)
+        // ==============================================================
+        async function handleQuickFriendAction(freelancerId) {
+            const friendInfo = getFriendshipState(freelancerId);
+            
+            if (friendInfo.state === 'friend') {
+                if (confirm('Bạn có chắc muốn hủy kết bạn / xóa khỏi danh sách Mối Ruột?')) {
+                    await respondFriend(freelancerId, 'unfriend');
+                }
+                return;
             }
-        });
 
-        // =============== LOGOUT ===============
-        document.getElementById('logoutBtn').addEventListener('click', () => { 
-            localStorage.clear(); 
-            window.location.replace('../sharedFolder/login.html'); 
+            if (friendInfo.state === 'received') {
+                const isAccept = confirm('Bạn có muốn chấp nhận lời mời kết bạn từ chuyên gia này không?\n\n- Bấm OK để [Chấp nhận]\n- Bấm Cancel để giữ nguyên / từ chối');
+                if (isAccept) {
+                    await respondFriend(freelancerId, 'accept');
+                }
+                return;
+            }
+
+            if (friendInfo.state === 'sent') {
+                if (confirm('Lời mời kết bạn đã được gửi và đang chờ chấp thuận.\n\nBạn có muốn [Thu Hồi] lời mời này không?')) {
+                    await respondFriend(freelancerId, 'unfriend');
+                }
+                return;
+            }
+
+            // Mở modal gửi lời mời kết bạn kiểu Zalo
+            const f = allFreelancers.find(item => item.id === freelancerId) || activeProfileFreelancer;
+            const name = f ? f.full_name : 'Chuyên gia';
+            const avatar = f && f.avatar_url ? f.avatar_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff`;
+            openSendFriendModal(freelancerId, name, avatar);
+        }
+
+        function openSendFriendModal(freelancerId, name, avatar) {
+            document.getElementById('frFreelancerId').value = freelancerId;
+            document.getElementById('frPartnerName').innerText = name || 'Chuyên gia';
+            document.getElementById('frPartnerAvatar').src = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'U')}&background=4f46e5&color=fff`;
+            document.getElementById('frNote').value = 'Xin chào bạn! Mình thấy hồ sơ của bạn rất phù hợp với các dự án bên mình. Mình muốn kết bạn để tiện trao đổi và hợp tác nhé!';
+            document.getElementById('friendRequestModal').classList.remove('hidden');
+        }
+
+        function closeFriendRequestModal() {
+            document.getElementById('friendRequestModal').classList.add('hidden');
+        }
+
+        function setQuickFrNote(text) {
+            document.getElementById('frNote').value = text;
+        }
+
+        async function submitFriendRequest(e) {
+            e.preventDefault();
+            const freelancerId = document.getElementById('frFreelancerId').value;
+            const note = document.getElementById('frNote').value.trim();
+            const btn = document.getElementById('btnSubmitFr');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/connections/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender_id: currentUser.id,
+                        receiver_id: freelancerId,
+                        note: note
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('🤝 ' + (data.message || 'Đã gửi lời mời kết bạn thành công!'));
+                    closeFriendRequestModal();
+                    await loadUserConnections();
+                    renderFreelancerGrid();
+                    if (activeProfileFreelancer) openProfileModal(freelancerId);
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể gửi lời mời kết bạn'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane text-xs"></i> <span>Gửi Lời Mời</span>';
+            }
+        }
+
+        async function respondFriend(freelancerId, action) {
+            try {
+                const res = await fetch(`${API_URL}/api/connections/respond`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        target_user_id: freelancerId,
+                        action: action
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert(action === 'accept' ? '🎉 Đã trở thành bạn bè/mối ruột!' : 'Đã cập nhật trạng thái kết bạn.');
+                    await loadUserConnections();
+                    renderFreelancerGrid();
+                    if (activeProfileFreelancer) openProfileModal(freelancerId);
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Thất bại'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối: ' + err.message);
+            }
+        }
+
+        function handleToggleFriend() {
+            if (activeProfileFreelancer) {
+                handleQuickFriendAction(activeProfileFreelancer.id);
+            }
+        }
+
+        // ==============================================================
+        // 7. CHAT 1-1 TRỰC TIẾP
+        // ==============================================================
+        function openDirectChat(freelancerId, name, avatar) {
+            // Chuyển hướng hoặc mở sang trang direct-chat.html kèm partner id
+            window.location.href = `direct-chat.html?partner=${freelancerId}`;
+        }
+
+        function openDirectChatFromModal() {
+            if (activeProfileFreelancer) {
+                openDirectChat(activeProfileFreelancer.id, activeProfileFreelancer.full_name, activeProfileFreelancer.avatar_url);
+            }
+        }
+
+        // ==============================================================
+        // 8. GIAO VIỆC TRỰC TIẾP CHO MỐI RUỘT (DIRECT HIRE)
+        // ==============================================================
+        function openDirectHireModal(freelancerId, name, avatar) {
+            const friendInfo = getFriendshipState(freelancerId);
+            if (friendInfo.state !== 'friend') {
+                if (confirm(`Bạn cần kết bạn với ${name} trước khi giao việc trực tiếp.\n\nBạn có muốn gửi lời mời kết bạn ngay bây giờ không?`)) {
+                    openSendFriendModal(freelancerId, name, avatar);
+                }
+                return;
+            }
+
+            document.getElementById('dhFreelancerId').value = freelancerId;
+            document.getElementById('dhName').innerText = name;
+            document.getElementById('dhAvatar').src = avatar;
+            document.getElementById('dhTitle').value = '';
+            document.getElementById('dhBudget').value = '';
+            document.getElementById('dhTags').value = '';
+            document.getElementById('dhDescription').value = '';
+
+            document.getElementById('directHireModal').classList.remove('hidden');
+        }
+
+        function openDirectHireFromModal() {
+            if (activeProfileFreelancer) {
+                closeProfileModal();
+                openDirectHireModal(activeProfileFreelancer.id, activeProfileFreelancer.full_name, activeProfileFreelancer.avatar_url);
+            }
+        }
+
+        function closeDirectHireModal() {
+            document.getElementById('directHireModal').classList.add('hidden');
+        }
+
+        async function submitDirectHire(e) {
+            e.preventDefault();
+            const freelancerId = document.getElementById('dhFreelancerId').value;
+            const title = document.getElementById('dhTitle').value.trim();
+            const category = document.getElementById('dhCategory').value;
+            const budget = parseFloat(document.getElementById('dhBudget').value);
+            const tags = document.getElementById('dhTags').value.split(',').map(t => t.trim()).filter(Boolean);
+            const description = document.getElementById('dhDescription').value.trim();
+
+            const btn = document.getElementById('btnSubmitDirectHire');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang khởi tạo hợp đồng...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/jobs/direct-hire`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        client_id: currentUser.id,
+                        freelancer_id: freelancerId,
+                        title: title,
+                        category_name: category,
+                        budget: budget,
+                        tags: tags,
+                        description: description
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('🎉 ' + data.message);
+                    closeDirectHireModal();
+                    window.location.href = 'my-requests.html';
+                } else {
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể giao việc trực tiếp'));
+                }
+            } catch (err) {
+                alert('❌ Lỗi kết nối: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Xác Nhận Giao Việc';
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Khởi chạy
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadFreelancers();
         });
     </script>
 </body>

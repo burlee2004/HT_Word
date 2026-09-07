@@ -1,0 +1,13 @@
+[
+  {
+    "id": "conn_1788509177987_xhgryu",
+    "user_id_1": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id_2": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+    "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+    "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "status": "accepted",
+    "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!",
+    "created_at": "2026-09-04T08:06:17.988Z",
+    "updated_at": "2026-09-04T08:15:08.085Z"
+  }
+]

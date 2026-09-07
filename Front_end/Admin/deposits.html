@@ -1,60 +1,157 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Duyệt Nạp Tiền</title>
+    <title>HT Work Admin - Duyệt Nạp Tiền & Đối Soát</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        dark: { 800: '#1e293b', 850: '#172033', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+    </style>
 </head>
-<body class="bg-gray-100 p-10 font-sans">
-    <div class="max-w-5xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Duyệt Lệnh Nạp Token</h1>
-        
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-50 text-gray-600 uppercase text-sm leading-normal">
-                        <tr>
-                            <th class="py-3 px-6 text-left">Thời gian</th>
-                            <th class="py-3 px-6 text-left">Người dùng</th>
-                            <th class="py-3 px-6 text-left">Mã Chuyển Khoản</th>
-                            <th class="py-3 px-6 text-right">Số Token Nạp</th>
-                            <th class="py-3 px-6 text-center">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="depositsTableBody" class="text-gray-600 text-sm font-light">
-                        <tr>
-                            <td colspan="5" class="py-3 px-6 text-center">Đang tải dữ liệu...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<body class="bg-slate-50 dark:bg-dark-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar-container" class="shrink-0"></aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <!-- Topbar Header -->
+            <header id="topbar-container" class="shrink-0"></header>
+
+            <!-- Main Scrollable Body -->
+            <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 space-y-6">
+                
+                <!-- Page Title Bar -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
+                                <i class="fas fa-hand-holding-usd"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                                    Duyệt Nạp Token & Cài Đặt Cổng Thanh Toán
+                                </h1>
+                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Quản lý đối soát lệnh nạp thủ công VietQR và tự động PayOS
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <!-- Chế độ Cài Đặt Nạp Tiền -->
+                        <div class="flex items-center gap-2 bg-slate-100 dark:bg-dark-800 p-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">Chế độ nạp:</span>
+                            <select id="autoApproveToggle" onchange="toggleAutoApprove()" class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg p-1.5 font-bold focus:ring-2 focus:ring-indigo-500">
+                                <option value="true">Tự Động (Cổng PayOS)</option>
+                                <option value="false">Thủ Công (Quét VietQR)</option>
+                            </select>
+                        </div>
+
+                        <button onclick="approveBatch()" id="btnBatchApprove" class="hidden px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-sm transition flex items-center gap-2">
+                            <i class="fas fa-check-double"></i> Duyệt Hàng Loạt (<span id="batchCount">0</span>)
+                        </button>
+
+                        <button onclick="loadDeposits()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Làm mới">
+                            <i class="fas fa-sync-alt" id="refresh-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Card -->
+                <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm" id="depositsTable">
+                            <thead class="bg-slate-50 dark:bg-dark-800 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-bold border-b border-slate-200 dark:border-slate-800">
+                                <tr>
+                                    <th class="py-3.5 px-4 text-center w-10">
+                                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                                    </th>
+                                    <th class="py-3.5 px-4">Thời Gian</th>
+                                    <th class="py-3.5 px-4">Người Dùng</th>
+                                    <th class="py-3.5 px-4">Cú Pháp Chuyển Khoản</th>
+                                    <th class="py-3.5 px-4 text-right">Số Token Nạp</th>
+                                    <th class="py-3.5 px-4 text-center">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="depositsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center text-slate-400 text-xs">
+                                        <i class="fas fa-spinner fa-spin text-2xl mb-2 text-indigo-500"></i>
+                                        <p>Đang tải danh sách lệnh nạp...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
-    <!-- Modal Thành Công (Dấu X và icon xanh) -->
-    <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center relative">
-            <button onclick="closeSuccessModal()" class="absolute top-2 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-            </div>
-            <h2 class="text-xl font-bold text-gray-800 mb-2">Giao dịch đã hoàn thành!</h2>
-            <p class="text-gray-500 mb-6">Đã nạp Token thành công vào ví của người dùng.</p>
-            <button onclick="closeSuccessModal()" class="bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 shadow w-full">Về Trang Chủ</button>
-        </div>
-    </div>
+    <!-- UI Core Script -->
+    <script src="admin-ui.js"></script>
 
+    <!-- Page Logic Script -->
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
 
+        async function loadSettings() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/settings`);
+                const data = await res.json();
+                document.getElementById('autoApproveToggle').value = data.autoApprovePayOS ? 'true' : 'false';
+            } catch (e) {
+                console.error('Cannot load settings', e);
+            }
+        }
+
+        async function toggleAutoApprove() {
+            const val = document.getElementById('autoApproveToggle').value;
+            const isAuto = val === 'true';
+            try {
+                await fetch(`${API_URL}/api/admin/settings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ autoApprovePayOS: isAuto })
+                });
+                alert(`✅ Đã đổi sang chế độ nạp: ${isAuto ? 'Tự Động (PayOS)' : 'Thủ Công (VietQR)'}`);
+            } catch (e) {
+                alert('❌ Lỗi cập nhật cài đặt');
+                document.getElementById('autoApproveToggle').value = isAuto ? 'false' : 'true';
+            }
+        }
+
         async function loadDeposits() {
             const tbody = document.getElementById('depositsTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" class="py-3 px-6 text-center">Đang tải dữ liệu...</td></tr>';
+            const refreshIcon = document.getElementById('refresh-icon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+            
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateBatchButton();
 
             try {
                 const response = await fetch(`${API_URL}/api/admin/deposits`);
@@ -64,43 +161,104 @@
                     tbody.innerHTML = data.deposits.map(d => {
                         const date = new Date(d.created_at).toLocaleString('vi-VN');
                         const userName = d.users ? d.users.full_name : 'Không rõ';
+                        const userEmail = d.users ? d.users.email : '';
                         const transferCode = 'HTword ' + d.id.substring(0, 6).toUpperCase();
+                        const amount = parseInt(d.amount).toLocaleString('vi-VN');
                         
                         return `
-                            <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                <td class="py-3 px-6 text-left">${date}</td>
-                                <td class="py-3 px-6 text-left font-medium">${userName}</td>
-                                <td class="py-3 px-6 text-left">
-                                    <span class="bg-gray-100 text-blue-700 font-bold px-2 py-1 rounded border border-gray-200 tracking-wider">
+                            <tr class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition">
+                                <td class="py-3.5 px-4 text-center">
+                                    <input type="checkbox" class="row-checkbox w-4 h-4 text-indigo-600 rounded cursor-pointer" value="${d.id}" onchange="updateBatchButton()">
+                                </td>
+                                <td class="py-3.5 px-4 text-xs text-slate-500 dark:text-slate-400 font-mono">${date}</td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-bold text-slate-900 dark:text-white text-xs">${escapeHtml(userName)}</div>
+                                    <div class="text-[11px] text-slate-400">${escapeHtml(userEmail)}</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-mono font-bold px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 text-xs tracking-wider">
                                         ${transferCode}
                                     </span>
                                 </td>
-                                <td class="py-3 px-6 text-right font-bold text-green-600">+${parseInt(d.amount).toLocaleString()}</td>
-                                <td class="py-3 px-6 text-center flex justify-center space-x-2">
-                                    <button onclick="approveDeposit('${d.id}')" class="bg-blue-600 text-white px-4 py-1 rounded shadow hover:bg-blue-700 transition">
-                                        Phê Duyệt
-                                    </button>
-                                    <button onclick="rejectDeposit('${d.id}')" class="bg-red-500 text-white px-4 py-1 rounded shadow hover:bg-red-600 transition">
-                                        Từ Chối
-                                    </button>
+                                <td class="py-3.5 px-4 text-right">
+                                    <span class="font-black text-emerald-600 dark:text-emerald-400 text-sm">+${amount} Token</span>
+                                </td>
+                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button onclick="approveDeposit('${d.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
+                                            <i class="fas fa-check mr-1"></i> Phê Duyệt
+                                        </button>
+                                        <button onclick="rejectDeposit('${d.id}')" class="p-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 transition text-xs font-bold" title="Từ chối">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
                     }).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="py-3 px-6 text-center text-gray-500">Không có lệnh nạp tiền nào đang chờ.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-slate-400 text-xs italic">Không có lệnh nạp tiền nào đang chờ duyệt.</td></tr>';
                 }
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="5" class="py-3 px-6 text-center text-red-500">Lỗi kết nối Backend.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-rose-500 text-xs">Lỗi kết nối Backend.</td></tr>';
+            } finally {
+                if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 400);
+            }
+        }
+
+        function toggleSelectAll(selectAllCheckbox) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+            updateBatchButton();
+        }
+
+        function updateBatchButton() {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            const btnBatch = document.getElementById('btnBatchApprove');
+            const batchCount = document.getElementById('batchCount');
+            
+            batchCount.textContent = checkedBoxes.length;
+            if (checkedBoxes.length > 0) {
+                btnBatch.classList.remove('hidden');
+            } else {
+                btnBatch.classList.add('hidden');
+                document.getElementById('selectAllCheckbox').checked = false;
+            }
+        }
+
+        async function approveBatch() {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            if (checkedBoxes.length === 0) return;
+            
+            const ids = Array.from(checkedBoxes).map(cb => cb.value);
+            if (!confirm(`XÁC NHẬN:\nDuyệt hàng loạt ${ids.length} giao dịch nạp tiền này?`)) return;
+
+            const userStr = localStorage.getItem('user');
+            const adminId = userStr ? JSON.parse(userStr).id : '11111111-1111-1111-1111-111111111111';
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/deposits/approve-batch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_ids: ids, admin_id: adminId })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ Đã duyệt hàng loạt thành công!');
+                    loadDeposits();
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('❌ Không thể kết nối đến Backend');
             }
         }
 
         async function approveDeposit(requestId) {
-            // Lấy user admin từ localStorage
             const userStr = localStorage.getItem('user');
             const adminId = userStr ? JSON.parse(userStr).id : '11111111-1111-1111-1111-111111111111';
 
-            // Show a simple loading state if needed, or just standard confirm
             if (!confirm('Xác nhận duyệt nạp tiền cho giao dịch này?')) return;
 
             try {
@@ -112,14 +270,13 @@
                 
                 const data = await response.json();
                 if (response.ok) {
-                    // Hiển thị modal thành công thay vì alert
-                    document.getElementById('successModal').classList.remove('hidden');
-                    loadDeposits(); // Reload list
+                    alert('✅ ' + data.message);
+                    loadDeposits();
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    alert('❌ Lỗi: ' + data.error);
                 }
             } catch (err) {
-                alert('Không thể kết nối đến Backend');
+                alert('❌ Không thể kết nối đến Backend');
             }
         }
 
@@ -135,22 +292,30 @@
                 
                 const data = await response.json();
                 if (response.ok) {
-                    alert('Đã từ chối lệnh nạp tiền thành công.');
-                    loadDeposits(); // Reload list
+                    alert('✅ Đã từ chối lệnh nạp tiền.');
+                    loadDeposits();
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    alert('❌ Lỗi: ' + data.error);
                 }
             } catch (err) {
-                alert('Không thể kết nối đến Backend');
+                alert('❌ Không thể kết nối đến Backend');
             }
         }
 
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.add('hidden');
-            window.location.href = 'home.html'; // Về trang chủ
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
-        loadDeposits();
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            loadDeposits();
+        });
     </script>
 </body>
 </html>

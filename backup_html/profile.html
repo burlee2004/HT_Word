@@ -1,0 +1,355 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Há»“ sÆ¡ cá»§a tÃ´i - KhÃ¡ch hÃ ng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 dark:text-gray-100 h-screen flex overflow-hidden">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            
+    <!-- Navbar -->
+    
+
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-5xl mx-auto mt-4">
+        <!-- Cover & Avatar Section -->
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 shadow rounded-lg overflow-hidden relative border-t-4 border-blue-500">
+            <!-- Cover Photo -->
+            <div id="coverContainer" class="h-64 bg-gray-300 w-full bg-cover bg-center" style="background-image: url('https://via.placeholder.com/1200x400?text=AÌ‰nh+BiÌ€a');">
+            </div>
+            
+            <!-- Profile Header -->
+            <div class="px-8 pb-6 flex flex-col sm:flex-row justify-between items-end -mt-12 sm:-mt-16 relative z-10">
+                <div class="flex flex-col sm:flex-row items-center sm:items-end">
+                    <img id="avatarContainer" src="https://via.placeholder.com/150" alt="Avatar" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-md object-cover bg-white dark:bg-gray-800 dark:border-gray-700">
+                    <div class="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left mb-2">
+                        <h1 id="displayName" class="text-3xl font-bold text-gray-900">Äang táº£i...</h1>
+                        <p class="text-gray-600 dark:text-gray-300 font-medium mt-1">KhÃ¡ch hÃ ng táº¡i HT Work</p>
+                    </div>
+                </div>
+                <div class="mt-4 sm:mt-0 mb-2">
+                    <button onclick="openEditModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:text-gray-100 font-semibold py-2 px-4 rounded-md shadow-sm flex items-center transition">
+                        <i class="fas fa-pen mr-2"></i> Chá»‰nh sá»­a trang cÃ¡ nhÃ¢n
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="mt-4 pb-10">
+            <!-- Intro -->
+            <div class="bg-white dark:bg-gray-800 dark:border-gray-700 shadow rounded-lg p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Giá»›i thiá»‡u vá» tÃ´i / CÃ´ng ty</h2>
+                <div class="text-gray-700 whitespace-pre-line text-lg" id="displayBio">ChÆ°a cÃ³ thÃ´ng tin giá»›i thiá»‡u.</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-900">Chá»‰nh sá»­a trang cÃ¡ nhÃ¢n</h3>
+                <button onclick="closeEditModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 overflow-y-auto flex-grow">
+                <form id="profileForm" class="space-y-6">
+                    <!-- áº¢nh Ä‘áº¡i diá»‡n -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-gray-800 dark:text-gray-100 text-lg">áº¢nh Ä‘áº¡i diá»‡n</label>
+                            <label for="avatarUpload" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded cursor-pointer transition">ThÃªm áº£nh</label>
+                            <input type="file" id="avatarUpload" class="hidden" accept="image/*">
+                        </div>
+                        <div class="flex justify-center">
+                            <img id="previewAvatar" src="https://via.placeholder.com/150" class="w-32 h-32 rounded-full border border-gray-200 object-cover">
+                        </div>
+                        <input type="hidden" id="avatar_url">
+                    </div>
+
+                    <!-- áº¢nh bÃ¬a -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-gray-800 dark:text-gray-100 text-lg">áº¢nh bÃ¬a</label>
+                            <label for="coverUpload" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded cursor-pointer transition">ThÃªm áº£nh</label>
+                            <input type="file" id="coverUpload" class="hidden" accept="image/*">
+                        </div>
+                        <div class="flex justify-center">
+                            <img id="previewCover" src="https://via.placeholder.com/1200x400" class="w-full h-40 rounded-lg border border-gray-200 object-cover">
+                        </div>
+                        <input type="hidden" id="cover_url">
+                    </div>
+
+                    <!-- ThÃ´ng tin cÆ¡ báº£n -->
+                    <div>
+                        <label class="font-bold text-gray-800 dark:text-gray-100 text-lg block mb-2">Há» vÃ  tÃªn / TÃªn cÃ´ng ty</label>
+                        <input type="text" id="full_name" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                    </div>
+
+                    <div>
+                        <label class="font-bold text-gray-800 dark:text-gray-100 text-lg block mb-2">Giá»›i thiá»‡u (Bio)</label>
+                        <textarea id="bio" rows="4" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="MÃ´ táº£ ngáº¯n gá»n vá» báº¡n hoáº·c doanh nghiá»‡p..."></textarea>
+                    </div>
+
+                    <!-- NgÃ¢n hÃ ng rÃºt tiá»n -->
+                    <div class="border-t pt-4">
+                        <label class="font-bold text-gray-800 dark:text-gray-100 text-lg block mb-4">ðŸ’³ ThÃ´ng tin ngÃ¢n hÃ ng (Äá»ƒ rÃºt tiá»n)</label>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-semibold text-gray-600 dark:text-gray-300 block mb-1">TÃªn ngÃ¢n hÃ ng (Vd: MB Bank, Vietcombank)</label>
+                                <input type="text" id="bank_name" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="text-sm font-semibold text-gray-600 dark:text-gray-300 block mb-1">Sá»‘ tÃ i khoáº£n</label>
+                                <input type="text" id="bank_account" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="text-sm font-semibold text-gray-600 dark:text-gray-300 block mb-1">TÃªn chá»§ tÃ i khoáº£n</label>
+                                <input type="text" id="bank_owner" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50 uppercase">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t bg-gray-50 flex justify-end">
+                <button type="button" onclick="closeEditModal()" class="bg-gray-200 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md font-semibold mr-3 hover:bg-gray-300">Há»§y</button>
+                <button type="submit" form="profileForm" class="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 flex items-center">
+                    <span id="saveBtnText">LÆ°u</span>
+                    <i id="saveSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+            
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'client') {
+            alert('Vui lÃ²ng Ä‘Äƒng nháº­p vá»›i tÆ° cÃ¡ch KhÃ¡ch hÃ ng!');
+            window.location.href = '../sharedFolder/login.html';
+        }
+
+        // document.getElementById('logoutBtn').addEventListener('click', () => { 
+            localStorage.clear(); 
+            window.location.href = '../sharedFolder/login.html'; 
+        });
+
+        // Xá»­ lÃ½ Modal
+        const editModal = document.getElementById('editModal');
+        function openEditModal() { editModal.classList.remove('hidden'); }
+        function closeEditModal() { editModal.classList.add('hidden'); }
+
+        // Upload Helper
+        async function uploadImageFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch(`${API_URL}/api/upload/image`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            let data;
+            try {
+                data = await res.json();
+            } catch (err) {
+                throw new Error('Server khÃ´ng pháº£n há»“i báº±ng JSON. CÃ³ thá»ƒ báº¡n chÆ°a Push code Backend lÃªn Render!');
+            }
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Lá»—i khÃ´ng xÃ¡c Ä‘á»‹nh tá»« server');
+            }
+            return data.url;
+        }
+
+        // Handle Avatar File Selection
+        document.getElementById('avatarUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const preview = document.getElementById('previewAvatar');
+            const oldSrc = preview.src;
+            preview.src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
+            try {
+                const url = await uploadImageFile(file);
+                document.getElementById('avatar_url').value = url;
+                preview.src = url;
+                alert('âœ… Táº£i áº£nh Ä‘áº¡i diá»‡n lÃªn Cloudinary thÃ nh cÃ´ng!');
+            } catch (err) { 
+                preview.src = oldSrc;
+                alert('âŒ Lá»—i táº£i áº£nh: ' + err.message); 
+            }
+        });
+
+        // Handle Cover File Selection
+        document.getElementById('coverUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const preview = document.getElementById('previewCover');
+            const oldSrc = preview.src;
+            preview.src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
+            try {
+                const url = await uploadImageFile(file);
+                document.getElementById('cover_url').value = url;
+                preview.src = url;
+                alert('âœ… Táº£i áº£nh bÃ¬a lÃªn Cloudinary thÃ nh cÃ´ng!');
+            } catch (err) { 
+                preview.src = oldSrc;
+                alert('âŒ Lá»—i táº£i áº£nh bÃ¬a: ' + err.message); 
+            }
+        });
+
+        // Render UI
+        function renderUI(data) {
+            const name = data.full_name || data.email;
+            // document.getElementById('clientName').innerText = name;
+            document.getElementById('displayName').innerText = name;
+            
+            if (data.avatar_url) {
+                document.getElementById('avatarContainer').src = data.avatar_url;
+                document.getElementById('previewAvatar').src = data.avatar_url;
+                document.getElementById('avatar_url').value = data.avatar_url;
+            }
+            if (data.cover_url) {
+                document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
+                document.getElementById('previewCover').src = data.cover_url;
+                document.getElementById('cover_url').value = data.cover_url;
+            }
+            
+            document.getElementById('displayBio').innerText = data.bio || 'ChÆ°a cÃ³ thÃ´ng tin giá»›i thiá»‡u.';
+            document.getElementById('full_name').value = data.full_name || '';
+            document.getElementById('bio').value = data.bio || '';
+            
+            // NgÃ¢n hÃ ng
+            document.getElementById('bank_name').value = data.bank_name || '';
+            document.getElementById('bank_account').value = data.bank_account || '';
+            document.getElementById('bank_owner').value = data.bank_owner || '';
+        }
+
+        // Load profile data
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_URL}/api/users/${user.id}`);
+                
+                let data;
+                try {
+                    data = await res.json();
+                } catch(e) {
+                    throw new Error('Lá»—i 404: Báº¡n CHÆ¯A PUSH code backend lÃªn Render! Vui lÃ²ng lÃ m BÆ°á»›c 2.');
+                }
+
+                if (!res.ok) {
+                    if (data.error && data.error.includes('cover_url')) {
+                        throw new Error('Lá»—i Database: Báº¡n CHÆ¯A CHáº Y Lá»†NH SQL táº¡o cá»™t cover_url trÃªn Supabase! Vui lÃ²ng lÃ m BÆ°á»›c 1.');
+                    }
+                    throw new Error(data.error || 'Lá»—i khÃ´ng táº£i Ä‘Æ°á»£c thÃ´ng tin');
+                }
+
+                renderUI(data);
+            } catch (error) {
+                console.error(error);
+                alert(error.message);
+            }
+        }
+
+        // Cáº­p nháº­t Profile
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.querySelector('button[form="profileForm"]');
+            const btnText = document.getElementById('saveBtnText');
+            const spinner = document.getElementById('saveSpinner');
+            
+            if(submitBtn) submitBtn.disabled = true;
+            btnText.innerText = 'Äang lÆ°u...';
+            spinner.classList.remove('hidden');
+
+            const payload = {
+                full_name: document.getElementById('full_name').value,
+                avatar_url: document.getElementById('avatar_url').value,
+                cover_url: document.getElementById('cover_url').value,
+                bio: document.getElementById('bio').value,
+                bank_name: document.getElementById('bank_name').value,
+                bank_account: document.getElementById('bank_account').value,
+                bank_owner: document.getElementById('bank_owner').value,
+                skills: ''
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/users/${user.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                let data;
+                try {
+                    data = await res.json();
+                } catch (err) {
+                    throw new Error('Báº¡n chÆ°a Push (Ä‘áº©y) Backend lÃªn Render, hoáº·c API Server Ä‘ang bá»‹ lá»—i! Vui lÃ²ng Ä‘áº©y code Backend lÃªn.');
+                }
+                
+                if (!res.ok) throw new Error(data.error || 'Cáº­p nháº­t tháº¥t báº¡i');
+
+                // Cáº­p nháº­t localStorage
+                const updatedUser = { ...user, full_name: data.user.full_name, avatar_url: data.user.avatar_url };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                
+                // ÄÃ³ng modal vÃ  render láº¡i
+                renderUI(data.user);
+                closeEditModal();
+                alert('âœ… LÆ°u há»“ sÆ¡ thÃ nh cÃ´ng!');
+                
+            } catch (error) {
+                alert('âŒ Lá»—i khÃ´ng thá»ƒ lÆ°u: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                btnText.innerText = 'LÆ°u';
+                spinner.classList.add('hidden');
+            }
+        });
+
+        // Khá»Ÿi cháº¡y
+        loadProfile();
+    </script>
+
+        </main>
+    </div>
+    
+    <!-- Shared UI Script -->
+    <script src="ui.js"></script>
+        </body>
+</html>
+
+

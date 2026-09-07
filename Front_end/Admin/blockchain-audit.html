@@ -9,9 +9,9 @@
     <!-- Tích hợp Ethers.js để tương tác trực tiếp Blockchain -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
 </head>
-<body class="bg-gray-100 p-10 font-sans">
+<body class="bg-gray-100 p-4 sm:p-6 md:p-10 font-sans">
     <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-shield-alt text-indigo-600 mr-2"></i>Trung tâm Kiểm toán Blockchain (Web2.5)</h1>
             <div class="flex space-x-3">
                 <button onclick="window.location.href='dashboard.html'" class="bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 font-bold">Trở về Dashboard</button>
@@ -21,7 +21,7 @@
         <!-- THÔNG TIN SMART CONTRACT -->
         <div class="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-indigo-600">
             <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-file-contract mr-2"></i>Thông tin Smart Contract</h2>
-            <div class="grid grid-cols-2 gap-4 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                     <p class="text-gray-500 font-semibold">Mạng lưới (Network):</p>
                     <p class="font-bold text-indigo-600">Ethereum Sepolia (Testnet)</p>

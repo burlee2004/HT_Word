@@ -2,137 +2,291 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hồ sơ của tôi - Freelancer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Năng Lực - HT Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col font-sans">
-    <!-- Navbar -->
-    <nav class="bg-white p-4 flex justify-between items-center shadow sticky top-0 z-50">
-        <div class="font-bold text-xl text-indigo-600 flex items-center space-x-4">
-            <a href="home.html" class="hover:text-indigo-800"><i class="fas fa-home"></i> HT Work</a>
-        </div>
-        <div class="flex items-center space-x-4">
-            <a href="profile.html" class="font-semibold text-indigo-600 underline">Hồ sơ cá nhân</a>
-            <span id="freelancerName" class="font-medium text-gray-700"></span>
-            <button id="logoutBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full font-semibold hover:bg-gray-300 transition"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="flex-grow w-full max-w-5xl mx-auto mt-4">
-        <!-- Cover & Avatar Section -->
-        <div class="bg-white shadow rounded-lg overflow-hidden relative">
-            <!-- Cover Photo -->
-            <div id="coverContainer" class="h-64 bg-gray-300 w-full bg-cover bg-center" style="background-image: url('https://via.placeholder.com/1200x400?text=Ảnh+Bìa');">
-            </div>
-            
-            <!-- Profile Header -->
-            <div class="px-8 pb-6 flex flex-col sm:flex-row justify-between items-end -mt-12 sm:-mt-16 relative z-10">
-                <div class="flex flex-col sm:flex-row items-center sm:items-end">
-                    <img id="avatarContainer" src="https://via.placeholder.com/150" alt="Avatar" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-md object-cover bg-white">
-                    <div class="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left mb-2">
-                        <h1 id="displayName" class="text-3xl font-bold text-gray-900">Đang tải...</h1>
-                        <p class="text-gray-600 font-medium mt-1">Freelancer tại HT Work</p>
-                    </div>
-                </div>
-                <div class="mt-4 sm:mt-0 mb-2">
-                    <button onclick="openEditModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md shadow-sm flex items-center transition">
-                        <i class="fas fa-pen mr-2"></i> Chỉnh sửa trang cá nhân
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative">
+            <!-- Cover & Avatar Banner -->
+            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 relative">
+                <!-- Cover Photo -->
+                <div id="coverContainer" class="h-44 sm:h-64 md:h-72 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 w-full bg-cover bg-center relative">
+                    <button onclick="document.getElementById('coverUpload').click()" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/50 hover:bg-black/70 text-white text-xs font-bold px-3 py-1.5 rounded-xl backdrop-blur-sm transition flex items-center shadow">
+                        <i class="fas fa-camera mr-1.5"></i> Đổi ảnh bìa
                     </button>
+                    <input type="file" id="coverUpload" class="hidden" accept="image/*">
                 </div>
-            </div>
-        </div>
+                
+                <!-- Profile Header Details -->
+                <div class="px-4 sm:px-8 pb-6 flex flex-col md:flex-row justify-between items-center md:items-end -mt-16 sm:-mt-20 relative z-10 gap-4">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-end text-center sm:text-left gap-4">
+                        <div class="relative group">
+                            <img id="avatarContainer" src="https://ui-avatars.com/api/?name=Freelancer&background=4f46e5&color=fff" alt="Avatar" class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-700">
+                            <label for="avatarUpload" class="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 cursor-pointer transition">
+                                <i class="fas fa-camera text-xl"></i>
+                            </label>
+                            <input type="file" id="avatarUpload" class="hidden" accept="image/*">
+                            <span class="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full" title="Đang online"></span>
+                        </div>
+                        <div class="mb-1">
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                <h1 id="displayName" class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">Đang tải...</h1>
+                                <span class="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 text-xs font-black px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-800 flex items-center">
+                                    <i class="fas fa-check-circle mr-1"></i> Đã xác thực
+                                </span>
+                            </div>
+                            <p id="displayHeadline" class="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-1">Chuyên gia Lập trình & Phát triển Phần mềm</p>
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
+                                <span id="displayCategoryBadge"></span>
+                                <span class="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Sẵn sàng nhận việc
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Info Grid -->
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 pb-10">
-            <!-- Left Column: Intro -->
-            <div class="bg-white shadow rounded-lg p-6 h-fit">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Giới thiệu</h2>
-                <div class="text-gray-700 whitespace-pre-line" id="displayBio">Chưa có thông tin giới thiệu.</div>
-            </div>
-            
-            <!-- Right Column: Skills & Portfolio -->
-            <div class="md:col-span-2 space-y-4">
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Kỹ năng chuyên môn</h2>
-                    <div id="displaySkills" class="flex flex-wrap gap-2">
-                        <!-- Skills will be rendered here as badges -->
+                    <div class="flex gap-2.5 mb-2 w-full sm:w-auto justify-center">
+                        <button onclick="openEditModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-5 rounded-2xl shadow-md transition flex items-center text-xs sm:text-sm">
+                            <i class="fas fa-edit mr-2"></i> Chỉnh sửa Hồ sơ
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- Edit Profile Modal -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Hoàn thành</p>
+                        <p id="statCompletedJobs" class="text-lg font-black text-gray-800 dark:text-white">100%</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-500 flex items-center justify-center text-lg font-bold">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Đánh giá</p>
+                        <p id="statRating" class="text-lg font-black text-gray-800 dark:text-white">5.0 / 5.0</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center text-lg font-bold">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Doanh thu tích lũy</p>
+                        <p id="statEarnings" class="text-lg font-black text-emerald-600 dark:text-emerald-400">0 Token</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-lg font-bold">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Uy tín thợ</p>
+                        <p class="text-lg font-black text-purple-600 dark:text-purple-400">Cấp Pro</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Info Grid -->
+            <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column: Intro & Bank Info -->
+                <div class="space-y-6">
+                    <!-- Giới thiệu -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-3 flex items-center">
+                            <i class="fas fa-user-tag mr-2 text-indigo-500"></i> Giới thiệu bản thân
+                        </h2>
+                        <div class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-line" id="displayBio">
+                            Chưa có thông tin giới thiệu. Hãy bấm "Chỉnh sửa Hồ sơ" để cập nhật!
+                        </div>
+                    </div>
+
+                    <!-- Tài khoản ngân hàng VietQR -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-university mr-2 text-emerald-500"></i> Tài khoản nhận tiền
+                            </h2>
+                            <button onclick="openEditModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Sửa</button>
+                        </div>
+                        <div id="displayBankCard" class="bg-gradient-to-br from-gray-900 to-indigo-950 text-white p-4 rounded-2xl shadow-inner relative overflow-hidden">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-xs font-bold text-gray-300 tracking-wider uppercase">VIETQR DIRECT</span>
+                                <i class="fas fa-wifi text-gray-400 text-xs"></i>
+                            </div>
+                            <p id="dispBankAccount" class="font-mono text-lg font-bold tracking-widest text-indigo-200">**** **** ****</p>
+                            <div class="mt-3 flex justify-between items-end">
+                                <div>
+                                    <p class="text-[10px] text-gray-400 uppercase">Chủ tài khoản</p>
+                                    <p id="dispBankOwner" class="text-xs font-bold uppercase tracking-wider">CHƯA CẬP NHẬT</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[10px] text-gray-400 uppercase">Ngân hàng</p>
+                                    <p id="dispBankName" class="text-xs font-bold">Chưa liên kết</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Skills & Portfolio -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Kỹ năng chuyên môn -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-tools mr-2 text-indigo-500"></i> Kỹ năng chuyên môn (Tech Stack)
+                            </h2>
+                            <button onclick="openEditModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">+ Thêm kỹ năng</button>
+                        </div>
+                        <div id="displaySkills" class="flex flex-wrap gap-2">
+                            <!-- Skill Badges Render Here -->
+                        </div>
+                    </div>
+
+                    <!-- Portfolio Dự án đã thực hiện -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4 flex items-center">
+                            <i class="fas fa-laptop-code mr-2 text-purple-500"></i> Portfolio & Sản phẩm mẫu
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 bg-gray-50 dark:bg-gray-750 hover:shadow-md transition">
+                                <div class="h-32 bg-indigo-100 dark:bg-indigo-950/60 rounded-xl flex items-center justify-center text-indigo-500 text-3xl mb-3">
+                                    💻
+                                </div>
+                                <h3 class="font-bold text-sm text-gray-800 dark:text-white">Dự án Web App & Dashboard</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">Xây dựng hệ thống quản lý chuẩn Responsive, tích hợp REST API và bảo mật Token.</p>
+                                <div class="flex flex-wrap gap-1.5 mt-2">
+                                    <span class="text-[10px] bg-white dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600 font-bold">ReactJS</span>
+                                    <span class="text-[10px] bg-white dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600 font-bold">Tailwind</span>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 bg-gray-50 dark:bg-gray-750 hover:shadow-md transition">
+                                <div class="h-32 bg-purple-100 dark:bg-purple-950/60 rounded-xl flex items-center justify-center text-purple-500 text-3xl mb-3">
+                                    📱
+                                </div>
+                                <h3 class="font-bold text-sm text-gray-800 dark:text-white">Ứng dụng Mobile Cross-Platform</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">Phát triển ứng dụng Android & iOS mượt mà, tối ưu UX và gửi thông báo đẩy real-time.</p>
+                                <div class="flex flex-wrap gap-1.5 mt-2">
+                                    <span class="text-[10px] bg-white dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600 font-bold">Flutter</span>
+                                    <span class="text-[10px] bg-white dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600 font-bold">NodeJS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Chỉnh Sửa Hồ Sơ Toàn Diện -->
+    <div id="editModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700">
             <!-- Modal Header -->
-            <div class="px-6 py-4 border-b flex justify-between items-center">
-                <h3 class="text-xl font-bold text-gray-900">Chỉnh sửa trang cá nhân</h3>
-                <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-user-edit mr-2 text-indigo-500"></i> Cập Nhật Hồ Sơ Năng Lực
+                </h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    &times;
+                </button>
             </div>
             
             <!-- Modal Body (Scrollable) -->
-            <div class="p-6 overflow-y-auto flex-grow">
-                <form id="profileForm" class="space-y-6">
-                    <!-- Ảnh đại diện -->
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="font-bold text-gray-800 text-lg">Ảnh đại diện</label>
-                            <label for="avatarUpload" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded cursor-pointer transition">Thêm ảnh</label>
-                            <input type="file" id="avatarUpload" class="hidden" accept="image/*">
+            <div class="p-6 overflow-y-auto flex-grow space-y-5">
+                <form id="profileForm" class="space-y-5">
+                    <!-- Họ tên & Tiêu đề -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">Họ và tên (*)</label>
+                            <input type="text" id="full_name" required class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                         </div>
-                        <div class="flex justify-center">
-                            <img id="previewAvatar" src="https://via.placeholder.com/150" class="w-32 h-32 rounded-full border border-gray-200 object-cover">
+                        <div>
+                            <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">🎯 Lĩnh vực chuyên môn chính</label>
+                            <select id="primary_category" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold">
+                                <option value="">-- Chọn lĩnh vực --</option>
+                            </select>
                         </div>
-                        <input type="hidden" id="avatar_url">
                     </div>
 
-                    <!-- Ảnh bìa -->
+                    <!-- Tiểu sử / Bio -->
                     <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="font-bold text-gray-800 text-lg">Ảnh bìa</label>
-                            <label for="coverUpload" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded cursor-pointer transition">Thêm ảnh</label>
-                            <input type="file" id="coverUpload" class="hidden" accept="image/*">
+                        <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">Tiểu sử & Kinh nghiệm (Bio)</label>
+                        <textarea id="bio" rows="4" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-3 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed" placeholder="Mô tả số năm kinh nghiệm, các dự án thế mạnh và phong cách làm việc..."></textarea>
+                    </div>
+
+                    <!-- Kỹ năng dạng Tags tương tác -->
+                    <div>
+                        <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">🏷️ Kỹ năng (Nhấn Enter hoặc Dấu phẩy để tạo thẻ)</label>
+                        <div class="border border-gray-200 dark:border-gray-600 rounded-xl p-2 bg-gray-50 dark:bg-gray-700 flex flex-wrap items-center gap-1.5 min-h-[44px]">
+                            <div id="modalTagBadgesContainer" class="flex flex-wrap gap-1.5"></div>
+                            <input type="text" id="tagInput" placeholder="Thêm kỹ năng (VD: React, NodeJS, Figma...)" class="flex-1 bg-transparent border-none text-sm text-gray-800 dark:text-white focus:outline-none min-w-[150px] p-1">
                         </div>
-                        <div class="flex justify-center">
-                            <img id="previewCover" src="https://via.placeholder.com/1200x400" class="w-full h-40 rounded-lg border border-gray-200 object-cover">
+                        <input type="hidden" id="skills">
+                        
+                        <!-- Gợi ý nhanh -->
+                        <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                            <span class="text-[11px] text-gray-400 font-semibold">Gợi ý nhanh:</span>
+                            <button type="button" onclick="addSkillTag('ReactJS')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ ReactJS</button>
+                            <button type="button" onclick="addSkillTag('NodeJS')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ NodeJS</button>
+                            <button type="button" onclick="addSkillTag('Figma UI/UX')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ Figma UI/UX</button>
+                            <button type="button" onclick="addSkillTag('Python/AI')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ Python/AI</button>
+                            <button type="button" onclick="addSkillTag('Flutter')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ Flutter</button>
                         </div>
-                        <input type="hidden" id="cover_url">
                     </div>
 
-                    <!-- Thông tin cơ bản -->
-                    <div>
-                        <label class="font-bold text-gray-800 text-lg block mb-2">Họ và tên</label>
-                        <input type="text" id="full_name" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
-                    </div>
-
-                    <div>
-                        <label class="font-bold text-gray-800 text-lg block mb-2">Tiểu sử (Bio)</label>
-                        <textarea id="bio" rows="3" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Mô tả ngắn gọn về bản thân..."></textarea>
-                    </div>
-
-                    <div>
-                        <label class="font-bold text-gray-800 text-lg block mb-2">Kỹ năng (Skills)</label>
-                        <input type="text" id="skills" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="VD: React, NodeJS, Figma (Cách nhau bằng dấu phẩy)">
-                    </div>
-
-                    <!-- Ngân hàng rút tiền -->
-                    <div class="border-t pt-4">
-                        <label class="font-bold text-gray-800 text-lg block mb-4">💳 Thông tin ngân hàng (Để rút tiền)</label>
-                        <div class="space-y-4">
+                    <!-- Ngân hàng nhận tiền -->
+                    <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+                        <label class="font-bold text-sm text-gray-800 dark:text-white block mb-3 flex items-center">
+                            <i class="fas fa-credit-card mr-2 text-emerald-500"></i> Thông tin Ngân hàng rút tiền (VietQR)
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
-                                <label class="text-sm font-semibold text-gray-600 block mb-1">Tên ngân hàng (Vd: MB Bank, Vietcombank)</label>
-                                <input type="text" id="bank_name" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Tên Ngân hàng</label>
+                                <input type="text" id="bank_name" placeholder="VD: MB Bank, Vietcombank" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white">
                             </div>
                             <div>
-                                <label class="text-sm font-semibold text-gray-600 block mb-1">Số tài khoản</label>
-                                <input type="text" id="bank_account" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Số Tài Khoản</label>
+                                <input type="text" id="bank_account" placeholder="VD: 0987654321" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono font-bold">
                             </div>
                             <div>
-                                <label class="text-sm font-semibold text-gray-600 block mb-1">Tên chủ tài khoản</label>
-                                <input type="text" id="bank_owner" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50 uppercase">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Tên Chủ Tài Khoản</label>
+                                <input type="text" id="bank_owner" placeholder="VD: NGUYEN VAN A" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white uppercase font-bold">
                             </div>
                         </div>
                     </div>
@@ -140,185 +294,204 @@
             </div>
             
             <!-- Modal Footer -->
-            <div class="px-6 py-4 border-t bg-gray-50 flex justify-end">
-                <button type="button" onclick="closeEditModal()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-semibold mr-3 hover:bg-gray-300">Hủy</button>
-                <button type="submit" form="profileForm" class="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 flex items-center">
-                    <span id="saveBtnText">Lưu</span>
-                    <i id="saveSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+            <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex justify-end space-x-3">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">Hủy</button>
+                <button type="submit" form="profileForm" id="btnSaveProfile" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center">
+                    <span>Lưu Thay Đổi</span>
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Load UI Framework -->
+    <script src="freelancer-ui.js"></script>
+
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
-            
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.role !== 'freelancer') {
-            alert('Vui lòng đăng nhập với tư cách Freelancer!');
-            window.location.href = '../sharedFolder/login.html';
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        let currentSkillTags = [];
+
+        function openEditModal() { document.getElementById('editModal').classList.remove('hidden'); }
+        function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
+
+        // Tag Handling
+        function renderSkillTagBadges() {
+            const container = document.getElementById('modalTagBadgesContainer');
+            container.innerHTML = currentSkillTags.map((tag, idx) => `
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                    ${tag}
+                    <button type="button" onclick="removeSkillTag(${idx})" class="ml-1.5 text-indigo-500 hover:text-indigo-800 dark:hover:text-white">&times;</button>
+                </span>
+            `).join('');
+            document.getElementById('skills').value = currentSkillTags.join(', ');
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { 
-            localStorage.clear(); 
-            window.location.href = '../sharedFolder/login.html'; 
+        function addSkillTag(tagText) {
+            const clean = tagText.trim();
+            if (clean && !currentSkillTags.includes(clean)) {
+                currentSkillTags.push(clean);
+                renderSkillTagBadges();
+            }
+        }
+
+        function removeSkillTag(idx) {
+            currentSkillTags.splice(idx, 1);
+            renderSkillTagBadges();
+        }
+
+        const tagInput = document.getElementById('tagInput');
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                addSkillTag(tagInput.value);
+                tagInput.value = '';
+            }
         });
 
-        // Xử lý Modal
-        const editModal = document.getElementById('editModal');
-        function openEditModal() { editModal.classList.remove('hidden'); }
-        function closeEditModal() { editModal.classList.add('hidden'); }
-
-        // Upload Helper (Dùng API upload ảnh đã có sẵn)
+        // Upload Helper
         async function uploadImageFile(file) {
             const formData = new FormData();
             formData.append('file', file);
-            // Có thể dùng /api/upload/image (Cloudinary)
-            const res = await fetch(`${API_URL}/api/upload/image`, {
-                method: 'POST',
-                body: formData
-            });
-            
-            // Đọc cục Data trả về từ Server để lấy lỗi chi tiết
-            let data;
-            try {
-                data = await res.json();
-            } catch (err) {
-                throw new Error('Server không phản hồi bằng JSON. Có thể bạn chưa Push code Backend lên Render!');
-            }
-
-            if (!res.ok) {
-                throw new Error(data.error || 'Lỗi không xác định từ server');
-            }
+            const res = await fetch(`${API_URL}/api/upload/image`, { method: 'POST', body: formData });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Lỗi tải ảnh');
             return data.url;
         }
 
-        // Handle Avatar File Selection
+        // Handle Avatar File
         document.getElementById('avatarUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const preview = document.getElementById('previewAvatar');
-            const oldSrc = preview.src;
-            preview.src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
+            const img = document.getElementById('avatarContainer');
+            const oldSrc = img.src;
+            img.src = 'https://i.gifer.com/ZKZg.gif';
             try {
                 const url = await uploadImageFile(file);
-                document.getElementById('avatar_url').value = url;
-                preview.src = url;
-                alert('✅ Tải ảnh đại diện lên Cloudinary thành công!');
-            } catch (err) { 
-                preview.src = oldSrc;
-                alert('❌ Lỗi tải ảnh: ' + err.message); 
+                img.src = url;
+                await fetch(`${API_URL}/api/users/${user.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ avatar_url: url })
+                });
+                user.avatar_url = url;
+                localStorage.setItem('user', JSON.stringify(user));
+                const headerAvt = document.getElementById('uiAvatar');
+                if (headerAvt) headerAvt.src = url;
+                alert('✅ Đổi ảnh đại diện thành công!');
+            } catch (err) {
+                img.src = oldSrc;
+                alert('❌ ' + err.message);
             }
         });
 
-        // Handle Cover File Selection
+        // Handle Cover File
         document.getElementById('coverUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const preview = document.getElementById('previewCover');
-            const oldSrc = preview.src;
-            preview.src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
+            const container = document.getElementById('coverContainer');
             try {
                 const url = await uploadImageFile(file);
-                document.getElementById('cover_url').value = url;
-                preview.src = url;
-                alert('✅ Tải ảnh bìa lên Cloudinary thành công!');
-            } catch (err) { 
-                preview.src = oldSrc;
-                alert('❌ Lỗi tải ảnh bìa: ' + err.message); 
+                container.style.backgroundImage = `url('${url}')`;
+                await fetch(`${API_URL}/api/users/${user.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cover_url: url })
+                });
+                alert('✅ Đổi ảnh bìa thành công!');
+            } catch (err) {
+                alert('❌ ' + err.message);
             }
         });
 
-        // Render UI
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}/api/categories`);
+                const data = await res.json();
+                if (data.success && data.categories) {
+                    const select = document.getElementById('primary_category');
+                    select.innerHTML = '<option value="">-- Chọn lĩnh vực --</option>' + 
+                        data.categories.map(c => `<option value="${c.name}">${c.icon || '📁'} ${c.name}</option>`).join('');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         function renderUI(data) {
-            const name = data.full_name || data.email;
-            document.getElementById('freelancerName').innerText = name;
+            const name = data.full_name || data.email || 'Freelancer';
             document.getElementById('displayName').innerText = name;
-            
-            if (data.avatar_url) {
-                document.getElementById('avatarContainer').src = data.avatar_url;
-                document.getElementById('previewAvatar').src = data.avatar_url;
-                document.getElementById('avatar_url').value = data.avatar_url;
-            }
-            if (data.cover_url) {
-                document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
-                document.getElementById('previewCover').src = data.cover_url;
-                document.getElementById('cover_url').value = data.cover_url;
-            }
-            
-            document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu.';
             document.getElementById('full_name').value = data.full_name || '';
             document.getElementById('bio').value = data.bio || '';
-            
-            // Ngân hàng
-            document.getElementById('bank_name').value = data.bank_name || '';
-            document.getElementById('bank_account').value = data.bank_account || '';
-            document.getElementById('bank_owner').value = data.bank_owner || '';
-            
-            // Skills badge
+            document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu. Hãy bấm "Chỉnh sửa Hồ sơ" để cập nhật!';
+
+            if (data.avatar_url) document.getElementById('avatarContainer').src = data.avatar_url;
+            if (data.cover_url) document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
+
+            // Category badge
+            const catBadge = document.getElementById('displayCategoryBadge');
+            if (data.primary_category) {
+                catBadge.innerHTML = `<span class="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-800"><i class="fas fa-folder mr-1"></i>${data.primary_category}</span>`;
+                document.getElementById('primary_category').value = data.primary_category;
+            } else {
+                catBadge.innerHTML = `<span class="bg-gray-100 dark:bg-gray-700 text-gray-500 text-xs font-semibold px-2.5 py-0.5 rounded-full">Chưa chọn lĩnh vực</span>`;
+            }
+
+            // Skills
             const skillsDiv = document.getElementById('displaySkills');
             skillsDiv.innerHTML = '';
             const skillsRaw = data.skills || '';
-            document.getElementById('skills').value = skillsRaw;
-            
             if (skillsRaw.trim()) {
-                const skillArr = skillsRaw.split(',').map(s => s.trim()).filter(s => s);
-                skillArr.forEach(sk => {
+                currentSkillTags = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
+            } else {
+                currentSkillTags = [];
+            }
+            renderSkillTagBadges();
+
+            if (currentSkillTags.length > 0) {
+                currentSkillTags.forEach(sk => {
                     const span = document.createElement('span');
-                    span.className = 'bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium';
-                    span.innerText = sk;
+                    span.className = 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center';
+                    span.innerHTML = `<i class="fas fa-check text-[10px] mr-1.5 text-indigo-500"></i>${sk}`;
                     skillsDiv.appendChild(span);
                 });
             } else {
-                skillsDiv.innerHTML = '<span class="text-gray-500 italic">Chưa cập nhật kỹ năng.</span>';
+                skillsDiv.innerHTML = '<span class="text-gray-400 italic text-xs">Chưa cập nhật kỹ năng.</span>';
             }
+
+            // Bank Info
+            if (data.bank_name) document.getElementById('dispBankName').innerText = data.bank_name;
+            if (data.bank_account) document.getElementById('dispBankAccount').innerText = data.bank_account;
+            if (data.bank_owner) document.getElementById('dispBankOwner').innerText = data.bank_owner;
+
+            document.getElementById('bank_name').value = data.bank_name || '';
+            document.getElementById('bank_account').value = data.bank_account || '';
+            document.getElementById('bank_owner').value = data.bank_owner || '';
         }
 
-        // Load profile data
         async function loadProfile() {
             try {
                 const res = await fetch(`${API_URL}/api/users/${user.id}`);
-                
-                let data;
-                try {
-                    data = await res.json();
-                } catch(e) {
-                    throw new Error('Lỗi 404: Bạn CHƯA PUSH code backend lên Render! Vui lòng làm Bước 2.');
-                }
-
-                if (!res.ok) {
-                    if (data.error && data.error.includes('cover_url')) {
-                        throw new Error('Lỗi Database: Bạn CHƯA CHẠY LỆNH SQL tạo cột cover_url trên Supabase! Vui lòng làm Bước 1.');
-                    }
-                    throw new Error(data.error || 'Lỗi không tải được thông tin');
-                }
-                
-                renderUI(data);
-            } catch (error) {
-                console.error(error);
-                alert(error.message);
+                const data = await res.json();
+                if (res.ok) renderUI(data);
+            } catch (err) {
+                console.error(err);
             }
         }
 
-        // Cập nhật Profile
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitBtn = document.querySelector('button[form="profileForm"]');
-            const btnText = document.getElementById('saveBtnText');
-            const spinner = document.getElementById('saveSpinner');
-            
-            if(submitBtn) submitBtn.disabled = true;
-            btnText.innerText = 'Đang lưu...';
-            spinner.classList.remove('hidden');
+            const btn = document.getElementById('btnSaveProfile');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang lưu...';
 
             const payload = {
                 full_name: document.getElementById('full_name').value,
-                avatar_url: document.getElementById('avatar_url').value,
-                cover_url: document.getElementById('cover_url').value,
                 bio: document.getElementById('bio').value,
-                skills: document.getElementById('skills').value,
+                primary_category: document.getElementById('primary_category').value,
+                skills: currentSkillTags.join(', '),
                 bank_name: document.getElementById('bank_name').value,
                 bank_account: document.getElementById('bank_account').value,
                 bank_owner: document.getElementById('bank_owner').value
@@ -330,35 +503,25 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                
-                let data;
-                try {
-                    data = await res.json();
-                } catch (err) {
-                    throw new Error('Bạn chưa Push (đẩy) Backend lên Render, hoặc API Server đang bị lỗi! Vui lòng đẩy code Backend lên.');
+                const data = await res.json();
+                if (res.ok) {
+                    user.full_name = data.user.full_name;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    renderUI(data.user);
+                    closeEditModal();
+                    alert('✅ Cập nhật hồ sơ thành công!');
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
                 }
-                
-                if (!res.ok) throw new Error(data.error || 'Cập nhật thất bại');
-
-                // Cập nhật localStorage
-                const updatedUser = { ...user, full_name: data.user.full_name, avatar_url: data.user.avatar_url };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-                
-                // Đóng modal và render lại
-                renderUI(data.user);
-                closeEditModal();
-                alert('✅ Lưu hồ sơ thành công!');
-                
-            } catch (error) {
-                alert('❌ Lỗi không thể lưu: ' + error.message);
+            } catch (e) {
+                alert('Lỗi kết nối Server');
             } finally {
-                submitBtn.disabled = false;
-                btnText.innerText = 'Lưu';
-                spinner.classList.add('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Lưu Thay Đổi</span>';
             }
         });
 
-        // Khởi chạy
+        loadCategories();
         loadProfile();
     </script>
 </body>

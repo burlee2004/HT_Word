@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal - HT Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 dark:text-gray-100 h-screen flex overflow-hidden">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            
+    <!-- Navbar -->
+    
+
+    <main class="flex-grow p-6 md:p-10 max-w-7xl mx-auto w-full">
+        <!-- Welcome Banner -->
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-sm p-8 mb-8 border border-gray-100 flex flex-col md:flex-row justify-between items-center bg-gradient-to-br from-white to-blue-50">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-800 dark:text-gray-100 mb-2">ChÃ o má»«ng trá»Ÿ láº¡i! ðŸ‘‹</h1>
+                <p class="text-gray-600 dark:text-gray-300">Quáº£n lÃ½ dá»± Ã¡n, thuÃª freelancer chuyÃªn nghiá»‡p vÃ  thanh toÃ¡n an toÃ n ngay trÃªn má»™t ná»n táº£ng.</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a href="post-job.html" class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-blue-700 transition flex items-center">
+                    <i class="fas fa-plus mr-2"></i> ÄÄƒng Dá»± Ãn Má»›i Ngay
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- ÄÄƒng YÃªu cáº§u -->
+            <a href="post-job.html" class="group bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-blue-600 transition">Quáº£n lÃ½ YÃªu cáº§u (Post Job)</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm flex-grow">Äiá»n form Ä‘Äƒng dá»± Ã¡n chi tiáº¿t, Ä‘áº·t ngÃ¢n sÃ¡ch vÃ  deadline Ä‘á»ƒ tÃ¬m kiáº¿m nhÃ¢n sá»±.</p>
+            </a>
+
+            <!-- Chá»£ nhÃ¢n sá»± -->
+            <a href="my-requests.html" class="group bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-blue-600 transition">Chá»£ NhÃ¢n sá»± & Äáº¥u tháº§u</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm flex-grow">Quáº£n lÃ½ dá»± Ã¡n Ä‘Ã£ Ä‘Äƒng, xem bÃ¡o giÃ¡, duyá»‡t há»“ sÆ¡ (Bio) vÃ  chá»‘t thuÃª Freelancer.</p>
+            </a>
+
+            <!-- Nghiá»‡m thu -->
+            <a href="review-work.html" class="group bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-blue-600 transition">Tiáº¿n Ä‘á»™ & Nghiá»‡m thu</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm flex-grow">Theo dÃµi Milestones, táº£i file minh chá»©ng, phÃª duyá»‡t vÃ  giáº£i ngÃ¢n Token an toÃ n.</p>
+            </a>
+
+            <!-- VÃ­ Token -->
+            <a href="wallet.html" class="group bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-blue-600 transition">Quáº£n lÃ½ VÃ­ Token</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm flex-grow">Táº¡o lá»‡nh náº¡p Token qua VietQR tá»± Ä‘á»™ng, quáº£n lÃ½ sá»‘ dÆ° kháº£ dá»¥ng vÃ  sá»‘ dÆ° Escrow.</p>
+            </a>
+
+            <!-- KÃªnh Chat -->
+            <a href="escrow-test.html" class="group bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:blue-300 transition-all cursor-pointer flex flex-col items-start">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-blue-600 transition">TÆ°Æ¡ng tÃ¡c KÃªnh Chat</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm flex-grow">Nháº¯n tin ná»™i bá»™ 1-1, gá»­i file tá»‘c Ä‘á»™ cao, tháº£o luáº­n dá»± Ã¡n vÃ  Ä‘Ã¡nh giÃ¡ cháº¥m sao.</p>
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 dark:border-gray-700 border-t mt-12 py-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+        &copy; 2026 HT Work. Há»‡ thá»‘ng chuáº©n Core Banking Escrow.
+    </footer>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+        
+        // =============== AUTH CHECK & PROFILE LOAD ===============
+        const userStr = localStorage.getItem('user');
+        
+        if (!userStr) {
+            window.location.replace('../sharedFolder/login.html');
+        } else {
+            const user = JSON.parse(userStr);
+            if (user.role !== 'client') {
+                alert("Báº¡n khÃ´ng cÃ³ quyá»n truy cáº­p trang KhÃ¡ch hÃ ng!");
+                localStorage.removeItem('user'); 
+                window.location.replace('../sharedFolder/login.html');
+            } else {
+                // Há»£p lá»‡, render info
+                // document.getElementById('clientName').textContent = user.full_name;
+                
+                // Hiá»ƒn thá»‹ Avatar náº¿u cÃ³
+                if(user.avatar_url) {
+                    // document.getElementById('navAvatar').src = user.avatar_url;
+                } else {
+                    // document.getElementById('navAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=0D8ABC&color=fff`;
+                }
+
+                // Check tráº¡ng thÃ¡i tráº£ vá» tá»« PayOS
+                const urlParams = new URLSearchParams(window.location.search);
+                const orderCode = urlParams.get('orderCode');
+                const statusStr = urlParams.get('status');
+
+                if (orderCode && (statusStr === 'success' || statusStr === 'PAID')) {
+                    // Gá»i API verify dá»± phÃ²ng Ä‘á»ƒ Ä‘áº£m báº£o lá»‹ch sá»­ vÃ  tiá»n Ä‘Æ°á»£c cá»™ng
+                    fetch(`${API_URL}/api/payment/verify-deposit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderCode: orderCode })
+                    }).then(res => res.json()).then(resData => {
+                        setTimeout(() => {
+                            alert('âœ… ChÃºc má»«ng! Náº¡p tiá»n qua PayOS thÃ nh cÃ´ng. Tiá»n Ä‘Ã£ Ä‘Æ°á»£c cá»™ng vÃ o vÃ­ cá»§a báº¡n.');
+                            window.history.replaceState(null, '', window.location.pathname);
+                        }, 500);
+                    }).catch(console.error);
+                } else if (statusStr === 'cancel') {
+                    setTimeout(() => {
+                        alert('âŒ Báº¡n Ä‘Ã£ há»§y giao dá»‹ch náº¡p tiá»n hoáº·c giao dá»‹ch Ä‘Ã£ háº¿t háº¡n.');
+                        window.history.replaceState(null, '', window.location.pathname);
+                    }, 500);
+                }
+
+                loadNotifications(user.id);
+            }
+        }
+
+        // =============== NOTIFICATIONS ===============
+        async function loadNotifications(userId) {
+            const notiDiv = document.getElementById('notificationsList');
+            const notiBadge = document.getElementById('notiBadge');
+            notiDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Äang táº£i...</p>';
+            
+            try {
+                const res = await fetch(`${API_URL}/api/notifications/${userId}`);
+                const data = await res.json();
+                if (data.notifications && data.notifications.length > 0) {
+                    // Äáº¿m sá»‘ lÆ°á»£ng thÃ´ng bÃ¡o CHÆ¯A Ä‘á»c
+                    const unreadCount = data.notifications.filter(n => !n.is_read).length;
+                    
+                    if (unreadCount > 0) {
+                        notiBadge.classList.remove('hidden'); 
+                        notiBadge.textContent = unreadCount;
+                    } else {
+                        notiBadge.classList.add('hidden');
+                        notiBadge.textContent = '';
+                    }
+                    
+                    notiDiv.innerHTML = data.notifications.map(n => {
+                        let iconClass = 'fa-info-circle text-blue-500';
+                        let bgClass = 'bg-blue-50';
+                        if (n.title.toLowerCase().includes('náº¡p token') || n.title.toLowerCase().includes('thÃ nh cÃ´ng')) {
+                            iconClass = 'fa-check-circle text-green-500';
+                            bgClass = 'bg-green-50';
+                        } else if (n.title.toLowerCase().includes('bÃ¡o cÃ¡o')) {
+                            iconClass = 'fa-file-alt text-purple-500';
+                            bgClass = 'bg-purple-50';
+                        } else if (n.title.toLowerCase().includes('káº¿ hoáº¡ch') || n.title.toLowerCase().includes('milestone')) {
+                            iconClass = 'fa-tasks text-yellow-500';
+                            bgClass = 'bg-yellow-50';
+                        }
+
+                        const safeTitle = n.title.replace(/"/g, '&quot;');
+                        const safeContent = n.content.replace(/"/g, '&quot;').replace(/\n/g, '\\n');
+
+                        return `
+                        <div id="noti-${n.id}" 
+                             data-id="${n.id}" 
+                             data-title="${safeTitle}" 
+                             data-content="${safeContent}" 
+                             data-is-read="${n.is_read}" 
+                             onclick="handleNotificationClick(this)"
+                             class="flex items-start p-3 border-b border-gray-100 hover:bg-gray-50 transition relative group cursor-pointer ${n.is_read ? 'opacity-70' : 'bg-blue-50/40'}">
+                            
+                            ${n.is_read ? '' : `<span id="dot-${n.id}" class="absolute top-1/2 left-2 -translate-y-1/2 w-2 h-2 bg-blue-600 rounded-full"></span>`}
+                            
+                            <div class="w-8 h-8 ${bgClass} rounded-full flex items-center justify-center flex-shrink-0 ml-3 mr-3 mt-1">
+                                <i class="fas ${iconClass} text-sm"></i>
+                            </div>
+                            <div class="flex-grow pr-6">
+                                <h4 id="title-${n.id}" class="${n.is_read ? 'font-medium text-gray-700' : 'font-bold text-gray-900'} text-sm leading-tight">${n.title}</h4>
+                                <p class="text-gray-600 dark:text-gray-300 text-xs mt-1 line-clamp-2">${n.content}</p>
+                                <span class="text-[10px] text-gray-400 mt-1 block"><i class="far fa-clock mr-1"></i>${new Date(n.created_at).toLocaleString('vi-VN')}</span>
+                            </div>
+                            <button onclick="deleteNotification('${n.id}', event)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition" title="XÃ³a thÃ´ng bÃ¡o">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>`;
+                    }).join('');
+                } else {
+                    notiBadge.classList.add('hidden');
+                    notiBadge.textContent = '';
+                    notiDiv.innerHTML = `
+                    <div class="text-center py-6">
+                        <div class="inline-block p-3 bg-gray-50 rounded-full mb-2 text-gray-300 text-xl"><i class="fas fa-bell-slash"></i></div>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">ChÆ°a cÃ³ thÃ´ng bÃ¡o má»›i.</p>
+                    </div>`;
+                }
+            } catch(err) {
+                notiDiv.innerHTML = '<p class="text-red-500 text-sm text-center py-4"><i class="fas fa-exclamation-triangle mr-1"></i>Lá»—i táº£i thÃ´ng bÃ¡o.</p>';
+            }
+        }
+
+        async function handleNotificationClick(element) {
+            const id = element.getAttribute('data-id');
+            const title = element.getAttribute('data-title');
+            // Decode the escaped newline chars for the alert
+            const content = element.getAttribute('data-content').replace(/\\n/g, '\n');
+            const isRead = element.getAttribute('data-is-read') === 'true';
+
+            // Má»Ÿ thÃ´ng bÃ¡o
+            alert(title + '\\n\\n' + content);
+
+            // Náº¿u chÆ°a Ä‘á»c thÃ¬ call API cáº­p nháº­t
+            if (!isRead) {
+                try {
+                    const res = await fetch(`${API_URL}/api/notifications/${id}/read`, { method: 'PUT' });
+                    if (res.ok) {
+                        // Cáº­p nháº­t giao diá»‡n: ÄÃ£ Ä‘á»c
+                        element.setAttribute('data-is-read', 'true');
+                        element.classList.remove('bg-blue-50/40');
+                        element.classList.add('opacity-70');
+                        
+                        const dot = document.getElementById(`dot-${id}`);
+                        if (dot) dot.remove();
+
+                        const titleEl = document.getElementById(`title-${id}`);
+                        if (titleEl) {
+                            titleEl.classList.remove('font-bold', 'text-gray-900');
+                            titleEl.classList.add('font-medium', 'text-gray-700');
+                        }
+
+                        // Giáº£m sá»‘ lÆ°á»£ng Ä‘áº¿m trÃªn chuÃ´ng
+                        const badge = document.getElementById('notiBadge');
+                        let currentCount = parseInt(badge.textContent) || 0;
+                        if (currentCount > 1) {
+                            badge.textContent = currentCount - 1;
+                        } else {
+                            badge.classList.add('hidden');
+                            badge.textContent = '';
+                        }
+                    }
+                } catch (err) {
+                    console.error('Lá»—i khi Ä‘Ã¡nh dáº¥u Ä‘Ã£ Ä‘á»c', err);
+                }
+            }
+        }
+
+        async function deleteNotification(id, event) {
+            event.stopPropagation(); // NgÄƒn hiá»ƒn thá»‹ ná»™i dung khi báº¥m xÃ³a
+            try {
+                // Láº¥y pháº§n tá»­ thÃ´ng bÃ¡o
+                const notiElement = document.getElementById(`noti-${id}`);
+                const isRead = notiElement ? notiElement.getAttribute('data-is-read') === 'true' : true;
+
+                const res = await fetch(`${API_URL}/api/notifications/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    if (notiElement) notiElement.remove();
+                    
+                    // Náº¿u thÃ´ng bÃ¡o Ä‘Ã³ CHÆ¯A Äá»ŒC, thÃ¬ khi xÃ³a cÅ©ng pháº£i giáº£m sá»‘ lÆ°á»£ng Ä‘áº¿m trÃªn chuÃ´ng
+                    if (!isRead) {
+                        let currentCount = parseInt(document.getElementById('notiBadge').textContent) || 0;
+                        if (currentCount > 1) {
+                            document.getElementById('notiBadge').textContent = currentCount - 1;
+                        } else {
+                            document.getElementById('notiBadge').classList.add('hidden');
+                            document.getElementById('notiBadge').textContent = '';
+                        }
+                    }
+
+                    // Náº¿u danh sÃ¡ch trá»‘ng
+                    const notiDiv = document.getElementById('notificationsList');
+                    if (notiDiv.children.length === 0) {
+                        notiDiv.innerHTML = `
+                            <div class="text-center py-6">
+                                <div class="inline-block p-3 bg-gray-50 rounded-full mb-2 text-gray-300 text-xl"><i class="fas fa-bell-slash"></i></div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">ChÆ°a cÃ³ thÃ´ng bÃ¡o má»›i.</p>
+                            </div>`;
+                    }
+                }
+            } catch (err) {
+                console.error('Lá»—i khi xÃ³a', err);
+            }
+        }
+
+        // =============== UI INTERACTIONS ===============
+        // Toggle Dropdown
+        // document.getElementById('bellBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('notiDropdown').classList.toggle('hidden');
+        });
+
+        // Click outside to close dropdown
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('notiDropdown');
+            const bellBtn = // document.getElementById('bellBtn');
+            if (!bellBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // =============== LOGOUT ===============
+        // document.getElementById('logoutBtn').addEventListener('click', () => { 
+            localStorage.clear(); 
+            window.location.replace('../sharedFolder/login.html'); 
+        });
+    </script>
+
+        </main>
+    </div>
+    
+    <!-- Shared UI Script -->
+    <script src="ui.js"></script>
+        </body>
+</html>
+

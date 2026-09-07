@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin Nhắn 1-1 & Mối Ruột - HT Work Freelancer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
+    
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Content Area: 2 Columns Direct Messenger -->
+        <main class="flex-1 overflow-hidden p-3 sm:p-4 md:p-6 max-w-7xl mx-auto w-full flex gap-4">
+            
+            <!-- CỘT TRÁI: DANH SÁCH HỘI THOẠI & MỐI RUỘT -->
+            <div class="w-full md:w-80 lg:w-96 bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col overflow-hidden shrink-0" id="inboxSidebar">
+                
+                <!-- Inbox Header & Search -->
+                <div class="p-4 border-b border-gray-100 dark:border-gray-700 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                            <i class="fas fa-comments text-indigo-600"></i> Tin Nhắn 1-1
+                        </h2>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400" id="networkTotalBadge">0 Mối Ruột</span>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" id="chatSearchInput" oninput="handleChatSearch()" placeholder="Tìm kiếm tin nhắn, đối tác..." class="w-full pl-9 pr-4 py-2 text-xs bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <!-- Navigation Tabs: Inbox vs Friends vs Requests -->
+                    <div class="flex items-center bg-gray-100 dark:bg-gray-750 p-1 rounded-xl text-xs font-bold">
+                        <button onclick="switchInboxTab('chats')" id="tab-btn-chats" class="inbox-tab flex-1 py-1.5 rounded-lg bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-xs text-center font-bold">
+                            Hội Thoại (<span id="count-chats">0</span>)
+                        </button>
+                        <button onclick="switchInboxTab('friends')" id="tab-btn-friends" class="inbox-tab flex-1 py-1.5 rounded-lg text-gray-500 hover:text-gray-800 dark:hover:text-white text-center">
+                            Mối Ruột (<span id="count-friends">0</span>)
+                        </button>
+                        <button onclick="switchInboxTab('requests')" id="tab-btn-requests" class="inbox-tab flex-1 py-1.5 rounded-lg text-gray-500 hover:text-gray-800 dark:hover:text-white text-center">
+                            Lời Mời (<span id="count-requests">0</span>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- List Content Scrollable -->
+                <div class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-gray-100 dark:divide-gray-700/50" id="inboxListContainer">
+                    <div class="p-8 text-center text-gray-400 text-xs">
+                        <i class="fas fa-spinner fa-spin text-lg mb-2"></i>
+                        <p>Đang tải danh sách...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: KHUNG TRÒ CHUYỆN 1-1 THỜI GIAN THỰC -->
+            <div class="flex-1 bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col overflow-hidden min-w-0" id="chatArea">
+                
+                <!-- Chat Window Header -->
+                <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between shrink-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-10" id="chatHeader">
+                    <div class="flex items-center space-x-3 min-w-0">
+                        <button onclick="toggleMobileInbox()" class="md:hidden p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 mr-1">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div class="relative w-10 h-10 shrink-0">
+                            <img id="activePartnerAvatar" src="https://via.placeholder.com/60" class="w-10 h-10 rounded-2xl object-cover border shadow-sm">
+                            <span class="w-3 h-3 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full absolute -bottom-0.5 -right-0.5"></span>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-extrabold text-gray-900 dark:text-white text-sm sm:text-base truncate" id="activePartnerName">Chọn một cuộc trò chuyện</h3>
+                                <span id="activePartnerFriendBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">Mối Ruột ✓</span>
+                            </div>
+                            <p class="text-[11px] text-gray-400 truncate" id="activePartnerSub">Sẵn sàng trao đổi dự án</p>
+                        </div>
+                    </div>
+
+                    <!-- Header Quick Actions -->
+                    <div class="flex items-center space-x-2 shrink-0" id="chatHeaderActions">
+                        <button onclick="openSendFriendModalForActivePartner()" id="btnHeaderAddFriend" class="hidden px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-indigo-600 dark:text-indigo-400 text-xs font-bold transition flex items-center gap-1.5" title="Gửi lời mời kết bạn">
+                            <i class="fas fa-user-plus"></i> <span class="hidden sm:inline">+ Kết Bạn</span>
+                        </button>
+                        <button onclick="viewActivePartnerProfile()" class="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-xs font-bold transition flex items-center gap-1.5" title="Xem thông tin đối tác">
+                            <i class="fas fa-id-card text-indigo-500"></i> <span class="hidden sm:inline">Xem Hồ Sơ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Stream Body -->
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-4 bg-gray-50/50 dark:bg-gray-900/30" id="messagesContainer">
+                    <div class="flex flex-col items-center justify-center h-full text-center text-gray-400 space-y-3">
+                        <div class="w-16 h-16 rounded-full bg-indigo-50 dark:bg-gray-750 flex items-center justify-center text-2xl text-indigo-500">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-700 dark:text-gray-300 text-sm">Chưa chọn cuộc trò chuyện</h4>
+                            <p class="text-xs text-gray-400 mt-1">Chọn một đối tác từ danh sách bên trái để bắt đầu trao đổi chi tiết dự án.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input Bar -->
+                <div class="p-3 sm:p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0" id="chatInputArea">
+                    <form onsubmit="handleSendMessage(event)" class="flex items-center gap-2">
+                        <button type="button" onclick="attachDemoFile()" class="p-2.5 rounded-xl text-gray-400 hover:text-indigo-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition" title="Đính kèm tệp / link portfolio">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="text" id="messageInput" placeholder="Nhập tin nhắn trao đổi (nhấn Enter để gửi)..." autocomplete="off" class="flex-1 px-4 py-2.5 text-xs sm:text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button type="submit" id="btnSendMessage" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 shrink-0">
+                            <span>Gửi</span> <i class="fas fa-paper-plane text-xs"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL GỬI LỜI MỜI KẾT BẠN KIỂU ZALO -->
+    <div id="friendRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-700">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-750 dark:to-gray-800">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-base text-gray-900 dark:text-white">Gửi Lời Mời Kết Bạn</h3>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Trở thành Mối Ruột để nhận thông báo và hợp tác</p>
+                    </div>
+                </div>
+                <button onclick="closeFriendRequestModal()" class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-white flex items-center justify-center shadow-xs">&times;</button>
+            </div>
+            
+            <!-- Modal Body -->
+            <form onsubmit="submitFriendRequest(event)" class="p-6 space-y-4">
+                <input type="hidden" id="frPartnerId">
+                
+                <!-- Partner Info Card -->
+                <div class="flex items-center space-x-3.5 p-3.5 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <img id="frPartnerAvatar" src="https://via.placeholder.com/60" class="w-12 h-12 rounded-2xl object-cover border-2 border-indigo-200 dark:border-gray-600 shrink-0">
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-bold text-sm sm:text-base text-gray-900 dark:text-white truncate" id="frPartnerName">Tên</h4>
+                        <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300" id="frPartnerRole">Đối tác</span>
+                    </div>
+                </div>
+
+                <!-- Note / Lời nhắn phong cách Zalo -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span>Lời Nhắn Gửi Kèm:</span>
+                        <span class="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">Phong cách Zalo</span>
+                    </label>
+                    <textarea id="frNote" rows="3" class="w-full p-3 text-xs sm:text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-800 dark:text-white leading-relaxed" placeholder="Nhập lời chào gửi đến đối tác..."></textarea>
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        <button type="button" onclick="setQuickFrNote('Xin chào bạn! Mình là Freelancer chuyên nghiệp, rất mong được kết bạn để hỗ trợ bạn thực hiện các dự án hiệu quả nhất.')" class="text-[11px] px-2.5 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300 transition">💡 Hợp tác dự án</button>
+                        <button type="button" onclick="setQuickFrNote('Chào bạn! Mình muốn kết nối làm Mối Ruột để đồng hành cùng các dự án công nghệ.')" class="text-[11px] px-2.5 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300 transition">⭐ Kết nối Mối Ruột</button>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="pt-3 flex justify-end space-x-2.5 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" onclick="closeFriendRequestModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50">Hủy</button>
+                    <button type="submit" id="btnSubmitFr" class="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
+                        <i class="fas fa-paper-plane text-xs"></i> <span>Gửi Lời Mời</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL XEM HỒ SƠ ĐỐI TÁC -->
+    <div id="profileModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750">
+                <h3 class="font-extrabold text-sm sm:text-base text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-user-circle text-indigo-600"></i> Thông Tin Đối Tác
+                </h3>
+                <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center hover:bg-gray-300">&times;</button>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <div class="flex items-center space-x-4">
+                    <img id="mAvatar" src="https://via.placeholder.com/80" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-200">
+                    <div>
+                        <h4 class="font-bold text-base text-gray-900 dark:text-white" id="mFullName">Tên</h4>
+                        <p class="text-xs text-gray-500" id="mEmail">email@...</p>
+                        <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-gray-700 dark:text-indigo-400" id="mRoleBadge">Đối tác</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h5 class="text-xs font-bold text-gray-500 uppercase">Giới thiệu:</h5>
+                    <p class="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mt-1 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl leading-relaxed" id="mBio">Chưa có thông tin.</p>
+                </div>
+
+                <div>
+                    <h5 class="text-xs font-bold text-gray-500 uppercase mb-2">Lịch Sử Dự Án & Đánh Giá:</h5>
+                    <div id="mWorkHistoryList" class="space-y-2.5">
+                        <p class="text-xs text-gray-400 italic">Đang tải lịch sử...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                <button onclick="closeProfileModal()" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Core Script for Freelancer -->
+    <script src="freelancer-ui.js"></script>
+
+    <!-- Chat Logic -->
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let currentUser = null;
+        let activePartnerId = null;
+        let activePartnerData = null;
+        let activePartnerConnection = null;
+        let currentTab = 'chats'; // 'chats' | 'friends' | 'requests'
+        let conversations = [];
+        let networkData = { friends: [], pending_sent: [], pending_received: [] };
+        let pollingInterval = null;
+
+        // 1. Kiểm tra User Role
+        try {
+            currentUser = JSON.parse(localStorage.getItem('user'));
+        } catch(e){}
+
+        if (!currentUser) {
+            window.location.replace('../sharedFolder/login.html');
+        } else if (currentUser.role === 'client') {
+            window.location.replace('../user/direct-chat.html' + window.location.search);
+        }
+
+        // 2. Tải mạng lưới bạn bè & Hội thoại
+        async function loadAllNetworkAndChats() {
+            try {
+                // Tải Bạn bè
+                const netRes = await fetch(`${API_URL}/api/connections/${currentUser.id}`);
+                const netJson = await netRes.json();
+                if (netRes.ok && netJson.success) {
+                    networkData = netJson;
+                    document.getElementById('count-friends').innerText = netJson.total_friends || 0;
+                    document.getElementById('count-requests').innerText = netJson.total_pending_received || 0;
+                    document.getElementById('networkTotalBadge').innerText = `${netJson.total_friends} Mối Ruột`;
+                }
+
+                // Tải Conversations
+                const convRes = await fetch(`${API_URL}/api/messages/conversations/${currentUser.id}`);
+                const convJson = await convRes.json();
+                if (convRes.ok && convJson.success) {
+                    conversations = convJson.conversations || [];
+                    document.getElementById('count-chats').innerText = conversations.length;
+                }
+
+                renderInboxList();
+            } catch (e) {
+                console.error('Lỗi loadAllNetworkAndChats:', e);
+            }
+        }
+
+        function switchInboxTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.inbox-tab').forEach(b => {
+                b.className = "inbox-tab flex-1 py-1.5 rounded-lg text-gray-500 hover:text-gray-800 dark:hover:text-white text-center";
+            });
+            const activeBtn = document.getElementById(`tab-btn-${tab}`);
+            if (activeBtn) {
+                activeBtn.className = "inbox-tab flex-1 py-1.5 rounded-lg bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold text-center";
+            }
+            renderInboxList();
+        }
+
+        function handleChatSearch() {
+            renderInboxList();
+        }
+
+        function renderInboxList() {
+            const container = document.getElementById('inboxListContainer');
+            const search = (document.getElementById('chatSearchInput').value || '').toLowerCase().trim();
+
+            if (currentTab === 'chats') {
+                let list = conversations;
+                if (search) {
+                    list = list.filter(c => 
+                        (c.partner.full_name || '').toLowerCase().includes(search) ||
+                        (c.last_message.content || '').toLowerCase().includes(search)
+                    );
+                }
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-8 text-center text-gray-400 text-xs space-y-2">
+                            <i class="far fa-comment-dots text-2xl text-gray-300 dark:text-gray-600"></i>
+                            <p class="font-medium">Chưa có tin nhắn nào.</p>
+                            <p class="text-[11px]">Chọn tab <strong>Mối Ruột</strong> hoặc <strong>Lời Mời</strong> để bắt đầu trò chuyện!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = list.map(c => {
+                    const p = c.partner;
+                    const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
+                    const isActive = p.id === activePartnerId;
+                    const isFriend = (networkData.friends || []).some(f => f.partner_id === p.id);
+
+                    return `
+                    <div onclick="selectPartner('${p.id}')" class="p-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition flex items-center space-x-3 ${isActive ? 'bg-indigo-50/70 dark:bg-gray-700' : ''}">
+                        <div class="relative w-11 h-11 shrink-0">
+                            <img src="${avatar}" class="w-11 h-11 rounded-2xl object-cover border">
+                            <span class="w-3 h-3 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full absolute -bottom-0.5 -right-0.5"></span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                <span class="text-[10px] text-gray-400 shrink-0 font-mono">${formatTime(c.last_message.created_at)}</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-1">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate pr-2">${escapeHtml(c.last_message.content || '[Tệp đính kèm]')}</p>
+                                ${c.unread_count > 0 ? `<span class="px-1.5 py-0.5 bg-indigo-600 text-white rounded-full text-[10px] font-black shrink-0">${c.unread_count}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } else if (currentTab === 'friends') {
+                let list = networkData.friends || [];
+                if (search) {
+                    list = list.filter(f => 
+                        (f.partner.full_name || '').toLowerCase().includes(search) ||
+                        (f.partner.email || '').toLowerCase().includes(search)
+                    );
+                }
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-8 text-center text-gray-400 text-xs space-y-2">
+                            <i class="fas fa-user-friends text-2xl text-gray-300 dark:text-gray-600"></i>
+                            <p class="font-medium">Chưa có bạn bè Mối Ruột nào.</p>
+                            <p class="text-[11px]">Hãy trao đổi và kết nối với khách hàng để trở thành Mối Ruột của nhau!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = list.map(f => {
+                    const p = f.partner;
+                    const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
+
+                    return `
+                    <div class="p-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition flex items-center justify-between space-x-3">
+                        <div onclick="selectPartner('${p.id}')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
+                            <img src="${avatar}" class="w-10 h-10 rounded-2xl object-cover border shrink-0">
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                                    <i class="fas fa-check-circle text-[10px]"></i> Mối Ruột ✓
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="selectPartner('${p.id}')" class="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-gray-700 dark:text-indigo-400 rounded-xl text-xs font-bold transition" title="Nhắn tin ngay">
+                            <i class="fas fa-comment-dots"></i>
+                        </button>
+                    </div>`;
+                }).join('');
+            } else if (currentTab === 'requests') {
+                const received = networkData.pending_received || [];
+                const sent = networkData.pending_sent || [];
+
+                if (received.length === 0 && sent.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-8 text-center text-gray-400 text-xs space-y-2">
+                            <i class="far fa-envelope-open text-2xl text-gray-300 dark:text-gray-600"></i>
+                            <p class="font-medium">Không có lời mời kết bạn nào đang chờ.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+
+                // 1. Lời mời đã nhận (Cần duyệt)
+                if (received.length > 0) {
+                    html += `<div class="p-3 bg-gray-50 dark:bg-gray-750 font-bold text-[11px] text-gray-500 uppercase tracking-wider flex items-center justify-between">
+                        <span>Lời mời đã nhận (${received.length})</span>
+                    </div>`;
+
+                    html += received.map(req => {
+                        const p = req.partner;
+                        const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
+
+                        return `
+                        <div class="p-4 bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-gray-800 space-y-2.5">
+                            <div class="flex items-center space-x-3 cursor-pointer" onclick="selectPartner('${p.id}')">
+                                <img src="${avatar}" class="w-10 h-10 rounded-2xl object-cover border shrink-0">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                    <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">${p.role === 'client' ? 'Khách Hàng Tuyển Dụng' : 'Freelancer'}</span>
+                                </div>
+                            </div>
+                            <div class="p-2.5 bg-white dark:bg-gray-750 rounded-xl border border-indigo-100/70 dark:border-gray-600 text-xs text-gray-700 dark:text-gray-200 italic leading-relaxed">
+                                "${escapeHtml(req.note || 'Xin chào bạn! Mình muốn kết nối để trao đổi và hợp tác các dự án.')}"
+                            </div>
+                            <div class="flex items-center space-x-2 pt-1">
+                                <button onclick="respondFriendRequest('${p.id}', 'accept')" class="flex-1 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-black transition shadow-sm flex items-center justify-center gap-1.5">
+                                    <i class="fas fa-check"></i> Chấp nhận
+                                </button>
+                                <button onclick="respondFriendRequest('${p.id}', 'reject')" class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition">
+                                    Từ chối
+                                </button>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+
+                // 2. Lời mời đã gửi (Chờ đối phương chấp nhận)
+                if (sent.length > 0) {
+                    html += `<div class="p-3 bg-gray-50 dark:bg-gray-750 font-bold text-[11px] text-gray-500 uppercase tracking-wider flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+                        <span>Lời mời đã gửi (${sent.length})</span>
+                    </div>`;
+
+                    html += sent.map(req => {
+                        const p = req.partner;
+                        const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
+
+                        return `
+                        <div class="p-3.5 space-y-2">
+                            <div class="flex items-center justify-between space-x-2">
+                                <div class="flex items-center space-x-2.5 min-w-0 cursor-pointer" onclick="selectPartner('${p.id}')">
+                                    <img src="${avatar}" class="w-9 h-9 rounded-xl object-cover border shrink-0">
+                                    <div class="min-w-0">
+                                        <h4 class="font-bold text-xs text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                        <span class="text-[10px] text-amber-600 font-semibold">Đang chờ phản hồi...</span>
+                                    </div>
+                                </div>
+                                <button onclick="respondFriendRequest('${p.id}', 'unfriend')" class="px-2.5 py-1 text-[11px] font-bold text-red-600 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition border border-red-200 dark:border-red-900/50">
+                                    Thu hồi
+                                </button>
+                            </div>
+                            ${req.note ? `<p class="text-[11px] text-gray-500 italic truncate pl-11">"${escapeHtml(req.note)}"</p>` : ''}
+                        </div>`;
+                    }).join('');
+                }
+
+                container.innerHTML = html;
+            }
+        }
+
+        // 3. Chọn cuộc trò chuyện với Đối tác
+        async function selectPartner(partnerId) {
+            activePartnerId = partnerId;
+            renderInboxList();
+
+            try {
+                const res = await fetch(`${API_URL}/api/users/${partnerId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    activePartnerData = data.user || data;
+                    
+                    document.getElementById('activePartnerName').innerText = activePartnerData.full_name || 'Đối tác';
+                    document.getElementById('activePartnerAvatar').src = activePartnerData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(activePartnerData.full_name)}&background=4f46e5&color=fff`;
+                    document.getElementById('activePartnerSub').innerText = activePartnerData.email || 'Sẵn sàng trao đổi';
+                }
+
+                // Lấy trạng thái quan hệ
+                const statusRes = await fetch(`${API_URL}/api/connections/status/${currentUser.id}/${partnerId}`);
+                if (statusRes.ok) {
+                    activePartnerConnection = await statusRes.json();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+
+            // Header friend badge & Add friend button
+            const friendBadge = document.getElementById('activePartnerFriendBadge');
+            const addFriendBtn = document.getElementById('btnHeaderAddFriend');
+
+            if (activePartnerConnection && activePartnerConnection.is_friend) {
+                if (friendBadge) friendBadge.classList.remove('hidden');
+                if (addFriendBtn) addFriendBtn.classList.add('hidden');
+            } else {
+                if (friendBadge) friendBadge.classList.add('hidden');
+                if (addFriendBtn) addFriendBtn.classList.remove('hidden');
+            }
+
+            // Tải tin nhắn
+            await loadMessages();
+
+            // Mobile: Chuyển view
+            if (window.innerWidth < 768) {
+                document.getElementById('inboxSidebar').classList.add('hidden');
+                document.getElementById('chatArea').classList.remove('hidden');
+            }
+
+            // Polling tin nhắn mới mỗi 3 giây
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(loadMessages, 3000);
+        }
+
+        function toggleMobileInbox() {
+            document.getElementById('inboxSidebar').classList.remove('hidden');
+            document.getElementById('chatArea').classList.add('hidden');
+        }
+
+        // 4. Tải và Render danh sách tin nhắn 1-1 kèm Thiệp Mời Kết Bạn Zalo
+        async function loadMessages() {
+            if (!activePartnerId) return;
+
+            try {
+                // Tải trạng thái kết nối mới nhất
+                const statusRes = await fetch(`${API_URL}/api/connections/status/${currentUser.id}/${activePartnerId}`);
+                if (statusRes.ok) {
+                    activePartnerConnection = await statusRes.json();
+                }
+
+                const res = await fetch(`${API_URL}/api/messages/direct/${currentUser.id}/${activePartnerId}`);
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    renderMessages(data.messages || []);
+                }
+            } catch (err) {
+                console.error('Lỗi loadMessages:', err);
+            }
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            let html = '';
+
+            const partnerName = activePartnerData ? activePartnerData.full_name : 'Đối tác';
+            const partnerAvatar = activePartnerData && activePartnerData.avatar_url ? activePartnerData.avatar_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
+
+            // === BANNER / THIỆP MỜI KẾT BẠN PHONG CÁCH ZALO ===
+            if (activePartnerConnection) {
+                const connStatus = activePartnerConnection.status;
+                const isSender = activePartnerConnection.isSender;
+                const note = activePartnerConnection.connection?.note || '';
+
+                if (connStatus === 'pending' && !isSender) {
+                    // ĐỐI PHƯƠNG GỬI LỜI MỜI CHO MÌNH -> Hiển thị thiệp Zalo có 2 nút [Chấp nhận] & [Từ chối]
+                    html += `
+                    <div class="bg-gradient-to-br from-indigo-50/95 via-purple-50/90 to-pink-50/80 dark:from-gray-800 dark:to-gray-750 p-4 sm:p-5 rounded-3xl border-2 border-indigo-200 dark:border-indigo-900 shadow-md mb-5">
+                        <div class="flex items-start space-x-3.5">
+                            <div class="relative w-12 h-12 shrink-0">
+                                <img src="${partnerAvatar}" class="w-12 h-12 rounded-2xl object-cover border-2 border-indigo-300 shadow-sm">
+                                <span class="w-3.5 h-3.5 bg-amber-500 border-2 border-white dark:border-gray-800 rounded-full absolute -bottom-0.5 -right-0.5 shadow-sm"></span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between flex-wrap gap-1">
+                                    <h4 class="font-extrabold text-xs sm:text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
+                                        <span>${escapeHtml(partnerName)}</span>
+                                        <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-950/80 px-2 py-0.5 rounded-full">Lời mời kết bạn</span>
+                                    </h4>
+                                    <span class="text-[10px] text-gray-400">${formatTime(activePartnerConnection.connection?.created_at)}</span>
+                                </div>
+                                <div class="mt-2 p-3 bg-white/95 dark:bg-gray-700/80 rounded-2xl border border-indigo-100 dark:border-gray-600 text-xs sm:text-sm text-gray-800 dark:text-gray-100 italic leading-relaxed shadow-2xs">
+                                    <i class="fas fa-quote-left text-indigo-400 mr-1.5 text-xs"></i>${escapeHtml(note || 'Xin chào bạn! Mình muốn kết nối để trao đổi và hợp tác các dự án.')}<i class="fas fa-quote-right text-indigo-400 ml-1.5 text-xs"></i>
+                                </div>
+                                <div class="flex items-center gap-2.5 mt-3 pt-1">
+                                    <button onclick="respondFriendRequest('${activePartnerId}', 'accept')" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-black transition shadow-md flex items-center gap-1.5">
+                                        <i class="fas fa-check"></i> Chấp Nhận Kết Bạn
+                                    </button>
+                                    <button onclick="respondFriendRequest('${activePartnerId}', 'reject')" class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition">
+                                        Từ Chối
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                } else if (connStatus === 'pending' && isSender) {
+                    // MÌNH GỬI CHO ĐỐI PHƯƠNG -> Hiển thị trạng thái chờ
+                    html += `
+                    <div class="bg-amber-50 dark:bg-amber-950/40 p-3.5 sm:p-4 rounded-2xl border border-amber-200 dark:border-amber-900/60 text-xs mb-4 flex items-center justify-between gap-3 shadow-2xs">
+                        <div class="flex items-center space-x-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 flex items-center justify-center shrink-0">
+                                <i class="fas fa-paper-plane text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="font-bold text-amber-900 dark:text-amber-200 block truncate">Bạn đã gửi lời mời kết bạn (Đang chờ đối phương chấp nhận)</span>
+                                ${note ? `<span class="text-[11px] text-gray-500 dark:text-gray-400 truncate block italic">"${escapeHtml(note)}"</span>` : ''}
+                            </div>
+                        </div>
+                        <button onclick="respondFriendRequest('${activePartnerId}', 'unfriend')" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-gray-700 rounded-xl transition border border-red-200 dark:border-red-900/60 shrink-0">
+                            Thu Hồi
+                        </button>
+                    </div>`;
+                } else if (connStatus === 'accepted') {
+                    html += `
+                    <div class="flex justify-center my-3">
+                        <span class="bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-bold px-3 py-1 rounded-full border border-rose-200 dark:border-rose-900/60 flex items-center gap-1.5 shadow-2xs">
+                            <i class="fas fa-heart text-rose-500"></i> Hai bạn đã là Mối Ruột của nhau
+                        </span>
+                    </div>`;
+                } else if (connStatus === 'none' || connStatus === 'rejected') {
+                    html += `
+                    <div class="bg-indigo-50/70 dark:bg-gray-750 p-3 rounded-2xl border border-indigo-100 dark:border-gray-700 text-xs flex items-center justify-between mb-4 shadow-2xs">
+                        <span class="text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                            <i class="fas fa-user-plus text-indigo-500"></i> Kết bạn Mối Ruột để nhận thông báo và hợp tác thuận tiện
+                        </span>
+                        <button onclick="openSendFriendModalForActivePartner()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition flex items-center gap-1 shrink-0 shadow-xs">
+                            + Kết Bạn
+                        </button>
+                    </div>`;
+                }
+            }
+
+            // === DANH SÁCH TIN NHẮN 1-1 ===
+            if (messages.length === 0) {
+                html += `
+                    <div class="flex flex-col items-center justify-center py-10 text-center text-gray-400 space-y-2">
+                        <i class="far fa-paper-plane text-2xl text-indigo-400"></i>
+                        <p class="text-xs font-semibold">Chưa có tin nhắn nào giữa hai bên.</p>
+                        <p class="text-[11px]">Hãy gửi lời chào hoặc thảo luận về yêu cầu công việc ngay bên dưới!</p>
+                    </div>
+                `;
+            } else {
+                messages.forEach(msg => {
+                    const isMe = msg.sender_id === currentUser.id;
+                    const time = formatTime(msg.created_at);
+
+                    if (isMe) {
+                        html += `
+                        <div class="flex justify-end items-end space-x-2">
+                            <div class="max-w-[78%] sm:max-w-md bg-indigo-600 text-white rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-sm text-xs sm:text-sm">
+                                <p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>
+                                <span class="text-[10px] text-indigo-200 block text-right mt-1">${time}</span>
+                            </div>
+                        </div>`;
+                    } else {
+                        html += `
+                        <div class="flex items-end space-x-2">
+                            <img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">
+                            <div class="max-w-[78%] sm:max-w-md bg-white dark:bg-gray-750 text-gray-800 dark:text-gray-100 rounded-2xl rounded-tl-xs px-4 py-2.5 shadow-sm border border-gray-100 dark:border-gray-700 text-xs sm:text-sm">
+                                <p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>
+                                <span class="text-[10px] text-gray-400 block mt-1">${time}</span>
+                            </div>
+                        </div>`;
+                    }
+                });
+            }
+
+            const isScrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 120;
+            container.innerHTML = html;
+            if (isScrolledToBottom) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // 5. Gửi tin nhắn
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            if (!content || !activePartnerId) return;
+
+            input.value = '';
+
+            try {
+                const res = await fetch(`${API_URL}/api/messages/direct`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender_id: currentUser.id,
+                        receiver_id: activePartnerId,
+                        content: content
+                    })
+                });
+
+                if (res.ok) {
+                    await loadMessages();
+                    await loadAllNetworkAndChats();
+                }
+            } catch (err) {
+                console.error('Lỗi gửi tin nhắn:', err);
+            }
+        }
+
+        // 6. Xử lý Lời mời kết bạn (Chấp nhận / Từ chối / Thu hồi)
+        async function respondFriendRequest(targetUserId, action) {
+            try {
+                const res = await fetch(`${API_URL}/api/connections/respond`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        target_user_id: targetUserId,
+                        action: action
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    if (action === 'accept') {
+                        alert('🎉 Đã chấp nhận kết bạn! Bây giờ bạn và đối tác đã là Mối Ruột.');
+                    } else if (action === 'reject') {
+                        alert('Đã từ chối lời mời kết bạn.');
+                    } else if (action === 'unfriend') {
+                        alert('Đã thu hồi lời mời kết bạn.');
+                    }
+                    await loadAllNetworkAndChats();
+                    if (activePartnerId === targetUserId) {
+                        await selectPartner(targetUserId);
+                    }
+                }
+            } catch (err) {
+                alert('Lỗi: ' + err.message);
+            }
+        }
+
+        // 7. Modal Gửi Lời Mời Kết Bạn Kiểu Zalo
+        function openSendFriendModalForActivePartner() {
+            if (!activePartnerId || !activePartnerData) return;
+            openSendFriendModal(activePartnerId, activePartnerData.full_name, activePartnerData.avatar_url, activePartnerData.role);
+        }
+
+        function openSendFriendModal(partnerId, name, avatar, role) {
+            document.getElementById('frPartnerId').value = partnerId;
+            document.getElementById('frPartnerName').innerText = name || 'Đối tác';
+            document.getElementById('frPartnerAvatar').src = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'U')}&background=4f46e5&color=fff`;
+            document.getElementById('frPartnerRole').innerText = role === 'client' ? 'Khách Hàng Tuyển Dụng' : 'Freelancer Chuyên Nghiệp';
+            document.getElementById('frNote').value = 'Xin chào bạn! Mình là Freelancer chuyên nghiệp, rất mong được kết bạn để hỗ trợ bạn thực hiện các dự án hiệu quả nhất.';
+
+            document.getElementById('friendRequestModal').classList.remove('hidden');
+        }
+
+        function closeFriendRequestModal() {
+            document.getElementById('friendRequestModal').classList.add('hidden');
+        }
+
+        function setQuickFrNote(text) {
+            document.getElementById('frNote').value = text;
+        }
+
+        async function submitFriendRequest(e) {
+            e.preventDefault();
+            const partnerId = document.getElementById('frPartnerId').value;
+            const note = document.getElementById('frNote').value.trim();
+            const btn = document.getElementById('btnSubmitFr');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/connections/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender_id: currentUser.id,
+                        receiver_id: partnerId,
+                        note: note
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('🎉 ' + data.message);
+                    closeFriendRequestModal();
+                    await loadAllNetworkAndChats();
+                    if (activePartnerId === partnerId) {
+                        await selectPartner(partnerId);
+                    }
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể gửi lời mời'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane text-xs"></i> <span>Gửi Lời Mời</span>';
+            }
+        }
+
+        function attachDemoFile() {
+            const fileName = prompt('Nhập tên file tài liệu hoặc đường dẫn Portfolio / Github / Figma:', 'Portfolio_Chuyen_Nghiep.pdf');
+            if (!fileName) return;
+
+            document.getElementById('messageInput').value = `[Đã đính kèm tệp / link: ${fileName}]`;
+        }
+
+        // 8. Xem Hồ Sơ Đối Tác
+        async function viewActivePartnerProfile() {
+            if (!activePartnerId) return;
+            const modal = document.getElementById('profileModal');
+            modal.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`${API_URL}/api/freelancers/${activePartnerId}/work-history`);
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    const f = data.freelancer;
+                    const avatar = f.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(f.full_name)}&background=4f46e5&color=fff`;
+                    document.getElementById('mAvatar').src = avatar;
+                    document.getElementById('mFullName').innerText = f.full_name;
+                    document.getElementById('mEmail').innerText = f.email;
+                    document.getElementById('mBio').innerText = f.bio || 'Chưa cập nhật giới thiệu.';
+                    document.getElementById('mRoleBadge').innerText = f.role === 'client' ? 'Khách Hàng Tuyển Dụng' : 'Freelancer Chuyên Nghiệp';
+
+                    const historyList = document.getElementById('mWorkHistoryList');
+                    const completed = data.completed_jobs || [];
+                    if (completed.length === 0) {
+                        historyList.innerHTML = '<p class="text-xs text-gray-400 italic">Chưa có dự án nào hoàn thành trên sàn.</p>';
+                    } else {
+                        historyList.innerHTML = completed.map(j => `
+                            <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl text-xs space-y-1">
+                                <div class="flex justify-between font-bold">
+                                    <span>${escapeHtml(j.title)}</span>
+                                    <span class="text-indigo-600">${j.budget} Token</span>
+                                </div>
+                                <div class="text-yellow-500 font-bold">⭐ ${j.rating} / 5.0</div>
+                                <div class="italic text-gray-500">"${escapeHtml(j.review_comment)}"</div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch(e){}
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        function formatTime(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAllNetworkAndChats();
+
+            // Kiểm tra URL query ?partner=
+            const urlParams = new URLSearchParams(window.location.search);
+            const partnerParam = urlParams.get('partner');
+            if (partnerParam) {
+                await selectPartner(partnerParam);
+            } else if (conversations.length > 0) {
+                await selectPartner(conversations[0].partner_id);
+            }
+        });
+    </script>
+</body>
+</html>

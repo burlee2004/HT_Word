@@ -3,118 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Quản Lý & Nghiệm thu</title>
+    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-50 p-10">
-    <div class="max-w-5xl mx-auto">
-        <!-- CẢNH BÁO TRAO ĐỔI NGOÀI -->
-        <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded mb-6 shadow-sm flex items-start">
-            <i class="fas fa-exclamation-triangle mt-1 mr-3 text-yellow-600 text-lg"></i>
-            <div>
-                <p class="font-bold text-yellow-900 mb-1">CẢNH BÁO BẢO VỆ NGƯỜI DÙNG</p>
-                <p class="text-sm">Hệ thống khuyến cáo mọi thỏa thuận, giao nộp sản phẩm và thanh toán phải được thực hiện <strong>trực tiếp trên nền tảng HT Work</strong>. Chúng tôi <strong>từ chối chịu trách nhiệm giải quyết khiếu nại</strong> đối với các rủi ro phát sinh (lừa đảo, quỵt tiền, mất code) nếu hai bên tự ý trao đổi và giao dịch bên ngoài hệ thống (Zalo, Facebook, v.v.).</p>
-            </div>
-        </div>
-
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Quản Lý Tiến Độ & Nghiệm Thu</h1>
-            <button onclick="window.location.href='home.html'" class="bg-gray-200 text-gray-700 px-4 py-2 rounded shadow hover:bg-gray-300 font-bold transition">
-                <i class="fas fa-arrow-left mr-2"></i> Về Trang chủ
-            </button>
-        </div>
-        <p class="text-gray-600 mb-8">Nơi bạn duyệt Kế hoạch (Khóa Escrow) và Nghiệm thu các mốc công việc (Giải ngân).</p>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
         
-        <div id="jobsList" class="space-y-6">
-            <p class="text-gray-500">Đang tải...</p>
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-10">
+            <div class="max-w-5xl mx-auto">
+                
+                <!-- CẢNH BÁO AN TOÀN -->
+                <div class="bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 text-amber-900 dark:text-amber-200 p-4 rounded-xl mb-6 shadow-sm flex items-start">
+                    <i class="fas fa-shield-alt mt-1 mr-3 text-amber-600 dark:text-amber-400 text-xl shrink-0"></i>
+                    <div>
+                        <p class="font-bold text-amber-900 dark:text-amber-100 text-sm">BẢO VỆ GIAO DỊCH VÀ KHÓA KÝ QUỸ (ESCROW)</p>
+                        <p class="text-xs text-amber-800 dark:text-amber-300 mt-0.5 leading-relaxed">
+                            Mọi thanh toán chỉ được giải ngân cho Freelancer khi bạn bấm <strong>"Nghiệm Thu"</strong> từng mốc. Nếu có tranh chấp hoặc vi phạm, bạn có thể bấm <strong>"Khiếu Nại"</strong> để Admin phân xử hoàn lại Escrow.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Page Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <i class="fas fa-tasks text-indigo-600 dark:text-indigo-400"></i> Quản Lý Tiến Độ & Nghiệm Thu
+                        </h1>
+                        <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Theo dõi mốc kế hoạch, duyệt giải ngân từng giai đoạn và chấm điểm chất lượng Freelancer.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="loadPendingActions()" class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center">
+                            <i class="fas fa-sync-alt mr-1.5"></i> Làm mới
+                        </button>
+                        <button onclick="window.location.href='home.html'" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition flex items-center">
+                            <i class="fas fa-search mr-1.5"></i> Tìm Freelancer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="flex flex-wrap items-center gap-2 mb-6 border-b border-gray-200 dark:border-gray-800 pb-3">
+                    <button onclick="filterJobs('all')" id="tab_all" class="filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition">
+                        Tất cả (<span id="count_all">0</span>)
+                    </button>
+                    <button onclick="filterJobs('in_progress')" id="tab_in_progress" class="filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 transition">
+                        Đang thực hiện (<span id="count_in_progress">0</span>)
+                    </button>
+                    <button onclick="filterJobs('pending_plan')" id="tab_pending_plan" class="filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 transition">
+                        Chờ duyệt kế hoạch (<span id="count_pending_plan">0</span>)
+                    </button>
+                    <button onclick="filterJobs('completed')" id="tab_completed" class="filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 transition">
+                        Đã hoàn thành (<span id="count_completed">0</span>)
+                    </button>
+                </div>
+
+                <!-- Danh sách công việc -->
+                <div id="jobsList" class="space-y-6">
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-100 dark:border-gray-700 animate-pulse text-center">
+                        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mb-2"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mx-auto"></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+
+
+    <!-- MODAL: Yêu Cầu Chỉnh Sửa Kế Hoạch (Plan Revision) -->
+    <div id="planRevisionModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-lg">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Yêu Cầu Sửa Kế Hoạch</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Freelancer sẽ nhận thông báo và điều chỉnh lại các mốc trước khi bắt đầu.</p>
+                </div>
+            </div>
+
+            <input type="hidden" id="plan_rev_job_id">
+
+            <div class="space-y-3">
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">
+                    Lý do & Nội dung cần chỉnh sửa (*):
+                </label>
+                <textarea id="plan_rev_reason" rows="4" class="w-full border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-xl text-sm focus:border-amber-500 focus:outline-none transition" placeholder="Ví dụ: Vui lòng chia nhỏ giai đoạn 2 thành 2 mốc nhỏ hơn, và dời hạn chót của mốc 1 lên sớm hơn 2 ngày..."></textarea>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-2 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <button type="button" onclick="closePlanRevisionModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    Hủy bỏ
+                </button>
+                <button type="button" id="btnSubmitPlanRev" onclick="submitPlanRevision()" class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center">
+                    <i class="fas fa-paper-plane mr-1.5"></i> Gửi Yêu Cầu Sửa
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Yêu cầu sửa đổi (Revision) -->
-    <div id="revisionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-[500px]">
-            <h2 class="text-2xl font-bold mb-4 text-red-600">Yêu Cầu Chỉnh Sửa</h2>
-            <p class="text-gray-600 mb-4 text-sm">Vui lòng mô tả rõ lỗi để Freelancer sửa lại cho chuẩn.</p>
-            
+    <!-- MODAL: Yêu Cầu Sửa Đổi Mốc Đơn (Milestone Revision) -->
+    <div id="revisionModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center font-bold text-lg">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Yêu Cầu Sửa Lại Báo Cáo</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Chỉ ra các điểm chưa đạt yêu cầu để Freelancer sửa lại trước khi giải ngân.</p>
+                </div>
+            </div>
+
             <input type="hidden" id="rev_milestone_id">
-            
-            <div class="space-y-4">
+
+            <div class="space-y-3">
                 <div>
-                    <label class="block text-sm font-medium">Nội dung yêu cầu sửa:</label>
-                    <textarea id="rev_feedback" rows="3" class="mt-1 block w-full border p-2 rounded text-sm" placeholder="Màu nút bấm bị sai, tính năng login bị lỗi..."></textarea>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Nội dung yêu cầu sửa (*):</label>
+                    <textarea id="rev_feedback" rows="3" class="w-full border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-xl text-sm focus:border-red-500 focus:outline-none transition" placeholder="Mô tả cụ thể lỗi, chức năng chưa chạy hoặc UI bị lệch..."></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium">Link ảnh chụp lỗi (Nếu có):</label>
-                    <input type="text" id="rev_screenshot" class="mt-1 block w-full border p-2 rounded text-sm" placeholder="https://...">
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Link ảnh chụp lỗi / Tài liệu đính kèm:</label>
+                    <input type="text" id="rev_screenshot" class="w-full border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2.5 rounded-xl text-sm focus:border-red-500 focus:outline-none transition" placeholder="https://drive.google.com/... hoặc link ảnh">
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end space-x-2 border-t pt-4">
-                <button type="button" onclick="closeRevisionModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 font-bold">Hủy</button>
-                <button type="button" onclick="submitRevision()" class="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-700">Gửi Yêu Cầu</button>
+            <div class="mt-6 flex justify-end gap-2 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <button type="button" onclick="closeRevisionModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Hủy bỏ</button>
+                <button type="button" onclick="submitRevision()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center">
+                    <i class="fas fa-undo mr-1.5"></i> Gửi Yêu Cầu Sửa
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Khiếu Nại (Dispute) -->
-    <div id="disputeModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex justify-center items-center z-50">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-[500px]">
-            <div class="flex items-center mb-4">
-                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+    <!-- MODAL: Đánh Giá & Chấm Sao Freelancer (Rating Modal) -->
+    <div id="reviewFreelancerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 md:p-8 rounded-3xl shadow-2xl max-w-lg w-full">
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-500 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+                    <i class="fas fa-crown"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-red-700">Khiếu Nại & Tranh Chấp</h2>
+                <h2 class="text-xl font-black text-gray-900 dark:text-gray-100">Đánh Giá Freelancer</h2>
+                <p id="reviewJobTitleDisplay" class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate font-medium"></p>
             </div>
-            
-            <p class="text-gray-600 mb-6 text-sm">Nếu Freelancer vi phạm hợp đồng, bạn có thể tạo khiếu nại. Admin sẽ đóng băng dự án và xem xét bằng chứng để phán quyết hoàn tiền.</p>
+
+            <input type="hidden" id="review_job_id">
+            <input type="hidden" id="review_freelancer_id">
+
+            <!-- Freelancer Info Badge -->
+            <div class="flex items-center gap-3 bg-gray-50 dark:bg-gray-750 p-3 rounded-2xl border border-gray-100 dark:border-gray-700 mb-5">
+                <img id="reviewFreelancerAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Freelancer" class="w-12 h-12 rounded-full object-cover border-2 border-indigo-200">
+                <div>
+                    <h4 id="reviewFreelancerName" class="font-bold text-gray-900 dark:text-gray-100 text-sm">Freelancer</h4>
+                    <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center"><i class="fas fa-check-circle text-[10px] mr-1"></i> Đã hoàn thành dự án</p>
+                </div>
+            </div>
+
+            <!-- Interactive 5-Star Rating -->
+            <div class="text-center mb-5">
+                <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Chất Lượng Công Việc</p>
+                <div id="starContainer" class="flex justify-center items-center gap-2 text-3xl text-gray-300 dark:text-gray-600 cursor-pointer">
+                    <i class="fas fa-star star-btn transition transform hover:scale-125" data-val="1"></i>
+                    <i class="fas fa-star star-btn transition transform hover:scale-125" data-val="2"></i>
+                    <i class="fas fa-star star-btn transition transform hover:scale-125" data-val="3"></i>
+                    <i class="fas fa-star star-btn transition transform hover:scale-125" data-val="4"></i>
+                    <i class="fas fa-star star-btn transition transform hover:scale-125" data-val="5"></i>
+                </div>
+                <p id="starLabel" class="text-xs font-bold text-amber-500 mt-2">5 / 5 - Rất hài lòng / Xuất sắc ⭐</p>
+                <input type="hidden" id="selectedRating" value="5">
+            </div>
+
+            <!-- Compliment Tags -->
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-2">Điểm nổi bật:</label>
+                <div id="complimentTags" class="flex flex-wrap gap-1.5">
+                    <button type="button" onclick="toggleTag(this, '⚡ Đúng hạn')" class="tag-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-transparent hover:border-indigo-400 transition">⚡ Đúng hạn</button>
+                    <button type="button" onclick="toggleTag(this, '💻 Code chất lượng cao')" class="tag-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-transparent hover:border-indigo-400 transition">💻 Code chất lượng cao</button>
+                    <button type="button" onclick="toggleTag(this, '💬 Giao tiếp tốt')" class="tag-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-transparent hover:border-indigo-400 transition">💬 Giao tiếp tốt</button>
+                    <button type="button" onclick="toggleTag(this, '🤝 Nhiệt tình hỗ trợ')" class="tag-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-transparent hover:border-indigo-400 transition">🤝 Nhiệt tình hỗ trợ</button>
+                    <button type="button" onclick="toggleTag(this, '🌟 Chuyên nghiệp')" class="tag-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-transparent hover:border-indigo-400 transition">🌟 Chuyên nghiệp</button>
+                </div>
+            </div>
+
+            <!-- Comment Box -->
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Nhận xét chi tiết:</label>
+                <textarea id="reviewComment" rows="3" class="w-full border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-2xl text-xs focus:border-amber-500 focus:outline-none transition" placeholder="Chia sẻ trải nghiệm làm việc cùng Freelancer để giúp cộng đồng nhận diện nhân sự xuất sắc..."></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <button type="button" onclick="closeReviewModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Đóng</button>
+                <button type="button" id="btnSubmitReview" onclick="submitReview()" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-xl text-xs font-bold shadow-lg transition flex items-center">
+                    <i class="fas fa-star mr-1.5"></i> Gửi Đánh Giá
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Khiếu Nại & Tranh Chấp (Dispute) -->
+    <div id="disputeModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 md:p-8 rounded-3xl shadow-2xl max-w-lg w-full">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-red-100 dark:bg-red-950/60 rounded-2xl flex items-center justify-center text-red-600 text-xl shrink-0">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-red-700 dark:text-red-400">Khiếu Nại & Đóng Băng Dự Án</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Admin sẽ thụ lý bằng chứng và xử lý hoàn tiền.</p>
+                </div>
+            </div>
             
             <input type="hidden" id="dispute_job_id">
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Lý do khiếu nại (*):</label>
-                    <textarea id="dispute_reason" rows="3" class="mt-1 block w-full border-2 border-gray-200 p-3 rounded-lg focus:border-red-500 text-sm" placeholder="Mô tả chi tiết việc Freelancer vi phạm..."></textarea>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Lý do khiếu nại (*):</label>
+                    <textarea id="dispute_reason" rows="3" class="w-full border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3 rounded-xl text-xs focus:border-red-500 text-gray-900 dark:text-gray-100" placeholder="Mô tả cụ thể vi phạm hợp đồng hoặc không bàn giao code..."></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Tải lên hình ảnh bằng chứng (Tối đa 7 ảnh):</label>
-                    <p class="text-xs text-red-600 font-semibold mb-2 italic">Rất quan trọng để chúng tôi giải quyết nhanh!</p>
-                    <input type="file" id="dispute_evidence" onchange="handleDisputeImageUpload(this)" multiple accept="image/*" class="mt-1 block w-full border-2 border-gray-200 p-2 rounded-lg text-sm">
-                    <div id="dispute_image_preview" class="flex flex-wrap gap-2 mt-3"></div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Tải ảnh chụp bằng chứng (Tối đa 7 ảnh):</label>
+                    <input type="file" id="dispute_evidence" onchange="handleDisputeImageUpload(this)" multiple accept="image/*" class="w-full text-xs border border-gray-200 dark:border-gray-700 p-2 rounded-xl bg-gray-50 dark:bg-gray-900">
+                    <div id="dispute_image_preview" class="flex flex-wrap gap-2 mt-2"></div>
                 </div>
             </div>
             
-            <div class="mt-8 flex justify-end space-x-3">
-                <button onclick="closeDisputeModal()" class="px-5 py-2 rounded-lg font-bold text-gray-600 hover:bg-gray-100">Hủy bỏ</button>
-                <button id="btnSubmitDispute" onclick="submitDispute()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-700 shadow-lg flex items-center transition-all"><i class="fas fa-gavel mr-2"></i> Gửi Khiếu Nại</button>
+            <div class="mt-6 flex justify-end gap-2 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <button onclick="closeDisputeModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100">Hủy bỏ</button>
+                <button id="btnSubmitDispute" onclick="submitDispute()" class="bg-red-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-red-700 shadow-md flex items-center transition">
+                    <i class="fas fa-gavel mr-1.5"></i> Gửi Khiếu Nại
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Chat & Upload -->
-    <div id="chatModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex justify-center items-center z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col" style="height: 80vh;">
-            <div class="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
-                <h2 class="text-lg font-bold text-gray-800">Phòng Thảo Luận Dự Án</h2>
-                <button onclick="closeChatModal()" class="text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
+    <!-- MODAL: Chat Thảo Luận Dự Án & Âm Báo Real-time -->
+    <div id="chatModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700" style="height: 82vh;">
+            <div class="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                    <div>
+                        <h2 class="text-sm font-bold text-gray-800 dark:text-gray-100" id="chatTitle">Phòng Thảo Luận Dự Án</h2>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Tin nhắn được mã hóa & lưu trữ an toàn</p>
+                    </div>
+                </div>
+                <button onclick="closeChatModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold px-2">&times;</button>
             </div>
             
-            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-gray-100 space-y-4">
-                <!-- Tin nhắn sẽ hiển thị ở đây -->
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-gray-100 dark:bg-gray-900 space-y-3">
+                <p class="text-center text-xs text-gray-400 mt-4">Đang tải tin nhắn...</p>
             </div>
             
-            <div class="p-4 border-t bg-white rounded-b-lg">
+            <div class="p-3 md:p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
                 <input type="hidden" id="chat_job_id">
-                <div class="flex flex-col space-y-2">
-                    <textarea id="chatInput" rows="2" class="w-full border p-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập nội dung tin nhắn..."></textarea>
+                <div class="flex flex-col gap-2">
+                    <textarea id="chatInput" rows="2" class="w-full border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2.5 rounded-xl text-xs focus:outline-none focus:border-indigo-500 transition resize-none" placeholder="Nhập tin nhắn thảo luận cùng Freelancer..."></textarea>
                     
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center space-x-2">
-                            <input type="file" id="chatFile" class="text-sm border p-1 rounded" multiple>
-                            <span class="text-xs text-gray-500">(Ảnh/Video/File)</span>
+                    <div class="flex flex-wrap justify-between items-center gap-2">
+                        <div class="flex items-center gap-2">
+                            <label class="cursor-pointer bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 flex items-center transition">
+                                <i class="fas fa-paperclip mr-1.5 text-indigo-500"></i> Đính kèm file
+                                <input type="file" id="chatFile" class="hidden" multiple onchange="previewSelectedChatFiles(this)">
+                            </label>
+                            <span id="chatFileCount" class="text-[11px] text-gray-400 font-medium"></span>
                         </div>
-                        <button onclick="sendChatMessage()" id="btnSendChat" class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 shadow flex items-center justify-center">
-                            Gửi
+                        <button onclick="sendChatMessage()" id="btnSendChat" class="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 shadow-md transition flex items-center">
+                            <i class="fas fa-paper-plane mr-1.5"></i> Gửi Tin Nhắn
                         </button>
                     </div>
                 </div>
@@ -122,102 +305,353 @@
         </div>
     </div>
 
+    <!-- Script Logic -->
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
 
         let currentUser = null;
+        let allJobsData = [];
+        let currentFilter = 'all';
+        let chatPollingInterval = null;
+        let lastMessageCount = 0;
+        let selectedComplimentTags = [];
 
+        // --- Âm báo Audio Chime (Web Audio API Synthesizer) ---
+        function playNotificationChime() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const now = audioCtx.currentTime;
+                
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(587.33, now); // D5
+                gain1.gain.setValueAtTime(0.1, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.3);
+
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(880, now + 0.12); // A5
+                gain2.gain.setValueAtTime(0.12, now + 0.12);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now + 0.12);
+                osc2.stop(now + 0.45);
+            } catch (e) {
+                console.warn('Audio Context error:', e);
+            }
+        }
+
+        // --- Khởi tạo và Tải dữ liệu ---
         async function loadPendingActions() {
             const userStr = localStorage.getItem('user');
             if (!userStr) {
-                alert('Bạn chưa đăng nhập!');
                 window.location.replace('../sharedFolder/login.html');
                 return;
             }
             currentUser = JSON.parse(userStr);
 
             const listDiv = document.getElementById('jobsList');
+            if (!listDiv) return;
+
             try {
                 const response = await fetch(`${API_URL}/api/client/${currentUser.id}/pending-actions`);
                 const data = await response.json();
-                
-                if (data.jobs && data.jobs.length > 0) {
-                    listDiv.innerHTML = data.jobs.map(job => renderJob(job)).join('');
-                } else {
-                    listDiv.innerHTML = '<p class="text-gray-500 bg-white p-6 rounded shadow">Hiện không có công việc nào cần bạn xử lý.</p>';
-                }
+                allJobsData = data.jobs || [];
+
+                updateTabCounts();
+                renderFilteredJobs();
             } catch (err) {
-                listDiv.innerHTML = '<p class="text-red-500">Lỗi kết nối Server!</p>';
+                console.error('[HT Work] Lỗi load pending actions:', err);
+                listDiv.innerHTML = '<div class="bg-red-50 text-red-600 p-6 rounded-2xl text-center text-sm font-bold">Không thể kết nối đến máy chủ Backend!</div>';
             }
         }
 
-        function renderJob(job) {
-            let actionHtml = '';
+        function updateTabCounts() {
+            const inProg = allJobsData.filter(j => j.status === 'in_progress').length;
+            const pendingPlan = allJobsData.filter(j => j.status === 'planning' || j.status === 'pending_plan_approval').length;
+            const completed = allJobsData.filter(j => j.status === 'completed').length;
 
-            if (job.status === 'pending_plan_approval') {
-                const totalAmount = job.milestones.reduce((sum, m) => sum + parseFloat(m.amount), 0);
-                actionHtml = `
-                    <div class="bg-yellow-50 p-4 border border-yellow-300 rounded mt-4">
-                    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-                        <p class="text-sm text-gray-600 mb-3">Freelancer đã chốt kế hoạch và chờ bạn nạp tiền vào Escrow (Khóa sổ) để bắt đầu.</p>
-                        <button onclick="approvePlanAndLock('${job.id}')" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md transition">
-                            🔒 Nạp Tiền & Khóa Escrow
+            document.getElementById('count_all').textContent = allJobsData.length;
+            document.getElementById('count_in_progress').textContent = inProg;
+            document.getElementById('count_pending_plan').textContent = pendingPlan;
+            document.getElementById('count_completed').textContent = completed;
+        }
+
+        function filterJobs(filterKey) {
+            currentFilter = filterKey;
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.className = 'filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 transition';
+            });
+            const activeTab = document.getElementById(`tab_${filterKey}`);
+            if (activeTab) {
+                activeTab.className = 'filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition';
+            }
+            renderFilteredJobs();
+        }
+
+        function renderFilteredJobs() {
+            const listDiv = document.getElementById('jobsList');
+            let filtered = allJobsData;
+            if (currentFilter === 'in_progress') filtered = allJobsData.filter(j => j.status === 'in_progress');
+            if (currentFilter === 'pending_plan') filtered = allJobsData.filter(j => j.status === 'planning' || j.status === 'pending_plan_approval');
+            if (currentFilter === 'completed') filtered = allJobsData.filter(j => j.status === 'completed');
+
+            if (filtered.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-10 text-center">
+                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-400 text-2xl mx-auto mb-3">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base">Không có dự án nào trong mục này</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Các dự án đang tiến hành hoặc chờ nghiệm thu sẽ hiển thị tại đây.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listDiv.innerHTML = filtered.map(job => renderJobCard(job)).join('');
+        }
+
+        // --- Render Chi Tiết Dự Án ---
+        function renderJobCard(job) {
+            const milestones = job.milestones || [];
+            const totalMilestones = milestones.length;
+            const paidMilestones = milestones.filter(m => m.status === 'PAID' || m.status === 'approved').length;
+            const percentProgress = totalMilestones > 0 ? Math.round((paidMilestones / totalMilestones) * 100) : 0;
+            
+            const freelancerName = job.freelancer?.full_name || 'Freelancer đã nhận việc';
+            const freelancerAvatar = job.freelancer?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(freelancerName)}`;
+
+            let statusBadge = '';
+            if (job.status === 'planning') statusBadge = '<span class="bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-clock mr-1"></i> Đang Lập Kế Hoạch</span>';
+            else if (job.status === 'pending_plan_approval') statusBadge = '<span class="bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-bold animate-pulse"><i class="fas fa-file-signature mr-1"></i> Chờ Bạn Duyệt Kế Hoạch</span>';
+            else if (job.status === 'in_progress') statusBadge = '<span class="bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-spinner fa-spin mr-1"></i> Đang Thực Hiện</span>';
+            else if (job.status === 'completed') statusBadge = '<span class="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-check-circle mr-1"></i> Đã Hoàn Thành</span>';
+            else statusBadge = `<span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-bold">${job.status}</span>`;
+
+            // --- Nội dung Milestones / Timeline ---
+            let milestonesHtml = '';
+            if (milestones.length > 0) {
+                milestonesHtml = `
+                    <div class="mt-5 space-y-3">
+                        <div class="flex justify-between items-center text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                            <span>Tiến độ thực hiện (${paidMilestones}/${totalMilestones} mốc)</span>
+                            <span class="text-indigo-600 dark:text-indigo-400">${percentProgress}%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-indigo-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: ${percentProgress}%"></div>
+                        </div>
+
+                        <div class="mt-4 space-y-3">
+                            ${milestones.map((m, idx) => renderMilestoneItem(m, idx, job)).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (job.status === 'planning') {
+                milestonesHtml = `
+                    <div class="mt-4 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <p class="font-bold text-amber-900 dark:text-amber-200 text-sm">Freelancer đang thảo luận & xây dựng bảng Milestone chi tiết...</p>
+                            <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">Tiền ký quỹ của bạn đang được đóng băng an toàn trong hệ thống Escrow.</p>
+                        </div>
+                        <button onclick="cancelProject('${job.id}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition shrink-0">
+                            <i class="fas fa-undo mr-1"></i> Thu hồi (Hoàn Escrow)
                         </button>
                     </div>
                 `;
-            } else if (job.status === 'in_progress') {
-                const pendingMilestones = job.milestones.filter(m => m.status === 'PENDING_REVIEW');
-                if (pendingMilestones.length > 0) {
-                    actionHtml = `
-                        <div class="mt-4 space-y-4">
-                            <h3 class="font-bold text-gray-800">Cần Nghiệm Thu:</h3>
-                            ${pendingMilestones.map(m => `
-                                <div class="bg-blue-50 border border-blue-200 p-4 rounded mb-4">
-                                    <h4 class="font-bold text-blue-800 text-lg">${m.title}</h4>
-                                    ${(() => {
-                                        let links = '';
-                                        if (m.proof_urls && m.proof_urls.length > 0) {
-                                            links = m.proof_urls.map((u, i) => `<a href="${u}" target="_blank" class="text-blue-600 underline font-medium inline-block mr-3 mb-1">🔗 Xem Tệp ${i+1}</a>`).join('');
-                                        } else if (m.evidence_url) {
-                                            links = `<a href="${m.evidence_url}" target="_blank" class="text-blue-600 underline font-medium">Xem minh chứng</a>`;
-                                        }
-                                        return `<p class="text-sm text-gray-700 mt-2"><strong>Freelancer nộp bài:</strong><br>${links}</p>`;
-                                    })()}
-                                    
-                                    <p class="text-sm text-gray-700 mt-1"><strong>Số tiền giải ngân:</strong> <span class="text-green-600 font-bold">${m.amount} Token</span></p>
-                                    
-                                    <div class="mt-4 flex space-x-3">
-                                        <button onclick="approveMilestone('${m.id}')" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 shadow">✅ Nghiệm Thu (Approve)</button>
-                                        <button onclick="openRevisionModal('${m.id}')" class="bg-red-100 text-red-600 px-4 py-2 rounded font-bold border border-red-300 hover:bg-red-200">❌ Bắt sửa lại (Revision)</button>
-                                    </div>
+            }
+
+            // --- Banner Duyệt Kế Hoạch khi ở pending_plan_approval ---
+            let planApprovalBanner = '';
+            if (job.status === 'pending_plan_approval') {
+                planApprovalBanner = `
+                    <div class="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-750 dark:to-gray-800 border-2 border-indigo-200 dark:border-indigo-800 rounded-2xl shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shrink-0">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-900 dark:text-gray-100 text-sm">Freelancer đã gửi Bảng Kế Hoạch gồm ${totalMilestones} giai đoạn</h4>
+                                <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5">
+                                    Vui lòng kiểm tra chi tiết các mốc, hạn nộp và ngân sách bên dưới. Nếu đồng ý, hãy bấm "Duyệt Kế Hoạch" để Freelancer chính thức bắt tay vào việc.
+                                </p>
+                                
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <button onclick="approvePlanAndLock('${job.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center">
+                                        <i class="fas fa-check-circle mr-1.5"></i> Duyệt Kế Hoạch & Bắt Đầu
+                                    </button>
+                                    <button onclick="openPlanRevisionModal('${job.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition flex items-center">
+                                        <i class="fas fa-edit mr-1.5"></i> Yêu Cầu Chỉnh Sửa Kế Hoạch
+                                    </button>
+                                    <button onclick="cancelProject('${job.id}')" class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 hover:bg-red-100 px-4 py-2 rounded-xl text-xs font-bold border border-red-200 dark:border-red-800 transition flex items-center">
+                                        <i class="fas fa-undo mr-1.5"></i> Thu hồi thỏa thuận
+                                    </button>
                                 </div>
-                            `).join('')}
+                            </div>
                         </div>
-                    `;
-                } else {
-                    actionHtml = `<div class="mt-4 p-4 bg-gray-100 rounded text-gray-500">Dự án đang chạy. Đang chờ Freelancer nộp bài cho các mốc tiếp theo...</div>`;
-                }
+                    </div>
+                `;
+            }
+
+            // --- Nút Đánh Giá nếu dự án đã hoàn thành ---
+            let reviewActionHtml = '';
+            if (job.status === 'completed' && job.freelancer_id) {
+                reviewActionHtml = `
+                    <div class="mt-4 p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                                <i class="fas fa-award"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Dự án đã hoàn tất nghiệm thu & thanh toán!</p>
+                                <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên HT Work.</p>
+                            </div>
+                        </div>
+                        <button onclick="openReviewModal('${job.id}', '${job.freelancer_id}', '${encodeURIComponent(freelancerName)}', '${encodeURIComponent(freelancerAvatar)}', '${encodeURIComponent(job.title)}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
+                            <i class="fas fa-star mr-1.5"></i> Viết Đánh Giá
+                        </button>
+                    </div>
+                `;
             }
 
             return `
-                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 ${job.status === 'disputed' ? 'border-red-500' : 'border-indigo-500'}">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                        <h2 class="text-2xl font-bold text-gray-800">${job.title}</h2>
-                        <div class="mt-3 sm:mt-0 flex space-x-2">
-                            ${job.status === 'in_progress' ? `<button onclick="openDisputeModal('${job.id}')" class="bg-red-600 text-white hover:bg-red-700 px-3 py-1 rounded text-sm font-bold shadow-sm flex items-center"><i class="fas fa-exclamation-triangle mr-1"></i> Khiếu Nại</button>` : ''}
-                            <button onclick="openChatModal('${job.id}')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-sm font-bold shadow-sm flex items-center">💬 Thảo luận</button>
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-gray-100 dark:border-gray-700 transition">
+                    <!-- Top Card Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-100 dark:border-gray-700 pb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                                ${statusBadge}
+                                <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-0.5 rounded-lg">
+                                    💰 ${parseInt(job.budget || 0).toLocaleString()} Token
+                                </span>
+                            </div>
+                            <h2 class="text-lg md:text-xl font-extrabold text-gray-900 dark:text-gray-100 leading-snug">${job.title}</h2>
+                        </div>
+
+                        <!-- Freelancer Mini Info + Quick Actions -->
+                        <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                            <div class="flex items-center gap-2">
+                                <img src="${freelancerAvatar}" class="w-9 h-9 rounded-full object-cover border border-gray-200 dark:border-gray-600">
+                                <div>
+                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight">${freelancerName}</p>
+                                    <p class="text-[10px] text-gray-400">Freelancer phụ trách</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="openChatModal('${job.id}', '${encodeURIComponent(job.title)}')" class="bg-blue-50 hover:bg-blue-100 dark:bg-gray-700 dark:text-blue-400 text-blue-600 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center shadow-sm">
+                                    <i class="fas fa-comments mr-1"></i> Chat
+                                </button>
+                                <button onclick="openDisputeModal('${job.id}')" class="bg-red-50 hover:bg-red-100 dark:bg-gray-700 dark:text-red-400 text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center shadow-sm">
+                                    <i class="fas fa-gavel mr-1"></i> Khiếu nại
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    ${actionHtml}
+
+                    ${planApprovalBanner}
+                    ${milestonesHtml}
+                    ${reviewActionHtml}
                 </div>
             `;
         }
 
-        // --- Hành động: Khóa Escrow
+        // --- Render Từng Mốc Công Việc ---
+        function renderMilestoneItem(m, index, job) {
+            const isPaid = m.status === 'PAID' || m.status === 'approved';
+            const isPendingReview = m.status === 'PENDING_REVIEW' || m.status === 'pending_review';
+            const isRevision = m.status === 'REVISION';
+
+            let stateIcon = '<i class="fas fa-circle text-gray-300 text-xs"></i>';
+            let stateBadge = '<span class="text-[11px] font-bold text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md">Chờ thực hiện</span>';
+            let bgClass = 'bg-gray-50 dark:bg-gray-750 border-gray-200 dark:border-gray-700';
+
+            if (isPaid) {
+                stateIcon = '<i class="fas fa-check-circle text-emerald-500 text-base"></i>';
+                stateBadge = '<span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-md">✅ Đã Nghiệm Thu & Giải Ngân</span>';
+                bgClass = 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800';
+            } else if (isPendingReview) {
+                stateIcon = '<i class="fas fa-bell text-amber-500 text-base animate-bounce"></i>';
+                stateBadge = '<span class="text-[11px] font-bold text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-md animate-pulse">⚡ Báo Cáo Chờ Bạn Nghiệm Thu</span>';
+                bgClass = 'bg-amber-50/60 dark:bg-amber-950/30 border-2 border-amber-400 dark:border-amber-600';
+            } else if (isRevision) {
+                stateIcon = '<i class="fas fa-exclamation-circle text-red-500 text-base"></i>';
+                stateBadge = '<span class="text-[11px] font-bold text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-950/60 px-2.5 py-0.5 rounded-md">⚠️ Đang Yêu Cầu Sửa Đổi</span>';
+                bgClass = 'bg-red-50/40 dark:bg-red-950/20 border-red-200 dark:border-red-800';
+            }
+
+            // Evidence Link Previews
+            let evidenceHtml = '';
+            if (m.proof_urls && m.proof_urls.length > 0) {
+                evidenceHtml = `
+                    <div class="mt-2.5 flex flex-wrap gap-2">
+                        ${m.proof_urls.map((u, i) => `
+                            <a href="${u}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 transition">
+                                <i class="fas fa-external-link-alt mr-1.5"></i> Tệp Báo Cáo #${i+1}
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (m.evidence_url) {
+                evidenceHtml = `
+                    <div class="mt-2.5">
+                        <a href="${m.evidence_url}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 transition">
+                            <i class="fas fa-external-link-alt mr-1.5"></i> Xem Bằng Chứng Bàn Giao
+                        </a>
+                    </div>
+                `;
+            }
+
+            // Action Buttons
+            let actionBtns = '';
+            if (isPendingReview) {
+                actionBtns = `
+                    <div class="mt-3.5 flex flex-wrap items-center gap-2 border-t border-amber-200 dark:border-amber-800 pt-3">
+                        <button onclick="approveMilestone('${m.id}', '${job.id}', '${job.freelancer_id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center">
+                            <i class="fas fa-check-circle mr-1.5"></i> Nghiệm Thu & Giải Ngân (${parseInt(m.amount).toLocaleString()} Token)
+                        </button>
+                        <button onclick="openRevisionModal('${m.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition flex items-center">
+                            <i class="fas fa-edit mr-1.5"></i> Yêu Cầu Sửa Mốc Này
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="p-4 rounded-2xl border ${bgClass} transition">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0">
+                                ${index + 1}
+                            </div>
+                            <h4 class="font-bold text-gray-900 dark:text-gray-100 text-sm">${m.title}</h4>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black text-gray-700 dark:text-gray-300">
+                                ${parseInt(m.amount || 0).toLocaleString()} Token
+                            </span>
+                            ${stateBadge}
+                        </div>
+                    </div>
+
+                    ${m.description ? `<p class="text-xs text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">${m.description}</p>` : ''}
+                    ${evidenceHtml}
+                    ${actionBtns}
+                </div>
+            `;
+        }
+
+        // --- Action: Duyệt Kế Hoạch ---
         async function approvePlanAndLock(jobId) {
-            if (!confirm('Bạn có chắc chắn chốt kế hoạch này? Tiền sẽ bị Khóa Escrow.')) return;
+            if (!confirm('Xác nhận duyệt kế hoạch (Milestones) này và bắt đầu dự án?')) return;
             try {
                 const response = await fetch(`${API_URL}/api/jobs/start-project`, {
                     method: 'POST',
@@ -226,7 +660,7 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    alert('Thành công: ' + data.message);
+                    alert('✅ ' + (data.message || 'Đã duyệt kế hoạch thành công!'));
                     loadPendingActions();
                 } else {
                     alert('Lỗi: ' + data.error);
@@ -236,9 +670,80 @@
             }
         }
 
-        // --- Hành động: Nghiệm thu (Giải ngân ACID)
-        async function approveMilestone(milestoneId) {
-            if (!confirm('Xác nhận Nghiệm thu mốc công việc này? (Tiền sẽ được xử lý tự động)')) return;
+        // --- Action: Yêu cầu sửa Kế hoạch (Plan Revision) ---
+        function openPlanRevisionModal(jobId) {
+            document.getElementById('plan_rev_job_id').value = jobId;
+            document.getElementById('plan_rev_reason').value = '';
+            document.getElementById('planRevisionModal').classList.remove('hidden');
+        }
+
+        function closePlanRevisionModal() {
+            document.getElementById('planRevisionModal').classList.add('hidden');
+        }
+
+        async function submitPlanRevision() {
+            const jobId = document.getElementById('plan_rev_job_id').value;
+            const reason = document.getElementById('plan_rev_reason').value.trim();
+
+            if (!reason) {
+                alert('Vui lòng nhập lý do và yêu cầu cần Freelancer điều chỉnh!');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitPlanRev');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang gửi...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/jobs/request-plan-revision`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        client_id: currentUser.id,
+                        revision_reason: reason
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    closePlanRevisionModal();
+                    loadPendingActions();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối đến Backend');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i> Gửi Yêu Cầu Sửa';
+            }
+        }
+
+        // --- Action: Thu hồi thỏa thuận (Hoàn Escrow) ---
+        async function cancelProject(jobId) {
+            if (!confirm('Bạn có chắc chắn muốn Thu hồi thỏa thuận này? Toàn bộ số tiền Escrow đã khóa sẽ được hoàn trả lại ví của bạn.')) return;
+            try {
+                const response = await fetch(`${API_URL}/api/jobs/cancel-planning`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: currentUser.id, job_id: jobId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ Thành công: ' + data.message);
+                    loadPendingActions();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối đến Backend');
+            }
+        }
+
+        // --- Action: Nghiệm Thu Mốc (Giải Ngân ACID) ---
+        async function approveMilestone(milestoneId, jobId, freelancerId) {
+            if (!confirm('Xác nhận Nghiệm thu mốc công việc này? Số tiền sẽ được giải ngân trực tiếp cho Freelancer.')) return;
             try {
                 const response = await fetch(`${API_URL}/api/milestones/advanced/approve`, {
                     method: 'POST',
@@ -247,8 +752,16 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    alert('Nghiệm thu thành công: ' + data.message);
-                    loadPendingActions();
+                    alert('🎉 ' + data.message);
+                    await loadPendingActions();
+
+                    // Kiểm tra xem job có hoàn thành không để mở modal đánh giá
+                    const updatedJob = allJobsData.find(j => j.id === jobId);
+                    if (updatedJob && updatedJob.status === 'completed' && freelancerId) {
+                        const fName = updatedJob.freelancer?.full_name || 'Freelancer';
+                        const fAvatar = updatedJob.freelancer?.avatar_url || '';
+                        openReviewModal(jobId, freelancerId, fName, fAvatar, updatedJob.title);
+                    }
                 } else {
                     alert('Lỗi: ' + data.error);
                 }
@@ -257,7 +770,7 @@
             }
         }
 
-        // --- Hành động: Yêu cầu sửa (Revision)
+        // --- Action: Yêu cầu sửa mốc đơn (Milestone Revision) ---
         function openRevisionModal(milestoneId) {
             document.getElementById('rev_milestone_id').value = milestoneId;
             document.getElementById('rev_feedback').value = '';
@@ -271,27 +784,27 @@
 
         async function submitRevision() {
             const mId = document.getElementById('rev_milestone_id').value;
-            const feedback = document.getElementById('rev_feedback').value;
-            const screenshot = document.getElementById('rev_screenshot').value;
+            const feedback = document.getElementById('rev_feedback').value.trim();
+            const screenshot = document.getElementById('rev_screenshot').value.trim();
 
-            if (!feedback) { alert('Vui lòng nhập nội dung cần sửa!'); return; }
+            if (!feedback) { alert('Vui lòng nhập nội dung cần Freelancer sửa!'); return; }
 
             const payload = {
                 client_id: currentUser.id,
                 milestone_id: mId,
-                feedback: feedback,
-                screenshot_url: screenshot || null
+                feedback_text: feedback,
+                screenshot_urls: screenshot ? [screenshot] : []
             };
 
             try {
-                const response = await fetch(`${API_URL}/api/milestones/revision`, {
+                const response = await fetch(`${API_URL}/api/milestones/advanced/revision`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    alert('Thành công: ' + data.message);
+                    alert('✅ ' + data.message);
                     closeRevisionModal();
                     loadPendingActions();
                 } else {
@@ -302,7 +815,121 @@
             }
         }
 
-        // --- Hành động: Khiếu Nại (Dispute)
+        // --- Rating & Review Logic ---
+        function initStarRating() {
+            const stars = document.querySelectorAll('.star-btn');
+            const starLabels = {
+                1: '1 / 5 - Rất tệ / Không hài lòng 😞',
+                2: '2 / 5 - Tạm được / Còn nhiều lỗi 😐',
+                3: '3 / 5 - Bình thường / Đạt yêu cầu cơ bản 🙂',
+                4: '4 / 5 - Tốt / Hài lòng với chất lượng 😊',
+                5: '5 / 5 - Rất hài lòng / Xuất sắc ⭐⭐⭐⭐⭐'
+            };
+
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const val = parseInt(this.getAttribute('data-val'));
+                    document.getElementById('selectedRating').value = val;
+                    document.getElementById('starLabel').textContent = starLabels[val];
+
+                    stars.forEach(s => {
+                        const sVal = parseInt(s.getAttribute('data-val'));
+                        if (sVal <= val) {
+                            s.classList.remove('text-gray-300', 'dark:text-gray-600');
+                            s.classList.add('text-amber-400');
+                        } else {
+                            s.classList.remove('text-amber-400');
+                            s.classList.add('text-gray-300', 'dark:text-gray-600');
+                        }
+                    });
+                });
+            });
+        }
+
+        function toggleTag(btn, tagText) {
+            if (selectedComplimentTags.includes(tagText)) {
+                selectedComplimentTags = selectedComplimentTags.filter(t => t !== tagText);
+                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            } else {
+                selectedComplimentTags.push(tagText);
+                btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            }
+        }
+
+        function openReviewModal(jobId, freelancerId, freelancerName, freelancerAvatar, jobTitle) {
+            document.getElementById('review_job_id').value = jobId;
+            document.getElementById('review_freelancer_id').value = freelancerId;
+            document.getElementById('reviewFreelancerName').textContent = decodeURIComponent(freelancerName || 'Freelancer');
+            document.getElementById('reviewJobTitleDisplay').textContent = 'Dự án: ' + decodeURIComponent(jobTitle || '');
+            if (freelancerAvatar) {
+                document.getElementById('reviewFreelancerAvatar').src = decodeURIComponent(freelancerAvatar);
+            }
+
+            // Reset stars to 5
+            document.getElementById('selectedRating').value = '5';
+            document.querySelectorAll('.star-btn').forEach(s => {
+                s.classList.remove('text-gray-300', 'dark:text-gray-600');
+                s.classList.add('text-amber-400');
+            });
+            document.getElementById('starLabel').textContent = '5 / 5 - Rất hài lòng / Xuất sắc ⭐⭐⭐⭐⭐';
+
+            // Reset tags
+            selectedComplimentTags = [];
+            document.querySelectorAll('#complimentTags .tag-pill').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+
+            document.getElementById('reviewComment').value = '';
+            document.getElementById('reviewFreelancerModal').classList.remove('hidden');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewFreelancerModal').classList.add('hidden');
+        }
+
+        async function submitReview() {
+            const jobId = document.getElementById('review_job_id').value;
+            const freelancerId = document.getElementById('review_freelancer_id').value;
+            const rating = parseInt(document.getElementById('selectedRating').value) || 5;
+            const comment = document.getElementById('reviewComment').value.trim();
+
+            const btn = document.getElementById('btnSubmitReview');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang gửi...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/reviews/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        client_id: currentUser.id,
+                        freelancer_id: freelancerId,
+                        rating: rating,
+                        comment: comment || 'Freelancer làm việc rất uy tín, chuyên nghiệp và đúng tiến độ!',
+                        tags: selectedComplimentTags
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('🎉 Cảm ơn bạn đã gửi đánh giá! Điểm uy tín của Freelancer đã được cộng.');
+                    closeReviewModal();
+                    loadPendingActions();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Không thể kết nối máy chủ');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-star mr-1.5"></i> Gửi Đánh Giá';
+            }
+        }
+
+        // --- Khiếu Nại (Dispute) ---
         let uploadedDisputeEvidence = [];
 
         async function handleDisputeImageUpload(input) {
@@ -318,8 +945,8 @@
             const previewContainer = document.getElementById('dispute_image_preview');
 
             btnSubmit.disabled = true;
-            btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
-            previewContainer.innerHTML = '<p class="text-blue-500 text-sm animate-pulse w-full"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải ' + files.length + ' ảnh lên máy chủ, vui lòng chờ...</p>';
+            btnSubmit.classList.add('opacity-50');
+            previewContainer.innerHTML = '<p class="text-blue-500 text-xs animate-pulse w-full"><i class="fas fa-spinner fa-spin mr-1.5"></i>Đang tải ' + files.length + ' ảnh...</p>';
             
             uploadedDisputeEvidence = [];
             
@@ -336,18 +963,17 @@
                 uploadedDisputeEvidence = await Promise.all(uploadPromises);
 
                 previewContainer.innerHTML = uploadedDisputeEvidence.map(url => `
-                    <div class="relative inline-block mt-2 mr-2">
-                        <img src="${url}" class="w-16 h-16 object-cover rounded border border-gray-300">
-                        <span class="absolute -top-2 -right-2 bg-green-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center"><i class="fas fa-check"></i></span>
+                    <div class="relative inline-block mt-1">
+                        <img src="${url}" class="w-14 h-14 object-cover rounded-xl border border-gray-300">
+                        <span class="absolute -top-1 -right-1 bg-green-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center"><i class="fas fa-check"></i></span>
                     </div>
                 `).join('');
-                
             } catch(err) {
-                previewContainer.innerHTML = '<p class="text-red-500 text-sm w-full"><i class="fas fa-exclamation-triangle mr-2"></i>Lỗi tải ảnh: ' + err.message + '</p>';
+                previewContainer.innerHTML = '<p class="text-red-500 text-xs w-full">Lỗi tải ảnh: ' + err.message + '</p>';
                 input.value = '';
             } finally {
                 btnSubmit.disabled = false;
-                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnSubmit.classList.remove('opacity-50');
             }
         }
 
@@ -360,13 +986,6 @@
             if(preview) preview.innerHTML = '';
             uploadedDisputeEvidence = [];
             
-            const btnSubmit = document.getElementById('btnSubmitDispute');
-            if(btnSubmit) {
-                btnSubmit.disabled = false;
-                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gửi Khiếu Nại';
-            }
-
             document.getElementById('disputeModal').classList.remove('hidden');
         }
 
@@ -376,14 +995,14 @@
 
         async function submitDispute() {
             const jobId = document.getElementById('dispute_job_id').value;
-            const reason = document.getElementById('dispute_reason').value;
+            const reason = document.getElementById('dispute_reason').value.trim();
 
             if (!reason) return alert('Vui lòng nhập lý do khiếu nại!');
-            if (!confirm('CẢNH BÁO: Hành động này sẽ đóng băng toàn bộ số tiền của dự án và đưa ra Tòa Án Admin phán quyết. Bạn có chắc chắn?')) return;
+            if (!confirm('CẢNH BÁO: Dự án sẽ bị đóng băng số tiền để Ban Quản Trị thụ lý phán quyết. Bạn có chắc chắn?')) return;
 
             const btnSubmit = document.getElementById('btnSubmitDispute');
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang xử lý...';
 
             try {
                 const response = await fetch(`${API_URL}/api/jobs/dispute`, {
@@ -403,68 +1022,109 @@
                     loadPendingActions();
                 } else {
                     alert('Lỗi: ' + data.error);
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gửi Khiếu Nại';
                 }
             } catch (err) {
                 alert('Không thể kết nối Backend');
+            } finally {
                 btnSubmit.disabled = false;
-                btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gửi Khiếu Nại';
+                btnSubmit.innerHTML = '<i class="fas fa-gavel mr-1.5"></i> Gửi Khiếu Nại';
             }
         }
 
-        // ---------- CHAT LOGIC ----------
-        async function openChatModal(jobId) {
+        // ---------- CHAT LOGIC & REAL-TIME AUDIO ----------
+        function previewSelectedChatFiles(input) {
+            const count = input.files.length;
+            document.getElementById('chatFileCount').textContent = count > 0 ? `(${count} tệp được chọn)` : '';
+        }
+
+        async function openChatModal(jobId, jobTitle) {
             document.getElementById('chat_job_id').value = jobId;
+            document.getElementById('chatTitle').textContent = decodeURIComponent(jobTitle || 'Phòng Thảo Luận Dự Án');
             document.getElementById('chatModal').classList.remove('hidden');
-            loadChatMessages(jobId);
+            lastMessageCount = 0;
+            
+            loadChatMessages(jobId, false);
+
+            if (chatPollingInterval) clearInterval(chatPollingInterval);
+            chatPollingInterval = setInterval(() => {
+                loadChatMessages(jobId, true);
+            }, 3000);
         }
 
         function closeChatModal() {
             document.getElementById('chatModal').classList.add('hidden');
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+                chatPollingInterval = null;
+            }
         }
 
-        async function loadChatMessages(jobId) {
+        async function loadChatMessages(jobId, isPolling = false) {
             const chatBox = document.getElementById('chatMessages');
-            chatBox.innerHTML = '<p class="text-center text-gray-500 mt-4">Đang tải tin nhắn...</p>';
+            if (!isPolling) {
+                chatBox.innerHTML = '<p class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-spinner fa-spin mr-1.5"></i> Đang tải tin nhắn...</p>';
+            }
             
             try {
                 const res = await fetch(`${API_URL}/api/jobs/${jobId}/messages`);
                 const data = await res.json();
                 if (res.ok) {
-                    if (data.messages.length === 0) {
-                        chatBox.innerHTML = '<p class="text-center text-gray-500 mt-4">Chưa có tin nhắn nào. Bắt đầu thảo luận!</p>';
-                    } else {
-                        chatBox.innerHTML = data.messages.map(msg => renderMessage(msg)).join('');
-                        chatBox.scrollTop = chatBox.scrollHeight;
+                    const messages = data.messages || [];
+                    
+                    // Phát chuông nếu có tin nhắn mới từ đối phương
+                    if (isPolling && messages.length > lastMessageCount) {
+                        const lastMsg = messages[messages.length - 1];
+                        if (lastMsg && lastMsg.sender_id !== currentUser.id) {
+                            playNotificationChime();
+                        }
+                    }
+
+                    if (messages.length !== lastMessageCount || !isPolling) {
+                        lastMessageCount = messages.length;
+                        if (messages.length === 0) {
+                            chatBox.innerHTML = '<p class="text-center text-xs text-gray-400 mt-4">Chưa có tin nhắn nào. Hãy gửi lời chào và thảo luận công việc!</p>';
+                        } else {
+                            chatBox.innerHTML = messages.map(msg => renderMessage(msg)).join('');
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }
                     }
                 }
             } catch (err) {
-                chatBox.innerHTML = '<p class="text-center text-red-500 mt-4">Lỗi kết nối Server!</p>';
+                if (!isPolling) chatBox.innerHTML = '<p class="text-center text-red-500 text-xs mt-4">Lỗi kết nối Server!</p>';
             }
         }
 
         function renderMessage(msg) {
             const isMe = msg.sender_id === currentUser.id;
             const timeStr = new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
-            const roleBadge = msg.users.role === 'client' ? '<span class="text-[10px] bg-blue-100 text-blue-800 px-1 rounded ml-1">KHÁCH HÀNG</span>' : '<span class="text-[10px] bg-green-100 text-green-800 px-1 rounded ml-1">FREELANCER</span>';
+            const roleBadge = msg.users?.role === 'client' 
+                ? '<span class="text-[9px] bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 px-1.5 py-0.5 rounded font-bold ml-1">KHÁCH HÀNG</span>' 
+                : '<span class="text-[9px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 px-1.5 py-0.5 rounded font-bold ml-1">FREELANCER</span>';
             
             let fileHtml = '';
             if (msg.file_url) {
                 if (msg.file_type === 'image') {
-                    fileHtml = `<div class="mt-2"><img src="${msg.file_url}" class="max-w-[200px] rounded-lg border border-gray-200 cursor-pointer" onclick="window.open('${msg.file_url}', '_blank')"></div>`;
+                    fileHtml = `<div class="mt-2"><img src="${msg.file_url}" class="max-w-[220px] max-h-[220px] object-cover rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:opacity-90 transition" onclick="window.open('${msg.file_url}', '_blank')"></div>`;
                 } else if (msg.file_type === 'video') {
-                    fileHtml = `<div class="mt-2"><video src="${msg.file_url}" controls class="max-w-[250px] rounded-lg"></video></div>`;
+                    fileHtml = `<div class="mt-2"><video src="${msg.file_url}" controls class="max-w-[250px] rounded-xl shadow-sm"></video></div>`;
                 } else {
-                    fileHtml = `<div class="mt-2"><a href="${msg.file_url}" target="_blank" class="flex items-center text-sm underline ${isMe ? 'text-white' : 'text-blue-600'}">📁 Tải File đính kèm</a></div>`;
+                    fileHtml = `
+                        <div class="mt-2">
+                            <a href="${msg.file_url}" target="_blank" class="inline-flex items-center text-xs font-bold ${isMe ? 'text-white bg-indigo-700/80 hover:bg-indigo-700' : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'} px-3 py-1.5 rounded-xl transition">
+                                <i class="fas fa-file-download mr-1.5"></i> Tải Tệp Đính Kèm
+                            </a>
+                        </div>
+                    `;
                 }
             }
 
             return `
                 <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                    <div class="text-xs text-gray-500 mb-1 flex items-center">${msg.users.full_name} ${roleBadge} - ${timeStr}</div>
-                    <div class="max-w-[80%] rounded-lg p-3 ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none border shadow-sm'}">
-                        ${msg.content ? `<p class="text-sm whitespace-pre-wrap">${msg.content}</p>` : ''}
+                    <div class="text-[11px] text-gray-400 mb-1 flex items-center">
+                        ${msg.users?.full_name || 'Người dùng'} ${roleBadge} <span class="mx-1">•</span> ${timeStr}
+                    </div>
+                    <div class="max-w-[82%] rounded-2xl p-3 ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-tl-none border border-gray-100 dark:border-gray-700 shadow-sm'}">
+                        ${msg.content ? `<p class="text-xs whitespace-pre-wrap leading-relaxed">${msg.content}</p>` : ''}
                         ${fileHtml}
                     </div>
                 </div>
@@ -482,28 +1142,26 @@
 
             if (!content && files.length === 0) return;
 
-            // Xóa form ngay lập tức để UX mượt
             contentInput.value = '';
             fileInput.value = '';
+            document.getElementById('chatFileCount').textContent = '';
 
-            // 1. Gửi tin nhắn Text trước nếu có
             if (content) {
                 fetch(`${API_URL}/api/jobs/${jobId}/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ sender_id: currentUser.id, content: content })
-                }).then(() => loadChatMessages(jobId));
+                }).then(() => loadChatMessages(jobId, true));
             }
 
-            // 2. Gửi file (Async từng file để hiện progress)
             for (let file of files) {
-                const tempId = 'temp_' + Date.now() + Math.random().toString(36).substr(2, 9);
+                const tempId = 'temp_' + Date.now();
                 const tempHtml = `
                     <div id="${tempId}" class="flex flex-col items-end">
-                        <div class="text-xs text-gray-500 mb-1 flex items-center">Đang gửi...</div>
-                        <div class="max-w-[80%] rounded-lg p-3 bg-blue-300 text-white rounded-tr-none flex items-center space-x-2">
-                            <span class="animate-spin rounded-full h-4 w-4 border-t-2 border-white border-solid"></span>
-                            <span class="text-sm">Đang tải lên: ${file.name}</span>
+                        <div class="text-[10px] text-gray-400 mb-1">Đang gửi tệp...</div>
+                        <div class="max-w-[80%] rounded-2xl p-3 bg-indigo-400 text-white rounded-tr-none flex items-center space-x-2 text-xs">
+                            <span class="animate-spin rounded-full h-3.5 w-3.5 border-t-2 border-white"></span>
+                            <span>Đang tải lên: ${file.name}</span>
                         </div>
                     </div>
                 `;
@@ -519,26 +1177,33 @@
                 try {
                     const uploadRes = await fetch(`${API_URL}${uploadEndpoint}`, { method: 'POST', body: formData });
                     const uploadData = await uploadRes.json();
-                    
                     if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload thất bại');
 
-                    // Gửi URL vào message DB
                     await fetch(`${API_URL}/api/jobs/${jobId}/messages`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ sender_id: currentUser.id, file_url: uploadData.url, file_type: uploadData.type })
                     });
                     
-                    document.getElementById(tempId).remove();
-                    loadChatMessages(jobId);
+                    document.getElementById(tempId)?.remove();
+                    loadChatMessages(jobId, true);
                 } catch (err) {
                     const tempDiv = document.getElementById(tempId);
-                    if (tempDiv) tempDiv.innerHTML = `<p class="text-red-500 text-sm p-2 bg-red-100 rounded border border-red-300">❌ Lỗi tải ${file.name}: ${err.message}</p>`;
+                    if (tempDiv) tempDiv.innerHTML = `<p class="text-red-500 text-xs p-2 bg-red-100 rounded-xl">❌ Lỗi: ${err.message}</p>`;
                 }
             }
         }
 
-        loadPendingActions();
+        // --- Khởi động ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initStarRating();
+            loadPendingActions();
+        });
     </script>
+
+    <!-- Shared UI Script -->
+    <script src="ui.js"></script>
 </body>
 </html>
+
+

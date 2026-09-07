@@ -5,19 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khách hàng - Danh sách Ứng viên & Khóa Escrow</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-50 p-10">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 dark:text-gray-100 h-screen flex overflow-hidden">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-10">
+            
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Quản lý Ứng viên & Khóa Escrow</h1>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Quản lý Ứng viên & Khóa Escrow</h1>
         
         <div id="applicationsList" class="space-y-4">
-            <p class="text-gray-500">Đang tải danh sách ứng viên...</p>
+            <p class="text-gray-500 dark:text-gray-400">Đang tải danh sách ứng viên...</p>
         </div>
     </div>
 
     <!-- Modal Khóa Escrow -->
     <div id="escrowModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg w-96 shadow-xl">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-lg w-96 shadow-xl">
             <h2 class="text-xl font-bold mb-4">Duyệt và Khóa Token Escrow</h2>
             <form id="escrowForm" class="space-y-4">
                 <input type="hidden" id="modal_application_id">
@@ -61,10 +87,10 @@
                 
                 if (data.applications && data.applications.length > 0) {
                     listDiv.innerHTML = data.applications.map(app => `
-                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 p-4 rounded-lg shadow border border-gray-200">
                             <h3 class="text-lg font-bold text-blue-600">Dự án: ${app.jobs ? app.jobs.title : 'Không rõ'}</h3>
                             <p class="text-gray-700 mt-2"><strong>Freelancer:</strong> ${app.users ? app.users.full_name : 'Không rõ'}</p>
-                            <p class="text-gray-600"><strong>Lời chào:</strong> ${app.cover_letter}</p>
+                            <p class="text-gray-600 dark:text-gray-300"><strong>Lời chào:</strong> ${app.cover_letter}</p>
                             <div class="flex justify-between items-center mt-4">
                                 <span class="font-bold text-green-600">Báo giá: ${app.bid_amount} Token</span>
                                 <button onclick="openEscrowModal('${app.id}')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 shadow">
@@ -74,7 +100,7 @@
                         </div>
                     `).join('');
                 } else {
-                    listDiv.innerHTML = '<p class="text-gray-500">Chưa có ứng viên nào ứng tuyển vào dự án của bạn.</p>';
+                    listDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Chưa có ứng viên nào ứng tuyển vào dự án của bạn.</p>';
                 }
             } catch (err) {
                 listDiv.innerHTML = '<p class="text-red-500">Lỗi kết nối Server!</p>';
@@ -112,11 +138,16 @@
                 if (response.ok) {
                     msgDiv.textContent = data.message;
                     msgDiv.className = "mt-4 text-green-600 font-bold block";
-                    alert('Đã chọn Freelancer thành công! Đang chờ họ lập kế hoạch.');
-                    window.location.href = 'home.html';
+                    alert('✅ Đã chọn Freelancer và KHÓA ESCROW thành công! Đang chờ họ lập kế hoạch.');
+                    window.location.href = 'review-work.html';
                 } else {
                     msgDiv.textContent = 'Lỗi: ' + data.error;
                     msgDiv.className = "mt-4 text-red-600 font-bold block";
+                    if (data.error.includes('Số dư không đủ')) {
+                        if (confirm('Số dư Token của bạn không đủ để khóa Escrow. Bạn có muốn đi nạp thêm Token ngay bây giờ?')) {
+                            window.location.href = 'wallet.html';
+                        }
+                    }
                 }
             } catch (err) {
                 console.error('Error during API call:', err);
@@ -127,5 +158,13 @@
         // Tải danh sách khi mở trang
         loadApplications();
     </script>
-</body>
+
+        </main>
+    </div>
+    
+    <!-- Shared UI Script -->
+    <script src="ui.js"></script>
+        </body>
 </html>
+
+

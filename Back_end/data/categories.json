@@ -1,0 +1,134 @@
+[
+  {
+    "id": "cat_web",
+    "name": "Phát triển Website & Web App",
+    "slug": "web-dev",
+    "icon": "🌐",
+    "description": "Web bán hàng, web công ty, landing page, SaaS, hệ thống Web...",
+    "tags_preset": [
+      "ReactJS",
+      "VueJS",
+      "NodeJS",
+      "Laravel",
+      "WordPress",
+      "Fullstack"
+    ],
+    "is_active": true,
+    "sort_order": 1,
+    "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_app",
+    "name": "Ứng dụng Di Động (Mobile App)",
+    "slug": "mobile-app",
+    "icon": "📱",
+    "description": "App iOS, Android, Flutter, React Native, hệ thống quản lý di động...",
+    "tags_preset": [
+      "Flutter",
+      "React Native",
+      "iOS Swift",
+      "Android Kotlin",
+      "Firebase"
+    ],
+    "is_active": true,
+    "sort_order": 2,
+    "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_uiux",
+    "name": "Thiết kế UI/UX & Đồ Họa",
+    "slug": "ui-ux",
+    "icon": "🎨",
+    "description": "Thiết kế giao diện app/web trên Figma, logo thương hiệu, banner...",
+    "tags_preset": [
+      "Figma",
+      "Adobe XD",
+      "UI Design",
+      "UX Research",
+      "Logo & Branding"
+    ],
+    "is_active": true,
+    "sort_order": 3,
+    "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_ai",
+    "name": "Trí Tuệ Nhân Tạo & Dữ Liệu (AI/ML)",
+    "slug": "ai-data",
+    "icon": "🤖",
+    "description": "Tích hợp OpenAI/LLM, Chatbot AI, Python Automation, Xử lý dữ liệu...",
+    "tags_preset": [
+      "Python",
+      "OpenAI API",
+      "Machine Learning",
+      "Data Scraping",
+      "Chatbot"
+    ],
+    "is_active": true,
+    "sort_order": 4,
+    "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_blockchain",
+    "name": "Blockchain, Web3 & Smart Contract",
+    "slug": "blockchain-web3",
+    "icon": "🔒",
+    "description": "Hợp đồng thông minh Solidity, DApp, Audit bảo mật, Tích hợp Ví Web3...",
+    "tags_preset": [
+      "Solidity",
+      "Smart Contract",
+      "Web3.js",
+      "Ethers.js",
+      "Security Audit"
+    ],
+    "is_active": true,
+    "sort_order": 5,
+    "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_devops",
+    "name": "Hạ Tầng, DevOps & Sửa Lỗi",
+    "slug": "devops-cloud",
+    "icon": "🔧",
+    "description": "Cấu hình VPS, CI/CD, Docker, Tối ưu tốc độ, Nâng cấp & Sửa lỗi hệ thống...",
+    "tags_preset": [
+      "Docker",
+      "AWS / Cloud",
+      "Linux / VPS",
+      "Nginx",
+      "Fix Bug / Tối ưu"
+    ],
+    "is_active": true,
+    "sort_order": 6,
+    "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_other",
+    "name": "Lĩnh vực Khác (Miscellaneous)",
+    "slug": "other",
+    "icon": "💡",
+    "description": "Viết script, nhập liệu, dịch thuật kỹ thuật, tư vấn giải pháp tổng thể...",
+    "tags_preset": [
+      "Tư vấn IT",
+      "Viết Script",
+      "Cần gấp ⚡",
+      "Hỗ trợ kỹ thuật"
+    ],
+    "is_active": true,
+    "sort_order": 99,
+    "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_mtmgaxox",
+    "name": "Bảo mật",
+    "slug": "bao-mat",
+    "icon": "🛡️",
+    "description": "bảo mật website và bảo trì deploy",
+    "tags_preset": [
+      "bảo mật"
+    ],
+    "is_active": true,
+    "sort_order": 8,
+    "created_at": "2026-09-04T04:25:37.809Z"
+  }
+]

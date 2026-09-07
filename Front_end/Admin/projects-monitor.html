@@ -1,251 +1,560 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trung Tâm Giám Sát & Giải Quyết Tranh Chấp</title>
+    <title>HT Work Admin - Giám Sát Dự Án & Tòa Án Tranh Chấp</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        dark: { 800: '#1e293b', 850: '#172033', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+    </style>
 </head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-satellite-dish text-blue-600 mr-3"></i>Trung Tâm Giám Sát Dự Án (Overseer)</h1>
-                <p class="text-gray-600 mt-2">Theo dõi mọi dự án đang chạy trên nền tảng và đưa ra phán quyết Tòa án Blockchain.</p>
-            </div>
-            <button onclick="window.location.href='dashboard.html'" class="bg-gray-200 text-gray-700 px-4 py-2 rounded shadow hover:bg-gray-300 font-bold transition">
-                <i class="fas fa-arrow-left mr-2"></i> Trở về Admin Dashboard
-            </button>
-        </div>
+<body class="bg-slate-50 dark:bg-dark-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200">
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
-                <div class="text-sm text-gray-500 font-bold uppercase">Tổng dự án</div>
-                <div class="text-3xl font-black text-gray-800 mt-1" id="stat_total">0</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
-                <div class="text-sm text-gray-500 font-bold uppercase">Đang chạy êm đẹp</div>
-                <div class="text-3xl font-black text-green-600 mt-1" id="stat_active">0</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">
-                <div class="text-sm text-gray-500 font-bold uppercase">Đang Tranh Chấp</div>
-                <div class="text-3xl font-black text-red-600 mt-1" id="stat_disputed">0</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-500">
-                <div class="text-sm text-gray-500 font-bold uppercase">Đã Hoàn Thành</div>
-                <div class="text-3xl font-black text-purple-600 mt-1" id="stat_completed">0</div>
-            </div>
-        </div>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar-container" class="shrink-0"></aside>
 
-        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-800 text-white text-sm uppercase">
-                        <th class="p-4">Tên Dự Án</th>
-                        <th class="p-4">Khách Hàng</th>
-                        <th class="p-4">Freelancer</th>
-                        <th class="p-4">Ngân Sách (Escrow)</th>
-                        <th class="p-4">Trạng Thái</th>
-                        <th class="p-4">Hành Động</th>
-                    </tr>
-                </thead>
-                <tbody id="projectsTable" class="divide-y divide-gray-200">
-                    <tr><td colspan="6" class="p-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <!-- Topbar Header -->
+            <header id="topbar-container" class="shrink-0"></header>
 
-    <!-- Modal Phán Quyết Tranh Chấp -->
-    <div id="disputeModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex justify-center items-center z-50">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl" style="max-height: 90vh; overflow-y: auto;">
-            <div class="flex justify-between items-center border-b pb-4 mb-4">
-                <h2 class="text-2xl font-bold text-red-700"><i class="fas fa-balance-scale mr-2"></i> Hồ Sơ Phán Quyết Tranh Chấp</h2>
-                <button onclick="closeDisputeModal()" class="text-gray-500 hover:text-red-500 text-3xl">&times;</button>
-            </div>
-            
-            <input type="hidden" id="modal_job_id">
-            
-            <div class="grid grid-cols-2 gap-6">
-                <!-- Cột trái: Thông tin hợp đồng -->
-                <div class="bg-gray-50 p-4 rounded-lg border">
-                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">1. Thông tin Hợp đồng</h3>
-                    <p class="text-sm text-gray-600 mb-1"><strong>Dự án:</strong> <span id="m_job_title"></span></p>
-                    <p class="text-sm text-gray-600 mb-1"><strong>Escrow Đóng băng:</strong> <span id="m_job_budget" class="text-blue-600 font-bold"></span> Token</p>
-                    <p class="text-sm text-gray-600 mb-4"><strong>Mô tả gốc:</strong> <br><span id="m_job_desc" class="italic"></span></p>
+            <!-- Main Scrollable Body -->
+            <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 space-y-6">
+                
+                <!-- Page Title Bar -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">
+                                <i class="fas fa-satellite-dish"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                                    Giám Sát Dự Án & Tòa Án Phán Quyết (Overseer)
+                                </h1>
+                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Kiểm toán tiến độ, trích xuất dữ liệu chat & đưa ra phán quyết giải ngân Escrow tối cao
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <button onclick="loadProjects()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-xs sm:text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-sync-alt" id="refresh-icon"></i> Làm Mới
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tổng Số Dự Án</div>
+                            <div class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="stat_total">0</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Hợp đồng trên sàn</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-xl">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wider text-rose-500">Đang Tranh Chấp</div>
+                            <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1" id="stat_disputed">0</div>
+                            <div class="text-xs text-rose-500 font-semibold mt-1 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> Cần Admin xử lý
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-xl">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-500">Đang Triển Khai</div>
+                            <div class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="stat_active">0</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Đang chạy êm đẹp</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl">
+                            <i class="fas fa-spinner fa-pulse"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wider text-purple-500">Đã Hoàn Tất</div>
+                            <div class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="stat_completed">0</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Đã tất toán Escrow</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center text-xl">
+                            <i class="fas fa-flag-checkered"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Data Card -->
+                <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                     
-                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2 mt-4">2. Bằng chứng Sản phẩm (Proof of Work)</h3>
-                    <p class="text-xs text-gray-500 mb-2">Admin kiểm tra các mốc Freelancer đã nộp để xem họ có làm việc thật không.</p>
-                    <div id="m_milestones_container" class="space-y-3 max-h-64 overflow-y-auto pr-2 mt-3">
-                        <!-- Milestones sẽ được render ở đây -->
+                    <!-- Table Header Controls -->
+                    <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+                        <!-- Status Filter Tabs -->
+                        <div class="flex items-center gap-1 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl overflow-x-auto text-xs font-semibold">
+                            <button onclick="setFilter('all')" id="tab-all" class="tab-btn px-4 py-2 rounded-lg bg-white dark:bg-dark-900 text-indigo-600 dark:text-indigo-400 shadow-xs">
+                                Tất Cả (<span id="count-all">0</span>)
+                            </button>
+                            <button onclick="setFilter('disputed')" id="tab-disputed" class="tab-btn px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                                <i class="fas fa-exclamation-circle text-rose-500 mr-1"></i> Tranh Chấp (<span id="count-disputed">0</span>)
+                            </button>
+                            <button onclick="setFilter('in_progress')" id="tab-in_progress" class="tab-btn px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                                Đang Chạy (<span id="count-active">0</span>)
+                            </button>
+                            <button onclick="setFilter('completed')" id="tab-completed" class="tab-btn px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                                Hoàn Thành (<span id="count-completed">0</span>)
+                            </button>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="relative w-full md:w-72">
+                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="searchInput" oninput="renderTable()" placeholder="Tìm theo tên dự án, client, freelancer..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Projects Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm" id="projectsTable">
+                            <thead class="bg-slate-50 dark:bg-dark-800 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-bold border-b border-slate-200 dark:border-slate-800">
+                                <tr>
+                                    <th class="py-3.5 px-4">Tên Dự Án</th>
+                                    <th class="py-3.5 px-4">Khách Hàng (Client)</th>
+                                    <th class="py-3.5 px-4">Freelancer</th>
+                                    <th class="py-3.5 px-4 text-right">Ngân Sách (Escrow)</th>
+                                    <th class="py-3.5 px-4 text-center">Trạng Thái</th>
+                                    <th class="py-3.5 px-4 text-center">Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center text-slate-400">
+                                        <i class="fas fa-spinner fa-spin text-2xl mb-2 text-indigo-500"></i>
+                                        <p class="text-xs">Đang tải danh sách dự án...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- Cột phải: Đơn khiếu nại -->
-                <div class="bg-red-50 p-4 rounded-lg border border-red-200">
-                    <h3 class="font-bold text-red-800 mb-3 border-b border-red-200 pb-2">3. Đơn Khiếu Nại (Từ người dùng)</h3>
-                    <p class="text-sm text-gray-700 mb-2"><strong>Lý do:</strong> <br><span id="m_dispute_reason" class="text-red-600 font-semibold"></span></p>
-                    <p class="text-sm text-gray-700 mb-2"><strong>Hình ảnh bằng chứng:</strong></p>
-                    <div id="m_dispute_evidence_container" class="grid grid-cols-3 gap-2 mt-2">
-                        <!-- Ảnh sẽ được render ở đây -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-8 border-t pt-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">TÒA ÁN QUYẾT ĐỊNH</h3>
-                <div class="flex justify-center space-x-6">
-                    <button onclick="resolveDispute('client')" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 shadow-lg flex flex-col items-center w-64">
-                        <i class="fas fa-undo text-2xl mb-2"></i>
-                        <span>Khách Hàng Thắng</span>
-                        <span class="text-xs font-normal mt-1 opacity-80">(Hoàn lại tiền Escrow về ví Khách)</span>
-                    </button>
-                    <button onclick="resolveDispute('freelancer')" class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg flex flex-col items-center w-64">
-                        <i class="fas fa-bolt text-2xl mb-2"></i>
-                        <span>Freelancer Thắng</span>
-                        <span class="text-xs font-normal mt-1 opacity-80">(Ép buộc giải ngân thẳng cho Freelancer)</span>
-                    </button>
-                </div>
-            </div>
+            </main>
         </div>
     </div>
 
+    <!-- ============================================================== -->
+    <!-- MODAL HỒ SƠ PHÁN QUYẾT TRANH CHẤP TỐI CAO (SUPREME COURT) -->
+    <!-- ============================================================== -->
+    <div id="disputeModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-dark-900 rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in duration-200 max-h-[92vh] flex flex-col">
+            
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-rose-600 via-rose-700 to-indigo-700 p-5 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg font-black">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-black tracking-tight flex items-center gap-2">
+                            Hồ Sơ Phán Quyết Tranh Chấp Tối Cao
+                            <span class="px-2 py-0.5 rounded-full bg-white/20 text-[10px] uppercase font-bold tracking-wider">Supreme Court</span>
+                        </h2>
+                        <p class="text-xs text-rose-100">Dữ liệu lưu vết hợp đồng, sản phẩm bàn giao và trích xuất tin nhắn chat</p>
+                    </div>
+                </div>
+                <button onclick="closeDisputeModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition">&times;</button>
+            </div>
+
+            <input type="hidden" id="modal_job_id">
+
+            <!-- Modal Sub-Navigation Tabs -->
+            <div class="flex items-center gap-2 px-6 pt-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-dark-800/50 text-xs font-bold shrink-0">
+                <button onclick="switchModalTab('contract')" id="mtab-btn-contract" class="pb-3 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400">
+                    <i class="fas fa-file-contract mr-1"></i> Hợp Đồng & Khiếu Nại
+                </button>
+                <button onclick="switchModalTab('milestones')" id="mtab-btn-milestones" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">
+                    <i class="fas fa-tasks mr-1"></i> Bàn Giao Mốc (Proof of Work)
+                </button>
+                <button onclick="switchModalTab('chatlogs')" id="mtab-btn-chatlogs" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">
+                    <i class="fas fa-comments mr-1"></i> Trích Xuất Lịch Sử Chat & File
+                </button>
+            </div>
+
+            <!-- Modal Body Scrollable -->
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+                
+                <!-- TAB 1: HỢP ĐỒNG & KHIẾU NẠI -->
+                <div id="mtab-contract" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Left: Thông tin hợp đồng -->
+                        <div class="bg-slate-50 dark:bg-dark-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                            <h3 class="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border-b border-slate-200 dark:border-slate-700 pb-2">
+                                1. Thông Tin Hợp Đồng & Ký Quỹ
+                            </h3>
+                            <div>
+                                <span class="text-[11px] text-slate-400">Tên dự án:</span>
+                                <p id="m_job_title" class="font-bold text-slate-900 dark:text-white text-sm">--</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <span class="text-[11px] text-slate-400">Khách Hàng:</span>
+                                    <p id="m_job_client" class="font-semibold text-slate-800 dark:text-slate-200 text-xs">--</p>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] text-slate-400">Freelancer:</span>
+                                    <p id="m_job_freelancer" class="font-semibold text-slate-800 dark:text-slate-200 text-xs">--</p>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-slate-400">Escrow Đang Khóa:</span>
+                                <p id="m_job_budget" class="font-black text-indigo-600 dark:text-indigo-400 text-base">-- Token</p>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-slate-400">Mô tả công việc ban đầu:</span>
+                                <div id="m_job_desc" class="mt-1 p-3 bg-white dark:bg-dark-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 max-h-36 overflow-y-auto custom-scrollbar italic leading-relaxed">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Đơn khiếu nại -->
+                        <div class="bg-rose-50 dark:bg-rose-950/20 p-5 rounded-2xl border border-rose-200 dark:border-rose-900/40 space-y-3">
+                            <h3 class="text-xs font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 border-b border-rose-200 dark:border-rose-900/40 pb-2">
+                                2. Đơn Khiếu Nại & Bằng Chứng
+                            </h3>
+                            <div>
+                                <span class="text-[11px] text-rose-400 font-semibold">Lý do khiếu nại từ người dùng:</span>
+                                <div id="m_dispute_reason" class="mt-1 p-3 bg-white dark:bg-dark-900 rounded-xl border border-rose-200 dark:border-rose-900/40 text-xs font-medium text-rose-700 dark:text-rose-300 leading-relaxed">--</div>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-rose-400 font-semibold block mb-2">Hình ảnh đính kèm minh chứng:</span>
+                                <div id="m_dispute_evidence_container" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    <!-- Dynamic images -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: BÀN GIAO MỐC (PROOF OF WORK) -->
+                <div id="mtab-milestones" class="hidden space-y-4">
+                    <div class="bg-slate-50 dark:bg-dark-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between">
+                        <span><i class="fas fa-info-circle text-indigo-500 mr-1.5"></i> Admin kiểm tra các mốc Freelancer đã bàn giao để đánh giá khối lượng công việc thực tế.</span>
+                        <span class="font-bold text-slate-900 dark:text-white" id="m_milestone_summary">0 Mốc</span>
+                    </div>
+                    <div id="m_milestones_container" class="space-y-3">
+                        <!-- Dynamic Milestones -->
+                    </div>
+                </div>
+
+                <!-- TAB 3: TRÍCH XUẤT LỊCH SỬ CHAT -->
+                <div id="mtab-chatlogs" class="hidden space-y-4">
+                    <div class="bg-indigo-50 dark:bg-indigo-950/20 p-4 rounded-2xl border border-indigo-200 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-300 flex items-center justify-between">
+                        <span><i class="fas fa-history text-indigo-600 mr-1.5"></i> Trích xuất dữ liệu lưu vết tin nhắn thời gian thực giữa Khách Hàng và Freelancer.</span>
+                        <button onclick="refreshChatLogs()" class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-bold text-[11px] hover:bg-indigo-700">
+                            <i class="fas fa-sync-alt mr-1"></i> Tải lại chat
+                        </button>
+                    </div>
+
+                    <div id="m_chatlogs_container" class="bg-slate-50 dark:bg-dark-800/80 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 max-h-96 overflow-y-auto custom-scrollbar space-y-3">
+                        <div class="text-center text-slate-400 py-8 text-xs">
+                            <i class="fas fa-spinner fa-spin text-lg mb-2"></i>
+                            <p>Đang trích xuất dữ liệu chat...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer: Supreme Court Decision Actions -->
+            <div class="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-dark-900 shrink-0">
+                <div class="text-center mb-3">
+                    <span class="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Phán Quyết Tòa Án Tối Cao (Không Thể Hoàn Tác)</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button onclick="resolveDispute('client')" class="p-4 rounded-2xl bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-700 hover:to-red-800 text-white shadow-lg shadow-rose-500/20 transition flex items-center justify-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-black text-sm">Khách Hàng Thắng</div>
+                            <div class="text-[11px] text-rose-100">Hoàn trả tiền Escrow về ví Khách Hàng</div>
+                        </div>
+                    </button>
+
+                    <button onclick="resolveDispute('freelancer')" class="p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-black text-sm">Freelancer Thắng</div>
+                            <div class="text-[11px] text-emerald-100">Ép giải ngân Escrow cho Freelancer</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- UI Core Script -->
+    <script src="admin-ui.js"></script>
+
+    <!-- Page Logic Script -->
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
 
-        let projects = [];
+        let allProjects = [];
+        let currentFilter = 'all';
 
         async function loadProjects() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
             try {
                 const res = await fetch(`${API_URL}/api/admin/projects`);
                 const data = await res.json();
-                if(res.ok) {
-                    projects = data.projects || [];
+                
+                if (res.ok && Array.isArray(data.projects)) {
+                    allProjects = data.projects;
+                    updateStats();
                     renderTable();
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    console.error('Lỗi lấy projects:', data);
                 }
-            } catch(e) {
-                console.error(e);
+            } catch (err) {
+                console.error('Lỗi kết nối loadProjects:', err);
+            } finally {
+                if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 400);
             }
+        }
+
+        function updateStats() {
+            let total = allProjects.length;
+            let disputed = allProjects.filter(p => p.status === 'disputed').length;
+            let active = allProjects.filter(p => ['in_progress', 'planning', 'pending_plan_approval'].includes(p.status)).length;
+            let completed = allProjects.filter(p => p.status === 'completed').length;
+
+            document.getElementById('stat_total').innerText = total.toLocaleString();
+            document.getElementById('stat_disputed').innerText = disputed.toLocaleString();
+            document.getElementById('stat_active').innerText = active.toLocaleString();
+            document.getElementById('stat_completed').innerText = completed.toLocaleString();
+
+            document.getElementById('count-all').innerText = total;
+            document.getElementById('count-disputed').innerText = disputed;
+            document.getElementById('count-active').innerText = active;
+            document.getElementById('count-completed').innerText = completed;
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900';
+            });
+            const activeBtn = document.getElementById(`tab-${filter}`);
+            if (activeBtn) {
+                activeBtn.className = 'tab-btn px-4 py-2 rounded-lg bg-white dark:bg-dark-900 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold';
+            }
+            renderTable();
         }
 
         function renderTable() {
-            const table = document.getElementById('projectsTable');
-            let statTotal = 0, statActive = 0, statDisputed = 0, statCompleted = 0;
+            const tbody = document.getElementById('tableBody');
+            const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
 
-            if(projects.length === 0) {
-                table.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Không có dự án nào.</td></tr>';
+            let list = allProjects;
+            if (currentFilter === 'disputed') {
+                list = list.filter(p => p.status === 'disputed');
+            } else if (currentFilter === 'in_progress') {
+                list = list.filter(p => ['in_progress', 'planning', 'pending_plan_approval'].includes(p.status));
+            } else if (currentFilter === 'completed') {
+                list = list.filter(p => p.status === 'completed');
+            }
+
+            if (search) {
+                list = list.filter(p => 
+                    (p.title || '').toLowerCase().includes(search) ||
+                    (p.clients?.full_name || '').toLowerCase().includes(search) ||
+                    (p.clients?.email || '').toLowerCase().includes(search) ||
+                    (p.freelancer?.full_name || '').toLowerCase().includes(search) ||
+                    (p.freelancer?.email || '').toLowerCase().includes(search)
+                );
+            }
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-400 text-xs">Không có dự án nào phù hợp với bộ lọc.</td></tr>`;
                 return;
             }
 
-            table.innerHTML = projects.map(p => {
-                statTotal++;
+            tbody.innerHTML = list.map(p => {
                 let badge = '';
-                if(p.status === 'disputed') { statDisputed++; badge = '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold animate-pulse">🔴 Tranh Chấp</span>'; }
-                else if(p.status === 'in_progress') { statActive++; badge = '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">Đang chạy</span>'; }
-                else if(p.status === 'completed') { statCompleted++; badge = '<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-bold">Hoàn Thành</span>'; }
-                else if(p.status === 'cancelled') badge = '<span class="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs font-bold">Đã Hủy</span>';
-                else badge = `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold">${p.status}</span>`;
+                if (p.status === 'disputed') {
+                    badge = '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20 flex items-center justify-center gap-1.5 w-fit mx-auto"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>🔴 Tranh Chấp</span>';
+                } else if (['in_progress', 'planning', 'pending_plan_approval'].includes(p.status)) {
+                    badge = '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 w-fit mx-auto block">Đang Chạy</span>';
+                } else if (p.status === 'completed') {
+                    badge = '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-500/10 text-purple-600 border border-purple-500/20 w-fit mx-auto block">Hoàn Thành</span>';
+                } else if (p.status === 'cancelled') {
+                    badge = '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-500/10 text-slate-600 border border-slate-500/20 w-fit mx-auto block">Đã Hủy</span>';
+                } else {
+                    badge = `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 w-fit mx-auto block">${p.status}</span>`;
+                }
 
                 let actionBtn = '';
-                if(p.status === 'disputed') {
-                    actionBtn = `<button onclick='openDispute("${p.id}")' class="bg-red-600 text-white px-3 py-1 rounded shadow hover:bg-red-700 text-sm font-bold">Phân Xử Ngay</button>`;
+                if (p.status === 'disputed') {
+                    actionBtn = `<button onclick='openDisputeModal("${p.id}")' class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-bold shadow-sm shadow-rose-500/25 transition flex items-center gap-1.5">
+                        <i class="fas fa-gavel"></i> Phán Xử Ngay
+                    </button>`;
                 } else {
-                    actionBtn = `<button class="bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 text-sm font-bold">Xem Live</button>`;
+                    actionBtn = `<button onclick='openDisputeModal("${p.id}")' class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-dark-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold transition flex items-center gap-1.5">
+                        <i class="fas fa-eye"></i> Xem Chi Tiết
+                    </button>`;
                 }
 
                 return `
-                    <tr class="hover:bg-gray-50 border-b">
-                        <td class="p-4 font-bold text-gray-800">${p.title}</td>
-                        <td class="p-4 text-sm text-gray-600">${p.clients?.full_name || 'N/A'}</td>
-                        <td class="p-4 text-sm text-gray-600">${p.freelancer?.full_name || 'Chưa có'}</td>
-                        <td class="p-4 font-bold text-indigo-600">${p.budget} Token</td>
-                        <td class="p-4">${badge}</td>
-                        <td class="p-4">${actionBtn}</td>
-                    </tr>
-                `;
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition">
+                    <td class="py-3.5 px-4">
+                        <div class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm line-clamp-1">${escapeHtml(p.title)}</div>
+                        <div class="text-[11px] text-slate-400 font-mono mt-0.5">ID: ${p.id.slice(0, 8)}...</div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <div class="font-semibold text-slate-800 dark:text-slate-200 text-xs">${escapeHtml(p.clients?.full_name || 'N/A')}</div>
+                        <div class="text-[11px] text-slate-400">${escapeHtml(p.clients?.email || '')}</div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <div class="font-semibold text-slate-800 dark:text-slate-200 text-xs">${escapeHtml(p.freelancer?.full_name || 'Chưa giao')}</div>
+                        <div class="text-[11px] text-slate-400">${escapeHtml(p.freelancer?.email || '')}</div>
+                    </td>
+                    <td class="py-3.5 px-4 text-right">
+                        <span class="font-black text-indigo-600 dark:text-indigo-400 text-sm">${(parseFloat(p.budget) || 0).toLocaleString()} Token</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center">${badge}</td>
+                    <td class="py-3.5 px-4 text-center whitespace-nowrap">${actionBtn}</td>
+                </tr>`;
             }).join('');
-
-            document.getElementById('stat_total').innerText = statTotal;
-            document.getElementById('stat_active').innerText = statActive;
-            document.getElementById('stat_disputed').innerText = statDisputed;
-            document.getElementById('stat_completed').innerText = statCompleted;
         }
 
-        function openDispute(jobId) {
-            const job = projects.find(j => j.id === jobId);
-            if(!job) return;
+        // ==============================================================
+        // MODAL TÒA ÁN TRANH CHẤP & CHI TIẾT
+        // ==============================================================
+        function openDisputeModal(jobId) {
+            const job = allProjects.find(j => j.id === jobId);
+            if (!job) return;
 
             document.getElementById('modal_job_id').value = jobId;
             document.getElementById('m_job_title').innerText = job.title;
-            document.getElementById('m_job_budget').innerText = job.budget;
-            document.getElementById('m_job_desc').innerText = job.description;
+            document.getElementById('m_job_client').innerText = job.clients?.full_name ? `${job.clients.full_name} (${job.clients.email || ''})` : 'N/A';
+            document.getElementById('m_job_freelancer').innerText = job.freelancer?.full_name ? `${job.freelancer.full_name} (${job.freelancer.email || ''})` : 'Chưa chỉ định';
+            document.getElementById('m_job_budget').innerText = `${(parseFloat(job.budget) || 0).toLocaleString()} Token`;
+            document.getElementById('m_job_desc').innerText = job.description || 'Không có mô tả chi tiết.';
 
-            // Render Proof of Work (Milestones)
-            const milestonesContainer = document.getElementById('m_milestones_container');
-            if (job.milestones && job.milestones.length > 0) {
-                milestonesContainer.innerHTML = job.milestones.map((m, i) => {
-                    let statusColor = 'gray';
-                    if (m.status === 'COMPLETED') statusColor = 'green';
-                    else if (m.status === 'PENDING_REVIEW') statusColor = 'blue';
-                    else if (m.status === 'REVISION_REQUESTED') statusColor = 'red';
-                    
-                    let proofHtml = '';
+            // Render Milestones (Proof of Work)
+            const msContainer = document.getElementById('m_milestones_container');
+            const milestones = job.milestones || [];
+            document.getElementById('m_milestone_summary').innerText = `${milestones.length} Mốc Công Việc`;
+
+            if (milestones.length > 0) {
+                msContainer.innerHTML = milestones.map((m, i) => {
+                    let stBadge = '';
+                    if (m.status === 'PAID') stBadge = '<span class="text-emerald-500 font-bold text-[11px]"><i class="fas fa-check-double mr-1"></i>Đã thanh toán (PAID)</span>';
+                    else if (m.status === 'PENDING_REVIEW') stBadge = '<span class="text-indigo-500 font-bold text-[11px]"><i class="fas fa-clock mr-1"></i>Chờ nghiệm thu</span>';
+                    else if (m.status === 'REVISION_REQUESTED') stBadge = '<span class="text-amber-500 font-bold text-[11px]"><i class="fas fa-redo mr-1"></i>Yêu cầu sửa đổi</span>';
+                    else stBadge = `<span class="text-slate-400 font-bold text-[11px]">${m.status}</span>`;
+
+                    let proofContent = '';
                     if (m.proof_urls && m.proof_urls.length > 0) {
-                        proofHtml = m.proof_urls.map((u, idx) => `<a href="${u}" target="_blank" class="text-blue-600 underline text-xs mr-2">🔗 Tệp ${idx+1}</a>`).join('');
+                        proofContent = m.proof_urls.map((url, idx) => `
+                            <a href="${url}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-xs font-semibold hover:underline">
+                                <i class="fas fa-paperclip"></i> Tệp ${idx + 1}
+                            </a>
+                        `).join('');
                     } else if (m.evidence_url) {
-                        proofHtml = `<a href="${m.evidence_url}" target="_blank" class="text-blue-600 underline text-xs">🔗 Xem Minh Chứng</a>`;
+                        proofContent = `
+                            <a href="${m.evidence_url}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-xs font-semibold hover:underline">
+                                <i class="fas fa-link"></i> Xem Minh Chứng Bàn Giao
+                            </a>
+                        `;
                     } else {
-                        proofHtml = `<span class="text-xs text-gray-400">Chưa nộp bài</span>`;
+                        proofContent = '<span class="text-slate-400 italic text-xs">Chưa nộp sản phẩm bàn giao</span>';
                     }
 
                     return `
-                        <div class="bg-white border border-${statusColor}-200 p-3 rounded shadow-sm text-sm border-l-4 border-l-${statusColor}-500">
-                            <div class="font-bold text-gray-800 flex justify-between">
-                                <span>Mốc ${i+1}: ${m.title}</span>
-                                <span class="text-${statusColor}-600 text-xs">${m.status}</span>
-                            </div>
-                            <div class="text-gray-500 text-xs mt-1">Trị giá: ${m.amount} Token</div>
-                            <div class="mt-2 bg-gray-50 p-2 rounded border border-gray-100">
-                                <strong>Sản phẩm đã nộp:</strong><br>
-                                ${proofHtml}
-                            </div>
+                    <div class="bg-white dark:bg-dark-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Mốc ${i + 1}: ${escapeHtml(m.title)}</span>
+                            ${stBadge}
                         </div>
-                    `;
+                        <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span>Giá trị: <strong class="text-indigo-600 dark:text-indigo-400">${(parseFloat(m.amount) || 0).toLocaleString()} Token</strong></span>
+                            <span>Hạn chót: ${m.due_date ? new Date(m.due_date).toLocaleDateString('vi-VN') : 'Không có'}</span>
+                        </div>
+                        <div class="pt-2 border-t border-slate-100 dark:divide-slate-800 text-xs">
+                            <span class="text-slate-400 block text-[11px] mb-1 font-medium">Sản phẩm bàn giao:</span>
+                            <div class="flex flex-wrap gap-2">${proofContent}</div>
+                        </div>
+                    </div>`;
                 }).join('');
             } else {
-                milestonesContainer.innerHTML = '<p class="text-sm text-gray-500 italic">Chưa có kế hoạch/mốc công việc nào.</p>';
+                msContainer.innerHTML = '<div class="text-center text-slate-400 py-6 text-xs italic">Dự án này chưa có kế hoạch mốc công việc nào.</div>';
             }
 
-            const evidenceContainer = document.getElementById('m_dispute_evidence_container');
-            evidenceContainer.innerHTML = '';
+            // Render Dispute Info
+            const evContainer = document.getElementById('m_dispute_evidence_container');
+            evContainer.innerHTML = '';
 
-            if(job.dispute) {
-                document.getElementById('m_dispute_reason').innerText = job.dispute.reason;
-                
+            if (job.dispute) {
+                document.getElementById('m_dispute_reason').innerText = job.dispute.reason || 'Không có lý do chi tiết';
                 if (job.dispute.evidence_url) {
                     const urls = job.dispute.evidence_url.split(',');
                     urls.forEach(url => {
-                        if (url.trim()) {
-                            evidenceContainer.innerHTML += `
-                                <a href="${url.trim()}" target="_blank" class="block border rounded p-1 hover:border-red-500 bg-white">
-                                    <img src="${url.trim()}" class="w-full h-24 object-cover rounded" alt="Evidence" onerror="this.src='https://via.placeholder.com/150?text=File'">
-                                </a>
-                            `;
+                        const clean = url.trim();
+                        if (clean) {
+                            evContainer.innerHTML += `
+                            <a href="${clean}" target="_blank" class="block bg-slate-100 dark:bg-dark-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-rose-500 transition group relative aspect-square">
+                                <img src="${clean}" alt="Bằng chứng" class="w-full h-full object-cover group-hover:scale-105 transition" onerror="this.src='https://via.placeholder.com/200?text=File'">
+                                <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">Xem ảnh</span>
+                            </a>`;
                         }
                     });
                 } else {
-                    evidenceContainer.innerHTML = '<span class="text-gray-500 text-sm">Không có đính kèm</span>';
+                    evContainer.innerHTML = '<span class="text-slate-400 text-xs italic">Không có tệp bằng chứng đính kèm</span>';
                 }
             } else {
-                document.getElementById('m_dispute_reason').innerText = "Không có thông tin";
-                evidenceContainer.innerHTML = '<span class="text-gray-500 text-sm">Không có đính kèm</span>';
+                document.getElementById('m_dispute_reason').innerText = 'Dự án hiện tại không có đơn khiếu nại tranh chấp.';
+                evContainer.innerHTML = '<span class="text-slate-400 text-xs italic">Không có khiếu nại</span>';
             }
 
+            switchModalTab('contract');
+            loadChatLogs(jobId);
             document.getElementById('disputeModal').classList.remove('hidden');
         }
 
@@ -253,13 +562,79 @@
             document.getElementById('disputeModal').classList.add('hidden');
         }
 
+        function switchModalTab(tab) {
+            ['contract', 'milestones', 'chatlogs'].forEach(t => {
+                const el = document.getElementById(`mtab-${t}`);
+                const btn = document.getElementById(`mtab-btn-${t}`);
+                if (t === tab) {
+                    el.classList.remove('hidden');
+                    btn.className = 'pb-3 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold';
+                } else {
+                    el.classList.add('hidden');
+                    btn.className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white';
+                }
+            });
+        }
+
+        async function loadChatLogs(jobId) {
+            const container = document.getElementById('m_chatlogs_container');
+            container.innerHTML = '<div class="text-center text-slate-400 py-6 text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Đang trích xuất tin nhắn chat...</div>';
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/projects/${jobId}/chat-logs`);
+                const data = await res.json();
+
+                if (res.ok && Array.isArray(data.messages)) {
+                    if (data.messages.length === 0) {
+                        container.innerHTML = '<div class="text-center text-slate-400 py-8 text-xs italic">Chưa có tin nhắn nào được trao đổi trong dự án này.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = data.messages.map(m => {
+                        const sender = m.users || {};
+                        const date = new Date(m.created_at).toLocaleString('vi-VN');
+                        const isClient = sender.role === 'client';
+
+                        return `
+                        <div class="flex gap-3 p-3 rounded-xl ${isClient ? 'bg-indigo-50/50 dark:bg-indigo-950/20' : 'bg-emerald-50/50 dark:bg-emerald-950/20'} border border-slate-200/50 dark:border-slate-800">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-dark-700 flex items-center justify-center font-bold text-xs shrink-0 uppercase">
+                                ${sender.full_name ? sender.full_name.charAt(0) : 'U'}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="font-bold text-xs text-slate-900 dark:text-white">${escapeHtml(sender.full_name || 'Người dùng')} <span class="text-[10px] text-slate-400 font-normal">(${sender.role || 'user'})</span></span>
+                                    <span class="text-[10px] text-slate-400">${date}</span>
+                                </div>
+                                <div class="text-xs text-slate-700 dark:text-slate-300 mt-1 leading-relaxed whitespace-pre-wrap">${escapeHtml(m.content || '')}</div>
+                                ${m.file_url ? `
+                                <div class="mt-2">
+                                    <a href="${m.file_url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 text-xs font-semibold hover:underline">
+                                        <i class="fas fa-file-download"></i> Tệp đính kèm: ${m.file_name || 'Tải xuống'}
+                                    </a>
+                                </div>` : ''}
+                            </div>
+                        </div>`;
+                    }).join('');
+                } else {
+                    container.innerHTML = `<div class="text-center text-rose-500 py-6 text-xs">Không thể tải lịch sử chat.</div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="text-center text-rose-500 py-6 text-xs">Lỗi kết nối trích xuất chat: ${err.message}</div>`;
+            }
+        }
+
+        function refreshChatLogs() {
+            const jobId = document.getElementById('modal_job_id').value;
+            if (jobId) loadChatLogs(jobId);
+        }
+
         async function resolveDispute(winner) {
             const jobId = document.getElementById('modal_job_id').value;
-            const confirmMsg = winner === 'client' 
-                ? "BẠN ĐANG HOÀN TIỀN LẠI CHO KHÁCH HÀNG. Chắc chắn chứ?" 
-                : "BẠN ĐANG LẤY TIỀN TRONG ESCROW ÉP CHUYỂN CHO FREELANCER (BLOCKCHAIN). Chắc chắn chứ?";
+            const winnerText = winner === 'client' ? 'KHÁCH HÀNG THẮNG (Hoàn Escrow về ví Khách)' : 'FREELANCER THẮNG (Ép giải ngân Escrow cho Freelancer)';
 
-            if(!confirm(confirmMsg)) return;
+            if (!confirm(`XÁC NHẬN PHÁN QUYẾT TÒA ÁN TỐI CAO:\n\nBạn quyết định: ${winnerText}?\n\nThao tác này sẽ cập nhật số dư ví, đồng bộ Blockchain và ghi log kiểm toán không thể hoàn tác!`)) {
+                return;
+            }
 
             try {
                 const res = await fetch(`${API_URL}/api/admin/projects/resolve-dispute`, {
@@ -268,19 +643,29 @@
                     body: JSON.stringify({ job_id: jobId, winner })
                 });
                 const data = await res.json();
-                if(res.ok) {
-                    alert(data.message);
+                if (res.ok) {
+                    alert('⚖️ ' + data.message);
                     closeDisputeModal();
                     loadProjects();
                 } else {
-                    alert("Lỗi: " + data.error);
+                    alert("❌ Lỗi: " + data.error);
                 }
             } catch(e) {
-                alert("Lỗi kết nối");
+                alert("❌ Lỗi kết nối: " + e.message);
             }
         }
 
-        loadProjects();
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProjects);
     </script>
 </body>
 </html>

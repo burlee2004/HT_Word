@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Người Dùng - HT Work Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-users-cog mr-3 text-blue-500"></i> Quản Lý Người Dùng & Phân Quyền
+                    </h1>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Kiểm soát tài khoản, phân quyền vai trò, đối soát số dư ví và bảo vệ an ninh nền tảng.</p>
+                </div>
+                <button onclick="loadUsers()" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm">
+                    <i class="fas fa-sync-alt mr-2 text-blue-500"></i> Làm mới danh sách
+                </button>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="relative w-full sm:w-96">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" oninput="renderUsersTable()" placeholder="Tìm theo Tên, Email hoặc Số điện thoại..." class="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-xs sm:text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <select id="roleFilter" onchange="renderUsersTable()" class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl px-3 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none">
+                        <option value="all">🔍 Tất cả vai trò</option>
+                        <option value="client">Khách hàng (Client)</option>
+                        <option value="freelancer">Freelancer</option>
+                        <option value="admin">Quản trị viên (Admin)</option>
+                    </select>
+
+                    <select id="statusFilter" onchange="renderUsersTable()" class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl px-3 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none">
+                        <option value="all">🟢 Tất cả trạng thái</option>
+                        <option value="active">Đang hoạt động</option>
+                        <option value="banned">Bị khóa (Banned)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Users Table Container -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-xs text-left">
+                        <thead class="bg-gray-50 dark:bg-gray-750 text-gray-500 dark:text-gray-400 uppercase font-black">
+                            <tr>
+                                <th class="py-3.5 px-4">Người dùng</th>
+                                <th class="py-3.5 px-3">Vai trò</th>
+                                <th class="py-3.5 px-3">Trạng thái</th>
+                                <th class="py-3.5 px-3 text-right">Số dư khả dụng</th>
+                                <th class="py-3.5 px-3 text-right">Escrow đang khóa</th>
+                                <th class="py-3.5 px-3">Ngân hàng liên kết</th>
+                                <th class="py-3.5 px-4 text-center">Thao tác quản trị</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="divide-y divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-300 font-medium">
+                            <tr><td colspan="7" class="py-10 text-center text-gray-400">Đang tải danh sách người dùng...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL ĐIỀU CHỈNH TOKEN (CREDIT / DEBIT) -->
+    <div id="tokenModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750">
+                <h3 class="text-sm font-black text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-coins text-amber-500 mr-2"></i> Điều Chỉnh Token Ví Người Dùng
+                </h3>
+                <button onclick="closeTokenModal()" class="text-gray-400 hover:text-gray-600 text-lg">&times;</button>
+            </div>
+            
+            <form id="tokenForm" onsubmit="submitTokenAdjustment(event)" class="p-6 space-y-4 text-xs sm:text-sm">
+                <input type="hidden" id="token_user_id">
+                
+                <div>
+                    <span class="text-gray-400 block text-xs">Tài khoản:</span>
+                    <strong id="token_user_name" class="text-gray-800 dark:text-white text-sm"></strong>
+                    <span id="token_user_email" class="text-gray-500 text-xs block"></span>
+                </div>
+
+                <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Số dư hiện tại:</span>
+                    <span id="token_current_balance" class="font-black text-emerald-600 text-sm">0 Token</span>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Loại thao tác (*):</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border border-gray-200 dark:border-gray-600 p-2.5 rounded-xl flex items-center space-x-2 cursor-pointer has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/40">
+                            <input type="radio" name="token_action_type" value="CREDIT" checked class="text-emerald-600">
+                            <span class="font-bold text-emerald-700 dark:text-emerald-300 text-xs">+ Cộng Token</span>
+                        </label>
+                        <label class="border border-gray-200 dark:border-gray-600 p-2.5 rounded-xl flex items-center space-x-2 cursor-pointer has-[:checked]:border-red-500 has-[:checked]:bg-red-50 dark:has-[:checked]:bg-red-950/40">
+                            <input type="radio" name="token_action_type" value="DEBIT" class="text-red-600">
+                            <span class="font-bold text-red-700 dark:text-red-300 text-xs">- Khấu trừ Token</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Số lượng Token (*):</label>
+                    <input type="number" id="token_amount" min="1000" step="1000" required class="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 font-bold text-gray-800 dark:text-white" placeholder="VD: 50000">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Lý do điều chỉnh (Bắt buộc để lưu Audit Log) (*):</label>
+                    <textarea id="token_reason" required rows="2" class="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white text-xs" placeholder="VD: Bồi hoàn tranh chấp hợp đồng #123, thưởng sự kiện..."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" onclick="closeTokenModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Hủy</button>
+                    <button type="submit" id="btnSubmitToken" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow">Xác Nhận</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ĐỔI VAI TRÒ (CHANGE ROLE) -->
+    <div id="roleModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750">
+                <h3 class="text-sm font-black text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-user-tag text-purple-500 mr-2"></i> Phân Quyền Vai Trò
+                </h3>
+                <button onclick="closeRoleModal()" class="text-gray-400 hover:text-gray-600 text-lg">&times;</button>
+            </div>
+            
+            <form id="roleForm" onsubmit="submitRoleChange(event)" class="p-6 space-y-4 text-xs sm:text-sm">
+                <input type="hidden" id="role_user_id">
+                
+                <div>
+                    <span class="text-gray-400 block text-xs">Người dùng:</span>
+                    <strong id="role_user_name" class="text-gray-800 dark:text-white"></strong>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Chọn vai trò mới (*):</label>
+                    <select id="new_role_select" class="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 font-bold text-gray-800 dark:text-white">
+                        <option value="client">Khách hàng (Client)</option>
+                        <option value="freelancer">Freelancer</option>
+                        <option value="admin">Quản trị viên (Admin)</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" onclick="closeRoleModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Hủy</button>
+                    <button type="submit" id="btnSubmitRole" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow">Cập Nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Load Admin UI Framework -->
+    <script src="admin-ui.js"></script>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let allUsersData = [];
+
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/users`);
+                const data = await res.json();
+                if (res.ok && data.users) {
+                    allUsersData = data.users;
+                    renderUsersTable();
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            const searchVal = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            const roleVal = document.getElementById('roleFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+
+            let filtered = allUsersData;
+
+            if (roleVal !== 'all') {
+                filtered = filtered.filter(u => u.role === roleVal);
+            }
+
+            if (statusVal === 'active') {
+                filtered = filtered.filter(u => u.is_active);
+            } else if (statusVal === 'banned') {
+                filtered = filtered.filter(u => !u.is_active);
+            }
+
+            if (searchVal) {
+                filtered = filtered.filter(u => 
+                    u.full_name.toLowerCase().includes(searchVal) ||
+                    u.email.toLowerCase().includes(searchVal) ||
+                    (u.phone_number && u.phone_number.includes(searchVal))
+                );
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-gray-400">Không tìm thấy người dùng nào phù hợp.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(u => {
+                let roleBadge = '<span class="bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 text-[10px] font-bold px-2.5 py-1 rounded-full">Client</span>';
+                if (u.role === 'freelancer') {
+                    roleBadge = '<span class="bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 text-[10px] font-bold px-2.5 py-1 rounded-full">Freelancer</span>';
+                } else if (u.role === 'admin') {
+                    roleBadge = '<span class="bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 text-[10px] font-bold px-2.5 py-1 rounded-full">Admin</span>';
+                }
+
+                const statusBadge = u.is_active
+                    ? '<span class="text-emerald-600 font-bold flex items-center text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Hoạt động</span>'
+                    : '<span class="text-red-500 font-bold flex items-center text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span> Bị khóa</span>';
+
+                const bankDisplay = u.bank_account 
+                    ? `<div class="text-[11px]"><span class="font-bold">${u.bank_name}</span><br><span class="font-mono text-gray-500">${u.bank_account}</span></div>`
+                    : '<span class="text-gray-400 italic text-[11px]">Chưa liên kết</span>';
+
+                return `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center space-x-2.5">
+                                <img src="${u.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.full_name)}&background=random`}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0">
+                                <div class="truncate max-w-[160px]">
+                                    <strong class="text-gray-900 dark:text-white block truncate">${u.full_name}</strong>
+                                    <span class="text-[10px] text-gray-400 block truncate">${u.email}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-3">${roleBadge}</td>
+                        <td class="py-3 px-3">${statusBadge}</td>
+                        <td class="py-3 px-3 text-right font-black text-emerald-600 dark:text-emerald-400">${u.balance.toLocaleString()} Token</td>
+                        <td class="py-3 px-3 text-right font-bold text-gray-500">${u.locked_balance.toLocaleString()} Token</td>
+                        <td class="py-3 px-3">${bankDisplay}</td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center space-x-1.5">
+                                <button onclick="openTokenModal('${u.id}', '${u.full_name}', '${u.email}', ${u.balance})" class="p-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-600 rounded-lg text-xs font-bold" title="Cộng/Trừ Token">
+                                    <i class="fas fa-coins"></i>
+                                </button>
+                                <button onclick="openRoleModal('${u.id}', '${u.full_name}', '${u.role}')" class="p-1.5 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 text-purple-600 rounded-lg text-xs font-bold" title="Đổi vai trò">
+                                    <i class="fas fa-user-tag"></i>
+                                </button>
+                                <button onclick="toggleUserStatus('${u.id}', ${u.is_active}, '${u.email}')" class="p-1.5 ${u.is_active ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'} rounded-lg text-xs font-bold" title="${u.is_active ? 'Khóa tài khoản' : 'Mở khóa'}">
+                                    <i class="fas ${u.is_active ? 'fa-lock' : 'fa-unlock'}"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Toggle Status
+        async function toggleUserStatus(userId, isCurrentlyActive, email) {
+            const action = isCurrentlyActive ? 'KHÓA' : 'MỞ KHÓA';
+            const reason = prompt(`Nhập lý do ${action} tài khoản ${email}:`, 'Vi phạm quy định sàn / Mở khóa lại');
+            if (reason === null) return;
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/users/${userId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_active: !isCurrentlyActive, reason })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('✅ ' + data.message);
+                    loadUsers();
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
+                }
+            } catch(e) {
+                alert('Lỗi kết nối máy chủ');
+            }
+        }
+
+        // Token Modal
+        function openTokenModal(userId, name, email, balance) {
+            document.getElementById('token_user_id').value = userId;
+            document.getElementById('token_user_name').innerText = name;
+            document.getElementById('token_user_email').innerText = email;
+            document.getElementById('token_current_balance').innerText = balance.toLocaleString() + ' Token';
+            document.getElementById('token_amount').value = '';
+            document.getElementById('token_reason').value = '';
+            document.getElementById('tokenModal').classList.remove('hidden');
+        }
+
+        function closeTokenModal() {
+            document.getElementById('tokenModal').classList.add('hidden');
+        }
+
+        async function submitTokenAdjustment(e) {
+            e.preventDefault();
+            const userId = document.getElementById('token_user_id').value;
+            const amount = document.getElementById('token_amount').value;
+            const reason = document.getElementById('token_reason').value.trim();
+            const actionType = document.querySelector('input[name="token_action_type"]:checked').value;
+            const btn = document.getElementById('btnSubmitToken');
+
+            btn.disabled = true;
+            btn.innerText = 'Đang xử lý...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/users/${userId}/adjust-tokens`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, action_type: actionType, reason })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('✅ ' + data.message);
+                    closeTokenModal();
+                    loadUsers();
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
+                }
+            } catch(err) {
+                alert('Lỗi kết nối máy chủ');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Xác Nhận';
+            }
+        }
+
+        // Role Modal
+        function openRoleModal(userId, name, currentRole) {
+            document.getElementById('role_user_id').value = userId;
+            document.getElementById('role_user_name').innerText = name;
+            document.getElementById('new_role_select').value = currentRole;
+            document.getElementById('roleModal').classList.remove('hidden');
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleModal').classList.add('hidden');
+        }
+
+        async function submitRoleChange(e) {
+            e.preventDefault();
+            const userId = document.getElementById('role_user_id').value;
+            const newRole = document.getElementById('new_role_select').value;
+            const btn = document.getElementById('btnSubmitRole');
+
+            btn.disabled = true;
+            btn.innerText = 'Đang cập nhật...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/users/${userId}/role`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: newRole })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('✅ ' + data.message);
+                    closeRoleModal();
+                    loadUsers();
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
+                }
+            } catch(err) {
+                alert('Lỗi kết nối');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Cập Nhật';
+            }
+        }
+
+        loadUsers();
+    </script>
+</body>
+</html>

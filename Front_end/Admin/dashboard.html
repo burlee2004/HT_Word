@@ -3,125 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - HT Work</title>
+    <title>Bảng Điều Khiển - HT Work Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-100 p-10 font-sans">
-    <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-3xl font-bold text-gray-800">Bảng điều khiển Quản Trị Viên (Admin)</h1>
-            <div class="flex space-x-3">
-                <button onclick="window.location.href='projects-monitor.html'" class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-700 flex items-center font-bold">
-                    <i class="fas fa-satellite-dish mr-2"></i> Tranh Chấp & Giám Sát
-                </button>
-                <button onclick="window.location.href='blockchain-audit.html'" class="bg-gray-800 text-white px-4 py-2 rounded shadow hover:bg-black flex items-center font-bold">
-                    <i class="fas fa-shield-alt mr-2"></i> Audit (Kiểm toán)
-                </button>
-                <button onclick="window.location.href='deposits.html'" class="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700">Duyệt Nạp Tiền</button>
-                <button onclick="window.location.href='withdrawals.html'" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">Duyệt Rút Tiền</button>
-                <button onclick="loadTransactions()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Làm mới dữ liệu</button>
-            </div>
-        </div>
-        
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 class="text-xl font-bold text-gray-700 border-b pb-2 mb-4">Sổ cái Giao dịch (Token Ledger)</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-50 text-gray-600 uppercase text-sm leading-normal">
-                        <tr>
-                        <th class="py-3 px-6 text-left">Thời gian</th>
-                        <th class="py-3 px-6 text-left">Người dùng</th>
-                        <th class="py-3 px-6 text-left">Mã Giao Dịch</th>
-                        <th class="py-3 px-6 text-left">Loại giao dịch</th>
-                        <th class="py-3 px-6 text-right">Số lượng (Token)</th>
-                        <th class="py-3 px-6 text-center">Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionTableBody" class="text-gray-600 text-sm font-light">
-                    <tr>
-                        <td colspan="6" class="py-3 px-6 text-center">Đang tải dữ liệu...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script>
-    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:5000' 
-        : 'https://htwork-backend.onrender.com';
-
-    async function loadTransactions() {
-        const tbody = document.getElementById('transactionTableBody');
-        tbody.innerHTML = '<tr><td colspan="6" class="py-3 px-6 text-center">Đang tải dữ liệu...</td></tr>';
-
-        try {
-            const response = await fetch(`${API_URL}/api/admin/transactions`);
-            const data = await response.json();
-
-            if (data.transactions && data.transactions.length > 0) {
-                tbody.innerHTML = data.transactions.map(t => {
-                    const date = new Date(t.created_at).toLocaleString('vi-VN');
-                    
-                    // Xác định User liên quan chính
-                    const relatedUser = t.receiver ? t.receiver.full_name : (t.sender ? t.sender.full_name : 'Hệ thống');
-                    
-                    let typeHtml = '';
-                    const tType = t.type ? t.type.toUpperCase() : '';
-                    let transferCode = '-';
-                    
-                    if (tType === 'DEPOSIT' && t.idempotency_key && t.idempotency_key.startsWith('DEPOSIT_')) {
-                        const requestId = t.idempotency_key.replace('DEPOSIT_', '');
-                        transferCode = 'HTword ' + requestId.substring(0, 6).toUpperCase();
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
                     }
-                    
-                    switch(tType) {
-                        case 'ESCROW_LOCK':
-                            typeHtml = '<span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-xs">Khóa Escrow</span>';
-                            break;
-                        case 'ESCROW_RELEASE':
-                            typeHtml = '<span class="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-xs">Thanh toán Escrow</span>';
-                            break;
-                        case 'DEPOSIT':
-                            typeHtml = '<span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs">Nạp Token</span>';
-                            break;
-                        case 'WITHDRAW':
-                            typeHtml = '<span class="bg-red-100 text-red-800 py-1 px-3 rounded-full text-xs">Rút Tiền</span>';
-                            break;
-                        default:
-                            typeHtml = `<span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-xs">${t.type}</span>`;
-                    }
-
-                    return `
-                        <tr class="border-b border-gray-200 hover:bg-gray-50">
-                            <td class="py-3 px-6 text-left whitespace-nowrap text-sm text-gray-500">${date}</td>
-                            <td class="py-3 px-6 text-left font-medium text-gray-800">${relatedUser}</td>
-                            <td class="py-3 px-6 text-left">
-                                ${transferCode !== '-' ? `<span class="bg-gray-100 text-blue-700 font-bold px-2 py-1 rounded border border-gray-200 tracking-wider text-xs">${transferCode}</span>` : '<span class="text-gray-400">-</span>'}
-                            </td>
-                            <td class="py-3 px-6 text-left">${typeHtml}</td>
-                                <td class="py-3 px-6 text-right font-bold text-gray-700">
-                                    ${parseInt(t.amount).toLocaleString()}
-                                </td>
-                                <td class="py-3 px-6 text-center text-sm text-gray-500">
-                                    ${t.note || 'Thành công'}
-                                </td>
-                            </tr>
-                        `;
-                    }).join('');
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="6" class="py-3 px-6 text-center text-gray-500">Chưa có giao dịch nào trên hệ thống.</td></tr>';
                 }
-            } catch (error) {
-                console.error(error);
-                tbody.innerHTML = '<tr><td colspan="6" class="py-3 px-6 text-center text-red-500">Lỗi khi tải Sổ cái giao dịch</td></tr>';
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative">
+            <!-- Header Title -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-chart-pie mr-3 text-red-500"></i> Trung Tâm Giám Sát & Điều Hành Sàn
+                    </h1>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Đối soát dòng tiền, giám sát người dùng, xử lý chi hộ VietQR và phân xử tranh chấp tối cao.</p>
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <button onclick="loadDashboardAll()" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm">
+                        <i class="fas fa-sync-alt mr-2 text-red-500"></i> Làm mới dữ liệu
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5 KPI Stat Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <!-- KPI 1: Total Users -->
+                <a href="users.html" class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-blue-400 transition flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Người Dùng</span>
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="statTotalUsers" class="text-2xl font-black text-gray-900 dark:text-white">0</p>
+                        <span id="statUserRatio" class="text-[10px] text-gray-400 font-semibold block mt-0.5">0 Client • 0 Freelancer</span>
+                    </div>
+                </a>
+
+                <!-- KPI 2: Active Jobs -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Dự Án Đang Chạy</span>
+                        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="statActiveJobs" class="text-2xl font-black text-indigo-600 dark:text-indigo-400">0</p>
+                        <span id="statTotalJobs" class="text-[10px] text-gray-400 font-semibold block mt-0.5">Tổng: 0 dự án</span>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Escrow Locked -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Escrow Đang Khóa</span>
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm font-bold">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="statEscrowLocked" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">0</p>
+                        <span class="text-[10px] text-emerald-600 font-bold block mt-0.5">Token bảo vệ 100%</span>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Pending Withdrawals -->
+                <a href="withdrawals.html" class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-amber-400 transition flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Rút Tiền Pending</span>
+                        <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center text-sm font-bold">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="statPendingWithdrawCount" class="text-2xl font-black text-amber-500">0</p>
+                        <span id="statPendingWithdrawAmount" class="text-[10px] text-amber-600 font-bold block mt-0.5">0 Token chờ quét QR</span>
+                    </div>
+                </a>
+
+                <!-- KPI 5: Disputes -->
+                <a href="projects-monitor.html" class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-red-400 transition flex flex-col justify-between col-span-2 sm:col-span-1">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Tranh Chấp Tòa Án</span>
+                        <div class="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 flex items-center justify-center text-sm font-bold">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="statDisputedJobs" class="text-2xl font-black text-red-600">0</p>
+                        <span class="text-[10px] text-red-500 font-bold block mt-0.5">Cần phán quyết</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left 2 Cols: Sổ cái Giao dịch Token Ledger -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                            <div>
+                                <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                    <i class="fas fa-book mr-2 text-indigo-500"></i> Sổ Cái Giao Dịch Toàn Sàn (Token Ledger)
+                                </h2>
+                                <p class="text-xs text-gray-400 mt-0.5">Đối soát dữ liệu giao dịch tài chính thời gian thực</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <select id="ledgerTypeFilter" onchange="renderLedgerTable()" class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none">
+                                    <option value="ALL">🔍 Tất cả loại GD</option>
+                                    <option value="DEPOSIT">Nạp Token (Deposit)</option>
+                                    <option value="WITHDRAW">Rút Tiền (Withdraw)</option>
+                                    <option value="ESCROW_LOCK">Khóa Ký Quỹ Escrow</option>
+                                    <option value="ESCROW_RELEASE">Giải Ngân Thù Lao</option>
+                                    <option value="REFUND">Hoàn Tiền (Refund)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs text-left">
+                                <thead class="bg-gray-50 dark:bg-gray-750 text-gray-500 dark:text-gray-400 uppercase font-black">
+                                    <tr>
+                                        <th class="py-3 px-3">Thời gian</th>
+                                        <th class="py-3 px-3">Người dùng</th>
+                                        <th class="py-3 px-3">Loại GD</th>
+                                        <th class="py-3 px-3 text-right">Số lượng</th>
+                                        <th class="py-3 px-3">Nội dung</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ledgerTableBody" class="divide-y divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-300 font-medium">
+                                    <tr><td colspan="5" class="py-8 text-center text-gray-400">Đang tải sổ cái giao dịch...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Col: Recent System Audit Events Feed -->
+                <div class="space-y-6">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-clipboard-list mr-2 text-amber-500"></i> Nhật Ký Sự Kiện Mới Nhất
+                            </h2>
+                            <a href="audit-logs.html" class="text-xs text-red-500 hover:underline font-bold">Xem tất cả &rarr;</a>
+                        </div>
+                        <div id="recentAuditLogsList" class="space-y-3 max-h-[500px] overflow-y-auto">
+                            <p class="text-gray-400 text-xs py-4 text-center">Đang tải nhật ký...</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Shortcuts -->
+                    <div class="bg-gradient-to-br from-gray-900 to-indigo-950 text-white p-6 rounded-3xl shadow-inner text-xs space-y-3">
+                        <h3 class="font-black text-sm uppercase tracking-wider text-red-400 flex items-center">
+                            <i class="fas fa-bolt mr-1.5"></i> Thao Tác Quản Trị Nhanh
+                        </h3>
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <a href="withdrawals.html" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl font-bold flex items-center space-x-2 transition">
+                                <i class="fas fa-qrcode text-emerald-400"></i> <span>Quét QR Chi Hộ</span>
+                            </a>
+                            <a href="users.html" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl font-bold flex items-center space-x-2 transition">
+                                <i class="fas fa-user-shield text-blue-400"></i> <span>Khóa/Mở User</span>
+                            </a>
+                            <a href="projects-monitor.html" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl font-bold flex items-center space-x-2 transition">
+                                <i class="fas fa-gavel text-red-400"></i> <span>Phán Quyết</span>
+                            </a>
+                            <a href="blockchain-audit.html" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl font-bold flex items-center space-x-2 transition">
+                                <i class="fas fa-cubes text-cyan-400"></i> <span>Kiểm Toán Hash</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load Admin UI Framework -->
+    <script src="admin-ui.js"></script>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let allTransactions = [];
+
+        async function loadDashboardAll() {
+            await loadStats();
+            await loadTransactions();
+            await loadRecentAuditLogs();
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/stats`);
+                const data = await res.json();
+                if (res.ok && data.stats) {
+                    const s = data.stats;
+                    document.getElementById('statTotalUsers').innerText = s.total_users;
+                    document.getElementById('statUserRatio').innerText = `${s.total_clients} Khách • ${s.total_freelancers} Thợ`;
+                    document.getElementById('statActiveJobs').innerText = s.active_jobs;
+                    document.getElementById('statTotalJobs').innerText = `Tổng: ${s.total_jobs} dự án`;
+                    document.getElementById('statEscrowLocked').innerText = s.total_escrow_locked.toLocaleString();
+                    document.getElementById('statPendingWithdrawCount').innerText = s.pending_withdraw_count;
+                    document.getElementById('statPendingWithdrawAmount').innerText = `${s.pending_withdraw_amount.toLocaleString()} Token chờ duyệt`;
+                    document.getElementById('statDisputedJobs').innerText = s.disputed_jobs;
+                }
+            } catch(e) {
+                console.error(e);
             }
         }
 
-        // Tải dữ liệu khi mở trang
-        loadTransactions();
+        async function loadTransactions() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/transactions`);
+                const data = await res.json();
+                if (res.ok && data.transactions) {
+                    allTransactions = data.transactions;
+                    renderLedgerTable();
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function renderLedgerTable() {
+            const tbody = document.getElementById('ledgerTableBody');
+            const filterType = document.getElementById('ledgerTypeFilter').value;
+
+            let filtered = allTransactions;
+            if (filterType !== 'ALL') {
+                filtered = filtered.filter(t => (t.type || '').toUpperCase().includes(filterType));
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-gray-400">Không có giao dịch nào phù hợp.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.slice(0, 20).map(t => {
+                const date = new Date(t.created_at).toLocaleString('vi-VN');
+                const relatedUser = t.receiver ? t.receiver.full_name : (t.sender ? t.sender.full_name : 'Hệ thống');
+                const tType = (t.type || '').toUpperCase();
+
+                let badge = '<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-bold">GD</span>';
+                let amountColor = 'text-gray-800 dark:text-white';
+                let sign = '';
+
+                if (tType.includes('DEPOSIT')) {
+                    badge = '<span class="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 px-2 py-0.5 rounded-full text-[10px] font-bold">Nạp Tiền</span>';
+                    amountColor = 'text-emerald-600 dark:text-emerald-400 font-black';
+                    sign = '+';
+                } else if (tType.includes('WITHDRAW')) {
+                    badge = '<span class="bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 px-2 py-0.5 rounded-full text-[10px] font-bold">Rút Tiền</span>';
+                    amountColor = 'text-red-600 dark:text-red-400 font-black';
+                    sign = '-';
+                } else if (tType.includes('LOCK')) {
+                    badge = '<span class="bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold">Khóa Escrow</span>';
+                } else if (tType.includes('RELEASE')) {
+                    badge = '<span class="bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 px-2 py-0.5 rounded-full text-[10px] font-bold">Giải Ngân</span>';
+                }
+
+                return `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition">
+                        <td class="py-2.5 px-3 text-gray-400 whitespace-nowrap text-[11px]">${date}</td>
+                        <td class="py-2.5 px-3 font-bold">${relatedUser}</td>
+                        <td class="py-2.5 px-3">${badge}</td>
+                        <td class="py-2.5 px-3 text-right ${amountColor}">${sign}${parseInt(t.amount).toLocaleString()} Token</td>
+                        <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400 truncate max-w-xs" title="${t.note || ''}">${t.note || 'Thành công'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadRecentAuditLogs() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/audit-logs?limit=6`);
+                const data = await res.json();
+                const container = document.getElementById('recentAuditLogsList');
+                if (res.ok && data.logs && data.logs.length > 0) {
+                    container.innerHTML = data.logs.map(log => {
+                        let levelBg = 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300';
+                        if (log.level === 'WARN') levelBg = 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300';
+                        else if (log.level === 'SECURITY' || log.level === 'CRITICAL') levelBg = 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300';
+
+                        return `
+                            <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700 text-xs">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="${levelBg} px-2 py-0.5 rounded-md font-black text-[10px]">${log.module} • ${log.action}</span>
+                                    <span class="text-[9px] text-gray-400">${new Date(log.timestamp).toLocaleTimeString('vi-VN')}</span>
+                                </div>
+                                <p class="text-gray-700 dark:text-gray-300 text-[11px] leading-relaxed">${log.details}</p>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<p class="text-gray-400 text-xs py-4 text-center">Chưa có sự kiện log nào.</p>';
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        loadDashboardAll();
     </script>
 </body>
 </html>

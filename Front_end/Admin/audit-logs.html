@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HT Work Admin - Nhật Ký Kiểm Toán Hệ Thống (Audit Logs)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        dark: { 800: '#1e293b', 850: '#172033', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-dark-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar-container" class="shrink-0"></aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <!-- Topbar Header -->
+            <header id="topbar-container" class="shrink-0"></header>
+
+            <!-- Main Scrollable Body -->
+            <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 space-y-6">
+                
+                <!-- Page Title Bar -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-lg">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                                    Nhật Ký Kiểm Toán Hệ Thống (Audit Logs A-Z)
+                                </h1>
+                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Lưu vết toàn bộ hành vi: Đăng nhập, Giao dịch ví, Đăng việc, Nộp mốc, Tranh chấp & Phân quyền
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <button onclick="exportAuditLogsJson()" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 text-xs sm:text-sm font-bold transition flex items-center gap-1.5">
+                            <i class="fas fa-file-code text-indigo-500"></i> Xuất File JSON
+                        </button>
+                        <button onclick="loadAuditLogs()" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Làm mới">
+                            <i class="fas fa-sync-alt" id="refresh-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tổng Số Sự Kiện</div>
+                            <div class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="stat_total">0</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Ghi nhận từ A-Z</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-xl">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wider text-rose-500">Cảnh Báo & Bảo Mật</div>
+                            <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1" id="stat_critical">0</div>
+                            <div class="text-xs text-rose-500 font-semibold mt-1">SECURITY & CRITICAL</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-xl">
+                            <i class="fas fa-shield-virus"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-500">Tài Chính & Ví</div>
+                            <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1" id="stat_wallet">0</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Nạp, Rút, Escrow</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xl">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wider text-amber-500">Thao Tác Admin</div>
+                            <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1" id="stat_admin">0</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Phân quyền, Phán quyết</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-xl">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Data Card -->
+                <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    
+                    <!-- Table Header Controls & Filters -->
+                    <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
+                        
+                        <!-- Module Filter Tabs -->
+                        <div class="flex items-center gap-1 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl overflow-x-auto text-xs font-semibold">
+                            <button onclick="setModuleFilter('ALL')" id="tab-mod-ALL" class="tab-btn px-3.5 py-2 rounded-lg bg-white dark:bg-dark-900 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold">
+                                Tất Cả
+                            </button>
+                            <button onclick="setModuleFilter('AUTH')" id="tab-mod-AUTH" class="tab-btn px-3.5 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                                Auth
+                            </button>
+                            <button onclick="setModuleFilter('JOB')" id="tab-mod-JOB" class="tab-btn px-3.5 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                                Dự Án
+                            </button>
+                            <button onclick="setModuleFilter('WALLET')" id="tab-mod-WALLET" class="tab-btn px-3.5 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                                Ví & Rút Tiền
+                            </button>
+                            <button onclick="setModuleFilter('DISPUTE')" id="tab-mod-DISPUTE" class="tab-btn px-3.5 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                                Tranh Chấp
+                            </button>
+                            <button onclick="setModuleFilter('ADMIN')" id="tab-mod-ADMIN" class="tab-btn px-3.5 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                                Admin Action
+                            </button>
+                        </div>
+
+                        <!-- Level Select & Search Box -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <select id="levelFilter" onchange="renderTable()" class="px-3 py-2 text-xs bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-700 dark:text-slate-300">
+                                <option value="ALL">Mọi Mức Độ (Level)</option>
+                                <option value="INFO">🟢 INFO</option>
+                                <option value="WARN">🟡 WARN</option>
+                                <option value="SECURITY">🟠 SECURITY</option>
+                                <option value="CRITICAL">🔴 CRITICAL</option>
+                            </select>
+
+                            <div class="relative flex-1 sm:w-64">
+                                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="searchInput" oninput="renderTable()" placeholder="Tìm theo nội dung, email, ID..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logs Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm" id="auditTable">
+                            <thead class="bg-slate-50 dark:bg-dark-800 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-bold border-b border-slate-200 dark:border-slate-800">
+                                <tr>
+                                    <th class="py-3.5 px-4 w-36">Thời Gian</th>
+                                    <th class="py-3.5 px-4 text-center w-24">Mức Độ</th>
+                                    <th class="py-3.5 px-4 text-center w-28">Phân Hệ</th>
+                                    <th class="py-3.5 px-4 w-36">Hành Động</th>
+                                    <th class="py-3.5 px-4 w-44">Tác Nhân (Actor)</th>
+                                    <th class="py-3.5 px-4">Chi Tiết Sự Kiện</th>
+                                    <th class="py-3.5 px-4 text-center w-20">Payload</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td colspan="7" class="py-12 text-center text-slate-400">
+                                        <i class="fas fa-spinner fa-spin text-2xl mb-2 text-indigo-500"></i>
+                                        <p class="text-xs">Đang tải nhật ký kiểm toán...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL JSON PAYLOAD INSPECTOR -->
+    <!-- ============================================================== -->
+    <div id="jsonModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-dark-900 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in duration-200 flex flex-col max-h-[85vh]">
+            
+            <div class="bg-slate-900 p-5 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-base font-black">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-black tracking-tight" id="jsonModalTitle">Audit Log Payload</h2>
+                        <p class="text-xs text-slate-400">Chi tiết dữ liệu JSON lưu vết của sự kiện</p>
+                    </div>
+                </div>
+                <button onclick="closeJsonModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition">&times;</button>
+            </div>
+
+            <div class="p-5 flex-1 overflow-y-auto custom-scrollbar bg-slate-950">
+                <pre id="jsonContent" class="text-xs font-mono text-emerald-400 whitespace-pre-wrap leading-relaxed select-all"></pre>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-900 flex justify-between items-center shrink-0">
+                <span class="text-xs text-slate-400">Format: JSON-Audit-Standard v1.0</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyJsonPayload()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fas fa-copy"></i> Copy JSON
+                    </button>
+                    <button onclick="closeJsonModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- UI Core Script -->
+    <script src="admin-ui.js"></script>
+
+    <!-- Page Logic Script -->
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let allLogs = [];
+        let currentModule = 'ALL';
+        let activeJsonLog = null;
+
+        async function loadAuditLogs() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/audit-logs?limit=500`);
+                const data = await res.json();
+                
+                if (res.ok && Array.isArray(data.logs)) {
+                    allLogs = data.logs;
+                    updateStats();
+                    renderTable();
+                } else {
+                    console.error('Lỗi lấy audit logs:', data);
+                }
+            } catch (err) {
+                console.error('Lỗi kết nối loadAuditLogs:', err);
+            } finally {
+                if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 400);
+            }
+        }
+
+        function updateStats() {
+            const total = allLogs.length;
+            const critical = allLogs.filter(l => l.level === 'CRITICAL' || l.level === 'SECURITY').length;
+            const wallet = allLogs.filter(l => l.module === 'WALLET' || l.module === 'FINANCE').length;
+            const admin = allLogs.filter(l => l.module === 'ADMIN' || (l.actor_id && l.actor_id.includes('ADMIN'))).length;
+
+            document.getElementById('stat_total').innerText = total.toLocaleString();
+            document.getElementById('stat_critical').innerText = critical.toLocaleString();
+            document.getElementById('stat_wallet').innerText = wallet.toLocaleString();
+            document.getElementById('stat_admin').innerText = admin.toLocaleString();
+        }
+
+        function setModuleFilter(mod) {
+            currentModule = mod;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-3.5 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900';
+            });
+            const activeBtn = document.getElementById(`tab-mod-${mod}`);
+            if (activeBtn) {
+                activeBtn.className = 'tab-btn px-3.5 py-2 rounded-lg bg-white dark:bg-dark-900 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold';
+            }
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const level = document.getElementById('levelFilter').value;
+            const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+            let list = allLogs;
+
+            // Filter Module
+            if (currentModule !== 'ALL') {
+                list = list.filter(l => l.module === currentModule || (currentModule === 'WALLET' && l.module === 'FINANCE'));
+            }
+
+            // Filter Level
+            if (level !== 'ALL') {
+                list = list.filter(l => l.level === level);
+            }
+
+            // Search
+            if (search) {
+                list = list.filter(l => 
+                    (l.details || '').toLowerCase().includes(search) ||
+                    (l.action || '').toLowerCase().includes(search) ||
+                    (l.actor_email || '').toLowerCase().includes(search) ||
+                    (l.actor_id || '').toLowerCase().includes(search) ||
+                    (l.id || '').toLowerCase().includes(search)
+                );
+            }
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-slate-400 text-xs">Không tìm thấy bản ghi kiểm toán nào.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map(log => {
+                const date = new Date(log.timestamp || log.created_at).toLocaleString('vi-VN');
+                
+                // Level Badge
+                let levelBadge = '';
+                if (log.level === 'CRITICAL') {
+                    levelBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-rose-500/15 text-rose-600 border border-rose-500/30">CRITICAL</span>';
+                } else if (log.level === 'SECURITY') {
+                    levelBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-orange-500/15 text-orange-600 border border-orange-500/30">SECURITY</span>';
+                } else if (log.level === 'WARN') {
+                    levelBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-500/15 text-amber-600 border border-amber-500/30">WARN</span>';
+                } else {
+                    levelBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">INFO</span>';
+                }
+
+                // Module Badge
+                let modBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">${log.module || 'SYS'}</span>`;
+
+                const actor = log.actor_email || log.actor_id || 'System';
+
+                return `
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition">
+                    <td class="py-3 px-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400 font-mono">
+                        ${date}
+                    </td>
+                    <td class="py-3 px-4 text-center">${levelBadge}</td>
+                    <td class="py-3 px-4 text-center">${modBadge}</td>
+                    <td class="py-3 px-4">
+                        <span class="font-mono text-xs font-bold text-slate-900 dark:text-slate-100">${escapeHtml(log.action || 'EVENT')}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="font-medium text-slate-800 dark:text-slate-200 text-xs truncate max-w-[170px]" title="${escapeHtml(actor)}">${escapeHtml(actor)}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="text-xs text-slate-700 dark:text-slate-300 line-clamp-2 leading-relaxed">${escapeHtml(log.details || '--')}</div>
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick='openJsonModal("${log.id}")' class="p-1.5 rounded-lg bg-slate-100 dark:bg-dark-800 hover:bg-slate-200 dark:hover:bg-dark-700 text-indigo-600 dark:text-indigo-400 text-xs font-bold transition" title="Xem JSON Payload">
+                            <i class="fas fa-code"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ==============================================================
+        // JSON INSPECTOR MODAL
+        // ==============================================================
+        function openJsonModal(logId) {
+            const log = allLogs.find(l => l.id === logId);
+            if (!log) return;
+
+            activeJsonLog = log;
+            document.getElementById('jsonModalTitle').innerText = `Log #${log.id.slice(0, 8)} - ${log.action}`;
+            document.getElementById('jsonContent').innerText = JSON.stringify(log, null, 2);
+            document.getElementById('jsonModal').classList.remove('hidden');
+        }
+
+        function closeJsonModal() {
+            document.getElementById('jsonModal').classList.add('hidden');
+            activeJsonLog = null;
+        }
+
+        function copyJsonPayload() {
+            if (!activeJsonLog) return;
+            const text = JSON.stringify(activeJsonLog, null, 2);
+            navigator.clipboard.writeText(text).then(() => {
+                alert('📋 Đã sao chép JSON Payload vào bộ nhớ tạm!');
+            });
+        }
+
+        function exportAuditLogsJson() {
+            if (allLogs.length === 0) return alert('Không có dữ liệu log để xuất!');
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allLogs, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `HTWork_Audit_Logs_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAuditLogs);
+    </script>
+</body>
+</html>

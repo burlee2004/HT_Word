@@ -1,0 +1,612 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KhÃ¡ch hÃ ng - Quáº£n LÃ½ & Nghiá»‡m thu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 dark:text-gray-100 h-screen flex overflow-hidden">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            
+    <div class="max-w-5xl mx-auto">
+        <!-- Cáº¢NH BÃO TRAO Äá»”I NGOÃ€I -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded mb-6 shadow-sm flex items-start">
+            <i class="fas fa-exclamation-triangle mt-1 mr-3 text-yellow-600 text-lg"></i>
+            <div>
+                <p class="font-bold text-yellow-900 mb-1">Cáº¢NH BÃO Báº¢O Vá»† NGÆ¯á»œI DÃ™NG</p>
+                <p class="text-sm">Há»‡ thá»‘ng khuyáº¿n cÃ¡o má»i thá»a thuáº­n, giao ná»™p sáº£n pháº©m vÃ  thanh toÃ¡n pháº£i Ä‘Æ°á»£c thá»±c hiá»‡n <strong>trá»±c tiáº¿p trÃªn ná»n táº£ng HT Work</strong>. ChÃºng tÃ´i <strong>tá»« chá»‘i chá»‹u trÃ¡ch nhiá»‡m giáº£i quyáº¿t khiáº¿u náº¡i</strong> Ä‘á»‘i vá»›i cÃ¡c rá»§i ro phÃ¡t sinh (lá»«a Ä‘áº£o, quá»µt tiá»n, máº¥t code) náº¿u hai bÃªn tá»± Ã½ trao Ä‘á»•i vÃ  giao dá»‹ch bÃªn ngoÃ i há»‡ thá»‘ng (Zalo, Facebook, v.v.).</p>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Quáº£n LÃ½ Tiáº¿n Äá»™ & Nghiá»‡m Thu</h1>
+            <button onclick="window.location.href='home.html'" class="bg-gray-200 text-gray-700 px-4 py-2 rounded shadow hover:bg-gray-300 font-bold transition">
+                <i class="fas fa-arrow-left mr-2"></i> Vá» Trang chá»§
+            </button>
+        </div>
+        <p class="text-gray-600 dark:text-gray-300 mb-8">NÆ¡i báº¡n duyá»‡t Káº¿ hoáº¡ch (KhÃ³a Escrow) vÃ  Nghiá»‡m thu cÃ¡c má»‘c cÃ´ng viá»‡c (Giáº£i ngÃ¢n).</p>
+        
+        <div id="jobsList" class="space-y-6">
+            <p class="text-gray-500 dark:text-gray-400">Äang táº£i...</p>
+        </div>
+    </div>
+
+    <!-- Modal YÃªu cáº§u sá»­a Ä‘á»•i (Revision) -->
+    <div id="revisionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-lg shadow-lg w-[500px]">
+            <h2 class="text-2xl font-bold mb-4 text-red-600">YÃªu Cáº§u Chá»‰nh Sá»­a</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-4 text-sm">Vui lÃ²ng mÃ´ táº£ rÃµ lá»—i Ä‘á»ƒ Freelancer sá»­a láº¡i cho chuáº©n.</p>
+            
+            <input type="hidden" id="rev_milestone_id">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium">Ná»™i dung yÃªu cáº§u sá»­a:</label>
+                    <textarea id="rev_feedback" rows="3" class="mt-1 block w-full border p-2 rounded text-sm" placeholder="MÃ u nÃºt báº¥m bá»‹ sai, tÃ­nh nÄƒng login bá»‹ lá»—i..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Link áº£nh chá»¥p lá»—i (Náº¿u cÃ³):</label>
+                    <input type="text" id="rev_screenshot" class="mt-1 block w-full border p-2 rounded text-sm" placeholder="https://...">
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-2 border-t pt-4">
+                <button type="button" onclick="closeRevisionModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 font-bold">Há»§y</button>
+                <button type="button" onclick="submitRevision()" class="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-700">Gá»­i YÃªu Cáº§u</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Khiáº¿u Náº¡i (Dispute) -->
+    <div id="disputeModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex justify-center items-center z-50">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 p-8 rounded-xl shadow-2xl w-[500px]">
+            <div class="flex items-center mb-4">
+                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-red-700">Khiáº¿u Náº¡i & Tranh Cháº¥p</h2>
+            </div>
+            
+            <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm">Náº¿u Freelancer vi pháº¡m há»£p Ä‘á»“ng, báº¡n cÃ³ thá»ƒ táº¡o khiáº¿u náº¡i. Admin sáº½ Ä‘Ã³ng bÄƒng dá»± Ã¡n vÃ  xem xÃ©t báº±ng chá»©ng Ä‘á»ƒ phÃ¡n quyáº¿t hoÃ n tiá»n.</p>
+            
+            <input type="hidden" id="dispute_job_id">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">LÃ½ do khiáº¿u náº¡i (*):</label>
+                    <textarea id="dispute_reason" rows="3" class="mt-1 block w-full border-2 border-gray-200 p-3 rounded-lg focus:border-red-500 text-sm" placeholder="MÃ´ táº£ chi tiáº¿t viá»‡c Freelancer vi pháº¡m..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Táº£i lÃªn hÃ¬nh áº£nh báº±ng chá»©ng (Tá»‘i Ä‘a 7 áº£nh):</label>
+                    <p class="text-xs text-red-600 font-semibold mb-2 italic">Ráº¥t quan trá»ng Ä‘á»ƒ chÃºng tÃ´i giáº£i quyáº¿t nhanh!</p>
+                    <input type="file" id="dispute_evidence" onchange="handleDisputeImageUpload(this)" multiple accept="image/*" class="mt-1 block w-full border-2 border-gray-200 p-2 rounded-lg text-sm">
+                    <div id="dispute_image_preview" class="flex flex-wrap gap-2 mt-3"></div>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-end space-x-3">
+                <button onclick="closeDisputeModal()" class="px-5 py-2 rounded-lg font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100">Há»§y bá»</button>
+                <button id="btnSubmitDispute" onclick="submitDispute()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-700 shadow-lg flex items-center transition-all"><i class="fas fa-gavel mr-2"></i> Gá»­i Khiáº¿u Náº¡i</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chat & Upload -->
+    <div id="chatModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex justify-center items-center z-50">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-lg shadow-xl w-full max-w-2xl flex flex-col" style="height: 80vh;">
+            <div class="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">PhÃ²ng Tháº£o Luáº­n Dá»± Ãn</h2>
+                <button onclick="closeChatModal()" class="text-gray-500 dark:text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-gray-100 space-y-4">
+                <!-- Tin nháº¯n sáº½ hiá»ƒn thá»‹ á»Ÿ Ä‘Ã¢y -->
+            </div>
+            
+            <div class="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700 rounded-b-lg">
+                <input type="hidden" id="chat_job_id">
+                <div class="flex flex-col space-y-2">
+                    <textarea id="chatInput" rows="2" class="w-full border p-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nháº­p ná»™i dung tin nháº¯n..."></textarea>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <input type="file" id="chatFile" class="text-sm border p-1 rounded" multiple>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">(áº¢nh/Video/File)</span>
+                        </div>
+                        <button onclick="sendChatMessage()" id="btnSendChat" class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 shadow flex items-center justify-center">
+                            Gá»­i
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let currentUser = null;
+
+        async function loadPendingActions() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('Báº¡n chÆ°a Ä‘Äƒng nháº­p!');
+                window.location.replace('../sharedFolder/login.html');
+                return;
+            }
+            currentUser = JSON.parse(userStr);
+
+            const listDiv = document.getElementById('jobsList');
+            try {
+                const response = await fetch(`${API_URL}/api/client/${currentUser.id}/pending-actions`);
+                const data = await response.json();
+                
+                if (data.jobs && data.jobs.length > 0) {
+                    listDiv.innerHTML = data.jobs.map(job => renderJob(job)).join('');
+                } else {
+                    listDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded shadow">Hiá»‡n khÃ´ng cÃ³ cÃ´ng viá»‡c nÃ o cáº§n báº¡n xá»­ lÃ½.</p>';
+                }
+            } catch (err) {
+                listDiv.innerHTML = '<p class="text-red-500">Lá»—i káº¿t ná»‘i Server!</p>';
+            }
+        }
+
+        function renderJob(job) {
+            let actionHtml = '';
+
+            if (job.status === 'planning') {
+                actionHtml = `
+                    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded flex justify-between items-center">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Äang chá» Freelancer láº­p káº¿ hoáº¡ch chi tiáº¿t...</p>
+                        <button onclick="cancelProject('${job.id}')" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-600 shadow-md transition">
+                            âŒ Há»§y Dá»± Ãn & HoÃ n Tiá»n
+                        </button>
+                    </div>
+                `;
+            } else if (job.status === 'pending_plan_approval') {
+                const totalAmount = job.milestones.reduce((sum, m) => sum + parseFloat(m.amount), 0);
+                actionHtml = `
+                    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Freelancer Ä‘Ã£ chá»‘t káº¿ hoáº¡ch. Tiá»n cá»§a báº¡n <strong>Ä‘Ã£ Ä‘Æ°á»£c khÃ³a Escrow an toÃ n</strong>. Vui lÃ²ng duyá»‡t Ä‘á»ƒ dá»± Ã¡n chÃ­nh thá»©c báº¯t Ä‘áº§u.</p>
+                        <div class="flex space-x-3">
+                            <button onclick="approvePlanAndLock('${job.id}')" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md transition">
+                                âœ… Duyá»‡t Káº¿ Hoáº¡ch Báº¯t Äáº§u Dá»± Ãn
+                            </button>
+                            <button onclick="cancelProject('${job.id}')" class="bg-red-100 text-red-600 px-5 py-2 rounded-lg font-bold hover:bg-red-200 shadow-md transition border border-red-300">
+                                âŒ Há»§y Dá»± Ãn & HoÃ n Escrow
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (job.status === 'in_progress') {
+                const pendingMilestones = job.milestones.filter(m => m.status === 'PENDING_REVIEW');
+                if (pendingMilestones.length > 0) {
+                    actionHtml = `
+                        <div class="mt-4 space-y-4">
+                            <h3 class="font-bold text-gray-800 dark:text-gray-100">Cáº§n Nghiá»‡m Thu:</h3>
+                            ${pendingMilestones.map(m => `
+                                <div class="bg-blue-50 border border-blue-200 p-4 rounded mb-4">
+                                    <h4 class="font-bold text-blue-800 text-lg">${m.title}</h4>
+                                    ${(() => {
+                                        let links = '';
+                                        if (m.proof_urls && m.proof_urls.length > 0) {
+                                            links = m.proof_urls.map((u, i) => `<a href="${u}" target="_blank" class="text-blue-600 underline font-medium inline-block mr-3 mb-1">ðŸ”— Xem Tá»‡p ${i+1}</a>`).join('');
+                                        } else if (m.evidence_url) {
+                                            links = `<a href="${m.evidence_url}" target="_blank" class="text-blue-600 underline font-medium">Xem minh chá»©ng</a>`;
+                                        }
+                                        return `<p class="text-sm text-gray-700 mt-2"><strong>Freelancer ná»™p bÃ i:</strong><br>${links}</p>`;
+                                    })()}
+                                    
+                                    <p class="text-sm text-gray-700 mt-1"><strong>Sá»‘ tiá»n giáº£i ngÃ¢n:</strong> <span class="text-green-600 font-bold">${m.amount} Token</span></p>
+                                    
+                                    <div class="mt-4 flex space-x-3">
+                                        <button onclick="approveMilestone('${m.id}')" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 shadow">âœ… Nghiá»‡m Thu (Approve)</button>
+                                        <button onclick="openRevisionModal('${m.id}')" class="bg-red-100 text-red-600 px-4 py-2 rounded font-bold border border-red-300 hover:bg-red-200">âŒ Báº¯t sá»­a láº¡i (Revision)</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    actionHtml = `<div class="mt-4 p-4 bg-gray-100 rounded text-gray-500 dark:text-gray-400">Dá»± Ã¡n Ä‘ang cháº¡y. Äang chá» Freelancer ná»™p bÃ i cho cÃ¡c má»‘c tiáº¿p theo...</div>`;
+                }
+            }
+
+            return `
+                <div class="bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-lg shadow-md border-l-4 ${job.status === 'disputed' ? 'border-red-500' : 'border-indigo-500'}">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">${job.title}</h2>
+                        <div class="mt-3 sm:mt-0 flex space-x-2">
+                            ${job.status === 'in_progress' ? `<button onclick="openDisputeModal('${job.id}')" class="bg-red-600 text-white hover:bg-red-700 px-3 py-1 rounded text-sm font-bold shadow-sm flex items-center"><i class="fas fa-exclamation-triangle mr-1"></i> Khiáº¿u Náº¡i</button>` : ''}
+                            <button onclick="openChatModal('${job.id}')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-sm font-bold shadow-sm flex items-center">ðŸ’¬ Tháº£o luáº­n</button>
+                        </div>
+                    </div>
+                    ${actionHtml}
+                </div>
+            `;
+        }
+
+        // --- HÃ nh Ä‘á»™ng: Duyá»‡t káº¿ hoáº¡ch (VÃ¬ Escrow Ä‘Ã£ khÃ³a tá»« Ä‘áº§u)
+        async function approvePlanAndLock(jobId) {
+            if (!confirm('XÃ¡c nháº­n Duyá»‡t káº¿ hoáº¡ch nÃ y? (Dá»± Ã¡n sáº½ chÃ­nh thá»©c báº¯t Ä‘áº§u)')) return;
+            try {
+                const response = await fetch(`${API_URL}/api/jobs/start-project`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: currentUser.id, job_id: jobId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('ThÃ nh cÃ´ng: ' + data.message);
+                    loadPendingActions();
+                } else {
+                    alert('Lá»—i: ' + data.error);
+                }
+            } catch (err) {
+                alert('KhÃ´ng thá»ƒ káº¿t ná»‘i Ä‘áº¿n Backend');
+            }
+        }
+
+        // --- HÃ nh Ä‘á»™ng: Há»§y dá»± Ã¡n & HoÃ n Escrow
+        async function cancelProject(jobId) {
+            if (!confirm('Báº¡n cÃ³ cháº¯c cháº¯n muá»‘n Há»¦Y Dá»° ÃN nÃ y? Sá»‘ tiá»n Escrow Ä‘Ã£ khÃ³a sáº½ Ä‘Æ°á»£c hoÃ n tráº£ láº¡i vÃ o vÃ­ cá»§a báº¡n.')) return;
+            try {
+                const response = await fetch(`${API_URL}/api/jobs/cancel-planning`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: currentUser.id, job_id: jobId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('ThÃ nh cÃ´ng: ' + data.message);
+                    loadPendingActions();
+                } else {
+                    alert('Lá»—i: ' + data.error);
+                }
+            } catch (err) {
+                alert('KhÃ´ng thá»ƒ káº¿t ná»‘i Ä‘áº¿n Backend');
+            }
+        }
+
+        // --- HÃ nh Ä‘á»™ng: Nghiá»‡m thu (Giáº£i ngÃ¢n ACID)
+        async function approveMilestone(milestoneId) {
+            if (!confirm('XÃ¡c nháº­n Nghiá»‡m thu má»‘c cÃ´ng viá»‡c nÃ y? (Tiá»n sáº½ Ä‘Æ°á»£c xá»­ lÃ½ tá»± Ä‘á»™ng)')) return;
+            try {
+                const response = await fetch(`${API_URL}/api/milestones/advanced/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: currentUser.id, milestone_id: milestoneId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Nghiá»‡m thu thÃ nh cÃ´ng: ' + data.message);
+                    loadPendingActions();
+                } else {
+                    alert('Lá»—i: ' + data.error);
+                }
+            } catch (err) {
+                alert('KhÃ´ng thá»ƒ káº¿t ná»‘i Ä‘áº¿n Backend');
+            }
+        }
+
+        // --- HÃ nh Ä‘á»™ng: YÃªu cáº§u sá»­a (Revision)
+        function openRevisionModal(milestoneId) {
+            document.getElementById('rev_milestone_id').value = milestoneId;
+            document.getElementById('rev_feedback').value = '';
+            document.getElementById('rev_screenshot').value = '';
+            document.getElementById('revisionModal').classList.remove('hidden');
+        }
+
+        function closeRevisionModal() {
+            document.getElementById('revisionModal').classList.add('hidden');
+        }
+
+        async function submitRevision() {
+            const mId = document.getElementById('rev_milestone_id').value;
+            const feedback = document.getElementById('rev_feedback').value;
+            const screenshot = document.getElementById('rev_screenshot').value;
+
+            if (!feedback) { alert('Vui lÃ²ng nháº­p ná»™i dung cáº§n sá»­a!'); return; }
+
+            const payload = {
+                client_id: currentUser.id,
+                milestone_id: mId,
+                feedback: feedback,
+                screenshot_url: screenshot || null
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/milestones/revision`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('ThÃ nh cÃ´ng: ' + data.message);
+                    closeRevisionModal();
+                    loadPendingActions();
+                } else {
+                    alert('Lá»—i: ' + data.error);
+                }
+            } catch (err) {
+                alert('KhÃ´ng thá»ƒ káº¿t ná»‘i Backend');
+            }
+        }
+
+        // --- HÃ nh Ä‘á»™ng: Khiáº¿u Náº¡i (Dispute)
+        let uploadedDisputeEvidence = [];
+
+        async function handleDisputeImageUpload(input) {
+            const files = input.files;
+            if (files.length === 0) return;
+            if (files.length > 7) {
+                alert('Chá»‰ Ä‘Æ°á»£c táº£i lÃªn tá»‘i Ä‘a 7 hÃ¬nh áº£nh!');
+                input.value = '';
+                return;
+            }
+
+            const btnSubmit = document.getElementById('btnSubmitDispute');
+            const previewContainer = document.getElementById('dispute_image_preview');
+
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+            previewContainer.innerHTML = '<p class="text-blue-500 text-sm animate-pulse w-full"><i class="fas fa-spinner fa-spin mr-2"></i>Äang táº£i ' + files.length + ' áº£nh lÃªn mÃ¡y chá»§, vui lÃ²ng chá»...</p>';
+            
+            uploadedDisputeEvidence = [];
+            
+            try {
+                const uploadPromises = Array.from(files).map(async (file) => {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const res = await fetch(`${API_URL}/api/upload/image`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if(!res.ok) throw new Error(data.error);
+                    return data.url;
+                });
+
+                uploadedDisputeEvidence = await Promise.all(uploadPromises);
+
+                previewContainer.innerHTML = uploadedDisputeEvidence.map(url => `
+                    <div class="relative inline-block mt-2 mr-2">
+                        <img src="${url}" class="w-16 h-16 object-cover rounded border border-gray-300">
+                        <span class="absolute -top-2 -right-2 bg-green-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center"><i class="fas fa-check"></i></span>
+                    </div>
+                `).join('');
+                
+            } catch(err) {
+                previewContainer.innerHTML = '<p class="text-red-500 text-sm w-full"><i class="fas fa-exclamation-triangle mr-2"></i>Lá»—i táº£i áº£nh: ' + err.message + '</p>';
+                input.value = '';
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function openDisputeModal(jobId) {
+            document.getElementById('dispute_job_id').value = jobId;
+            document.getElementById('dispute_reason').value = '';
+            const fileInput = document.getElementById('dispute_evidence');
+            if(fileInput) fileInput.value = '';
+            const preview = document.getElementById('dispute_image_preview');
+            if(preview) preview.innerHTML = '';
+            uploadedDisputeEvidence = [];
+            
+            const btnSubmit = document.getElementById('btnSubmitDispute');
+            if(btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gá»­i Khiáº¿u Náº¡i';
+            }
+
+            document.getElementById('disputeModal').classList.remove('hidden');
+        }
+
+        function closeDisputeModal() {
+            document.getElementById('disputeModal').classList.add('hidden');
+        }
+
+        async function submitDispute() {
+            const jobId = document.getElementById('dispute_job_id').value;
+            const reason = document.getElementById('dispute_reason').value;
+
+            if (!reason) return alert('Vui lÃ²ng nháº­p lÃ½ do khiáº¿u náº¡i!');
+            if (!confirm('Cáº¢NH BÃO: HÃ nh Ä‘á»™ng nÃ y sáº½ Ä‘Ã³ng bÄƒng toÃ n bá»™ sá»‘ tiá»n cá»§a dá»± Ã¡n vÃ  Ä‘Æ°a ra TÃ²a Ãn Admin phÃ¡n quyáº¿t. Báº¡n cÃ³ cháº¯c cháº¯n?')) return;
+
+            const btnSubmit = document.getElementById('btnSubmitDispute');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Äang xá»­ lÃ½...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/jobs/dispute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        user_id: currentUser.id,
+                        reason: reason,
+                        evidence_url: uploadedDisputeEvidence.join(',')
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('âœ… ' + data.message);
+                    closeDisputeModal();
+                    loadPendingActions();
+                } else {
+                    alert('Lá»—i: ' + data.error);
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gá»­i Khiáº¿u Náº¡i';
+                }
+            } catch (err) {
+                alert('KhÃ´ng thá»ƒ káº¿t ná»‘i Backend');
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fas fa-gavel mr-2"></i> Gá»­i Khiáº¿u Náº¡i';
+            }
+        }
+
+        // ---------- CHAT LOGIC ----------
+        async function openChatModal(jobId) {
+            document.getElementById('chat_job_id').value = jobId;
+            document.getElementById('chatModal').classList.remove('hidden');
+            loadChatMessages(jobId);
+        }
+
+        function closeChatModal() {
+            document.getElementById('chatModal').classList.add('hidden');
+        }
+
+        async function loadChatMessages(jobId) {
+            const chatBox = document.getElementById('chatMessages');
+            chatBox.innerHTML = '<p class="text-center text-gray-500 dark:text-gray-400 mt-4">Äang táº£i tin nháº¯n...</p>';
+            
+            try {
+                const res = await fetch(`${API_URL}/api/jobs/${jobId}/messages`);
+                const data = await res.json();
+                if (res.ok) {
+                    if (data.messages.length === 0) {
+                        chatBox.innerHTML = '<p class="text-center text-gray-500 dark:text-gray-400 mt-4">ChÆ°a cÃ³ tin nháº¯n nÃ o. Báº¯t Ä‘áº§u tháº£o luáº­n!</p>';
+                    } else {
+                        chatBox.innerHTML = data.messages.map(msg => renderMessage(msg)).join('');
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                }
+            } catch (err) {
+                chatBox.innerHTML = '<p class="text-center text-red-500 mt-4">Lá»—i káº¿t ná»‘i Server!</p>';
+            }
+        }
+
+        function renderMessage(msg) {
+            const isMe = msg.sender_id === currentUser.id;
+            const timeStr = new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            const roleBadge = msg.users.role === 'client' ? '<span class="text-[10px] bg-blue-100 text-blue-800 px-1 rounded ml-1">KHÃCH HÃ€NG</span>' : '<span class="text-[10px] bg-green-100 text-green-800 px-1 rounded ml-1">FREELANCER</span>';
+            
+            let fileHtml = '';
+            if (msg.file_url) {
+                if (msg.file_type === 'image') {
+                    fileHtml = `<div class="mt-2"><img src="${msg.file_url}" class="max-w-[200px] rounded-lg border border-gray-200 cursor-pointer" onclick="window.open('${msg.file_url}', '_blank')"></div>`;
+                } else if (msg.file_type === 'video') {
+                    fileHtml = `<div class="mt-2"><video src="${msg.file_url}" controls class="max-w-[250px] rounded-lg"></video></div>`;
+                } else {
+                    fileHtml = `<div class="mt-2"><a href="${msg.file_url}" target="_blank" class="flex items-center text-sm underline ${isMe ? 'text-white' : 'text-blue-600'}">ðŸ“ Táº£i File Ä‘Ã­nh kÃ¨m</a></div>`;
+                }
+            }
+
+            return `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center">${msg.users.full_name} ${roleBadge} - ${timeStr}</div>
+                    <div class="max-w-[80%] rounded-lg p-3 ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-tl-none border shadow-sm'}">
+                        ${msg.content ? `<p class="text-sm whitespace-pre-wrap">${msg.content}</p>` : ''}
+                        ${fileHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function sendChatMessage() {
+            const jobId = document.getElementById('chat_job_id').value;
+            const contentInput = document.getElementById('chatInput');
+            const fileInput = document.getElementById('chatFile');
+            const chatBox = document.getElementById('chatMessages');
+            
+            const content = contentInput.value.trim();
+            const files = Array.from(fileInput.files || []);
+
+            if (!content && files.length === 0) return;
+
+            // XÃ³a form ngay láº­p tá»©c Ä‘á»ƒ UX mÆ°á»£t
+            contentInput.value = '';
+            fileInput.value = '';
+
+            // 1. Gá»­i tin nháº¯n Text trÆ°á»›c náº¿u cÃ³
+            if (content) {
+                fetch(`${API_URL}/api/jobs/${jobId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sender_id: currentUser.id, content: content })
+                }).then(() => loadChatMessages(jobId));
+            }
+
+            // 2. Gá»­i file (Async tá»«ng file Ä‘á»ƒ hiá»‡n progress)
+            for (let file of files) {
+                const tempId = 'temp_' + Date.now() + Math.random().toString(36).substr(2, 9);
+                const tempHtml = `
+                    <div id="${tempId}" class="flex flex-col items-end">
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center">Äang gá»­i...</div>
+                        <div class="max-w-[80%] rounded-lg p-3 bg-blue-300 text-white rounded-tr-none flex items-center space-x-2">
+                            <span class="animate-spin rounded-full h-4 w-4 border-t-2 border-white border-solid"></span>
+                            <span class="text-sm">Äang táº£i lÃªn: ${file.name}</span>
+                        </div>
+                    </div>
+                `;
+                chatBox.insertAdjacentHTML('beforeend', tempHtml);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const isImage = file.type.startsWith('image/');
+                const uploadEndpoint = isImage ? '/api/upload/image' : '/api/upload/file';
+
+                try {
+                    const uploadRes = await fetch(`${API_URL}${uploadEndpoint}`, { method: 'POST', body: formData });
+                    const uploadData = await uploadRes.json();
+                    
+                    if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload tháº¥t báº¡i');
+
+                    // Gá»­i URL vÃ o message DB
+                    await fetch(`${API_URL}/api/jobs/${jobId}/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sender_id: currentUser.id, file_url: uploadData.url, file_type: uploadData.type })
+                    });
+                    
+                    document.getElementById(tempId).remove();
+                    loadChatMessages(jobId);
+                } catch (err) {
+                    const tempDiv = document.getElementById(tempId);
+                    if (tempDiv) tempDiv.innerHTML = `<p class="text-red-500 text-sm p-2 bg-red-100 rounded border border-red-300">âŒ Lá»—i táº£i ${file.name}: ${err.message}</p>`;
+                }
+            }
+        }
+
+        loadPendingActions();
+    </script>
+
+        </main>
+    </div>
+    
+    <!-- Shared UI Script -->
+    <script src="ui.js"></script>
+        </body>
+</html>
+
+

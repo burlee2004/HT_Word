@@ -1,0 +1,232 @@
+[
+  {
+    "id": "log_1788509764261_gq15k",
+    "timestamp": "2026-09-04T08:16:04.261Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "note": "Trao đổi dự án"
+    }
+  },
+  {
+    "id": "log_1788509707865_allhn",
+    "timestamp": "2026-09-04T08:15:07.865Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "note": "Trao đổi dự án"
+    }
+  },
+  {
+    "id": "log_1788509692946_fmufr",
+    "timestamp": "2026-09-04T08:14:52.946Z",
+    "module": "AUTH",
+    "action": "RESPOND_FRIEND_REQUEST_ACCEPT",
+    "level": "INFO",
+    "details": "Người dùng 5f79cd46-e8e4-4db3-80d7-250c54199b6a đã accept lời mời kết bạn với c522cd82-36ab-495a-9e00-7f7378050d3f",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "target_user_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "action": "accept"
+    }
+  },
+  {
+    "id": "log_1788509692193_is0rz",
+    "timestamp": "2026-09-04T08:14:52.193Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "note": "Trao đổi dự án"
+    }
+  },
+  {
+    "id": "log_1788509516984_qin3g",
+    "timestamp": "2026-09-04T08:11:56.984Z",
+    "module": "JOB",
+    "action": "DIRECT_HIRE_JOB",
+    "level": "INFO",
+    "details": "Khách hàng giao việc trực tiếp \"Dự án Website TMĐT Cho Mối Ruột\" cho Freelancer mối ruột (500 Token)",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "9f0d5f59-251a-4d0d-963b-1a7f17b6d7a3",
+      "title": "Dự án Website TMĐT Cho Mối Ruột",
+      "budget": 500,
+      "client_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "freelancer_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a"
+    }
+  },
+  {
+    "id": "log_1788509512427_w57gk",
+    "timestamp": "2026-09-04T08:11:52.427Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
+    }
+  },
+  {
+    "id": "log_1788509504676_6ub3u",
+    "timestamp": "2026-09-04T08:11:44.676Z",
+    "module": "JOB",
+    "action": "DIRECT_HIRE_JOB",
+    "level": "INFO",
+    "details": "Khách hàng giao việc trực tiếp \"Dự án Website TMĐT Cho Mối Ruột\" cho Freelancer mối ruột (500 Token)",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "9fa0af55-f343-4446-8c33-56f3546efd7b",
+      "title": "Dự án Website TMĐT Cho Mối Ruột",
+      "budget": 500,
+      "client_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "freelancer_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a"
+    }
+  },
+  {
+    "id": "log_1788509499914_hspad",
+    "timestamp": "2026-09-04T08:11:39.914Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
+    }
+  },
+  {
+    "id": "log_1788509221788_jhb9b",
+    "timestamp": "2026-09-04T08:07:01.788Z",
+    "module": "JOB",
+    "action": "DIRECT_HIRE_JOB",
+    "level": "INFO",
+    "details": "Khách hàng giao việc trực tiếp \"Dự án Website TMĐT Cho Mối Ruột\" cho Freelancer mối ruột (500 Token)",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "76b90a79-ce16-4782-a45d-bf9ba9d01e4c",
+      "title": "Dự án Website TMĐT Cho Mối Ruột",
+      "budget": 500,
+      "client_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "freelancer_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a"
+    }
+  },
+  {
+    "id": "log_1788509217061_64s6d",
+    "timestamp": "2026-09-04T08:06:57.061Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
+    }
+  },
+  {
+    "id": "log_1788509198218_pigzm",
+    "timestamp": "2026-09-04T08:06:38.218Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
+    }
+  },
+  {
+    "id": "log_1788509185471_e8g6q",
+    "timestamp": "2026-09-04T08:06:25.471Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
+    }
+  },
+  {
+    "id": "log_1788507890791_a9onf",
+    "timestamp": "2026-09-04T07:44:50.791Z",
+    "module": "FINANCE",
+    "action": "ADMIN_CREDIT_TOKEN",
+    "level": "WARN",
+    "details": "Admin đã cấp thêm 50 Token cho khach2@gmail.com. Lý do: Thưởng cộng tác viên tích cực (Automated Test)",
+    "user_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+    "user_email": "khach2@gmail.com",
+    "user_role": "client",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "amount": 50,
+      "action_type": "CREDIT",
+      "reason": "Thưởng cộng tác viên tích cực (Automated Test)",
+      "admin_id": "SUPER_ADMIN",
+      "old_balance": 20000,
+      "new_balance": 20050
+    }
+  }
+]

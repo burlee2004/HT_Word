@@ -2,329 +2,729 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hồ sơ của tôi - Khách hàng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ của tôi - Khách hàng | HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { primary: '#4f46e5', dark: '#111827', darkCard: '#1f2937' } } }
+        }
+    </script>
 </head>
-<body class="bg-blue-50 h-screen flex flex-col font-sans">
-    <!-- Navbar -->
-    <nav class="bg-blue-600 p-4 flex justify-between items-center shadow sticky top-0 z-50 text-white">
-        <div class="font-bold text-xl flex items-center space-x-4">
-            <a href="home.html" class="hover:text-blue-200"><i class="fas fa-home"></i> HT Work</a>
-        </div>
-        <div class="flex items-center space-x-4">
-            <a href="profile.html" class="font-semibold text-white underline">Hồ sơ cá nhân</a>
-            <span id="clientName" class="font-medium"></span>
-            <button id="logoutBtn" class="bg-blue-800 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-900 transition"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="flex-grow w-full max-w-5xl mx-auto mt-4">
-        <!-- Cover & Avatar Section -->
-        <div class="bg-white shadow rounded-lg overflow-hidden relative border-t-4 border-blue-500">
-            <!-- Cover Photo -->
-            <div id="coverContainer" class="h-64 bg-gray-300 w-full bg-cover bg-center" style="background-image: url('https://via.placeholder.com/1200x400?text=Ảnh+Bìa');">
-            </div>
-            
-            <!-- Profile Header -->
-            <div class="px-8 pb-6 flex flex-col sm:flex-row justify-between items-end -mt-12 sm:-mt-16 relative z-10">
-                <div class="flex flex-col sm:flex-row items-center sm:items-end">
-                    <img id="avatarContainer" src="https://via.placeholder.com/150" alt="Avatar" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-md object-cover bg-white">
-                    <div class="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left mb-2">
-                        <h1 id="displayName" class="text-3xl font-bold text-gray-900">Đang tải...</h1>
-                        <p class="text-gray-600 font-medium mt-1">Khách hàng tại HT Work</p>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden">
+    <div id="sidebar-container"></div>
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <div id="header-container"></div>
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-10">
+            <div class="max-w-6xl mx-auto space-y-6">
+                <!-- HERO CARD -->
+                <div class="bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm rounded-2xl overflow-hidden border border-gray-100 relative">
+                    <div id="coverContainer" class="h-44 md:h-60 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 bg-cover bg-center relative">
+                        <div class="absolute inset-0 bg-black/20"></div>
+                        <button onclick="openEditModal()" class="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100 px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition flex items-center backdrop-blur-sm">
+                            <i class="fas fa-camera mr-1.5"></i> Đổi ảnh bìa
+                        </button>
+                    </div>
+                    <div class="px-6 md:px-8 pb-6 pt-0 flex flex-col md:flex-row justify-between items-start md:items-end -mt-16 md:-mt-20 relative z-10 gap-4">
+                        <div class="flex flex-col sm:flex-row items-center sm:items-end gap-5">
+                            <div class="relative shrink-0">
+                                <img id="avatarContainer" src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" alt="Avatar" class="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-800">
+                                <span class="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full shadow" title="Đang hoạt động"></span>
+                            </div>
+                            <div class="text-center sm:text-left mb-1">
+                                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                    <h1 id="displayName" class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-gray-100">Đang tải...</h1>
+                                    <span id="displayNickname" class="bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-0.5 rounded-full">@client</span>
+                                </div>
+                                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400 mt-1.5">
+                                    <span class="flex items-center text-blue-600 dark:text-blue-400 font-medium"><i class="fas fa-briefcase mr-1.5"></i>Khách hàng Tuyển dụng VIP</span>
+                                    <span id="displayLocation" class="flex items-center"><i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i>TP. Hồ Chí Minh, VN</span>
+                                    <span id="displayJoinDate" class="flex items-center"><i class="far fa-calendar-alt mr-1.5"></i>Thành viên từ 2026</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-auto flex justify-center md:justify-end mb-1">
+                            <button onclick="openEditModal()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition flex items-center justify-center text-sm">
+                                <i class="fas fa-user-edit mr-2"></i> Chỉnh sửa trang cá nhân
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-4 sm:mt-0 mb-2">
-                    <button onclick="openEditModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md shadow-sm flex items-center transition">
-                        <i class="fas fa-pen mr-2"></i> Chỉnh sửa trang cá nhân
-                    </button>
+
+                <!-- 2-COLUMN GRID -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- LEFT COLUMN -->
+                    <div class="space-y-6">
+                        <!-- Verification Card -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                            <h3 class="font-bold text-gray-900 dark:text-gray-100 text-base border-b border-gray-100 dark:border-gray-700 pb-3 flex items-center">
+                                <i class="fas fa-shield-alt text-indigo-600 mr-2"></i> Xác minh độ tin cậy
+                            </h3>
+                            <div class="mt-4 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center">
+                                            <i class="fas fa-envelope"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Địa chỉ Email</p>
+                                            <p id="displayEmail" class="text-sm font-semibold text-gray-800 dark:text-gray-200">email@...</p>
+                                        </div>
+                                    </div>
+                                    <div id="emailBadgeContainer">
+                                        <span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>
+                                    </div>
+                                </div>
+                                <div id="emailActionContainer" class="text-right">
+                                    <button onclick="openEmailModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                                        <i class="fas fa-check-circle mr-1"></i> Xác thực Email ngay
+                                    </button>
+                                </div>
+                                <hr class="border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-9 h-9 rounded-lg bg-green-50 dark:bg-green-900/40 text-green-600 flex items-center justify-center">
+                                            <i class="fas fa-phone-alt"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Số điện thoại</p>
+                                            <p id="displayPhone" class="text-sm font-semibold text-gray-800 dark:text-gray-200">Chưa cập nhật</p>
+                                        </div>
+                                    </div>
+                                    <div id="phoneBadgeContainer">
+                                        <span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>
+                                    </div>
+                                </div>
+                                <div id="phoneActionContainer" class="text-right">
+                                    <button onclick="openPhoneModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                                        <i class="fas fa-shield-alt mr-1"></i> Xác thực OTP SĐT
+                                    </button>
+                                </div>
+                                <hr class="border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center">
+                                            <i class="fas fa-signal"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Trạng thái kết nối</p>
+                                            <p class="text-sm font-bold text-emerald-600 flex items-center">
+                                                <span class="w-2 h-2 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></span> Trực tuyến (Online)
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-full">Sẵn sàng</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Bank Card -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
+                                <h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center">
+                                    <i class="fas fa-credit-card text-indigo-600 mr-2"></i> Tài khoản rút tiền
+                                </h3>
+                                <button onclick="openEditModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Thay đổi</button>
+                            </div>
+                            <div class="mt-4 p-4 rounded-xl bg-gradient-to-br from-gray-900 to-indigo-950 text-white shadow-md relative overflow-hidden">
+                                <div class="absolute -right-4 -bottom-4 opacity-10 text-7xl font-extrabold text-white">HT</div>
+                                <p id="cardBankName" class="text-xs text-indigo-300 font-bold tracking-wider">CHƯA CẬP NHẬT NGÂN HÀNG</p>
+                                <p id="cardBankAccount" class="text-lg font-mono font-bold tracking-widest my-3">**** **** ****</p>
+                                <div class="flex justify-between items-end text-xs">
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px]">CHỦ TÀI KHOẢN</span>
+                                        <span id="cardBankOwner" class="font-bold uppercase tracking-wide">CHƯA CÓ THÔNG TIN</span>
+                                    </div>
+                                    <span id="cardMatchBadge" class="bg-indigo-500/30 border border-indigo-400 text-indigo-200 px-2 py-0.5 rounded text-[10px] font-bold">Chính chủ</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-3 italic flex items-start">
+                                <i class="fas fa-info-circle text-blue-500 mr-1.5 mt-0.5"></i>
+                                <span>Tên chủ tài khoản rút tiền phải trùng khớp với Họ tên đăng ký trên CCCD/CMND để bảo vệ tài sản của bạn.</span>
+                            </p>
+                        </div>
+                    </div>
+                    <!-- RIGHT COLUMN -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- STATS GRID -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 flex items-center justify-center text-lg mb-2"><i class="fas fa-coins"></i></div>
+                                <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Tổng tiền đã chi</p><p id="statSpent" class="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-0.5">0 Token</p></div>
+                            </div>
+                            <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center text-lg mb-2"><i class="fas fa-chart-line"></i></div>
+                                <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Tỉ lệ thuê (Hire rate)</p><p id="statHireRate" class="text-xl font-black text-blue-600 dark:text-blue-400 mt-0.5">0%</p></div>
+                            </div>
+                            <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-lg mb-2"><i class="fas fa-tasks"></i></div>
+                                <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Dự án đã đăng</p><p id="statJobs" class="text-xl font-black text-purple-600 dark:text-purple-400 mt-0.5">0</p></div>
+                            </div>
+                            <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-yellow-50 dark:bg-yellow-900/40 text-yellow-500 flex items-center justify-center text-lg mb-2"><i class="fas fa-star"></i></div>
+                                <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Đánh giá Uy tín</p><p id="statRating" class="text-xl font-black text-yellow-500 mt-0.5 flex items-center">5.0 <span class="text-xs text-gray-400 ml-1 font-normal">(100%)</span></p></div>
+                            </div>
+                        </div>
+                        <!-- HYBRID WEB2-WEB3 TRUST LEDGER CARD (ĐIỂM TÍN DỤNG KHÁCH HÀNG) -->
+                        <div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white rounded-2xl shadow-md p-6 border border-indigo-700/40 relative overflow-hidden">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-indigo-800/60 pb-4">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-8 h-8 rounded-xl bg-indigo-500/30 border border-indigo-400 text-indigo-300 flex items-center justify-center font-bold text-sm">🛡️</span>
+                                        <h3 class="font-extrabold text-lg text-white">Điểm Tín Dụng & Uy Tín Khách Hàng</h3>
+                                    </div>
+                                    <p class="text-xs text-indigo-200/80 mt-1">Cơ chế đo lường minh bạch kết hợp Blockchain (On-chain) & Vòng đời dự án (Off-chain)</p>
+                                </div>
+                                <span class="bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full flex items-center">
+                                    <i class="fas fa-certificate mr-1.5 text-emerald-400"></i> Hạng A (Uy Tín Cao)
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                <!-- Metric 1: On-chain -->
+                                <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] text-indigo-300 font-bold uppercase tracking-wider">1. On-chain Metric</span>
+                                        <i class="fab fa-ethereum text-indigo-400"></i>
+                                    </div>
+                                    <p id="creditSpent" class="text-xl font-black text-white mt-1">0 Token</p>
+                                    <p class="text-[11px] text-gray-300 mt-1">
+                                        <b>Đã giải ngân qua Escrow</b><br>
+                                        <span class="text-gray-400 text-[10px]">Chứng minh năng lực tài chính thật qua Smart Contract.</span>
+                                    </p>
+                                </div>
+
+                                <!-- Metric 2: Off-chain -->
+                                <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] text-blue-300 font-bold uppercase tracking-wider">2. Off-chain Metric</span>
+                                        <i class="fas fa-check-double text-blue-400"></i>
+                                    </div>
+                                    <p id="creditSuccessRate" class="text-xl font-black text-white mt-1">100%</p>
+                                    <p class="text-[11px] text-gray-300 mt-1">
+                                        <b>Tỷ lệ dự án hoàn thành</b><br>
+                                        <span class="text-gray-400 text-[10px]">Minh chứng làm việc nghiêm túc, không hủy kèo vô cớ.</span>
+                                    </p>
+                                </div>
+
+                                <!-- Metric 3: User Feedback -->
+                                <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] text-yellow-300 font-bold uppercase tracking-wider">3. User Feedback</span>
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                    </div>
+                                    <p id="creditRating" class="text-xl font-black text-yellow-400 mt-1">5.0 / 5.0 ⭐</p>
+                                    <p class="text-[11px] text-gray-300 mt-1">
+                                        <b>Đánh giá từ Freelancer</b><br>
+                                        <span class="text-gray-400 text-[10px]">Thái độ hợp tác tốt & nghiệm thu đúng hẹn.</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BIO SECTION -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 md:p-8">
+                            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-4 mb-4">
+                                <h3 class="font-bold text-gray-900 dark:text-gray-100 text-lg flex items-center"><i class="fas fa-user-circle text-indigo-600 mr-2"></i> Giới thiệu về tôi / Doanh nghiệp</h3>
+                                <button onclick="openEditModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center"><i class="fas fa-pen mr-1"></i> Chỉnh sửa</button>
+                            </div>
+                            <div id="displayBio" class="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed text-sm md:text-base">Chưa có thông tin giới thiệu.</div>
+                        </div>
+                        <!-- ESCROW BANNER -->
+                        <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-800/60 p-6 rounded-2xl border border-indigo-100 dark:border-gray-700 flex flex-col sm:flex-row items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-indigo-600/20"><i class="fas fa-lock"></i></div>
+                            <div>
+                                <h4 class="font-bold text-indigo-950 dark:text-indigo-200 text-base">Cam kết Thanh Toán Trung Gian (Escrow Protection)</h4>
+                                <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">Mọi giao dịch thanh toán dự án của bạn đều được khóa trong ví Ký quỹ Escrow và chỉ giải ngân khi bạn đã nghiệm thu sản phẩm đạt yêu cầu.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
+    </div>
 
-        <!-- Info Grid -->
-        <div class="mt-4 pb-10">
-            <!-- Intro -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Giới thiệu về tôi / Công ty</h2>
-                <div class="text-gray-700 whitespace-pre-line text-lg" id="displayBio">Chưa có thông tin giới thiệu.</div>
+    <!-- MODAL 1: EDIT PROFILE -->
+    <div id="editModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center"><i class="fas fa-edit text-indigo-600 mr-2"></i> Chỉnh sửa trang cá nhân</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
             </div>
-        </div>
-    </main>
-
-    <!-- Edit Profile Modal -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-            <!-- Modal Header -->
-            <div class="px-6 py-4 border-b flex justify-between items-center">
-                <h3 class="text-xl font-bold text-gray-900">Chỉnh sửa trang cá nhân</h3>
-                <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <!-- Modal Body (Scrollable) -->
-            <div class="p-6 overflow-y-auto flex-grow">
+            <div class="p-6 overflow-y-auto flex-grow space-y-6">
                 <form id="profileForm" class="space-y-6">
-                    <!-- Ảnh đại diện -->
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="font-bold text-gray-800 text-lg">Ảnh đại diện</label>
-                            <label for="avatarUpload" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded cursor-pointer transition">Thêm ảnh</label>
-                            <input type="file" id="avatarUpload" class="hidden" accept="image/*">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-xl text-center">
+                            <label class="font-bold text-gray-800 dark:text-gray-200 text-sm block mb-2">Ảnh đại diện</label>
+                            <div class="flex justify-center mb-3"><img id="previewAvatar" src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" class="w-20 h-20 rounded-full border-2 border-indigo-500 object-cover shadow"></div>
+                            <label for="avatarUpload" class="inline-block bg-indigo-50 dark:bg-gray-700 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer transition"><i class="fas fa-upload mr-1"></i> Đổi ảnh Avatar</label>
+                            <input type="file" id="avatarUpload" class="hidden" accept="image/*"><input type="hidden" id="avatar_url">
                         </div>
-                        <div class="flex justify-center">
-                            <img id="previewAvatar" src="https://via.placeholder.com/150" class="w-32 h-32 rounded-full border border-gray-200 object-cover">
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-xl text-center">
+                            <label class="font-bold text-gray-800 dark:text-gray-200 text-sm block mb-2">Ảnh bìa Cover</label>
+                            <div class="flex justify-center mb-3"><img id="previewCover" src="https://via.placeholder.com/600x200" class="w-full h-20 rounded-lg border object-cover shadow"></div>
+                            <label for="coverUpload" class="inline-block bg-indigo-50 dark:bg-gray-700 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer transition"><i class="fas fa-upload mr-1"></i> Đổi ảnh Cover</label>
+                            <input type="file" id="coverUpload" class="hidden" accept="image/*"><input type="hidden" id="cover_url">
                         </div>
-                        <input type="hidden" id="avatar_url">
                     </div>
-
-                    <!-- Ảnh bìa -->
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="font-bold text-gray-800 text-lg">Ảnh bìa</label>
-                            <label for="coverUpload" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded cursor-pointer transition">Thêm ảnh</label>
-                            <input type="file" id="coverUpload" class="hidden" accept="image/*">
-                        </div>
-                        <div class="flex justify-center">
-                            <img id="previewCover" src="https://via.placeholder.com/1200x400" class="w-full h-40 rounded-lg border border-gray-200 object-cover">
-                        </div>
-                        <input type="hidden" id="cover_url">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">Họ và tên / Tên công ty <span class="text-red-500">*</span></label><input type="text" id="full_name" required oninput="validateBankOwnerMatch()" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700 font-medium"></div>
+                        <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">Biệt danh (Nickname)</label><div class="relative"><span class="absolute left-3 top-2 text-gray-400 text-sm font-bold">@</span><input type="text" id="nickname" class="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700 font-medium" placeholder="vd: alex_tech"></div></div>
                     </div>
-
-                    <!-- Thông tin cơ bản -->
-                    <div>
-                        <label class="font-bold text-gray-800 text-lg block mb-2">Họ và tên / Tên công ty</label>
-                        <input type="text" id="full_name" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">📍 Tỉnh / Thành phố (Việt Nam)</label><select id="locationSelect" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700 font-medium"><option value="TP. Hồ Chí Minh">Đang tải danh sách tỉnh thành...</option></select></div>
+                        <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">📱 Số điện thoại</label><input type="tel" id="phone_number" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700 font-medium" placeholder="0912345678"></div>
                     </div>
-
-                    <div>
-                        <label class="font-bold text-gray-800 text-lg block mb-2">Giới thiệu (Bio)</label>
-                        <textarea id="bio" rows="4" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Mô tả ngắn gọn về bạn hoặc doanh nghiệp..."></textarea>
-                    </div>
-
-                    <!-- Ngân hàng rút tiền -->
-                    <div class="border-t pt-4">
-                        <label class="font-bold text-gray-800 text-lg block mb-4">💳 Thông tin ngân hàng (Để rút tiền)</label>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-sm font-semibold text-gray-600 block mb-1">Tên ngân hàng (Vd: MB Bank, Vietcombank)</label>
-                                <input type="text" id="bank_name" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-gray-600 block mb-1">Số tài khoản</label>
-                                <input type="text" id="bank_account" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50">
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-gray-600 block mb-1">Tên chủ tài khoản</label>
-                                <input type="text" id="bank_owner" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-50 uppercase">
-                            </div>
+                    <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">Giới thiệu (Bio)</label><textarea id="bio" rows="3" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700" placeholder="Mô tả ngắn gọn về bạn hoặc nhu cầu tuyển dụng..."></textarea></div>
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <div class="flex items-center justify-between mb-2"><label class="font-bold text-gray-800 dark:text-gray-200 text-sm flex items-center"><i class="fas fa-university text-indigo-600 mr-2"></i> Thông tin ngân hàng (Để rút tiền)</label><span class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-gray-700 px-2 py-0.5 rounded">Ràng buộc chính chủ</span></div>
+                        <div class="space-y-3 bg-gray-50 dark:bg-gray-750 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div><label class="text-xs font-bold text-gray-600 dark:text-gray-300 block mb-1">Tên ngân hàng</label><select id="bank_name" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 font-medium"><option value="Vietcombank (VCB)">Vietcombank (VCB)</option><option value="MB Bank (Quân Đội)">MB Bank (Quân Đội)</option><option value="Techcombank (TCB)">Techcombank (TCB)</option><option value="ACB (Á Châu)">ACB (Á Châu)</option><option value="VPBank (Việt Nam Thịnh Vượng)">VPBank (Việt Nam Thịnh Vượng)</option><option value="TPBank (Tiên Phong)">TPBank (Tiên Phong)</option><option value="BIDV (Đầu tư & Phát triển)">BIDV (Đầu tư & Phát triển)</option><option value="Agribank (Nông Nghiệp)">Agribank (Nông Nghiệp)</option><option value="Sacombank (Sài Gòn Thương Tín)">Sacombank (Sài Gòn Thương Tín)</option><option value="VIB (Quốc Tế)">VIB (Quốc Tế)</option><option value="HDBank (Phát triển TP.HCM)">HDBank (Phát triển TP.HCM)</option><option value="Khác">Ngân hàng khác</option></select></div>
+                            <div><label class="text-xs font-bold text-gray-600 dark:text-gray-300 block mb-1">Số tài khoản ngân hàng</label><input type="text" id="bank_account" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 font-mono font-bold" placeholder="VD: 0123456789"></div>
+                            <div><div class="flex justify-between items-center mb-1"><label class="text-xs font-bold text-gray-600 dark:text-gray-300">Tên chủ tài khoản (Viết hoa không dấu)</label><span id="bankNameMatchStatus" class="text-[10px] font-bold"></span></div><input type="text" id="bank_owner" oninput="validateBankOwnerMatch()" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 uppercase font-bold" placeholder="VD: NGUYEN VAN A"><p id="bankNameMismatchWarning" class="text-xs text-red-500 font-semibold mt-1 hidden">⚠️ Chú ý: Tên chủ tài khoản rút tiền phải khớp với Họ tên đăng ký (<span id="warnRegisteredName"></span>) để tránh bị từ chối lệnh rút tiền!</p></div>
                         </div>
                     </div>
                 </form>
             </div>
-            
-            <!-- Modal Footer -->
-            <div class="px-6 py-4 border-t bg-gray-50 flex justify-end">
-                <button type="button" onclick="closeEditModal()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-semibold mr-3 hover:bg-gray-300">Hủy</button>
-                <button type="submit" form="profileForm" class="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 flex items-center">
-                    <span id="saveBtnText">Lưu</span>
-                    <i id="saveSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
-                </button>
+            <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex justify-end items-center gap-3">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 font-bold text-sm transition">Hủy</button>
+                <button type="submit" form="profileForm" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-bold shadow-md transition flex items-center text-sm"><span id="saveBtnText">Lưu thay đổi</span><i id="saveSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i></button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL 2: EMAIL VERIFICATION -->
+    <div id="emailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4"><h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center"><i class="fas fa-envelope-open-text text-indigo-600 mr-2"></i> Xác thực địa chỉ Email</h3><button onclick="closeEmailModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button></div>
+            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                <p class="font-semibold text-gray-800 dark:text-gray-200">Tại sao cần xác thực Email?</p>
+                <ul class="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400"><li>Nhận thông báo quan trọng khi Freelancer nộp bài / yêu cầu giải ngân.</li><li>Bảo vệ tài khoản và khôi phục mật khẩu khi có sự cố.</li><li>Tăng huy hiệu uy tín trên sàn giao dịch HT Work.</li></ul>
+                <div class="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800 mt-2"><p class="text-xs text-blue-800 dark:text-blue-300"><b>Email đăng ký của bạn:</b> <span id="modalEmailText" class="font-bold">...</span></p></div>
+            </div>
+            <div class="mt-6 flex flex-col gap-2">
+                <button onclick="performEmailVerification()" id="btnVerifyEmail" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center"><i class="fas fa-check-circle mr-2"></i> Kích Hoạt Xác Thực Email Ngay</button>
+                <button onclick="closeEmailModal()" class="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-2 rounded-xl text-xs hover:bg-gray-200 transition">Để sau</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: PHONE OTP -->
+    <div id="phoneModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4"><h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center"><i class="fas fa-mobile-alt text-green-600 mr-2"></i> Xác thực Số Điện Thoại (OTP)</h3><button onclick="closePhoneModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button></div>
+            <div class="space-y-4 text-sm">
+                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Số điện thoại cần xác thực:</label><div class="flex gap-2"><input type="tel" id="otpPhoneNumber" class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 bg-gray-50 dark:bg-gray-700 font-bold" placeholder="0912345678"><button type="button" onclick="sendPhoneOtp()" id="btnSendOtp" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow shrink-0 transition">Gửi OTP</button></div></div>
+                <div id="otpInputSection" class="hidden space-y-2"><label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Nhập mã OTP 6 số:</label><input type="text" id="otpCode" maxlength="6" class="w-full text-center tracking-widest text-xl font-bold font-mono border border-gray-300 dark:border-gray-600 rounded-lg py-2 focus:ring-2 focus:ring-green-500 bg-gray-50 dark:bg-gray-700" placeholder="------"><p class="text-xs text-gray-500 italic text-center">(Mã thử nghiệm hệ thống: <b class="text-green-600">123456</b>)</p></div>
+            </div>
+            <div class="mt-6 flex flex-col gap-2">
+                <button onclick="confirmPhoneOtp()" id="btnConfirmOtp" class="hidden w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center"><i class="fas fa-shield-check mr-2"></i> Xác Nhận Mã OTP</button>
+                <button onclick="closePhoneModal()" class="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-2 rounded-xl text-xs hover:bg-gray-200 transition">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
             
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.role !== 'client') {
-            alert('Vui lòng đăng nhập với tư cách Khách hàng!');
-            window.location.href = '../sharedFolder/login.html';
+        let currentUser = null;
+        let profileData = {};
+
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            window.location.replace('../sharedFolder/login.html');
+        } else {
+            currentUser = JSON.parse(userStr);
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { 
-            localStorage.clear(); 
-            window.location.href = '../sharedFolder/login.html'; 
-        });
+        const fallbackProvinces = [
+            "TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Hải Phòng", "Cần Thơ", 
+            "Bình Dương", "Đồng Nai", "Bà Rịa - Vũng Tàu", "An Giang", "Bắc Giang", 
+            "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Phước", 
+            "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông", "Điện Biên", 
+            "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Tĩnh", "Hải Dương", 
+            "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", 
+            "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", 
+            "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", 
+            "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", 
+            "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", 
+            "Tiền Giang", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+        ];
 
-        // Xử lý Modal
-        const editModal = document.getElementById('editModal');
-        function openEditModal() { editModal.classList.remove('hidden'); }
-        function closeEditModal() { editModal.classList.add('hidden'); }
-
-        // Upload Helper
-        async function uploadImageFile(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            const res = await fetch(`${API_URL}/api/upload/image`, {
-                method: 'POST',
-                body: formData
-            });
-            
-            let data;
+        async function loadVietnamProvinces(selectedProvince) {
+            const selectEl = document.getElementById('locationSelect');
+            if (!selectEl) return;
             try {
-                data = await res.json();
-            } catch (err) {
-                throw new Error('Server không phản hồi bằng JSON. Có thể bạn chưa Push code Backend lên Render!');
+                const res = await fetch('https://provinces.open-api.vn/api/?depth=1');
+                if (res.ok) {
+                    const provinces = await res.json();
+                    selectEl.innerHTML = provinces.map(p => `
+                        <option value="${p.name}" ${p.name === selectedProvince ? 'selected' : ''}>${p.name}</option>
+                    `).join('');
+                    return;
+                }
+            } catch (e) {
+                console.warn('[HT Work] Dùng fallback tỉnh thành:', e);
             }
-
-            if (!res.ok) {
-                throw new Error(data.error || 'Lỗi không xác định từ server');
-            }
-            return data.url;
+            selectEl.innerHTML = fallbackProvinces.map(p => `
+                <option value="${p}" ${p === selectedProvince ? 'selected' : ''}>${p}</option>
+            `).join('');
         }
 
-        // Handle Avatar File Selection
-        document.getElementById('avatarUpload').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const preview = document.getElementById('previewAvatar');
-            const oldSrc = preview.src;
-            preview.src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
-            try {
-                const url = await uploadImageFile(file);
-                document.getElementById('avatar_url').value = url;
-                preview.src = url;
-                alert('✅ Tải ảnh đại diện lên Cloudinary thành công!');
-            } catch (err) { 
-                preview.src = oldSrc;
-                alert('❌ Lỗi tải ảnh: ' + err.message); 
-            }
-        });
+        function removeVietnameseTones(str) {
+            if (!str) return '';
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+            str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+            str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+            str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+            str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+            str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+            str = str.replace(/Đ/g, "D");
+            return str.trim().toUpperCase();
+        }
 
-        // Handle Cover File Selection
-        document.getElementById('coverUpload').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const preview = document.getElementById('previewCover');
-            const oldSrc = preview.src;
-            preview.src = 'https://i.gifer.com/ZKZg.gif'; // Loading gif
-            try {
-                const url = await uploadImageFile(file);
-                document.getElementById('cover_url').value = url;
-                preview.src = url;
-                alert('✅ Tải ảnh bìa lên Cloudinary thành công!');
-            } catch (err) { 
-                preview.src = oldSrc;
-                alert('❌ Lỗi tải ảnh bìa: ' + err.message); 
-            }
-        });
+        function validateBankOwnerMatch() {
+            const fullName = document.getElementById('full_name').value.trim();
+            const bankOwner = document.getElementById('bank_owner').value.trim();
+            const statusEl = document.getElementById('bankNameMatchStatus');
+            const warnEl = document.getElementById('bankNameMismatchWarning');
+            const warnName = document.getElementById('warnRegisteredName');
 
-        // Render UI
+            if (!bankOwner) {
+                statusEl.innerHTML = '';
+                warnEl.classList.add('hidden');
+                return true;
+            }
+
+            const cleanFull = removeVietnameseTones(fullName);
+            const cleanOwner = removeVietnameseTones(bankOwner);
+
+            if (cleanFull && cleanOwner && cleanFull === cleanOwner) {
+                statusEl.innerHTML = '<span class="text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i>Khớp tên chính chủ</span>';
+                warnEl.classList.add('hidden');
+                return true;
+            } else {
+                statusEl.innerHTML = '<span class="text-red-500 font-bold"><i class="fas fa-exclamation-circle mr-1"></i>Không khớp tên</span>';
+                warnName.innerText = fullName || 'Chưa nhập';
+                warnEl.classList.remove('hidden');
+                return false;
+            }
+        }
+
+        async function loadProfile() {
+            console.log('[HT Work] Tải profile của User ID:', currentUser.id);
+            try {
+                const res = await fetch(`${API_URL}/api/users/${currentUser.id}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Lỗi tải hồ sơ');
+                profileData = data;
+                renderUI(data);
+            } catch (error) {
+                console.error('[HT Work] Lỗi load profile:', error);
+                alert('Không thể tải thông tin hồ sơ: ' + error.message);
+            }
+        }
+
         function renderUI(data) {
             const name = data.full_name || data.email;
-            document.getElementById('clientName').innerText = name;
             document.getElementById('displayName').innerText = name;
+            document.getElementById('displayNickname').innerText = data.nickname ? `@${data.nickname}` : '@client';
+            document.getElementById('displayLocation').innerHTML = `<i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i>${data.location || 'TP. Hồ Chí Minh'}, VN`;
             
-            if (data.avatar_url) {
-                document.getElementById('avatarContainer').src = data.avatar_url;
-                document.getElementById('previewAvatar').src = data.avatar_url;
-                document.getElementById('avatar_url').value = data.avatar_url;
+            if (data.created_at) {
+                const joinDate = new Date(data.created_at);
+                document.getElementById('displayJoinDate').innerHTML = `<i class="far fa-calendar-alt mr-1.5"></i>Thành viên từ T${joinDate.getMonth() + 1}/${joinDate.getFullYear()}`;
             }
+
+            const avatarUrl = data.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff`;
+            document.getElementById('avatarContainer').src = avatarUrl;
+            document.getElementById('previewAvatar').src = avatarUrl;
+            document.getElementById('avatar_url').value = data.avatar_url || '';
+
             if (data.cover_url) {
                 document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
                 document.getElementById('previewCover').src = data.cover_url;
                 document.getElementById('cover_url').value = data.cover_url;
             }
+
+            document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu. Bạn có thể bấm "Chỉnh sửa trang cá nhân" để giới thiệu thêm!';
+
+            document.getElementById('displayEmail').innerText = data.email || 'N/A';
+            document.getElementById('modalEmailText').innerText = data.email || 'N/A';
             
-            document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu.';
-            document.getElementById('full_name').value = data.full_name || '';
-            document.getElementById('bio').value = data.bio || '';
-            
-            // Ngân hàng
-            document.getElementById('bank_name').value = data.bank_name || '';
-            document.getElementById('bank_account').value = data.bank_account || '';
-            document.getElementById('bank_owner').value = data.bank_owner || '';
-        }
-
-        // Load profile data
-        async function loadProfile() {
-            try {
-                const res = await fetch(`${API_URL}/api/users/${user.id}`);
-                
-                let data;
-                try {
-                    data = await res.json();
-                } catch(e) {
-                    throw new Error('Lỗi 404: Bạn CHƯA PUSH code backend lên Render! Vui lòng làm Bước 2.');
-                }
-
-                if (!res.ok) {
-                    if (data.error && data.error.includes('cover_url')) {
-                        throw new Error('Lỗi Database: Bạn CHƯA CHẠY LỆNH SQL tạo cột cover_url trên Supabase! Vui lòng làm Bước 1.');
-                    }
-                    throw new Error(data.error || 'Lỗi không tải được thông tin');
-                }
-
-                renderUI(data);
-            } catch (error) {
-                console.error(error);
-                alert(error.message);
+            if (data.is_email_verified) {
+                document.getElementById('emailBadgeContainer').innerHTML = '<span class="bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full"><i class="fas fa-check-circle mr-1"></i>Đã xác thực</span>';
+                document.getElementById('emailActionContainer').classList.add('hidden');
+            } else {
+                document.getElementById('emailBadgeContainer').innerHTML = '<span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>';
+                document.getElementById('emailActionContainer').classList.remove('hidden');
             }
+
+            document.getElementById('displayPhone').innerText = data.phone_number || 'Chưa cập nhật';
+            document.getElementById('otpPhoneNumber').value = data.phone_number || '';
+            
+            if (data.is_phone_verified && data.phone_number) {
+                document.getElementById('phoneBadgeContainer').innerHTML = '<span class="bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full"><i class="fas fa-check-circle mr-1"></i>Đã xác thực OTP</span>';
+                document.getElementById('phoneActionContainer').classList.add('hidden');
+            } else {
+                document.getElementById('phoneBadgeContainer').innerHTML = '<span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>';
+                document.getElementById('phoneActionContainer').classList.remove('hidden');
+            }
+
+            if (data.stats) {
+                const spentStr = (parseInt(data.stats.total_spent) || 0).toLocaleString() + ' Token';
+                const hireRateStr = (data.stats.hire_rate || 0) + '%';
+                const jobsStr = data.stats.jobs_posted || 0;
+
+                document.getElementById('statSpent').innerText = spentStr;
+                document.getElementById('statHireRate').innerText = hireRateStr;
+                document.getElementById('statJobs').innerText = jobsStr;
+
+                // Cập nhật thẻ Điểm Tín Dụng Hybrid Web2-Web3
+                const creditSpentEl = document.getElementById('creditSpent');
+                const creditSuccessEl = document.getElementById('creditSuccessRate');
+                const creditRatingEl = document.getElementById('creditRating');
+                if (creditSpentEl) creditSpentEl.innerText = spentStr;
+                if (creditSuccessEl) creditSuccessEl.innerText = `${hireRateStr} (${data.stats.jobs_posted || 0} dự án)`;
+                if (creditRatingEl) creditRatingEl.innerText = `5.0 / 5.0 ⭐`;
+            }
+
+            document.getElementById('cardBankName').innerText = (data.bank_name || 'CHƯA CẬP NHẬT NGÂN HÀNG').toUpperCase();
+            document.getElementById('cardBankAccount').innerText = data.bank_account ? (data.bank_account.slice(0, -4).replace(/./g, '*') + data.bank_account.slice(-4)) : '**** **** ****';
+            document.getElementById('cardBankOwner').innerText = data.bank_owner ? data.bank_owner.toUpperCase() : (name ? removeVietnameseTones(name) : 'CHƯA CÓ THÔNG TIN');
+
+            document.getElementById('full_name').value = data.full_name || '';
+            document.getElementById('nickname').value = data.nickname || '';
+            document.getElementById('phone_number').value = data.phone_number || '';
+            document.getElementById('bio').value = data.bio || '';
+            document.getElementById('bank_name').value = data.bank_name || 'Vietcombank (VCB)';
+            document.getElementById('bank_account').value = data.bank_account || '';
+            document.getElementById('bank_owner').value = data.bank_owner || (data.full_name ? removeVietnameseTones(data.full_name) : '');
+
+            loadVietnamProvinces(data.location || 'TP. Hồ Chí Minh');
+            validateBankOwnerMatch();
         }
 
-        // Cập nhật Profile
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        function openEditModal() { document.getElementById('editModal').classList.remove('hidden'); }
+        function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
+
+        function openEmailModal() { document.getElementById('emailModal').classList.remove('hidden'); }
+        function closeEmailModal() { document.getElementById('emailModal').classList.add('hidden'); }
+
+        function openPhoneModal() { document.getElementById('phoneModal').classList.remove('hidden'); }
+        function closePhoneModal() { document.getElementById('phoneModal').classList.add('hidden'); }
+
+        async function uploadImageFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch(`${API_URL}/api/upload/image`, { method: 'POST', body: formData });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Upload ảnh thất bại');
+            return data.url;
+        }
+
+        document.getElementById('avatarUpload')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const preview = document.getElementById('previewAvatar');
+            const oldSrc = preview.src;
+            preview.src = 'https://i.gifer.com/ZKZg.gif';
+            try {
+                const url = await uploadImageFile(file);
+                document.getElementById('avatar_url').value = url;
+                preview.src = url;
+                alert('✅ Tải ảnh đại diện thành công!');
+            } catch (err) {
+                preview.src = oldSrc;
+                alert('❌ Lỗi tải ảnh: ' + err.message);
+            }
+        });
+
+        document.getElementById('coverUpload')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const preview = document.getElementById('previewCover');
+            const oldSrc = preview.src;
+            preview.src = 'https://i.gifer.com/ZKZg.gif';
+            try {
+                const url = await uploadImageFile(file);
+                document.getElementById('cover_url').value = url;
+                preview.src = url;
+                alert('✅ Tải ảnh bìa thành công!');
+            } catch (err) {
+                preview.src = oldSrc;
+                alert('❌ Lỗi tải ảnh: ' + err.message);
+            }
+        });
+
+        document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const isNameValid = validateBankOwnerMatch();
+            if (!isNameValid && document.getElementById('bank_owner').value.trim()) {
+                if (!confirm('CẢNH BÁO: Tên chủ tài khoản ngân hàng chưa khớp hoàn toàn với Họ tên đăng ký.\nBạn có chắc chắn vẫn muốn lưu thông tin này? (Lưu ý: Lệnh rút tiền có thể bị từ chối nếu không trùng tên chính chủ).')) {
+                    return;
+                }
+            }
+
             const submitBtn = document.querySelector('button[form="profileForm"]');
             const btnText = document.getElementById('saveBtnText');
             const spinner = document.getElementById('saveSpinner');
             
-            if(submitBtn) submitBtn.disabled = true;
+            if (submitBtn) submitBtn.disabled = true;
             btnText.innerText = 'Đang lưu...';
             spinner.classList.remove('hidden');
 
             const payload = {
-                full_name: document.getElementById('full_name').value,
+                full_name: document.getElementById('full_name').value.trim(),
+                nickname: document.getElementById('nickname').value.trim(),
+                location: document.getElementById('locationSelect').value,
+                phone_number: document.getElementById('phone_number').value.trim(),
                 avatar_url: document.getElementById('avatar_url').value,
                 cover_url: document.getElementById('cover_url').value,
-                bio: document.getElementById('bio').value,
+                bio: document.getElementById('bio').value.trim(),
                 bank_name: document.getElementById('bank_name').value,
-                bank_account: document.getElementById('bank_account').value,
-                bank_owner: document.getElementById('bank_owner').value,
-                skills: ''
+                bank_account: document.getElementById('bank_account').value.trim(),
+                bank_owner: document.getElementById('bank_owner').value.trim().toUpperCase()
             };
 
             try {
-                const res = await fetch(`${API_URL}/api/users/${user.id}`, {
+                const res = await fetch(`${API_URL}/api/users/${currentUser.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
-                let data;
-                try {
-                    data = await res.json();
-                } catch (err) {
-                    throw new Error('Bạn chưa Push (đẩy) Backend lên Render, hoặc API Server đang bị lỗi! Vui lòng đẩy code Backend lên.');
-                }
-                
+                const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Cập nhật thất bại');
 
-                // Cập nhật localStorage
-                const updatedUser = { ...user, full_name: data.user.full_name, avatar_url: data.user.avatar_url };
+                const updatedUser = { ...currentUser, full_name: data.user.full_name, avatar_url: data.user.avatar_url };
                 localStorage.setItem('user', JSON.stringify(updatedUser));
                 
-                // Đóng modal và render lại
-                renderUI(data.user);
+                alert('✅ Cập nhật hồ sơ thành công!');
                 closeEditModal();
-                alert('✅ Lưu hồ sơ thành công!');
-                
+                loadProfile();
             } catch (error) {
-                alert('❌ Lỗi không thể lưu: ' + error.message);
+                alert('❌ Lỗi: ' + error.message);
             } finally {
-                submitBtn.disabled = false;
-                btnText.innerText = 'Lưu';
+                if (submitBtn) submitBtn.disabled = false;
+                btnText.innerText = 'Lưu thay đổi';
                 spinner.classList.add('hidden');
             }
         });
 
-        // Khởi chạy
+        async function performEmailVerification() {
+            const btn = document.getElementById('btnVerifyEmail');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang kích hoạt...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth/verify-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('🎉 Chúc mừng! Địa chỉ Email của bạn đã được xác thực thành công!');
+                    closeEmailModal();
+                    loadProfile();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Lỗi kết nối Server!');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Kích Hoạt Xác Thực Email Ngay';
+                btn.disabled = false;
+            }
+        }
+
+        async function sendPhoneOtp() {
+            const phone = document.getElementById('otpPhoneNumber').value.trim();
+            if (!phone || phone.length < 9) {
+                alert('Vui lòng nhập số điện thoại hợp lệ!');
+                return;
+            }
+
+            const btn = document.getElementById('btnSendOtp');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth/send-phone-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone_number: phone })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('📲 ' + data.message);
+                    document.getElementById('otpInputSection').classList.remove('hidden');
+                    document.getElementById('btnConfirmOtp').classList.remove('hidden');
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (err) {
+                alert('Lỗi kết nối Server!');
+            } finally {
+                btn.innerHTML = 'Gửi lại OTP';
+                btn.disabled = false;
+            }
+        }
+
+        async function confirmPhoneOtp() {
+            const phone = document.getElementById('otpPhoneNumber').value.trim();
+            const otp = document.getElementById('otpCode').value.trim();
+
+            if (!otp || otp.length < 6) {
+                alert('Vui lòng nhập đủ 6 chữ số mã OTP!');
+                return;
+            }
+
+            const btn = document.getElementById('btnConfirmOtp');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xác nhận...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth/verify-phone-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        phone_number: phone,
+                        otp: otp
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('🎉 Chúc mừng! Số điện thoại của bạn đã được xác thực thành công!');
+                    closePhoneModal();
+                    loadProfile();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (err) {
+                alert('Lỗi kết nối Server!');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-shield-check mr-2"></i> Xác Nhận Mã OTP';
+                btn.disabled = false;
+            }
+        }
+
         loadProfile();
     </script>
+    <script src="ui.js"></script>
 </body>
 </html>

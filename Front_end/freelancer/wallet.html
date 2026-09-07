@@ -3,9 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ví Token Của Tôi - HT Work (Freelancer)</title>
+    <title>Ví & Doanh Thu - HT Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         @media print {
             body * { visibility: hidden; }
@@ -20,186 +34,341 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col font-sans text-gray-800">
-    <!-- Navbar -->
-    <nav class="bg-gradient-to-r from-indigo-700 to-purple-800 p-4 text-white shadow-lg sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="font-bold flex items-center space-x-6">
-                <a href="home.html" class="flex items-center space-x-2 text-xl hover:opacity-90 transition">
-                    <i class="fas fa-bolt"></i>
-                    <span>HT Work <span class="font-light text-indigo-200">| Freelancer Portal</span></span>
-                </a>
-            </div>
-            <a href="home.html" class="bg-indigo-900 hover:bg-indigo-950 px-4 py-2 rounded text-sm transition font-bold"><i class="fas fa-arrow-left mr-2"></i>Quay lại</a>
-        </div>
-    </nav>
-
-    <div class="max-w-3xl mx-auto w-full p-8 mt-10">
-        <div class="flex justify-between items-center mb-2">
-            <h1 class="text-3xl font-extrabold text-gray-800"><i class="fas fa-wallet text-indigo-600 mr-2"></i>Ví Token của tôi</h1>
-            <button id="btnDevReset" onclick="resetWalletDev()" class="hidden bg-red-600 text-white px-3 py-1 rounded shadow text-sm font-bold"><i class="fas fa-trash-alt mr-1"></i> [DEV] Reset Ví Về 0</button>
-        </div>
-        <p class="text-gray-500 mb-8">Quản lý thu nhập từ các dự án đã hoàn thành trên hệ thống.</p>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
         
-        <!-- Hiển thị số dư -->
-        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col md:flex-row justify-between items-center bg-gradient-to-br from-indigo-50 to-white">
-            <div class="text-center md:text-left mb-4 md:mb-0">
-                <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Số dư khả dụng</h2>
-                <div class="flex items-center justify-center md:justify-start">
-                    <i class="fas fa-coins text-yellow-500 text-4xl mr-3 shadow-sm rounded-full bg-white p-1"></i>
-                    <p id="balance" class="text-5xl font-extrabold text-green-600">0</p>
-                    <span class="text-xl text-gray-500 ml-2 font-bold mt-3">Token</span>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-inner border w-full md:w-auto text-center">
-                <h2 class="text-xs font-bold text-gray-500 uppercase">Token Đang Khóa</h2>
-                <p id="locked_balance" class="text-2xl font-bold text-gray-400 mt-1">0</p>
-                <p class="text-[10px] text-gray-400 mt-1">(Dự án đang làm)</p>
-            </div>
-        </div>
-
-        <div class="mt-10">
-            <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-history mr-2 text-indigo-500"></i>Lịch sử Giao dịch</h2>
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <table class="min-w-full text-left text-sm">
-                    <thead class="bg-gray-50 border-b">
-                        <tr>
-                            <th class="px-6 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Thời gian</th>
-                            <th class="px-6 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Loại GD</th>
-                            <th class="px-6 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Số lượng</th>
-                            <th class="px-6 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Ghi chú</th>
-                            <th class="px-6 py-3 text-center font-bold text-gray-700 uppercase tracking-wider">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionList" class="bg-white divide-y divide-gray-200 text-sm">
-                        <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Đang tải...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Form Rút Tiền -->
-        <div id="withdrawContainer" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-8 transition-all">
-            <div class="flex justify-between items-center border-b pb-3 mb-4">
-                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-money-bill-wave mr-2 text-green-600"></i>Rút Tiền Về Ngân Hàng</h2>
-            </div>
-            
-            <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded mb-6">
-                <div id="bankInfoDisplay" class="text-sm">
-                    <p class="font-bold mb-1">🏦 Ngân hàng nhận tiền:</p>
-                    <p id="txtBankName">Đang tải...</p>
-                    <p id="txtBankAccount">Đang tải...</p>
-                    <p id="txtBankOwner">Đang tải...</p>
-                </div>
-                <button onclick="window.location.href='profile.html'" class="mt-2 text-sm text-blue-600 underline font-semibold"><i class="fas fa-edit mr-1"></i>Chỉnh sửa ở Profile</button>
-            </div>
-
-            <form id="withdrawForm" class="space-y-5">
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nhập số lượng Token muốn rút (Tối thiểu 10,000):</label>
-                    <div class="relative">
-                        <input type="number" id="withdrawAmount" required min="10000" step="1000" class="block w-full border-2 border-gray-200 p-3 pl-10 rounded-xl focus:ring-0 focus:border-green-500 transition text-lg font-bold text-gray-700" placeholder="Tối thiểu 10,000">
-                        <i class="fas fa-coins absolute left-4 top-4 text-yellow-500"></i>
-                    </div>
-                    <p id="withdrawErrorMsg" class="text-red-500 text-sm mt-2 hidden"></p>
+                    <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-wallet mr-3 text-amber-500"></i> Quản Lý Ví & Doanh Thu
+                    </h1>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Theo dõi thù lao dự án, ký quỹ Escrow và thực hiện rút tiền về ngân hàng 24/7.</p>
                 </div>
-                <button type="submit" id="btnSubmitWithdraw" class="bg-green-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-green-700 shadow-md w-full transition flex justify-center items-center">
-                    <i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền
+                <button onclick="loadWalletData()" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm">
+                    <i class="fas fa-sync-alt mr-2 text-indigo-500"></i> Làm mới ví
                 </button>
-            </form>
+            </div>
+
+            <!-- Financial Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
+                <!-- Available Balance -->
+                <div class="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl p-6 text-white shadow-md relative overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-black uppercase tracking-wider text-emerald-100">Số Dư Khả Dụng</span>
+                            <span class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm">💎</span>
+                        </div>
+                        <p id="balance" class="text-3xl sm:text-4xl font-black tracking-tight">0</p>
+                        <span class="text-xs text-emerald-100 font-bold mt-1 inline-block">Token (Có thể rút ngay)</span>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-white/20 flex justify-between items-center text-[11px] text-emerald-100">
+                        <span>Quy đổi: <b id="balanceVND">~0 VNĐ</b></span>
+                        <span class="bg-white/20 px-2 py-0.5 rounded-md font-bold">1 Token = 1 VNĐ</span>
+                    </div>
+                </div>
+
+                <!-- Locked Escrow -->
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-black uppercase tracking-wider text-gray-400">Đang Khóa Trong Escrow</span>
+                            <span class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500 flex items-center justify-center text-sm"><i class="fas fa-lock"></i></span>
+                        </div>
+                        <p id="locked_balance" class="text-3xl sm:text-4xl font-black text-gray-800 dark:text-white tracking-tight">0</p>
+                        <span class="text-xs text-gray-400 font-semibold mt-1 inline-block">Token (Dự án đang làm)</span>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-[11px] text-gray-500 flex justify-between items-center">
+                        <span>Giải ngân khi nghiệm thu</span>
+                        <a href="my-jobs.html" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Xem tiến độ &rarr;</a>
+                    </div>
+                </div>
+
+                <!-- Total Earnings -->
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-black uppercase tracking-wider text-gray-400">Tổng Thu Nhập Tích Lũy</span>
+                            <span class="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-500 flex items-center justify-center text-sm"><i class="fas fa-chart-line"></i></span>
+                        </div>
+                        <p id="total_earned" class="text-3xl sm:text-4xl font-black text-purple-600 dark:text-purple-400 tracking-tight">0</p>
+                        <span class="text-xs text-gray-400 font-semibold mt-1 inline-block">Token (Từ các hợp đồng đã xong)</span>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-[11px] text-gray-500 flex justify-between items-center">
+                        <span>Đánh giá tín nhiệm: <b class="text-amber-500">5.0 ⭐</b></span>
+                        <span class="text-emerald-600 font-bold">100% Escrow</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left 2 Cols: Form Rút Tiền & Lệnh Pending -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Form Rút Tiền VietQR -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-university mr-2 text-emerald-500"></i> Rút Tiền Về Ngân Hàng (VietQR)
+                            </h2>
+                            <span class="text-[11px] bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                                Miễn phí giao dịch 0%
+                            </span>
+                        </div>
+
+                        <!-- Bank Info Card -->
+                        <div id="bankInfoBox" class="bg-gradient-to-r from-gray-900 to-indigo-950 text-white p-4 rounded-2xl mb-5 shadow-inner relative">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Tài khoản thụ hưởng</p>
+                                    <p id="txtBankName" class="font-bold text-sm text-indigo-200">Đang tải...</p>
+                                </div>
+                                <a href="profile.html" class="text-xs text-indigo-300 hover:text-white font-bold underline flex items-center">
+                                    <i class="fas fa-edit mr-1"></i> Thay đổi
+                                </a>
+                            </div>
+                            <p id="txtBankAccount" class="font-mono text-base sm:text-lg font-bold tracking-widest text-emerald-300 my-1">**** ****</p>
+                            <p id="txtBankOwner" class="text-xs font-bold uppercase tracking-wider text-gray-300">ĐANG TẢI...</p>
+                        </div>
+
+                        <!-- Withdraw Form -->
+                        <form id="withdrawForm" class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Nhập số lượng Token muốn rút (*):</label>
+                                    <span class="text-[10px] text-gray-400 font-semibold">Tối thiểu: 10,000 Token</span>
+                                </div>
+                                <div class="relative">
+                                    <input type="number" id="withdrawAmount" required min="10000" step="1000" class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-base font-black text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập số Token muốn rút...">
+                                    <span class="absolute left-3.5 top-3.5 text-base">💎</span>
+                                </div>
+                                <p id="withdrawErrorMsg" class="text-red-500 text-xs mt-1.5 hidden font-bold"></p>
+                            </div>
+
+                            <!-- Quick Amount Buttons -->
+                            <div class="flex flex-wrap gap-2 pt-1">
+                                <button type="button" onclick="setWithdrawAmount(50000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold px-3 py-1.5 rounded-xl transition">+50,000</button>
+                                <button type="button" onclick="setWithdrawAmount(100000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold px-3 py-1.5 rounded-xl transition">+100,000</button>
+                                <button type="button" onclick="setWithdrawAmount(500000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold px-3 py-1.5 rounded-xl transition">+500,000</button>
+                                <button type="button" onclick="withdrawAll()" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-black px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition">Rút toàn bộ</button>
+                            </div>
+
+                            <button type="submit" id="btnSubmitWithdraw" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-2xl shadow-md transition flex items-center justify-center text-sm">
+                                <i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền Về Ngân Hàng
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Lệnh Rút Tiền Đang Xử Lý (Pending Withdrawals) -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-clock mr-2 text-amber-500"></i> Lệnh Rút Tiền Đang Chờ Duyệt (Pending)
+                            </h2>
+                            <span id="pendingCountBadge" class="text-xs font-bold text-gray-400">0 lệnh</span>
+                        </div>
+                        <div id="pendingWithdrawList" class="space-y-3">
+                            <p class="text-gray-400 text-xs py-3 text-center">Không có lệnh rút nào đang chờ xử lý.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Col: Lịch Sử Giao Dịch & Xuất Hóa Đơn -->
+                <div class="space-y-6">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-history mr-2 text-indigo-500"></i> Lịch Sử Giao Dịch
+                            </h2>
+                        </div>
+
+                        <div class="space-y-3 max-h-[500px] overflow-y-auto" id="transactionList">
+                            <p class="text-gray-400 text-xs py-4 text-center">Đang tải lịch sử...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- KHU VỰC IN BIÊN LAI (Ẩn trên Web, chỉ hiện khi in PDF) -->
+    <div id="printReceiptArea" class="hidden bg-white p-10 text-gray-800 w-full max-w-3xl mx-auto border-2 border-gray-200">
+        <div class="text-center mb-8 border-b-2 border-indigo-600 pb-4">
+            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">HT WORK</h1>
+            <p class="text-gray-500 font-bold mt-1">NỀN TẢNG FREELANCE IT & ESCROW HÀNG ĐẦU VIỆT NAM</p>
+        </div>
+        
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-gray-800 uppercase tracking-widest">Biên Lai Giao Dịch Điện Tử</h2>
+            <p class="text-gray-500 mt-2">Mã biên lai: <span id="pr_id" class="font-bold text-gray-800"></span></p>
+        </div>
+
+        <div class="mb-8">
+            <h3 class="text-lg font-bold text-indigo-700 border-b pb-2 mb-4">THÔNG TIN GIAO DỊCH</h3>
+            <table class="w-full text-left text-lg">
+                <tr class="border-b"><th class="py-3 text-gray-600 w-1/3">Ngày giao dịch:</th><td class="py-3 font-bold" id="pr_date"></td></tr>
+                <tr class="border-b"><th class="py-3 text-gray-600">Người thực hiện:</th><td class="py-3 font-bold" id="pr_name"></td></tr>
+                <tr class="border-b"><th class="py-3 text-gray-600">Loại giao dịch:</th><td class="py-3 font-bold" id="pr_type"></td></tr>
+                <tr class="border-b"><th class="py-3 text-gray-600">Số tiền:</th><td class="py-3 font-bold text-2xl text-emerald-700" id="pr_amount"></td></tr>
+                <tr class="border-b"><th class="py-3 text-gray-600">Ghi chú:</th><td class="py-3 font-medium" id="pr_note"></td></tr>
+            </table>
+        </div>
+
+        <div class="text-center text-gray-500 text-sm border-t pt-4">
+            <p>Chứng từ này được tạo tự động bởi hệ thống HT Work. Có giá trị đối soát toàn hệ thống.</p>
+            <p>Hỗ trợ: support@htwork.com | Website: https://htwork.vn</p>
         </div>
     </div>
+
+    <!-- Load UI Framework -->
+    <script src="freelancer-ui.js"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
 
-        let currentUser = null;
+        let currentUser = JSON.parse(localStorage.getItem('user'));
+        let currentWalletBalance = 0;
 
-        async function loadWallet() {
-            const userStr = localStorage.getItem('user');
-            if (!userStr) {
-                alert('Bạn chưa đăng nhập!');
-                window.location.replace('../sharedFolder/login.html');
-                return;
-            }
-            currentUser = JSON.parse(userStr);
+        function setWithdrawAmount(amt) {
+            document.getElementById('withdrawAmount').value = amt;
+        }
 
+        function withdrawAll() {
+            document.getElementById('withdrawAmount').value = currentWalletBalance;
+        }
+
+        async function loadWalletData() {
             try {
-                // Tải ví
+                // 1. Lấy thông tin ví
                 const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
                 const data = await response.json();
                 
                 if (response.ok) {
-                    currentWalletBalance = data.balance;
+                    currentWalletBalance = data.balance || 0;
                     document.getElementById('balance').textContent = parseInt(data.balance).toLocaleString();
-                    document.getElementById('locked_balance').textContent = parseInt(data.locked_balance).toLocaleString();
-                } else {
-                    alert('Lỗi tải ví: ' + data.error);
+                    document.getElementById('balanceVND').textContent = `~${parseInt(data.balance).toLocaleString()} VNĐ`;
+                    document.getElementById('locked_balance').textContent = parseInt(data.locked_balance || 0).toLocaleString();
                 }
 
-                // Tải lịch sử giao dịch
-                const txRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}/transactions`);
-                const txData = await txRes.json();
-                const tbody = document.getElementById('transactionList');
-                if (txRes.ok && txData.transactions && txData.transactions.length > 0) {
-                    tbody.innerHTML = txData.transactions.map(tx => {
-                        const dateStr = new Date(tx.created_at).toLocaleString('vi-VN');
-                        const isReceiver = tx.receiver_id === currentUser.id;
-                        const amountColor = isReceiver ? 'text-green-600' : 'text-red-600';
-                        const amountSign = isReceiver ? '+' : '-';
-                        return `
-                            <tr class="hover:bg-gray-50 border-b">
-                                <td class="px-6 py-4 text-gray-500 text-sm">${dateStr}</td>
-                                <td class="px-6 py-4"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold border">${tx.type}</span></td>
-                                <td class="px-6 py-4 font-bold ${amountColor}">${amountSign}${parseInt(tx.amount).toLocaleString()}</td>
-                                <td class="px-6 py-4 text-gray-600 text-sm">${tx.note || ''}</td>
-                                <td class="px-6 py-4 text-center">
-                                    <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${tx.note || ''}')" class="bg-gray-800 hover:bg-black text-white px-3 py-1 rounded shadow text-xs font-bold transition flex items-center justify-center mx-auto">
-                                        <i class="fas fa-file-pdf mr-1"></i> Xuất PDF
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('');
+                // 2. Lấy ngân hàng
+                const uRes = await fetch(`${API_URL}/api/users/${currentUser.id}`);
+                const uData = await uRes.json();
+                if (uData.bank_account) {
+                    document.getElementById('txtBankName').textContent = uData.bank_name || 'Ngân hàng liên kết';
+                    document.getElementById('txtBankAccount').textContent = uData.bank_account;
+                    document.getElementById('txtBankOwner').textContent = uData.bank_owner || currentUser.full_name;
+                    document.getElementById('btnSubmitWithdraw').disabled = false;
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Chưa có giao dịch nào.</td></tr>';
-                 }
-            } catch (err) {
-                console.error(err);
-                alert('Lỗi kết nối server: ' + err.message);
-            }
-        }
-
-        // Logic Rút Tiền
-        let currentWalletBalance = 0;
-        
-        async function checkBankInfo() {
-            try {
-                const response = await fetch(`${API_URL}/api/users/${currentUser.id}`);
-                const user = await response.json();
-                
-                if (!user.bank_account) {
-                    document.getElementById('bankInfoDisplay').innerHTML = `
-                        <p class="text-red-600 font-bold"><i class="fas fa-exclamation-triangle"></i> Bạn chưa liên kết tài khoản ngân hàng!</p>
-                        <p class="text-gray-600 mt-1">Vui lòng sang trang Profile để cập nhật ngân hàng trước khi tạo lệnh rút tiền.</p>
+                    document.getElementById('bankInfoBox').innerHTML = `
+                        <div class="text-amber-300 font-bold text-xs flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Bạn chưa liên kết tài khoản ngân hàng!
+                        </div>
+                        <p class="text-[11px] text-gray-300 mt-1">Vui lòng sang trang Hồ sơ để cập nhật tài khoản trước khi rút tiền.</p>
+                        <a href="profile.html" class="inline-block mt-2 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition">Cập nhật ngay</a>
                     `;
                     document.getElementById('btnSubmitWithdraw').disabled = true;
                     document.getElementById('btnSubmitWithdraw').classList.add('opacity-50', 'cursor-not-allowed');
+                }
+
+                // 3. Lấy lệnh rút Pending
+                const reqRes = await fetch(`${API_URL}/api/withdraw/my-requests/${currentUser.id}`);
+                if (reqRes.ok) {
+                    const reqData = await reqRes.json();
+                    const pendingList = (reqData.requests || []).filter(r => r.status === 'pending');
+                    document.getElementById('pendingCountBadge').textContent = `${pendingList.length} lệnh`;
+                    const pContainer = document.getElementById('pendingWithdrawList');
+                    if (pendingList.length === 0) {
+                        pContainer.innerHTML = '<p class="text-gray-400 text-xs py-3 text-center">Không có lệnh rút nào đang chờ xử lý.</p>';
+                    } else {
+                        pContainer.innerHTML = pendingList.map(r => `
+                            <div class="p-3.5 bg-amber-50/60 dark:bg-gray-750 rounded-2xl border border-amber-200 dark:border-gray-700 flex justify-between items-center">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-black text-sm text-emerald-600 dark:text-emerald-400">💎 ${parseInt(r.amount).toLocaleString()} Token</span>
+                                        <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md">Đang chờ Admin duyệt</span>
+                                    </div>
+                                    <span class="text-[10px] text-gray-400 mt-1 block">${new Date(r.created_at).toLocaleString('vi-VN')}</span>
+                                </div>
+                                <button onclick="cancelWithdrawal('${r.id}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl text-xs transition">
+                                    <i class="fas fa-times mr-1"></i> Hủy lệnh
+                                </button>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                // 4. Lấy lịch sử giao dịch & tính tổng đã nhận
+                const txRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}/transactions`);
+                const txData = await txRes.json();
+                const txList = document.getElementById('transactionList');
+                if (txRes.ok && txData.transactions && txData.transactions.length > 0) {
+                    let earned = 0;
+                    txData.transactions.forEach(t => {
+                        if (t.receiver_id === currentUser.id && (t.type === 'ESCROW_RELEASE' || t.type === 'MILESTONE_PAYMENT' || t.type === 'RELEASE')) {
+                            earned += parseFloat(t.amount) || 0;
+                        }
+                    });
+                    document.getElementById('total_earned').textContent = earned.toLocaleString();
+
+                    txList.innerHTML = txData.transactions.map(tx => {
+                        const dateStr = new Date(tx.created_at).toLocaleString('vi-VN');
+                        const isReceiver = tx.receiver_id === currentUser.id;
+                        const amountColor = isReceiver ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
+                        const amountSign = isReceiver ? '+' : '-';
+                        return `
+                            <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
+                                <div>
+                                    <span class="font-bold text-gray-800 dark:text-white block">${tx.note || tx.type}</span>
+                                    <span class="text-[10px] text-gray-400">${dateStr}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-black text-sm ${amountColor} block">${amountSign}${parseInt(tx.amount).toLocaleString()}</span>
+                                    <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${tx.note || ''}')" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                                        Xuất PDF
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
                 } else {
-                    document.getElementById('txtBankName').textContent = user.bank_name;
-                    document.getElementById('txtBankAccount').textContent = user.bank_account;
-                    document.getElementById('txtBankOwner').textContent = user.bank_owner;
-                    
-                    document.getElementById('btnSubmitWithdraw').disabled = false;
-                    document.getElementById('btnSubmitWithdraw').classList.remove('opacity-50', 'cursor-not-allowed');
+                    txList.innerHTML = '<p class="text-gray-400 text-xs py-4 text-center">Chưa có giao dịch nào.</p>';
                 }
             } catch (err) {
-                console.error('Lỗi lấy thông tin ngân hàng:', err);
+                console.error(err);
             }
         }
 
+        // Hủy lệnh rút tiền
+        async function cancelWithdrawal(requestId) {
+            if (!confirm('Bạn có chắc chắn muốn hủy lệnh rút tiền này?\nToken sẽ được hoàn trả lại vào số dư khả dụng ngay lập tức.')) return;
+            try {
+                const res = await fetch(`${API_URL}/api/withdraw/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, request_id: requestId })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('✅ ' + data.message);
+                    loadWalletData();
+                    if (window.loadGlobalBalance) window.loadGlobalBalance();
+                } else {
+                    alert('❌ Lỗi: ' + data.error);
+                }
+            } catch (e) {
+                alert('Lỗi kết nối máy chủ');
+            }
+        }
+
+        // Submit Withdraw
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const amount = parseInt(document.getElementById('withdrawAmount').value);
@@ -209,7 +378,7 @@
             errorMsg.classList.add('hidden');
 
             if (amount > currentWalletBalance) {
-                errorMsg.textContent = 'Số dư khả dụng không đủ để rút số tiền này.';
+                errorMsg.textContent = 'Số dư khả dụng không đủ để rút số Token này.';
                 errorMsg.classList.remove('hidden');
                 return;
             }
@@ -227,112 +396,31 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
 
-                alert('✅ Tạo lệnh rút tiền thành công! Vui lòng chờ Admin duyệt.');
-                
+                alert('🎉 Tạo lệnh rút tiền thành công! Admin sẽ giải ngân về tài khoản ngân hàng của bạn trong ít phút.');
                 document.getElementById('withdrawAmount').value = '';
-                loadWallet(); // Tải lại số dư và lịch sử
+                loadWalletData();
+                if (window.loadGlobalBalance) window.loadGlobalBalance();
             } catch (err) {
                 errorMsg.textContent = err.message;
                 errorMsg.classList.remove('hidden');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền';
+                btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền Về Ngân Hàng';
             }
         });
 
-        // Khởi chạy khi load trang
-        async function checkDevMode() {
-            const allowedEmails = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
-            if (currentUser && allowedEmails.includes(currentUser.email)) {
-                document.getElementById('btnDevReset').classList.remove('hidden');
-            }
-        }
-
-        async function resetWalletDev() {
-            if (!confirm('[DEV MODE] Chức năng này sẽ xóa sạch số dư, lịch sử giao dịch và reset Blockchain của bạn về 0. Bạn có chắc chắn?')) return;
-            
-            const btn = document.getElementById('btnDevReset');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang reset...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(`${API_URL}/api/test/reset-wallet`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: currentUser.id, email: currentUser.email })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    alert('✅ ' + data.message);
-                    window.location.reload();
-                } else {
-                    alert('❌ Lỗi: ' + data.error);
-                }
-            } catch(e) {
-                alert('Lỗi kết nối: ' + e.message);
-            } finally {
-                btn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i> [DEV] Reset Ví Về 0';
-                btn.disabled = false;
-            }
-        }
-
-        async function printReceipt(txId, type, amount, date, note) {
+        // Xuất biên lai PDF
+        function printReceipt(txId, type, amount, date, note) {
             document.getElementById('pr_id').innerText = txId.substring(0, 18).toUpperCase();
             document.getElementById('pr_date').innerText = date;
             document.getElementById('pr_name').innerText = currentUser.full_name || currentUser.email;
             document.getElementById('pr_type').innerText = type;
-            document.getElementById('pr_amount').innerText = parseInt(amount).toLocaleString() + ' VNĐ';
-            document.getElementById('pr_note').innerText = note || 'Không có';
-            
-            // Mở hộp thoại in của trình duyệt
+            document.getElementById('pr_amount').innerText = parseInt(amount).toLocaleString() + ' Token (VNĐ)';
+            document.getElementById('pr_note').innerText = note || 'Thanh toán HT Work';
             window.print();
         }
 
-        async function init() {
-            await loadWallet();
-            await checkBankInfo();
-            checkDevMode();
-        }
-        init();
+        loadWalletData();
     </script>
-
-    <!-- KHU VỰC IN BIÊN LAI (Ẩn trên Web, chỉ hiện khi in PDF) -->
-    <div id="printReceiptArea" class="hidden bg-white p-10 text-gray-800 w-full max-w-3xl mx-auto border-2 border-gray-200">
-        <div class="text-center mb-8 border-b-2 border-indigo-600 pb-4">
-            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">HT WORK</h1>
-            <p class="text-gray-500 font-bold mt-1">NỀN TẢNG FREELANCE IT HÀNG ĐẦU VIỆT NAM</p>
-        </div>
-        
-        <div class="text-center mb-10">
-            <h2 class="text-3xl font-bold text-gray-800 uppercase tracking-widest">Biên Lai Giao Dịch Điện Tử</h2>
-            <p class="text-gray-500 mt-2">Mã biên lai: <span id="pr_id" class="font-bold text-gray-800"></span></p>
-        </div>
-
-        <div class="mb-8">
-            <h3 class="text-lg font-bold text-indigo-700 border-b pb-2 mb-4">THÔNG TIN GIAO DỊCH</h3>
-            <table class="w-full text-left text-lg">
-                <tr class="border-b"><th class="py-3 text-gray-600 w-1/3">Ngày giao dịch:</th><td class="py-3 font-bold" id="pr_date"></td></tr>
-                <tr class="border-b"><th class="py-3 text-gray-600">Freelancer:</th><td class="py-3 font-bold" id="pr_name"></td></tr>
-                <tr class="border-b"><th class="py-3 text-gray-600">Loại giao dịch:</th><td class="py-3 font-bold" id="pr_type"></td></tr>
-                <tr class="border-b"><th class="py-3 text-gray-600">Số tiền:</th><td class="py-3 font-bold text-2xl text-green-700" id="pr_amount"></td></tr>
-                <tr class="border-b"><th class="py-3 text-gray-600">Ghi chú:</th><td class="py-3 font-medium" id="pr_note"></td></tr>
-            </table>
-        </div>
-
-        <div class="flex items-center justify-center space-x-4 mb-10 border-t border-b py-4 border-gray-100">
-            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-50 border border-gray-200">
-                <i class="fab fa-ethereum text-2xl text-gray-400"></i>
-            </div>
-            <div class="text-left text-sm text-gray-500">
-                <p class="font-bold text-gray-700 uppercase tracking-widest text-xs mb-1">Web3 Secured Transaction</p>
-                <p class="italic">Dữ liệu giao dịch được đồng bộ và xác thực trên mạng lưới Blockchain.</p>
-            </div>
-        </div>
-
-        <div class="text-center text-gray-500 text-sm border-t pt-4">
-            <p>Chứng từ này được tạo tự động bởi hệ thống HT Work. Có giá trị đối soát trên toàn hệ thống.</p>
-            <p>Trang web: https://htwork.vn | Email hỗ trợ: support@htwork.com</p>
-        </div>
-    </div>
 </body>
 </html>

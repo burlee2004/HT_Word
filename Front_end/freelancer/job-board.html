@@ -3,97 +3,538 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chợ Việc Làm - Freelancer</title>
+    <title>Sàn Việc Làm IT - HT Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-50 p-10">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Chợ Việc Làm (Freelancer)</h1>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
         
-        <button onclick="loadJobs()" class="mb-4 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Tải lại danh sách</button>
-        
-        <div id="jobList" class="space-y-4">
-            <!-- Jobs sẽ được render vào đây -->
-            <p class="text-gray-500">Đang tải danh sách công việc...</p>
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative">
+            <!-- Header Title & Quick Actions -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-briefcase mr-3 text-indigo-600 dark:text-indigo-400"></i> Sàn Việc Làm & Cơ Hội Đấu Thầu
+                    </h1>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Khám phá các dự án công nghệ chất lượng cao, ký quỹ Escrow an toàn 100%.</p>
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <button onclick="loadJobs()" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm">
+                        <i class="fas fa-sync-alt mr-2 text-indigo-500"></i> Làm mới
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter & Search Section -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6 space-y-3">
+                <!-- Search Input -->
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" oninput="renderJobsList()" placeholder="Tìm kiếm theo tiêu đề dự án, từ khóa kỹ năng (React, Node, Python, Figma...)..." class="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-xs sm:text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <!-- Category Tabs Scrollable -->
+                <div class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none pt-1" id="categoryTabsContainer">
+                    <button onclick="filterByCategory('all')" id="tab-all" class="cat-tab active px-4 py-2 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-sm flex items-center">
+                        ✨ Tất Cả Dự Án
+                    </button>
+                    <!-- Categories loaded dynamically -->
+                </div>
+            </div>
+            
+            <!-- Job Listings Container -->
+            <div id="jobList" class="space-y-4">
+                <p class="text-gray-500 dark:text-gray-400 text-center py-12"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải danh sách công việc...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL XEM CHI TIẾT DỰ ÁN TOÀN BỘ -->
+    <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750">
+                <div class="flex items-center space-x-2">
+                    <span class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-sm font-bold">
+                        <i class="fas fa-file-alt"></i>
+                    </span>
+                    <h3 class="text-base font-black text-gray-900 dark:text-white">Chi Tiết Yêu Cầu Dự Án</h3>
+                </div>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    &times;
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow space-y-5" id="detailModalBody">
+                <!-- Nội dung chi tiết load vào đây -->
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex justify-between items-center">
+                <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    <i class="fas fa-shield-alt text-emerald-500 mr-1.5"></i> Ký quỹ Escrow bảo vệ 100%
+                </span>
+                <div class="flex space-x-2">
+                    <button onclick="closeDetailModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-bold transition">Đóng</button>
+                    <button id="btnApplyFromDetail" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center">
+                        <i class="fas fa-paper-plane mr-1.5"></i> Ứng Tuyển Ngay
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Ứng tuyển -->
-    <div id="applyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg w-96 shadow-xl">
-            <h2 class="text-xl font-bold mb-4">Ứng Tuyển Dự Án</h2>
-            <form id="applyForm" class="space-y-4">
-                <input type="hidden" id="modal_job_id">
-                <input type="hidden" id="modal_job_budget">
-                
+    <!-- MODAL ỨNG TUYỂN / ĐẤU THẦU CHUYÊN NGHIỆP CÓ TRỢ LÝ AI -->
+    <div id="applyModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-750">
                 <div>
-                    <label class="block text-sm font-medium">Lời giới thiệu (Cover Letter):</label>
-                    <textarea id="cover_letter" required class="mt-1 block w-full border p-2 rounded"></textarea>
+                    <h3 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-paper-plane mr-2 text-indigo-600 dark:text-indigo-400"></i> Gửi Hồ Sơ Ứng Tuyển / Chào Thầu
+                    </h3>
+                    <p id="applyModalJobTitle" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-md font-semibold"></p>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium">Giá nhận làm (Bid Amount):</label>
-                    <input type="number" id="bid_amount" required class="mt-1 block w-full border p-2 rounded">
+                <button onclick="closeApplyModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg w-8 h-8 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center">
+                    &times;
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto flex-grow space-y-5">
+                <!-- Banner AI Assistant Helper -->
+                <div class="bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-pink-500/10 border border-purple-200 dark:border-purple-800/60 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <div class="flex items-center space-x-1.5 text-purple-700 dark:text-purple-300 font-black text-xs">
+                            <i class="fas fa-wand-magic-sparkles text-yellow-500 animate-spin"></i>
+                            <span>Trợ Lý AI Đấu Thầu (Groq Qwen 3.8)</span>
+                        </div>
+                        <p class="text-[11px] text-gray-600 dark:text-gray-300 mt-0.5">Tự động phân tích yêu cầu dự án và kỹ năng của bạn để soạn Cover Letter chuẩn mực, tăng 90% cơ hội trúng thầu!</p>
+                    </div>
+                    <button type="button" onclick="generateAiProposal()" id="btnAiGenerate" class="shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-black px-4 py-2 rounded-xl shadow transition flex items-center">
+                        <i class="fas fa-magic mr-1.5 text-yellow-300"></i> AI Soạn Đề Xuất
+                    </button>
                 </div>
-                <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded">Hủy</button>
-                    <button type="submit" id="btnSubmitApplication" class="bg-blue-600 text-white px-4 py-2 rounded">Gửi Ứng Tuyển</button>
-                </div>
-            </form>
+
+                <form id="applyForm" class="space-y-4">
+                    <input type="hidden" id="modal_job_id">
+                    <input type="hidden" id="modal_job_budget">
+                    <input type="hidden" id="modal_job_title">
+                    <input type="hidden" id="modal_job_desc">
+                    <input type="hidden" id="modal_job_cat">
+                    
+                    <!-- Giá nhận làm & Thời gian -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Giá chào thầu (Token) (*)</label>
+                                <span id="budgetHint" class="text-[10px] text-gray-400 font-semibold"></span>
+                            </div>
+                            <div class="relative">
+                                <input type="number" id="bid_amount" required oninput="calculateTakeHome()" class="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-black text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <span class="absolute left-3 top-2 text-xs">💎</span>
+                            </div>
+                            <p id="takeHomeText" class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 italic"></p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Thời gian cam kết (Ngày)</label>
+                            <div class="relative">
+                                <input type="number" id="delivery_days" value="7" min="1" max="180" class="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <i class="fas fa-clock absolute left-3 top-2.5 text-xs text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Highlights Tags Container (Hiển thị khi AI sinh) -->
+                    <div id="aiHighlightsContainer" class="hidden bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-2xl border border-indigo-100 dark:border-indigo-900/60">
+                        <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 block mb-1.5"><i class="fas fa-star text-yellow-500 mr-1"></i> Điểm nổi bật trong đề xuất:</span>
+                        <div id="aiHighlightsList" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+
+                    <!-- Lời giới thiệu / Cover letter -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Thư ứng tuyển / Lời chào (Cover Letter) (*)</label>
+                            <span class="text-[10px] text-gray-400">Rõ ràng, chuyên nghiệp</span>
+                        </div>
+                        <textarea id="cover_letter" required rows="7" class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-xs sm:text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed font-sans" placeholder="Kính gửi Khách hàng, tôi có kinh nghiệm triển khai..."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex justify-end space-x-3">
+                <button type="button" onclick="closeApplyModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">Hủy</button>
+                <button type="submit" form="applyForm" id="btnSubmitApplication" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md transition flex items-center">
+                    <i class="fas fa-paper-plane mr-1.5"></i> Gửi Ứng Tuyển
+                </button>
+            </div>
         </div>
     </div>
+
+    <!-- Load UI Framework -->
+    <script src="freelancer-ui.js"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
 
-        let currentUser = null;
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            currentUser = JSON.parse(userStr);
-        } else {
-            alert('Bạn chưa đăng nhập!');
-            window.location.replace('../sharedFolder/login.html');
+        let currentUser = JSON.parse(localStorage.getItem('user'));
+        let allJobsData = [];
+        let selectedCategoryFilter = 'all';
+        let categoriesList = [];
+
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}/api/categories`);
+                const data = await res.json();
+                if (data.success && data.categories) {
+                    categoriesList = data.categories;
+                    renderCategoryTabs(data.categories);
+                }
+            } catch (e) {
+                console.error('Lỗi load categories:', e);
+            }
+        }
+
+        function renderCategoryTabs(cats) {
+            const container = document.getElementById('categoryTabsContainer');
+            if (!container) return;
+
+            const tabsHtml = cats.map(c => `
+                <button onclick="filterByCategory('${c.name}')" id="tab-${c.id}" class="cat-tab px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 flex items-center border border-transparent dark:border-gray-700">
+                    <span class="mr-1.5">${c.icon || '📁'}</span> ${c.name}
+                </button>
+            `).join('');
+
+            container.innerHTML = `
+                <button onclick="filterByCategory('all')" id="tab-all" class="cat-tab active px-4 py-2 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-sm flex items-center">
+                    ✨ Tất Cả Dự Án
+                </button>
+                ${tabsHtml}
+            `;
+        }
+
+        function filterByCategory(catName) {
+            selectedCategoryFilter = catName;
+            
+            document.querySelectorAll('.cat-tab').forEach(btn => {
+                btn.className = "cat-tab px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 flex items-center border border-transparent dark:border-gray-700";
+            });
+
+            if (catName === 'all') {
+                const allBtn = document.getElementById('tab-all');
+                if (allBtn) allBtn.className = "cat-tab active px-4 py-2 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-sm flex items-center";
+            } else {
+                const matchingCat = categoriesList.find(c => c.name === catName);
+                if (matchingCat) {
+                    const btn = document.getElementById(`tab-${matchingCat.id}`);
+                    if (btn) btn.className = "cat-tab active px-4 py-2 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-sm flex items-center";
+                }
+            }
+
+            renderJobsList();
         }
 
         async function loadJobs() {
             const listDiv = document.getElementById('jobList');
-            listDiv.innerHTML = '<p class="text-gray-500">Đang tải...</p>';
+            listDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-12"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu công việc...</p>';
             try {
                 const response = await fetch(`${API_URL}/api/jobs`);
                 const data = await response.json();
                 
-                if (data.jobs && data.jobs.length > 0) {
-                    listDiv.innerHTML = data.jobs.map(job => `
-                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-                            <h3 class="text-xl font-bold text-blue-600">${job.title}</h3>
-                            <p class="text-sm text-gray-500 mb-2">Đăng bởi Client: ${job.users ? job.users.full_name : 'Ẩn danh'}</p>
-                            <p class="text-gray-700 mb-4">${job.description}</p>
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-green-600">Ngân sách: ${job.budget} Token</span>
-                                <button onclick="openModal('${job.id}', ${job.budget})" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow-sm">Ứng Tuyển Ngay</button>
-                            </div>
-                        </div>
-                    `).join('');
+                if (data.jobs) {
+                    allJobsData = data.jobs;
+                    renderJobsList();
                 } else {
-                    listDiv.innerHTML = '<p class="text-gray-500">Hiện chưa có dự án nào.</p>';
+                    listDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-12">Chưa có dự án nào đang mở.</p>';
                 }
             } catch (err) {
-                listDiv.innerHTML = '<p class="text-red-500">Lỗi kết nối Server!</p>';
+                listDiv.innerHTML = '<p class="text-red-500 text-center py-12">Lỗi kết nối Server!</p>';
             }
         }
 
-        // Logic mở đóng Modal
-        function openModal(jobId, jobBudget) {
+        function renderJobsList() {
+            const listDiv = document.getElementById('jobList');
+            const searchVal = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            let filtered = allJobsData;
+
+            if (selectedCategoryFilter !== 'all') {
+                const catLower = selectedCategoryFilter.toLowerCase();
+                filtered = filtered.filter(j => 
+                    (j.category_name || '').toLowerCase().includes(catLower) ||
+                    (j.description || '').toLowerCase().includes(catLower)
+                );
+            }
+
+            if (searchVal) {
+                filtered = filtered.filter(j => 
+                    (j.title || '').toLowerCase().includes(searchVal) ||
+                    (j.description || '').toLowerCase().includes(searchVal) ||
+                    (j.tags && j.tags.some(t => t.toLowerCase().includes(searchVal)))
+                );
+            }
+
+            if (filtered.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 p-10 rounded-3xl text-center border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-4xl mb-3">🔍</p>
+                        <h3 class="font-black text-gray-800 dark:text-white text-base">Không tìm thấy dự án phù hợp</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hãy thử tìm với từ khóa khác hoặc chuyển sang danh mục khác!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listDiv.innerHTML = filtered.map(job => {
+                const trust = job.client_trust || {
+                    total_tokens_spent: 0,
+                    total_projects_posted: 1,
+                    total_projects_completed: 1,
+                    completion_rate: 100,
+                    rating_score: 5.0,
+                    credit_tier: 'Hạng A (Uy tín cao)',
+                    tier_badge: 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                };
+                const clientName = job.users ? job.users.full_name : 'Khách hàng HT Work';
+                const categoryName = job.category_name || 'Phát triển Phần mềm';
+                
+                const tagsBadges = (job.tags || []).map(t => 
+                    `<span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[11px] font-bold px-2.5 py-0.5 rounded-lg mr-1.5 mb-1 inline-block border border-gray-200 dark:border-gray-600"><i class="fas fa-code mr-1 text-indigo-500"></i>${t}</span>`
+                ).join('');
+
+                const descText = job.clean_description || job.description || 'Không có mô tả chi tiết';
+
+                return `
+                <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-600 transition">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                                <span class="bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 text-xs font-black px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-800">
+                                    📁 ${categoryName}
+                                </span>
+                                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${trust.tier_badge}">
+                                    <i class="fas fa-shield-alt mr-1"></i>${trust.credit_tier}
+                                </span>
+                            </div>
+                            <h3 onclick="viewJobDetail('${job.id}')" class="text-lg sm:text-xl font-black text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer">${job.title}</h3>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 inline-block">
+                                <i class="fas fa-user-tie mr-1 text-gray-400"></i> Khách hàng: <b>${clientName}</b>
+                            </span>
+                        </div>
+                        <div class="sm:text-right shrink-0">
+                            <span class="font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-3.5 py-2 rounded-2xl border border-emerald-200 dark:border-emerald-800 text-sm sm:text-base inline-block">
+                                💎 ${parseFloat(job.budget).toLocaleString()} Token
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Client Trust Box -->
+                    <div class="bg-gray-50 dark:bg-gray-750 border border-gray-100 dark:border-gray-700 rounded-2xl p-3 my-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                        <div class="flex items-center text-gray-700 dark:text-gray-300">
+                            <span class="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mr-2 font-bold text-[10px]">💰</span>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase">Đã chi tiêu</p>
+                                <p class="font-bold text-gray-800 dark:text-white">${trust.total_tokens_spent.toLocaleString()} Token</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-gray-700 dark:text-gray-300">
+                            <span class="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mr-2 font-bold text-[10px]">🎯</span>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase">Nghiệm thu</p>
+                                <p class="font-bold text-gray-800 dark:text-white">${trust.completion_rate}% (${trust.total_projects_completed}/${trust.total_projects_posted})</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-gray-700 dark:text-gray-300">
+                            <span class="w-6 h-6 rounded-lg bg-yellow-100 dark:bg-yellow-900/60 text-yellow-600 dark:text-yellow-400 flex items-center justify-center mr-2 font-bold text-[10px]">⭐</span>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase">Đánh giá</p>
+                                <p class="font-bold text-yellow-600">${trust.rating_score} / 5.0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm mb-3 line-clamp-2 leading-relaxed">${descText}</p>
+                    
+                    ${tagsBadges ? `<div class="flex flex-wrap mb-3">${tagsBadges}</div>` : ''}
+
+                    <div class="flex flex-wrap justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700 gap-2">
+                        <span class="text-[11px] text-gray-400 flex items-center">
+                            <i class="fas fa-lock text-indigo-500 mr-1.5"></i> Escrow an toàn 100%
+                        </span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="viewJobDetail('${job.id}')" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold px-4 py-2 rounded-xl text-xs transition">
+                                <i class="fas fa-eye mr-1"></i> Xem chi tiết
+                            </button>
+                            <button onclick="openApplyModal('${job.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md transition flex items-center">
+                                <i class="fas fa-paper-plane mr-1.5"></i> Ứng Tuyển
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // View Job Detail Modal
+        function viewJobDetail(jobId) {
+            const job = allJobsData.find(j => j.id === jobId);
+            if (!job) return;
+
+            const clientName = job.users ? job.users.full_name : 'Khách hàng HT Work';
+            const trust = job.client_trust || { credit_tier: 'Hạng A', rating_score: 5.0 };
+
+            document.getElementById('detailModalBody').innerHTML = `
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-xs font-black px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-800">
+                            📁 ${job.category_name || 'Phát triển Phần mềm'}
+                        </span>
+                        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                            💎 ${parseFloat(job.budget).toLocaleString()} Token
+                        </span>
+                    </div>
+                    <h2 class="text-xl font-black text-gray-900 dark:text-white">${job.title}</h2>
+                    <p class="text-xs text-gray-500 mt-1">Đăng bởi: <b>${clientName}</b> (${trust.credit_tier})</p>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-750 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-2">
+                    <h4 class="text-xs font-black uppercase tracking-wider text-gray-500">Mô Tả Chi Tiết Yêu Cầu</h4>
+                    <div class="text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">${job.clean_description || job.description}</div>
+                </div>
+
+                ${job.tags && job.tags.length > 0 ? `
+                <div>
+                    <h4 class="text-xs font-black uppercase tracking-wider text-gray-500 mb-2">Kỹ Năng Yêu Cầu</h4>
+                    <div class="flex flex-wrap gap-1.5">
+                        ${job.tags.map(t => `<span class="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800">${t}</span>`).join('')}
+                    </div>
+                </div>` : ''}
+            `;
+
+            document.getElementById('btnApplyFromDetail').onclick = () => {
+                closeDetailModal();
+                openApplyModal(jobId);
+            };
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // Apply Modal
+        function openApplyModal(jobId) {
+            const job = allJobsData.find(j => j.id === jobId);
+            if (!job) return;
+
             document.getElementById('modal_job_id').value = jobId;
-            document.getElementById('modal_job_budget').value = jobBudget; // Store budget for validation
+            document.getElementById('modal_job_budget').value = job.budget;
+            document.getElementById('modal_job_title').value = job.title;
+            document.getElementById('modal_job_desc').value = job.clean_description || job.description;
+            document.getElementById('modal_job_cat').value = job.category_name || '';
+            document.getElementById('applyModalJobTitle').innerText = job.title;
+            document.getElementById('budgetHint').innerText = `Ngân sách tối đa: ${parseFloat(job.budget).toLocaleString()} Token`;
+
+            // Mặc định chào thầu ~95%
+            const defaultBid = Math.round(parseFloat(job.budget) * 0.95);
+            document.getElementById('bid_amount').value = defaultBid;
+            document.getElementById('cover_letter').value = '';
+            document.getElementById('aiHighlightsContainer').classList.add('hidden');
+            calculateTakeHome();
+
             document.getElementById('applyModal').classList.remove('hidden');
         }
-        function closeModal() {
+
+        function closeApplyModal() {
             document.getElementById('applyModal').classList.add('hidden');
         }
 
-        // Logic Submit Ứng tuyển
+        function calculateTakeHome() {
+            const bidVal = parseFloat(document.getElementById('bid_amount').value) || 0;
+            const takeHome = Math.round(bidVal * 0.95);
+            document.getElementById('takeHomeText').innerText = `Thực nhận sau phí bảo đảm Escrow (5%): ~${takeHome.toLocaleString()} Token`;
+        }
+
+        // AI Proposal Generator
+        async function generateAiProposal() {
+            const btnAi = document.getElementById('btnAiGenerate');
+            const jobTitle = document.getElementById('modal_job_title').value;
+            const jobDesc = document.getElementById('modal_job_desc').value;
+            const jobCat = document.getElementById('modal_job_cat').value;
+            const jobBudget = document.getElementById('modal_job_budget').value;
+
+            btnAi.disabled = true;
+            btnAi.innerHTML = '<i class="fas fa-spinner fa-spin mr-1 text-yellow-300"></i> AI đang viết...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/ai/suggest-proposal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_title: jobTitle,
+                        job_description: jobDesc,
+                        category_name: jobCat,
+                        job_budget: jobBudget,
+                        freelancer_name: currentUser.full_name || 'Freelancer',
+                        freelancer_skills: currentUser.skills || 'Fullstack, UI/UX'
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.proposal) {
+                    const p = data.proposal;
+                    if (p.cover_letter) document.getElementById('cover_letter').value = p.cover_letter;
+                    if (p.suggested_bid) {
+                        document.getElementById('bid_amount').value = p.suggested_bid;
+                        calculateTakeHome();
+                    }
+                    if (p.suggested_days) document.getElementById('delivery_days').value = p.suggested_days;
+
+                    if (p.key_highlights && p.key_highlights.length > 0) {
+                        const hList = document.getElementById('aiHighlightsList');
+                        hList.innerHTML = p.key_highlights.map(h => `
+                            <span class="text-[11px] font-bold bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800">
+                                ✓ ${h}
+                            </span>
+                        `).join('');
+                        document.getElementById('aiHighlightsContainer').classList.remove('hidden');
+                    }
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể tạo đề xuất'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối AI: ' + err.message);
+            } finally {
+                btnAi.disabled = false;
+                btnAi.innerHTML = '<i class="fas fa-magic mr-1.5 text-yellow-300"></i> AI Soạn Đề Xuất';
+            }
+        }
+
+        // Submit Application
         document.getElementById('applyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const jobId = document.getElementById('modal_job_id').value;
@@ -103,53 +544,47 @@
             const btnSubmit = document.getElementById('btnSubmitApplication');
 
             if (!bidAmount || bidAmount <= 0) {
-                alert('Giá nhận làm phải lớn hơn 0');
+                alert('Giá chào thầu phải lớn hơn 0');
                 return;
             }
 
             if (bidAmount > jobBudget) {
-                alert('Giá nhận làm không được vượt quá Ngân sách dự kiến của Khách hàng (' + jobBudget + ' Token). Vui lòng nhập mức giá phù hợp.');
+                alert(`Giá chào thầu không được vượt quá Ngân sách của Khách hàng (${jobBudget.toLocaleString()} Token)!`);
                 return;
             }
 
-            // Vô hiệu hóa nút để tránh spam click 2 lần
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = 'Đang xử lý...';
-            btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
-
-            const payload = {
-                job_id: jobId,
-                freelancer_id: currentUser.id,
-                bid_amount: bidAmount,
-                cover_letter: coverLetter
-            };
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang gửi đề xuất...';
 
             try {
-                const response = await fetch(`${API_URL}/api/jobs/apply`, {
+                const res = await fetch(`${API_URL}/api/jobs/apply`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        freelancer_id: currentUser.id,
+                        bid_amount: bidAmount,
+                        cover_letter: coverLetter
+                    })
                 });
                 
-                const data = await response.json();
-                if (response.ok) {
-                    alert('Ứng tuyển thành công!');
-                    closeModal();
-                    loadJobs(); // Tải lại danh sách
+                const data = await res.json();
+                if (res.ok) {
+                    alert('🎉 Gửi hồ sơ ứng tuyển thành công! Khách hàng sẽ xem xét và phản hồi sớm.');
+                    closeApplyModal();
+                    loadJobs();
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    alert('❌ Lỗi: ' + (data.error || 'Ứng tuyển thất bại'));
                 }
             } catch (err) {
-                alert('Không thể kết nối đến Backend');
+                alert('Không thể kết nối đến máy chủ');
             } finally {
-                // Phục hồi lại nút
                 btnSubmit.disabled = false;
-                btnSubmit.innerHTML = 'Gửi Ứng Tuyển';
-                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnSubmit.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i> Gửi Ứng Tuyển';
             }
         });
 
-        // Load lần đầu
+        loadCategories();
         loadJobs();
     </script>
 </body>

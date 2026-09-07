@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản Lý Danh Mục Công Việc - HT Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen p-6 md:p-10 font-sans">
+    <div class="max-w-7xl mx-auto">
+        <!-- Top Navigation -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+                <div class="flex items-center space-x-3 mb-1">
+                    <span class="bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Master Data Management
+                    </span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">HT Work Core Engine</span>
+                </div>
+                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-folder-tree mr-3 text-indigo-600"></i> Quản Lý Danh Mục Công Việc
+                </h1>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2.5">
+                <button onclick="window.location.href='dashboard.html'" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-sm font-bold shadow-sm transition">
+                    <i class="fas fa-arrow-left mr-1.5"></i> Dashboard
+                </button>
+                <button onclick="window.location.href='deposits.html'" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-sm font-bold shadow-sm transition">
+                    Duyệt Nạp
+                </button>
+                <button onclick="window.location.href='withdrawals.html'" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-sm font-bold shadow-sm transition">
+                    Duyệt Rút
+                </button>
+                <button onclick="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-sm shadow-md transition flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Thêm Danh Mục Mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Thẻ Thống Kê & Phân Tích Thị Trường -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tổng Danh Mục</p>
+                    <p id="statTotalCats" class="text-3xl font-black text-gray-800 dark:text-white mt-1">--</p>
+                    <p class="text-xs text-green-600 font-semibold mt-1"><i class="fas fa-check-circle mr-1"></i>Đang hoạt động</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 flex items-center justify-center text-2xl">
+                    📁
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tổng Dự Án Đã Phân Bổ</p>
+                    <p id="statTotalJobs" class="text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">--</p>
+                    <p class="text-xs text-gray-500 mt-1">Khắp các chuyên ngành</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center text-2xl">
+                    📊
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tỷ Lệ Mục "Khác"</p>
+                    <p id="statOtherPercent" class="text-3xl font-black text-yellow-600 mt-1">--%</p>
+                    <p id="statOtherCount" class="text-xs text-yellow-700 font-semibold mt-1">0 dự án chưa phân loại</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-yellow-50 dark:bg-yellow-900/40 text-yellow-600 flex items-center justify-center text-2xl">
+                    💡
+                </div>
+            </div>
+        </div>
+
+        <!-- Khối Phân Tích & Đề Xuất Thị Trường -->
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-6 rounded-2xl shadow-md mb-8 border border-indigo-700/50">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded uppercase">AI Insights</span>
+                        <h3 class="text-lg font-bold">Thống Kê Xu Hướng & Đề Xuất Danh Mục Mới</h3>
+                    </div>
+                    <p id="recommendationText" class="text-indigo-200 text-sm leading-relaxed max-w-3xl">
+                        Đang phân tích dữ liệu phân bổ dự án từ hệ thống...
+                    </p>
+                </div>
+                <button onclick="loadCategoriesData()" class="bg-white/10 hover:bg-white/20 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center">
+                    <i class="fas fa-sync-alt mr-1.5"></i> Cập nhật
+                </button>
+            </div>
+        </div>
+
+        <!-- Bảng Quản Lý Danh Mục -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-list-ul mr-2 text-indigo-600"></i> Danh Sách Danh Mục Chuyên Môn
+                </h2>
+                <span class="text-xs text-gray-500 font-medium">Kéo hoặc dùng thao tác để điều chỉnh</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-750 text-gray-600 dark:text-gray-300 font-bold uppercase text-xs border-b border-gray-200 dark:border-gray-700">
+                        <tr>
+                            <th class="px-6 py-4">Icon & Tên Danh Mục</th>
+                            <th class="px-6 py-4">Thẻ Tags Gợi Ý (Preset)</th>
+                            <th class="px-6 py-4 text-center">Dự Án</th>
+                            <th class="px-6 py-4 text-center">Tỷ Lệ</th>
+                            <th class="px-6 py-4 text-center">Trạng Thái</th>
+                            <th class="px-6 py-4 text-right">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriesTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-400">
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải danh sách danh mục...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm / Chỉnh Sửa Danh Mục -->
+    <div id="categoryModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h3 id="modalTitle" class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-edit mr-2 text-indigo-600"></i> Thêm Danh Mục Mới
+                </h3>
+                <button onclick="closeCategoryModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+
+            <form id="categoryForm" onsubmit="handleSaveCategory(event)" class="p-6 space-y-4">
+                <input type="hidden" id="editCategoryId">
+
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Icon / Emoji</label>
+                        <input type="text" id="catIcon" required maxlength="4" class="w-full text-center text-2xl p-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700" value="📁">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Tên Danh Mục <span class="text-red-500">*</span></label>
+                        <input type="text" id="catName" required class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-700" placeholder="VD: Trí Tuệ Nhân Tạo (AI)">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Mô Tả Ngắn</label>
+                    <textarea id="catDescription" rows="2" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm bg-white dark:bg-gray-700" placeholder="Mô tả phạm vi các công việc thuộc danh mục này..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Thẻ Tags Gợi Ý (Cách nhau bằng dấu phẩy)</label>
+                    <input type="text" id="catTags" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm bg-white dark:bg-gray-700" placeholder="VD: Python, OpenAI, Machine Learning, Chatbot">
+                </div>
+
+                <div class="flex items-center space-x-3 pt-2">
+                    <input type="checkbox" id="catActive" checked class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500">
+                    <label for="catActive" class="text-sm font-bold text-gray-700 dark:text-gray-300">Kích hoạt danh mục này (Hiển thị cho Client & Freelancer)</label>
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-3 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" onclick="closeCategoryModal()" class="px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50">Hủy</button>
+                    <button type="submit" id="btnSaveCategory" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition">
+                        Lưu Danh Mục
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let categoriesList = [];
+
+        async function loadCategoriesData() {
+            const tbody = document.getElementById('categoriesTableBody');
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories/stats`);
+                const data = await res.json();
+                
+                if (data.success && data.categories) {
+                    categoriesList = data.categories;
+                    document.getElementById('statTotalCats').innerText = data.categories.length;
+                    document.getElementById('statTotalJobs').innerText = data.total_jobs_overall || 0;
+                    
+                    if (data.other_analysis) {
+                        document.getElementById('statOtherPercent').innerText = (data.other_analysis.percentage_other || 0) + '%';
+                        document.getElementById('statOtherCount').innerText = `${data.other_analysis.total_other_jobs || 0} dự án`;
+                        document.getElementById('recommendationText').innerText = data.other_analysis.recommendation;
+                    }
+
+                    renderCategoriesTable(data.categories);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">Không có dữ liệu danh mục.</td></tr>';
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Lỗi kết nối Backend: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderCategoriesTable(cats) {
+            const tbody = document.getElementById('categoriesTableBody');
+            tbody.innerHTML = cats.map(cat => {
+                const tagsBadges = (cat.tags_preset || []).slice(0, 4).map(t => 
+                    `<span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[11px] font-semibold px-2 py-0.5 rounded-md mr-1 mb-1 inline-block">${t}</span>`
+                ).join('');
+
+                const statusBadge = cat.is_active !== false
+                    ? '<span class="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fas fa-check-circle mr-1"></i>Đang hiện</span>'
+                    : '<span class="bg-gray-100 text-gray-500 text-xs font-bold px-2.5 py-1 rounded-full">Đang ẩn</span>';
+
+                return `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-750/50 transition">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">${cat.icon || '📁'}</span>
+                            <div>
+                                <h4 class="font-extrabold text-gray-900 dark:text-white text-base">${cat.name}</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">${cat.description || cat.slug}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 max-w-xs">
+                        <div class="flex flex-wrap">
+                            ${tagsBadges || '<span class="text-xs text-gray-400">Chưa có tags</span>'}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="font-black text-indigo-600 dark:text-indigo-400 text-base">${cat.total_jobs || 0}</span>
+                        <span class="text-xs text-gray-400 block">(${cat.open_jobs || 0} đang mở)</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-auto overflow-hidden">
+                            <div class="bg-indigo-600 h-2 rounded-full" style="width: ${cat.percentage || 0}%"></div>
+                        </div>
+                        <span class="text-xs font-bold text-gray-500 mt-1 block">${cat.percentage || 0}%</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        ${statusBadge}
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <button onclick="openEditModal('${cat.id}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                            <i class="fas fa-edit mr-1"></i>Sửa
+                        </button>
+                        <button onclick="toggleActiveCategory('${cat.id}', ${cat.is_active !== false})" class="${cat.is_active !== false ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' : 'bg-green-50 text-green-700 hover:bg-green-100'} px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                            <i class="fas ${cat.is_active !== false ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i>${cat.is_active !== false ? 'Ẩn' : 'Hiện'}
+                        </button>
+                        <button onclick="deleteCategory('${cat.id}', '${cat.name}')" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function openCreateModal() {
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle mr-2 text-indigo-600"></i> Thêm Danh Mục Mới';
+            document.getElementById('editCategoryId').value = '';
+            document.getElementById('catName').value = '';
+            document.getElementById('catIcon').value = '📁';
+            document.getElementById('catDescription').value = '';
+            document.getElementById('catTags').value = '';
+            document.getElementById('catActive').checked = true;
+            document.getElementById('categoryModal').classList.remove('hidden');
+        }
+
+        function openEditModal(id) {
+            const cat = categoriesList.find(c => c.id === id);
+            if (!cat) return;
+
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit mr-2 text-indigo-600"></i> Chỉnh Sửa Danh Mục';
+            document.getElementById('editCategoryId').value = cat.id;
+            document.getElementById('catName').value = cat.name;
+            document.getElementById('catIcon').value = cat.icon || '📁';
+            document.getElementById('catDescription').value = cat.description || '';
+            document.getElementById('catTags').value = (cat.tags_preset || []).join(', ');
+            document.getElementById('catActive').checked = cat.is_active !== false;
+            document.getElementById('categoryModal').classList.remove('hidden');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('hidden');
+        }
+
+        async function handleSaveCategory(e) {
+            e.preventDefault();
+            const id = document.getElementById('editCategoryId').value;
+            const name = document.getElementById('catName').value.trim();
+            const icon = document.getElementById('catIcon').value.trim() || '📁';
+            const description = document.getElementById('catDescription').value.trim();
+            const tags = document.getElementById('catTags').value.split(',').map(t => t.trim()).filter(Boolean);
+            const is_active = document.getElementById('catActive').checked;
+
+            const btn = document.getElementById('btnSaveCategory');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang lưu...';
+
+            try {
+                let url = `${API_URL}/api/admin/categories`;
+                let method = 'POST';
+
+                if (id) {
+                    url = `${API_URL}/api/admin/categories/${id}`;
+                    method = 'PUT';
+                }
+
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, icon, description, tags_preset: tags, is_active })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || 'Thao tác thành công!');
+                    closeCategoryModal();
+                    loadCategoriesData();
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể lưu'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Lưu Danh Mục';
+            }
+        }
+
+        async function toggleActiveCategory(id, currentActive) {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_active: !currentActive })
+                });
+                if (res.ok) {
+                    loadCategoriesData();
+                }
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+
+        async function deleteCategory(id, name) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa danh mục "${name}" không?`)) return;
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || 'Đã xóa danh mục thành công!');
+                    loadCategoriesData();
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể xóa'));
+                }
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+
+        loadCategoriesData();
+    </script>
+</body>
+</html>

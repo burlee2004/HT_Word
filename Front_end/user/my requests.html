@@ -48,7 +48,7 @@
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white flex items-center">
                         <i class="fas fa-tasks mr-3 text-indigo-600"></i> Quản Lý Yêu Cầu & Duyệt Ứng Viên
                     </h1>
-                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Xem xét hồ sơ báo giá từ Freelancer, chốt thuê và Khóa Escrow an toàn.</p>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Xem xét hồ sơ báo giá từ Freelancer, chỉnh sửa/xóa dự án, chốt thuê và Khóa Escrow an toàn.</p>
                 </div>
                 <div class="flex items-center space-x-3">
                     <button onclick="loadMyRequests()" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center">
@@ -69,6 +69,142 @@
         </main>
     </div>
 
+    <!-- MODAL SỬA DỰ ÁN TOÀN BỘ THÔNG TIN (Edit Job Modal) -->
+    <div id="editJobModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col my-auto border border-gray-100 overflow-hidden">
+            <!-- Header -->
+            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750 rounded-t-2xl shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800 dark:text-gray-100 flex items-center">
+                        <i class="fas fa-edit text-indigo-600 mr-2"></i> Chỉnh Sửa Thông Tin Dự Án
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Cập nhật toàn bộ các thông tin chi tiết của bài đăng</p>
+                </div>
+                <button onclick="closeEditJobModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold w-8 h-8 rounded-lg flex items-center justify-center">&times;</button>
+            </div>
+            
+            <div class="p-5 md:p-6 overflow-y-auto flex-grow space-y-4">
+                <input type="hidden" id="edit_job_id">
+
+                <!-- 1. Tiêu đề -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                        Tiêu đề dự án <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="edit_title" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-semibold">
+                </div>
+
+                <!-- 2. Danh mục & Ngân sách (2 cột) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                            Lĩnh vực / Danh mục <span class="text-red-500">*</span>
+                        </label>
+                        <select id="edit_category" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-semibold">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                            Ngân sách Ký quỹ (Token) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="edit_budget" min="10000" step="1000" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                    </div>
+                </div>
+
+                <!-- 3. Hạn chót hoàn thành -->
+                <div class="bg-indigo-50/60 dark:bg-indigo-950/30 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/40 space-y-3">
+                    <label class="block text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase">
+                        <i class="far fa-calendar-check mr-1 text-indigo-500"></i> Thời Gian Hoàn Thành (Deadline)
+                    </label>
+                    
+                    <!-- Nhóm chọn nhanh -->
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Chọn nhanh theo mốc:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" data-days="3" onclick="setEditQuickDeadline(3, this)" class="edit-deadline-pill text-xs px-3 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold text-gray-700 dark:text-gray-200 hover:border-indigo-500 hover:text-indigo-600 transition shadow-sm">⚡ 3 Ngày</button>
+                            <button type="button" data-days="7" onclick="setEditQuickDeadline(7, this)" class="edit-deadline-pill text-xs px-3 py-1 rounded-lg border border-indigo-500 bg-indigo-100 dark:bg-indigo-900/60 font-semibold text-indigo-700 dark:text-indigo-300 ring-2 ring-indigo-500 hover:border-indigo-500 transition shadow-sm">🚀 7 Ngày</button>
+                            <button type="button" data-days="14" onclick="setEditQuickDeadline(14, this)" class="edit-deadline-pill text-xs px-3 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold text-gray-700 dark:text-gray-200 hover:border-indigo-500 hover:text-indigo-600 transition shadow-sm">📅 14 Ngày</button>
+                            <button type="button" data-days="30" onclick="setEditQuickDeadline(30, this)" class="edit-deadline-pill text-xs px-3 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-gray-800 font-semibold text-gray-700 dark:text-gray-200 hover:border-indigo-500 hover:text-indigo-600 transition shadow-sm">📦 1 Tháng</button>
+                        </div>
+                    </div>
+
+                    <!-- Hoặc chọn ngày cụ thể -->
+                    <div id="edit_customDateWrapper" class="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition cursor-pointer hover:border-indigo-400" onclick="document.getElementById('edit_deadlineDate').focus()">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                <i class="far fa-calendar-alt text-sm"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-gray-800 dark:text-gray-200 block">Hoặc chọn ngày cụ thể</span>
+                                <span class="text-[11px] text-gray-500 dark:text-gray-400">Tự do ấn định ngày bàn giao chính xác</span>
+                            </div>
+                        </div>
+                        <input type="date" id="edit_deadlineDate" class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-700 font-bold text-gray-800 dark:text-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition cursor-pointer" onfocus="activateCustomDeadline()" oninput="activateCustomDeadline()" onchange="activateCustomDeadline()">
+                    </div>
+                </div>
+
+                <!-- 4. Loại Freelancer -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1.5">Loại Freelancer mong muốn</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 dark:bg-gray-750 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <input type="radio" name="edit_freelancer_type" value="Cá nhân" id="edit_ft_personal" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Cá nhân (Tối ưu chi phí)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 dark:bg-gray-750 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <input type="radio" name="edit_freelancer_type" value="Đội nhóm/Agency" id="edit_ft_agency" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Đội nhóm / Agency</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 5. Kỹ năng & Thẻ tags -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">
+                            <i class="fas fa-tags mr-1 text-indigo-500"></i> Kỹ Năng & Thẻ Tags
+                        </label>
+                        <span class="text-[11px] text-gray-400">Gõ từ khóa + Enter hoặc phẩy (,)</span>
+                    </div>
+                    <div id="editTagInputBox" onclick="document.getElementById('editCustomTagsInput').focus()" class="w-full min-h-[46px] border border-gray-300 dark:border-gray-600 rounded-xl p-2 bg-white dark:bg-gray-750 flex flex-wrap items-center gap-1.5 focus-within:ring-2 focus-within:ring-indigo-500 transition cursor-text shadow-inner">
+                        <div id="editSelectedTagBadges" class="flex flex-wrap items-center gap-1.5"></div>
+                        <input type="text" id="editCustomTagsInput" placeholder="Nhập thêm tag..." class="flex-grow min-w-[120px] border-none outline-none bg-transparent text-xs sm:text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 p-1" onkeydown="handleTagKeydown(event)" onblur="handleTagBlur()">
+                    </div>
+                </div>
+
+                <!-- 6. Mô tả chi tiết -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                        Mô tả yêu cầu công việc <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="edit_description" rows="5" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm leading-relaxed"></textarea>
+                </div>
+
+                <!-- 7. Tài liệu đính kèm -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1.5">
+                        <i class="fas fa-paperclip mr-1 text-indigo-500"></i> Tài liệu đính kèm
+                    </label>
+                    <div id="editUploadedFilesList" class="flex flex-wrap gap-2 mb-2"></div>
+                    <div onclick="document.getElementById('editFileUploadInput').click()" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-3 text-center hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20 transition cursor-pointer bg-gray-50/50 dark:bg-gray-800 flex items-center justify-center space-x-2">
+                        <input type="file" id="editFileUploadInput" class="hidden" onchange="handleEditFileUpload(this)">
+                        <i class="fas fa-plus text-indigo-600 text-xs"></i>
+                        <span class="text-xs text-indigo-600 font-bold">Thêm tài liệu mới</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 md:p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex justify-end space-x-3 rounded-b-2xl shrink-0">
+                <button type="button" onclick="closeEditJobModal()" class="px-5 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition">Hủy bỏ</button>
+                <button type="button" onclick="submitEditJob()" id="btnSaveEdit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center">
+                    <i class="fas fa-check mr-2"></i> Lưu Toàn Bộ Thay Đổi
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Shared UI Script -->
     <script src="ui.js"></script>
 
@@ -80,206 +216,412 @@
         let currentUser = null;
         let myJobsList = [];
         let allApplications = [];
+        let categories = [];
+        let editTags = [];
+        let editUploadedFiles = [];
 
-        async function loadMyRequests() {
-            const userStr = localStorage.getItem('user');
-            if (!userStr) {
-                window.location.replace('../sharedFolder/login.html');
-                return;
-            }
-            currentUser = JSON.parse(userStr);
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
-            const listDiv = document.getElementById('requestsList');
-            listDiv.innerHTML = '<div class="text-center py-16 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...</div>';
-
+        async function loadCategories() {
             try {
-                // Tải song song Jobs và Applications
-                const [jobsRes, appsRes] = await Promise.all([
-                    fetch(`${API_URL}/api/client/${currentUser.id}/my-jobs`),
-                    fetch(`${API_URL}/api/client/${currentUser.id}/applications`)
-                ]);
-
-                const jobsData = await jobsRes.json();
-                const appsData = await appsRes.json();
-
-                myJobsList = jobsData.jobs || [];
-                allApplications = appsData.applications || [];
-
-                if (myJobsList.length === 0) {
-                    listDiv.innerHTML = `
-                        <div class="bg-white dark:bg-gray-800 rounded-3xl p-12 text-center border border-gray-200 dark:border-gray-700 shadow-sm">
-                            <span class="text-5xl">📋</span>
-                            <h3 class="text-lg font-extrabold text-gray-900 dark:text-white mt-3">Bạn chưa đăng bất kỳ yêu cầu nào</h3>
-                            <p class="text-xs text-gray-500 mt-1 mb-6">Hãy đăng yêu cầu công việc để bắt đầu kết nối với các chuyên gia Freelancer hàng đầu.</p>
-                            <a href="post-job.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md transition inline-flex items-center">
-                                <i class="fas fa-plus mr-2"></i> Đăng Yêu Cầu Đầu Tiên
-                            </a>
-                        </div>
-                    `;
-                    return;
-                }
-
-                renderJobsWithApplicants();
+                const res = await fetch(`${API_URL}/api/categories`);
+                const data = await res.json();
+                categories = data.categories || [];
             } catch (err) {
-                listDiv.innerHTML = `<div class="text-center py-12 text-red-500 font-bold">Lỗi kết nối Server: ${err.message}</div>`;
+                console.warn('Không thể tải danh mục:', err);
+                categories = [
+                    { id: 1, name: 'Lập trình & Công nghệ' },
+                    { id: 2, name: 'Thiết kế đồ họa' },
+                    { id: 3, name: 'Viết lách & Dịch thuật' },
+                    { id: 4, name: 'Marketing & Bán hàng' },
+                    { id: 5, name: 'Video & Âm thanh' },
+                    { id: 6, name: 'Hành chính & Trợ lý ảo' }
+                ];
             }
         }
 
-        function renderJobsWithApplicants() {
-            const listDiv = document.getElementById('requestsList');
+        // --- HÀM BÓC TÁCH METADATA DỰ ÁN (PARSER) ---
+        function parseJobMetadata(job) {
+            const rawDesc = job.description || '';
+            
+            // 1. Danh mục
+            let categoryName = '';
+            const catMatch = rawDesc.match(/\[Danh mục:\s*([^\]]+)\]/i);
+            if (catMatch) categoryName = catMatch[1].trim();
 
-            listDiv.innerHTML = myJobsList.map(job => {
-                // Lọc danh sách ứng viên cho job này
-                const jobApps = allApplications.filter(a => a.job_id === job.id);
-                
-                let statusBadge = '';
-                let statusBorder = 'border-gray-200 dark:border-gray-700';
+            // 2. Deadline
+            let deadline = '';
+            const dlMatch = rawDesc.match(/⏰\s*\[Hạn chót mong muốn:\s*([^\]]+)\]/i) || rawDesc.match(/\[Hạn chót:\s*([^\]]+)\]/i);
+            if (dlMatch) deadline = dlMatch[1].trim();
 
-                if (job.status === 'open') {
-                    statusBadge = '<span class="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full border border-emerald-300">ĐANG MỞ ĐẤU THẦU</span>';
-                    statusBorder = 'border-l-4 border-emerald-500';
-                } else if (job.status === 'planning') {
-                    statusBadge = '<span class="bg-yellow-100 text-yellow-800 text-xs font-black px-3 py-1 rounded-full border border-yellow-300">ĐANG LẬP KẾ HOẠCH</span>';
-                    statusBorder = 'border-l-4 border-yellow-500';
-                } else if (job.status === 'pending_plan_approval') {
-                    statusBadge = '<span class="bg-orange-100 text-orange-800 text-xs font-black px-3 py-1 rounded-full border border-orange-300">CHỜ DUYỆT PLAN</span>';
-                    statusBorder = 'border-l-4 border-orange-500';
-                } else if (job.status === 'in_progress') {
-                    statusBadge = '<span class="bg-blue-100 text-blue-800 text-xs font-black px-3 py-1 rounded-full border border-blue-300">ĐANG TRIỂN KHAI</span>';
-                    statusBorder = 'border-l-4 border-blue-500';
-                } else if (job.status === 'completed') {
-                    statusBadge = '<span class="bg-purple-100 text-purple-800 text-xs font-black px-3 py-1 rounded-full border border-purple-300">ĐÃ HOÀN THÀNH</span>';
-                    statusBorder = 'border-l-4 border-purple-500';
-                } else if (job.status === 'cancelled') {
-                    statusBadge = '<span class="bg-red-100 text-red-800 text-xs font-black px-3 py-1 rounded-full border border-red-300">ĐÃ THU HỒI / HỦY</span>';
-                    statusBorder = 'border-l-4 border-red-400';
-                } else {
-                    statusBadge = `<span class="bg-gray-100 text-gray-800 text-xs font-black px-3 py-1 rounded-full">${job.status.toUpperCase()}</span>`;
-                }
+            // 3. Freelancer Type
+            let freelancerType = 'Cá nhân';
+            const ftMatch = rawDesc.match(/👥\s*\[Đối tượng:\s*([^\]]+)\]/i) || rawDesc.match(/\[Đối tượng:\s*([^\]]+)\]/i);
+            if (ftMatch) freelancerType = ftMatch[1].trim();
 
-                // Render danh sách ứng viên HTML
-                let applicantsHtml = '';
-                if (job.status === 'open') {
-                    if (jobApps.length > 0) {
-                        applicantsHtml = `
-                            <div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                <h4 class="font-bold text-xs uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-3 flex items-center">
-                                    <i class="fas fa-user-check mr-2"></i> Danh Sách Ứng Viên Nộp Báo Giá (${jobApps.length})
-                                </h4>
-                                <div class="space-y-3">
-                                    ${jobApps.map(app => {
-                                        const freeName = app.users ? app.users.full_name : 'Freelancer';
-                                        const freeEmail = app.users ? app.users.email : '';
-                                        const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(freeName)}&background=4f46e5&color=fff`;
-                                        const bidVal = parseFloat(app.bid_amount || job.budget).toLocaleString();
+            // 4. Tags
+            let tags = [];
+            const tagsMatch = rawDesc.match(/🏷️\s*\[Kỹ năng yêu cầu:\s*([^\]]+)\]/i) || rawDesc.match(/\[Kỹ năng yêu cầu:\s*([^\]]+)\]/i);
+            if (tagsMatch) {
+                tags = tagsMatch[1].split(',').map(t => t.trim()).filter(Boolean);
+            }
 
-                                        return `
-                                        <div class="bg-gray-50 dark:bg-gray-750 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                                            <div class="flex items-start space-x-3">
-                                                <img src="${avatar}" class="w-10 h-10 rounded-xl object-cover border shrink-0">
-                                                <div>
-                                                    <div class="flex items-center space-x-2">
-                                                        <h5 class="font-bold text-gray-900 dark:text-white text-sm">${freeName}</h5>
-                                                        <span class="text-xs text-gray-400">${freeEmail}</span>
-                                                    </div>
-                                                    <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed"><i class="fas fa-quote-left text-gray-400 mr-1"></i>${app.cover_letter || 'Freelancer nộp hồ sơ ứng tuyển.'}</p>
-                                                </div>
-                                            </div>
-                                            <div class="flex items-center justify-between w-full md:w-auto space-x-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-gray-200">
-                                                <div class="text-right">
-                                                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Báo giá</span>
-                                                    <span class="font-extrabold text-emerald-600 text-sm">💎 ${bidVal} Token</span>
-                                                </div>
-                                                <button onclick="acceptFreelancer('${app.id}', '${job.id}', '${bidVal}', '${freeName.replace(/'/g, "\\'")}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md transition flex items-center whitespace-nowrap">
-                                                    <i class="fas fa-check-circle mr-1.5"></i> Chọn & Khóa Escrow
-                                                </button>
-                                            </div>
-                                        </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        applicantsHtml = `
-                            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500">
-                                <span><i class="fas fa-info-circle mr-1.5 text-blue-500"></i> Chưa có ứng viên nộp hồ sơ cho dự án này.</span>
-                                <a href="home.html" class="mt-2 sm:mt-0 font-bold text-indigo-600 hover:underline flex items-center">
-                                    <i class="fas fa-search mr-1"></i> Sang Chợ Nhân Sự mời Freelancer →
-                                </a>
-                            </div>
-                        `;
+            // 5. Files / Attachments
+            let files = [];
+            const filesMatch = rawDesc.match(/📎\s*\[Tài liệu đính kèm:\s*([\s\S]*?)\]/i);
+            if (filesMatch) {
+                const lines = filesMatch[1].split('\n');
+                lines.forEach(line => {
+                    const parts = line.match(/\d+\.\s*(.*?)\s*->\s*(https?:\/\/[^\s]+)/);
+                    if (parts) {
+                        files.push({ name: parts[1].trim(), url: parts[2].trim() });
                     }
-                } else if (job.status === 'planning' || job.status === 'pending_plan_approval') {
-                    const isPendingPlan = job.status === 'pending_plan_approval';
-                    const noticeText = isPendingPlan 
-                        ? 'Freelancer đã nộp Bảng Kế Hoạch. Bạn có thể kiểm tra chi tiết, duyệt hoặc thu hồi nếu không phù hợp.'
-                        : 'Freelancer đang xây dựng kế hoạch Milestones. Nếu Freelancer chậm phản hồi hoặc không gửi kế hoạch, bạn có thể Thu Hồi và nhận lại 100% Token ngay.';
+                });
+            }
 
-                    applicantsHtml = `
-                        <div class="mt-4 pt-4 border-t border-amber-200 dark:border-amber-900/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-amber-50/70 dark:bg-amber-950/20 p-3.5 rounded-2xl">
-                            <div class="space-y-0.5">
-                                <span class="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
-                                    <i class="fas fa-shield-alt text-amber-600"></i> ${noticeText}
-                                </span>
-                                <span class="text-[11px] text-amber-700 dark:text-amber-400 block">
-                                    💰 Tiền ký quỹ: <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${parseFloat(job.budget).toLocaleString()} Token</strong> đang đóng băng an toàn trong ví Escrow.
-                                </span>
-                            </div>
-                            <div class="flex items-center space-x-2 shrink-0 w-full sm:w-auto justify-end">
-                                <button onclick="cancelPlanningJob('${job.id}', '${job.title.replace(/'/g, "\\'")}', '${parseFloat(job.budget)}')" class="px-3.5 py-2 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-300 dark:hover:bg-red-900/80 font-bold rounded-xl text-xs transition border border-red-200 dark:border-red-900 flex items-center gap-1.5 shadow-2xs" title="Thu hồi dự án và nhận lại 100% Token Escrow">
-                                    <i class="fas fa-undo"></i> <span>Thu Hồi (Hoàn ${parseFloat(job.budget).toLocaleString()} Token)</span>
-                                </button>
-                                <a href="review-work.html" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                                    <i class="fas fa-clipboard-list"></i> <span>Xem Tiến Độ</span> →
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                } else if (job.status === 'cancelled') {
-                    applicantsHtml = `
-                        <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs text-gray-500">
-                            <span class="text-red-600 font-bold flex items-center gap-1">
-                                <i class="fas fa-ban text-xs"></i> Dự án đã thu hồi & toàn bộ Token ký quỹ đã được hoàn về ví.
-                            </span>
-                            <span class="text-xs text-gray-400">Đã kết thúc</span>
-                        </div>
-                    `;
-                } else {
-                    applicantsHtml = `
-                        <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
-                            <span class="text-indigo-600 font-bold"><i class="fas fa-lock mr-1.5"></i> Dự án đang trong quy trình thực hiện & nghiệm thu từng mốc.</span>
-                            <a href="review-work.html" class="bg-indigo-50 text-indigo-700 px-3.5 py-1.5 rounded-xl font-bold hover:bg-indigo-100 transition">
-                                Xem Tiến Độ & Milestones →
-                            </a>
-                        </div>
-                    `;
+            // 6. Clean Description
+            let cleanDesc = rawDesc
+                .replace(/\[Danh mục:\s*[^\]]+\]\s*/gi, '')
+                .replace(/⏰\s*\[Hạn chót mong muốn:\s*[^\]]+\]/gi, '')
+                .replace(/👥\s*\[Đối tượng:\s*[^\]]+\]/gi, '')
+                .replace(/🏷️\s*\[Kỹ năng yêu cầu:\s*[^\]]+\]/gi, '')
+                .replace(/📎\s*\[Tài liệu đính kèm:\s*[\s\S]*?\]/gi, '')
+                .trim();
+
+            return {
+                categoryName,
+                deadline,
+                freelancerType,
+                tags,
+                files,
+                cleanDesc
+            };
+        }
+
+        // --- MODAL SỬA DỰ ÁN (Edit Job Functions) ---
+        function setEditQuickDeadline(days, btn) {
+            document.querySelectorAll('.edit-deadline-pill').forEach(el => {
+                el.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-100', 'dark:bg-indigo-900/60', 'border-indigo-500', 'text-indigo-700', 'dark:text-indigo-300');
+                el.classList.add('border-indigo-200', 'dark:border-indigo-800', 'bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-200');
+            });
+            const customWrap = document.getElementById('edit_customDateWrapper');
+            if (customWrap) {
+                customWrap.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500', 'bg-indigo-50/70', 'dark:bg-indigo-950/60');
+                customWrap.classList.add('border-gray-200', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800');
+            }
+            if (btn) {
+                btn.classList.remove('border-indigo-200', 'dark:border-indigo-800', 'bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-200');
+                btn.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-100', 'dark:bg-indigo-900/60', 'border-indigo-500', 'text-indigo-700', 'dark:text-indigo-300');
+            }
+
+            const d = new Date();
+            d.setDate(d.getDate() + parseInt(days));
+            const dateInput = document.getElementById('edit_deadlineDate');
+            if (dateInput) dateInput.value = d.toISOString().split('T')[0];
+        }
+
+        function activateCustomDeadline() {
+            document.querySelectorAll('.edit-deadline-pill').forEach(el => {
+                el.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-100', 'dark:bg-indigo-900/60', 'border-indigo-500', 'text-indigo-700', 'dark:text-indigo-300');
+                el.classList.add('border-indigo-200', 'dark:border-indigo-800', 'bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-200');
+            });
+            const customWrap = document.getElementById('edit_customDateWrapper');
+            if (customWrap) {
+                customWrap.classList.remove('border-gray-200', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800');
+                customWrap.classList.add('ring-2', 'ring-indigo-500', 'border-indigo-500', 'bg-indigo-50/70', 'dark:bg-indigo-950/60');
+            }
+        }
+
+        function renderTagBadges() {
+            const container = document.getElementById('editSelectedTagBadges');
+            if (!container) return;
+            container.innerHTML = editTags.map(tag => `
+                <span class="inline-flex items-center bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg text-xs font-semibold border border-indigo-200 dark:border-indigo-800">
+                    #${escapeHtml(tag)}
+                    <button type="button" onclick="removeTag('${escapeHtml(tag)}')" class="ml-1.5 text-indigo-400 hover:text-indigo-600 font-bold">&times;</button>
+                </span>
+            `).join('');
+        }
+
+        function addTag(tagText) {
+            const clean = (tagText || '').replace(/^[#,]/, '').trim();
+            if (!clean) return;
+            if (!editTags.includes(clean)) {
+                editTags.push(clean);
+                renderTagBadges();
+            }
+        }
+
+        function removeTag(tagText) {
+            editTags = editTags.filter(t => t !== tagText);
+            renderTagBadges();
+        }
+
+        function handleTagKeydown(e) {
+            const input = e.target;
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const val = input.value;
+                val.split(',').forEach(t => addTag(t));
+                input.value = '';
+            } else if (e.key === 'Backspace' && !input.value) {
+                if (editTags.length > 0) {
+                    removeTag(editTags[editTags.length - 1]);
                 }
+            }
+        }
 
-                return `
-                <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 ${statusBorder} hover:shadow-md transition">
-                    <div class="flex flex-col sm:flex-row justify-between items-start gap-3">
-                        <div>
-                            <h2 class="text-xl font-black text-gray-900 dark:text-white">${job.title}</h2>
-                            <div class="flex items-center space-x-3 text-xs text-gray-400 mt-1">
-                                <span><i class="fas fa-calendar-alt mr-1"></i> Đăng ngày: ${new Date(job.created_at).toLocaleDateString('vi-VN')}</span>
-                                <span>•</span>
-                                <span class="font-bold text-emerald-600"><i class="fas fa-gem mr-1"></i> Ngân sách: ${parseFloat(job.budget).toLocaleString()} Token</span>
-                            </div>
-                        </div>
-                        ${statusBadge}
-                    </div>
+        function handleTagBlur() {
+            const input = document.getElementById('editCustomTagsInput');
+            if (input && input.value.trim()) {
+                input.value.split(',').forEach(t => addTag(t));
+                input.value = '';
+            }
+        }
 
-                    <!-- Nội dung mô tả -->
-                    <div class="mt-3 text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-2" id="desc-${job.id}">
-                        ${job.description}
-                    </div>
+        async function handleEditFileUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            
+            if (file.size > 50 * 1024 * 1024) {
+                alert('File đã vượt quá 50MB!');
+                return;
+            }
 
-                    <!-- Khu vực Ứng viên / Tiến độ -->
-                    ${applicantsHtml}
+            const formData = new FormData();
+            const isImg = file.type.startsWith('image/');
+            formData.append(isImg ? 'image' : 'file', file);
+
+            const endpoint = isImg ? `${API_URL}/upload-image` : `${API_URL}/upload-file`;
+
+            const listDiv = document.getElementById('editUploadedFilesList');
+            const tempId = 'edit_file_' + Date.now();
+            listDiv.innerHTML += `
+                <div id="${tempId}" class="inline-flex items-center bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-indigo-200 dark:border-indigo-800">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải lên ${escapeHtml(file.name)}...
                 </div>
-                `;
-            }).join('');
+            `;
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                const url = data.imageUrl || data.fileUrl;
+
+                if (url) {
+                    editUploadedFiles.push({ name: file.name, url: url });
+                    renderEditFiles();
+                } else {
+                    throw new Error(data.error || 'Upload thất bại');
+                }
+            } catch (err) {
+                alert('Lỗi tải file: ' + err.message);
+                const el = document.getElementById(tempId);
+                if (el) el.remove();
+            } finally {
+                input.value = '';
+            }
+        }
+
+        function renderEditFiles() {
+            const listDiv = document.getElementById('editUploadedFilesList');
+            if (!listDiv) return;
+            if (editUploadedFiles.length === 0) {
+                listDiv.innerHTML = '<span class="text-xs text-gray-400 italic">Chưa có tài liệu đính kèm</span>';
+                return;
+            }
+            listDiv.innerHTML = editUploadedFiles.map((f, i) => `
+                <div class="inline-flex items-center bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-gray-200 dark:border-gray-600">
+                    <i class="fas fa-paperclip mr-1.5 text-indigo-500"></i>
+                    <a href="${f.url}" target="_blank" class="max-w-[160px] truncate hover:text-indigo-600 underline">${escapeHtml(f.name || ('Tài liệu ' + (i+1)))}</a>
+                    <button type="button" onclick="removeEditFile('${f.url}')" class="ml-2 text-red-500 hover:text-red-700 font-bold">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function removeEditFile(url) {
+            editUploadedFiles = editUploadedFiles.filter(f => f.url !== url);
+            renderEditFiles();
+        }
+
+        function openEditJobModal(jobId) {
+            const job = myJobsList.find(j => j.id === jobId);
+            if (!job) {
+                alert('Không tìm thấy thông tin dự án để chỉnh sửa!');
+                return;
+            }
+
+            const parsed = parseJobMetadata(job);
+
+            document.getElementById('edit_job_id').value = job.id;
+            document.getElementById('edit_title').value = job.title;
+            document.getElementById('edit_description').value = parsed.cleanDesc || job.description || '';
+            document.getElementById('edit_budget').value = job.budget;
+
+            // Populate category select
+            const catSel = document.getElementById('edit_category');
+            if (catSel) {
+                catSel.innerHTML = categories.map(c => `
+                    <option value="${c.id}" ${c.name === parsed.categoryName || c.id === job.category_id ? 'selected' : ''}>${c.name}</option>
+                `).join('');
+            }
+
+            // Deadline
+            const dateInput = document.getElementById('edit_deadlineDate');
+            if (dateInput) {
+                let targetDate = '';
+                if (parsed.deadline && /^\d{4}-\d{2}-\d{2}$/.test(parsed.deadline)) {
+                    targetDate = parsed.deadline;
+                } else {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 7);
+                    targetDate = d.toISOString().split('T')[0];
+                }
+                dateInput.value = targetDate;
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const tDate = new Date(targetDate);
+                tDate.setHours(0, 0, 0, 0);
+                const diffDays = Math.round((tDate - today) / (1000 * 60 * 60 * 24));
+
+                let matchedPill = false;
+                if ([3, 7, 14, 30].includes(diffDays)) {
+                    const pill = document.querySelector(`.edit-deadline-pill[data-days="${diffDays}"]`);
+                    if (pill) {
+                        setEditQuickDeadline(diffDays, pill);
+                        matchedPill = true;
+                    }
+                }
+                if (!matchedPill) {
+                    activateCustomDeadline();
+                }
+            }
+
+            // Freelancer Type
+            const isAgency = parsed.freelancerType && parsed.freelancerType.includes('Đội');
+            if (document.getElementById('edit_ft_agency')) document.getElementById('edit_ft_agency').checked = isAgency;
+            if (document.getElementById('edit_ft_personal')) document.getElementById('edit_ft_personal').checked = !isAgency;
+
+            // Tags
+            editTags = [...parsed.tags];
+            renderTagBadges();
+
+            // Attachments
+            editUploadedFiles = [...parsed.files];
+            renderEditFiles();
+
+            document.getElementById('editJobModal').classList.remove('hidden');
+        }
+
+        function closeEditJobModal() {
+            document.getElementById('editJobModal').classList.add('hidden');
+            editTags = [];
+            editUploadedFiles = [];
+        }
+
+        async function submitEditJob() {
+            const jobId = document.getElementById('edit_job_id')?.value;
+            const title = document.getElementById('edit_title')?.value?.trim();
+            const catSel = document.getElementById('edit_category');
+            const categoryId = catSel ? catSel.value : null;
+            const categoryName = catSel && catSel.selectedIndex >= 0 ? catSel.options[catSel.selectedIndex].text : '';
+            const budget = parseFloat(document.getElementById('edit_budget')?.value);
+            const deadline = document.getElementById('edit_deadlineDate')?.value;
+            const freelancerType = document.querySelector('input[name="edit_freelancer_type"]:checked')?.value || 'Cá nhân';
+            const description = document.getElementById('edit_description')?.value?.trim();
+
+            if (!title) {
+                alert('Vui lòng nhập tiêu đề dự án!');
+                document.getElementById('edit_title')?.focus();
+                return;
+            }
+            if (isNaN(budget) || budget <= 0) {
+                alert('Vui lòng nhập ngân sách hợp lệ!');
+                document.getElementById('edit_budget')?.focus();
+                return;
+            }
+            if (!description) {
+                alert('Vui lòng nhập mô tả yêu cầu công việc!');
+                document.getElementById('edit_description')?.focus();
+                return;
+            }
+
+            const btnSave = document.getElementById('btnSaveEdit');
+            const oldBtnText = btnSave ? btnSave.innerHTML : '';
+            if (btnSave) {
+                btnSave.disabled = true;
+                btnSave.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang lưu...';
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        client_id: currentUser.id,
+                        title: title,
+                        category_id: categoryId,
+                        category_name: categoryName,
+                        budget: budget,
+                        deadline: deadline,
+                        freelancer_type: freelancerType,
+                        tags: editTags,
+                        files: editUploadedFiles,
+                        description: description
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('🎉 ' + (data.message || 'Cập nhật dự án thành công!'));
+                    closeEditJobModal();
+                    await loadMyRequests();
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể cập nhật dự án'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối máy chủ: ' + err.message);
+            } finally {
+                if (btnSave) {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = oldBtnText;
+                }
+            }
+        }
+
+        async function deleteJob(jobId, jobTitle) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa bài đăng dự án:\n"${jobTitle}"?\n\nThao tác này sẽ xóa bài đăng khỏi hệ thống.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: currentUser.id })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('🗑️ ' + (data.message || 'Đã xóa dự án thành công!'));
+                    await loadMyRequests();
+                } else {
+                    alert('Lỗi: ' + (data.error || 'Không thể xóa dự án'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối máy chủ: ' + err.message);
+            }
         }
 
         // Chấp nhận Freelancer & Khóa Escrow
@@ -339,7 +681,11 @@
             }
         }
 
-        loadMyRequests();
+        // Khởi động trang
+        (async function init() {
+            await loadCategories();
+            await loadMyRequests();
+        })();
     </script>
 </body>
 </html>

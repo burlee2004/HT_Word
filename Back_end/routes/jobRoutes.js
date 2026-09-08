@@ -55,6 +55,23 @@ router.post('/api/jobs', async (req, res) => {
     }
 });
 
+// 1b. API: Lấy thông tin chi tiết một Job theo ID
+router.get('/api/jobs/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { data: job, error } = await supabase
+            .from('jobs')
+            .select(`*, users (id, full_name, avatar_url, skills, created_at)`)
+            .eq('id', id)
+            .single();
+
+        if (error || !job) throw new Error('Không tìm thấy dự án');
+        res.status(200).json({ success: true, job });
+    } catch (error) {
+        res.status(404).json({ success: false, error: error.message });
+    }
+});
+
 // 2. API: Freelancer xem danh sách Job đang Open kèm Điểm Tín Dụng & Danh Mục
 router.get('/api/jobs', async (req, res) => {
     try {
@@ -302,14 +319,26 @@ router.post('/api/jobs/cancel-planning', async (req, res) => {
         // Xóa các milestones nháp chưa duyệt nếu có
         await supabase.from('milestones').delete().eq('job_id', job_id);
 
-        // Thông báo cho Freelancer
+        // Thông báo cho Freelancer & gửi tin nhắn vào khung chat 1-1
         const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', job_id).eq('status', 'revoked').limit(1);
         if (appData && appData.length > 0) {
+            const freelancerId = appData[0].freelancer_id;
             await supabase.from('notifications').insert([{
-                user_id: appData[0].freelancer_id,
+                user_id: freelancerId,
                 title: 'Khách hàng thu hồi thỏa thuận',
-                content: `Khách hàng đã thu hồi dự án "${job.title}" do phản hồi chậm trễ và hệ thống đã hoàn trả Token Escrow.`
+                content: `Khách hàng đã thu hồi dự án "${job.title}" và hệ thống đã hoàn trả Token Escrow.`
             }]);
+
+            try {
+                const directMessageStore = require('../services/directMessageStore');
+                await directMessageStore.sendDirectMessage({
+                    sender_id: client_id,
+                    receiver_id: freelancerId,
+                    content: `🚫 [THU HỒI DỰ ÁN] (Mã dự án: #${job_id})\nKhách hàng đã thu hồi dự án "${job.title}". Toàn bộ Token ký quỹ Escrow (${budget.toLocaleString()} Token) đã được hoàn trả về ví của Khách hàng.`
+                });
+            } catch (e) {
+                console.error('Lỗi gửi direct message khi thu hồi dự án:', e.message);
+            }
         }
 
         // Ghi log kiểm toán
@@ -400,7 +429,8 @@ router.get('/api/freelancer/:id/active-jobs', async (req, res) => {
                 status,
                 cover_letter,
                 bid_amount,
-                jobs (id, title, description, budget, client_id, status)
+                created_at,
+                jobs (id, title, description, budget, client_id, status, created_at)
             `)
             .eq('freelancer_id', id)
             .in('status', ['accepted', 'revoked']);
@@ -417,9 +447,18 @@ router.get('/api/freelancer/:id/active-jobs', async (req, res) => {
                 j.app_status = app.status; // 'accepted' hoặc 'revoked'
                 j.bid_amount = app.bid_amount;
                 j.cover_letter = app.cover_letter;
+                j.app_created_at = app.created_at;
             }
             return j; 
         }).filter(Boolean);
+
+        // Sắp xếp dự án mới nhất lên đầu danh sách
+        jobs.sort((a, b) => {
+            const timeA = new Date(a.created_at || a.app_created_at || 0).getTime();
+            const timeB = new Date(b.created_at || b.app_created_at || 0).getTime();
+            if (timeB !== timeA) return timeB - timeA;
+            return String(b.id).localeCompare(String(a.id));
+        });
         
         console.log(`✅ [API GET /api/freelancer/active-jobs] Trả về ${jobs.length} việc (gồm cả việc đang làm & bị thu hồi)`);
         
@@ -552,19 +591,45 @@ router.post('/api/jobs/invite', async (req, res) => {
 // 13. API: Khách hàng chỉnh sửa hoặc Hủy/Đóng bài đăng dự án
 router.put('/api/jobs/:id', async (req, res) => {
     const { id } = req.params;
-    const { client_id, title, description, budget, status } = req.body;
+    const { client_id, title, description, budget, category_id, category_name, tags, deadline, freelancer_type, files, status } = req.body;
     try {
         const { data: job, error: jobErr } = await supabase.from('jobs').select('*').eq('id', id).single();
         if (jobErr || !job) throw new Error('Không tìm thấy dự án');
-        if (job.client_id !== client_id) throw new Error('Bạn không có quyền chỉnh sửa dự án này');
+        if (client_id && job.client_id !== client_id) throw new Error('Bạn không có quyền chỉnh sửa dự án này');
         if (job.status !== 'open' && status === 'cancelled') {
             throw new Error('Chỉ có thể hủy dự án khi đang ở trạng thái Mở (Open)');
         }
 
         const updatePayload = {};
         if (title) updatePayload.title = title.trim();
-        if (description) updatePayload.description = description.trim();
-        
+
+        if (description !== undefined || category_name !== undefined || tags !== undefined || deadline !== undefined || freelancer_type !== undefined || files !== undefined) {
+            let fullDescription = (description || '').trim();
+
+            if (category_name && !fullDescription.includes('[Danh mục:')) {
+                fullDescription = `[Danh mục: ${category_name.trim()}]\n` + fullDescription;
+            }
+            if (deadline && !fullDescription.includes('[Hạn chót')) {
+                fullDescription += `\n\n⏰ [Hạn chót mong muốn: ${deadline}]`;
+            }
+            if (freelancer_type && !fullDescription.includes('[Đối tượng:')) {
+                fullDescription += `\n👥 [Đối tượng: ${freelancer_type}]`;
+            }
+            if (tags && ((Array.isArray(tags) && tags.length > 0) || (typeof tags === 'string' && tags.trim())) && !fullDescription.includes('[Kỹ năng yêu cầu:')) {
+                const tagList = Array.isArray(tags) ? tags.join(', ') : tags.trim();
+                fullDescription += `\n\n🏷️ [Kỹ năng yêu cầu: ${tagList}]`;
+            }
+            if (files && Array.isArray(files) && files.length > 0 && !fullDescription.includes('[Tài liệu đính kèm:')) {
+                fullDescription += `\n\n📎 [Tài liệu đính kèm:`;
+                files.forEach((f, i) => {
+                    fullDescription += `\n${i+1}. ${f.name} -> ${f.url}`;
+                });
+                fullDescription += `]`;
+            }
+
+            updatePayload.description = fullDescription;
+        }
+
         if (budget !== undefined) {
             const newBudget = parseFloat(budget);
             if (isNaN(newBudget) || newBudget <= 0) throw new Error('Ngân sách không hợp lệ');
@@ -572,9 +637,9 @@ router.put('/api/jobs/:id', async (req, res) => {
             // Nếu tăng ngân sách, kiểm tra số dư ví
             if (newBudget > (job.budget || 0)) {
                 const diff = newBudget - (job.budget || 0);
-                const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', client_id).single();
+                const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', job.client_id).single();
                 if (!wallet || wallet.balance < newBudget) {
-                    throw new Error(`Số dư ví không đủ để tăng ngân sách lên ${newBudget} Token (Ví hiện có: ${wallet ? wallet.balance : 0} Token)`);
+                    throw new Error(`Số dư ví không đủ để tăng ngân sách lên ${newBudget.toLocaleString()} Token (Ví hiện có: ${wallet ? wallet.balance.toLocaleString() : 0} Token)`);
                 }
             }
             updatePayload.budget = newBudget;
@@ -590,9 +655,63 @@ router.put('/api/jobs/:id', async (req, res) => {
             .single();
 
         if (error) throw error;
+
+        try {
+            await logEvent({
+                module: 'JOB',
+                action: 'UPDATE_JOB',
+                level: 'INFO',
+                details: `Cập nhật dự án #${id} - "${data.title}"`,
+                user_id: job.client_id,
+                metadata: { job_id: id, title: data.title, budget: data.budget }
+            });
+        } catch(e) {}
+
         res.status(200).json({ success: true, message: 'Cập nhật dự án thành công!', job: data });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+// 13b. API: Khách hàng xóa dự án (Delete Job)
+router.delete('/api/jobs/:id', async (req, res) => {
+    const { id } = req.params;
+    const client_id = req.body?.client_id || req.query?.client_id;
+    try {
+        const { data: job, error: jobErr } = await supabase.from('jobs').select('*').eq('id', id).single();
+        if (jobErr || !job) throw new Error('Không tìm thấy dự án');
+        if (client_id && job.client_id !== client_id) throw new Error('Bạn không có quyền xóa dự án này');
+        
+        if (['in_progress', 'completed'].includes(job.status)) {
+            throw new Error('Không thể xóa dự án đang trong quá trình thực hiện hoặc đã hoàn thành.');
+        }
+
+        // Xóa các applications liên quan trước nếu có
+        try {
+            await supabase.from('job_applications').delete().eq('job_id', id);
+        } catch(e) {}
+        
+        // Thử xóa job trực tiếp
+        const { error: delErr } = await supabase.from('jobs').delete().eq('id', id);
+        if (delErr) {
+            // Nếu có foreign key constraint, đổi status thành cancelled
+            await supabase.from('jobs').update({ status: 'cancelled' }).eq('id', id);
+        }
+
+        try {
+            await logEvent({
+                module: 'JOB',
+                action: 'DELETE_JOB',
+                level: 'INFO',
+                details: `Xóa dự án #${id} - "${job.title}"`,
+                user_id: job.client_id,
+                metadata: { job_id: id, title: job.title }
+            });
+        } catch(e) {}
+
+        res.status(200).json({ success: true, message: 'Đã xóa dự án thành công!' });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
     }
 });
 
@@ -732,8 +851,14 @@ router.post('/api/jobs/direct-hire', async (req, res) => {
             throw new Error('Vui lòng điền đầy đủ tiêu đề, ngân sách và chọn freelancer mối ruột');
         }
 
-        // 1. Kiểm tra quan hệ bạn bè / mối ruột
-        const { isFriend } = require('../services/connectionStore');
+        // 1. Kiểm tra quan hệ bạn bè / mối ruột & kiểm tra chặn
+        const { isFriend, getBlockStatus } = require('../services/connectionStore');
+        const blockStatus = getBlockStatus(client_id, freelancer_id);
+        if (blockStatus.is_blocked) {
+            return res.status(400).json({
+                error: 'Không thể giao việc trực tiếp do một trong hai bên đã chặn liên lạc.'
+            });
+        }
         const areFriends = isFriend(client_id, freelancer_id);
         if (!areFriends) {
             return res.status(400).json({ 
@@ -741,14 +866,7 @@ router.post('/api/jobs/direct-hire', async (req, res) => {
             });
         }
 
-        // 2. Kiểm tra số dư ví Client
-        const { data: wallet, error: walletErr } = await supabase.from('wallets').select('balance').eq('user_id', client_id).single();
-        if (walletErr || !wallet) throw new Error('Không tìm thấy ví của bạn.');
-        if (wallet.balance < budget) {
-            throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${budget} Token, ví hiện có: ${wallet.balance} Token.`);
-        }
-
-        // 3. Đóng gói mô tả chuyên nghiệp
+        // 2. Đóng gói mô tả chuyên nghiệp & hình thức làm việc
         let fullDescription = description ? description.trim() : '';
         if (category_name) {
             fullDescription = `[Danh mục: ${category_name.trim()}]\n` + fullDescription;
@@ -757,15 +875,11 @@ router.post('/api/jobs/direct-hire', async (req, res) => {
             const tagList = Array.isArray(tags) ? tags.join(', ') : tags.trim();
             fullDescription += `\n\n🏷️ [Kỹ năng yêu cầu: ${tagList}]`;
         }
-        fullDescription += `\n\n⭐ [Hợp đồng chỉ định trực tiếp cho Mối Ruột]`;
+        fullDescription += `\n\n⭐ [Hợp đồng chỉ định trực tiếp cho Mối Ruột - Thỏa thuận 1-1]`;
 
-        // 4. Khóa Tiền Ký Quỹ Escrow: Trừ balance khả dụng, cộng vào locked_balance
         const numBudget = parseFloat(budget);
-        const newBalance = wallet.balance - numBudget;
-        const newLocked = (wallet.locked_balance || 0) + numBudget;
-        await supabase.from('wallets').update({ balance: newBalance, locked_balance: newLocked }).eq('user_id', client_id);
 
-        // 5. Tạo Job mới ở trạng thái 'planning'
+        // 3. Tạo Job mới ở trạng thái 'negotiating' (Thỏa thuận giá trước, CHƯA khóa tiền ví)
         const { data: jobData, error: jobErr } = await supabase
             .from('jobs')
             .insert([{
@@ -773,62 +887,213 @@ router.post('/api/jobs/direct-hire', async (req, res) => {
                 title,
                 description: fullDescription,
                 budget: numBudget,
-                status: 'planning'
+                status: 'negotiating'
             }])
             .select()
             .single();
 
         if (jobErr) throw jobErr;
 
-        // Ghi log giao dịch Khóa Escrow
-        await supabase.from('transactions').insert([{
-            user_id: client_id,
-            target_id: jobData.id,
-            amount: numBudget,
-            type: 'escrow_lock',
-            status: 'success'
-        }]);
-
-        // 6. Tự động gán Application với status 'accepted'
-        await supabase.from('job_applications').insert([{
+        // 4. Gán Application với status 'negotiating'
+        const { error: appErr } = await supabase.from('job_applications').insert([{
             job_id: jobData.id,
             freelancer_id: freelancer_id,
-            cover_letter: 'Hợp đồng giao việc chỉ định trực tiếp từ Khách Hàng mối ruột.',
-            status: 'accepted'
+            bid_amount: numBudget,
+            cover_letter: 'Đề xuất giao việc chỉ định trực tiếp từ Khách Hàng (Đang thỏa thuận giá).',
+            status: 'negotiating'
         }]);
+        if (appErr) console.error('Lỗi tạo application direct hire:', appErr.message);
 
-        // 6. Thông báo cho Freelancer & Client
+        // 5. Thông báo cho Freelancer & Client
         const { data: clientUser } = await supabase.from('users').select('full_name').eq('id', client_id).single();
-        const clientName = clientUser ? clientUser.full_name : 'Khách Hàng quen';
+        const clientName = clientUser ? clientUser.full_name : 'Khách Hàng';
 
         await supabase.from('notifications').insert([
             {
                 user_id: freelancer_id,
-                title: '💼 Lời Mời Giao Việc Trực Tiếp!',
-                content: `${clientName} đã giao trực tiếp cho bạn dự án: "${title}" (Ngân sách: ${parseFloat(budget).toLocaleString()} Token). Hãy vào tạo Kế hoạch Milestones ngay!`
+                title: '💼 Đề Xuất Giao Việc Mới!',
+                content: `${clientName} đã gửi cho bạn đề xuất dự án: "${title}" (Ngân sách dự kiến: ${numBudget.toLocaleString()} Token). Hãy vào khung chat để trao đổi và thống nhất giá nhé!`
             },
             {
                 user_id: client_id,
-                title: '🎉 Giao việc trực tiếp thành công',
-                content: `Bạn đã chỉ định dự án "${title}" cho Freelancer mối ruột. Hãy chờ Freelancer lập kế hoạch mốc nhé.`
+                title: '📋 Đã gửi đề xuất giao việc',
+                content: `Bạn đã gửi đề xuất dự án "${title}" cho Freelancer mối ruột. Hãy cùng trao đổi và chốt giá trong khung chat.`
             }
         ]);
+
+        // 6. Ghi log kiểm toán
+        logEvent({
+            module: 'JOB',
+            action: 'DIRECT_HIRE_OFFER_SENT',
+            actor_id: client_id,
+            target_id: freelancer_id,
+            level: 'INFO',
+            details: `Khách hàng gửi đề xuất giao việc "${title}" cho Freelancer mối ruột (${numBudget.toLocaleString()} Token - Đang thỏa thuận)`,
+            metadata: { job_id: jobData.id, title, budget: numBudget, client_id, freelancer_id }
+        });
+
+        console.log(`✅ [API POST /api/jobs/direct-hire] Thành công tạo đề xuất hợp đồng ID: ${jobData.id}`);
+        res.status(201).json({ success: true, message: 'Đã gửi đề xuất giao việc thành công!', job: jobData });
+    } catch (error) {
+        console.error(`❌ [API POST /api/jobs/direct-hire] Lỗi: ${error.message}`);
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 17. API: Cập nhật mức giá thương lượng (Update Offer Price in Chat)
+router.post('/api/jobs/update-offer-price', async (req, res) => {
+    const { job_id, user_id, new_budget, note } = req.body;
+    console.log(`\n💬 [API POST /api/jobs/update-offer-price] User ${user_id} cập nhật giá Job ${job_id} thành: ${new_budget} Token`);
+    try {
+        if (!job_id || !new_budget || parseFloat(new_budget) <= 0) {
+            throw new Error('Vui lòng nhập mức giá đề xuất hợp lệ!');
+        }
+
+        const numBudget = parseFloat(new_budget);
+
+        const { data: job, error: jobErr } = await supabase.from('jobs').select('*').eq('id', job_id).single();
+        if (jobErr || !job) throw new Error('Không tìm thấy dự án!');
+
+        if (job.status !== 'negotiating') {
+            throw new Error('Chỉ có thể thay đổi giá khi dự án đang ở giai đoạn Thỏa Thuận (negotiating)');
+        }
+
+        // Cập nhật ngân sách mới
+        await supabase.from('jobs').update({ budget: numBudget }).eq('id', job_id);
+
+        logEvent({
+            module: 'JOB',
+            action: 'UPDATE_OFFER_PRICE',
+            actor_id: user_id,
+            target_id: job_id,
+            level: 'INFO',
+            details: `Cập nhật giá đề xuất cho Job "${job.title}" thành ${numBudget.toLocaleString()} Token`,
+            metadata: { job_id, old_budget: job.budget, new_budget: numBudget, note }
+        });
+
+        res.status(200).json({ 
+            success: true, 
+            message: `Đã cập nhật mức giá thỏa thuận thành ${numBudget.toLocaleString()} Token!`, 
+            job_id, 
+            new_budget: numBudget 
+        });
+    } catch (error) {
+        console.error(`❌ [API POST /api/jobs/update-offer-price] Lỗi: ${error.message}`);
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 18. API: Khách hàng Chốt Giá & Khóa Escrow (Confirm Direct Hire & Lock Escrow)
+router.post('/api/jobs/confirm-direct-hire', async (req, res) => {
+    const { client_id, job_id, final_budget } = req.body;
+    console.log(`\n🔒 [API POST /api/jobs/confirm-direct-hire] Client ${client_id} chốt giá Job ${job_id} (${final_budget} Token) & Khóa Escrow`);
+    try {
+        if (!client_id || !job_id) {
+            throw new Error('Thiếu thông tin client_id hoặc job_id');
+        }
+
+        const { data: job, error: jobErr } = await supabase.from('jobs').select('*').eq('id', job_id).single();
+        if (jobErr || !job) throw new Error('Không tìm thấy hợp đồng');
+
+        if (job.client_id !== client_id) {
+            throw new Error('Bạn không có quyền chốt hợp đồng này!');
+        }
+
+        if (job.status !== 'negotiating') {
+            throw new Error('Hợp đồng này không ở trạng thái thỏa thuận giá!');
+        }
+
+        const budget = final_budget ? parseFloat(final_budget) : parseFloat(job.budget || 0);
+        if (budget <= 0) throw new Error('Ngân sách không hợp lệ!');
+
+        // 1. Kiểm tra số dư ví Client
+        const { data: wallet, error: walletErr } = await supabase.from('wallets').select('*').eq('user_id', client_id).single();
+        if (walletErr || !wallet) throw new Error('Không tìm thấy ví của bạn');
+
+        if (wallet.balance < budget) {
+            throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${budget.toLocaleString()} Token, ví hiện có: ${wallet.balance.toLocaleString()} Token. Vui lòng nạp thêm token vào ví.`);
+        }
+
+        // 2. Khóa Escrow từ ví Khách Hàng
+        const newBalance = wallet.balance - budget;
+        const newLocked = (wallet.locked_balance || 0) + budget;
+        await supabase.from('wallets').update({ balance: newBalance, locked_balance: newLocked }).eq('user_id', client_id);
+
+        // 3. Ghi log giao dịch Khóa Escrow
+        await supabase.from('transactions').insert([{
+            user_id: client_id,
+            target_id: job.id,
+            amount: budget,
+            type: 'escrow_lock',
+            status: 'success'
+        }]);
+
+        // 4. Chuyển Job sang trạng thái 'planning'
+        const { data: updatedJob, error: updateErr } = await supabase
+            .from('jobs')
+            .update({ status: 'planning', budget: budget })
+            .eq('id', job_id)
+            .select()
+            .single();
+
+        if (updateErr) throw updateErr;
+
+        // 5. Cập nhật Application sang 'accepted'
+        await supabase.from('job_applications').update({ status: 'accepted', bid_amount: budget }).eq('job_id', job_id);
+
+        // 6. Lấy thông tin Freelancer để thông báo
+        const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', job_id).limit(1);
+        const freelancerId = appData && appData.length > 0 ? appData[0].freelancer_id : null;
+
+        if (freelancerId) {
+            const { data: clientUser } = await supabase.from('users').select('full_name').eq('id', client_id).single();
+            const clientName = clientUser ? clientUser.full_name : 'Khách Hàng';
+
+            await supabase.from('notifications').insert([
+                {
+                    user_id: freelancerId,
+                    title: '🟢 Hợp đồng đã chốt & Escrow đã khóa!',
+                    content: `${clientName} đã chốt mức giá ${budget.toLocaleString()} Token cho dự án "${job.title}" và khóa quỹ Escrow an toàn. Hãy vào tạo Kế hoạch Milestones ngay!`
+                },
+                {
+                    user_id: client_id,
+                    title: '🎉 Khóa Escrow thành công',
+                    content: `Bạn đã chốt giá và khóa ${budget.toLocaleString()} Token cho dự án "${job.title}". Hãy chờ Freelancer lập kế hoạch mốc nhé.`
+                }
+            ]);
+
+            // Gửi tin nhắn tự động vào khung chat 1-1
+            try {
+                const directMessageStore = require('../services/directMessageStore');
+                await directMessageStore.sendDirectMessage({
+                    sender_id: client_id,
+                    receiver_id: freelancerId,
+                    content: `🟢 [CHỐT GIÁ & KHÓA ESCROW] (Mã dự án: #${job.id})\nKhách hàng đã chốt mức giá ${budget.toLocaleString()} Token và khóa quỹ Escrow an toàn!\n👉 Freelancer hãy nhấp vào nút bên dưới để lập Kế hoạch Milestones bàn giao nhé.`
+                });
+            } catch (e) {
+                console.error('Lỗi gửi message chốt escrow:', e);
+            }
+        }
 
         // 7. Ghi log kiểm toán
         logEvent({
             module: 'JOB',
-            action: 'DIRECT_HIRE_JOB',
+            action: 'CONFIRM_DIRECT_HIRE_ESCROW_LOCKED',
             actor_id: client_id,
-            target_id: freelancer_id,
+            target_id: freelancerId,
             level: 'INFO',
-            details: `Khách hàng giao việc trực tiếp "${title}" cho Freelancer mối ruột (${parseFloat(budget).toLocaleString()} Token)`,
-            metadata: { job_id: jobData.id, title, budget, client_id, freelancer_id }
+            details: `Khách hàng chốt giá và khóa Escrow ${budget.toLocaleString()} Token cho dự án "${job.title}"`,
+            metadata: { job_id, budget, client_id, freelancer_id: freelancerId }
         });
 
-        console.log(`✅ [API POST /api/jobs/direct-hire] Thành công tạo hợp đồng chỉ định ID: ${jobData.id}`);
-        res.status(201).json({ success: true, message: 'Đã giao việc trực tiếp cho Freelancer mối ruột thành công!', job: jobData });
+        console.log(`✅ [API POST /api/jobs/confirm-direct-hire] Thành công chốt giá & khóa Escrow Job ID: ${job.id}`);
+        res.status(200).json({ 
+            success: true, 
+            message: `Đã chốt giá ${budget.toLocaleString()} Token và khóa quỹ Escrow thành công!`, 
+            job: updatedJob 
+        });
     } catch (error) {
-        console.error(`❌ [API POST /api/jobs/direct-hire] Lỗi: ${error.message}`);
+        console.error(`❌ [API POST /api/jobs/confirm-direct-hire] Lỗi: ${error.message}`);
         res.status(400).json({ error: error.message });
     }
 });

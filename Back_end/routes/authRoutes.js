@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const fs = require('fs');
+const path = require('path');
 const supabase = require('../config/supabase');
 const uploadImage = require('../config/cloudinary');
 const uploadFile = require('../config/s3');
@@ -116,47 +118,301 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Route Upload Ảnh (Cloudinary)
-router.post('/upload-image', uploadImage.single('image'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'Không có file ảnh' });
-    
-    res.status(200).json({
-        message: 'Upload ảnh thành công!',
-        imageUrl: req.file.path // Đường dẫn ảnh trên Cloudinary
+// Cấu hình Multer Local Disk Storage làm lưu trữ cục bộ trực tiếp & dự phòng
+const multer = require('multer');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const s3Client = new S3Client({
+    region: (process.env.AWS_REGION || '').trim(),
+    credentials: {
+        accessKeyId: (process.env.AWS_ACCESS_KEY_ID || '').trim(),
+        secretAccessKey: (process.env.AWS_SECRET_ACCESS_KEY || '').trim()
+    }
+});
+
+const localDiskStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const upDir = path.join(__dirname, '../uploads');
+        if (!fs.existsSync(upDir)) fs.mkdirSync(upDir, { recursive: true });
+        cb(null, upDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const originalName = file.originalname ? file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_') : 'upload.bin';
+        cb(null, uniqueSuffix + '-' + originalName);
+    }
+});
+const uploadLocal = multer({ storage: localDiskStorage, limits: { fileSize: 50 * 1024 * 1024 } });
+
+// Helper tra cứu MIME Type khi tải/xem tệp tin
+function getMimeType(fileName) {
+    if (!fileName) return 'application/octet-stream';
+    const ext = path.extname(fileName).toLowerCase();
+    const mimeMap = {
+        '.pdf': 'application/pdf',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.svg': 'image/svg+xml',
+        '.mp4': 'video/mp4',
+        '.webm': 'video/webm',
+        '.mp3': 'audio/mpeg',
+        '.wav': 'audio/wav',
+        '.txt': 'text/plain; charset=utf-8',
+        '.toml': 'text/plain; charset=utf-8',
+        '.json': 'application/json',
+        '.js': 'text/javascript',
+        '.html': 'text/html; charset=utf-8',
+        '.css': 'text/css',
+        '.md': 'text/markdown; charset=utf-8',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.doc': 'application/msword',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.xls': 'application/vnd.ms-excel',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.zip': 'application/zip',
+        '.rar': 'application/x-rar-compressed',
+        '.7z': 'application/x-7z-compressed'
+    };
+    return mimeMap[ext] || 'application/octet-stream';
+}
+
+// Route Upload Ảnh (Cloudinary + Local Fallback)
+router.post('/upload-image', (req, res) => {
+    uploadImage.single('image')(req, res, function (err) {
+        if (err && err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+        }
+        if (!err && req.file && (req.file.path || req.file.secure_url)) {
+            return res.status(200).json({
+                message: 'Upload ảnh thành công!',
+                imageUrl: req.file.path || req.file.secure_url
+            });
+        }
+        // Fallback sang local disk nếu Cloudinary bị lỗi mạng/cấu hình
+        uploadLocal.single('image')(req, res, function (localErr) {
+            if (localErr) {
+                if (localErr.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+                }
+                return res.status(400).json({ error: 'Không thể upload ảnh: ' + localErr.message });
+            }
+            if (!req.file) {
+                return res.status(400).json({ error: 'Thiếu file ảnh' });
+            }
+            const host = req.get('host') || 'localhost:5000';
+            const protocol = req.protocol || 'http';
+            const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+            return res.status(200).json({
+                message: 'Upload ảnh thành công (Local Storage)!',
+                imageUrl: localUrl
+            });
+        });
     });
 });
 
-// Route Upload File/Video (AWS S3)
-router.post('/upload-file', uploadFile.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'Không có file' });
-    
-    res.status(200).json({
-        message: 'Upload file thành công!',
-        fileUrl: req.file.location // Đường dẫn file trên S3
+// Route Upload File/Video (Local Storage trực tiếp + S3 Fallback)
+router.post('/upload-file', (req, res) => {
+    uploadLocal.single('file')(req, res, function (localErr) {
+        if (localErr) {
+            if (localErr.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+            }
+            return res.status(400).json({ error: 'Không thể upload file: ' + localErr.message });
+        }
+        if (req.file) {
+            const host = req.get('host') || 'localhost:5000';
+            const protocol = req.protocol || 'http';
+            const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+            return res.status(200).json({
+                message: 'Upload file thành công!',
+                fileUrl: localUrl,
+                url: localUrl
+            });
+        }
+        
+        // Dự phòng nếu local không nhận được file
+        uploadFile.single('file')(req, res, function (err) {
+            if (err) {
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+                }
+                return res.status(400).json({ error: 'Lỗi tải tệp: ' + err.message });
+            }
+            if (!req.file) return res.status(400).json({ error: 'Thiếu file tải lên' });
+            return res.status(200).json({
+                message: 'Upload file thành công!',
+                fileUrl: req.file.location || req.file.path,
+                url: req.file.location || req.file.path
+            });
+        });
     });
 });
 
-// Upload Ảnh API mới (Cloudinary)
+// Upload Ảnh API mới (Cloudinary + Local)
 router.post('/api/upload/image', (req, res) => {
     uploadImage.single('file')(req, res, function (err) {
-        if (err) return res.status(500).json({ error: 'Cloudinary Error: ' + err.message });
-        if (!req.file) return res.status(400).json({ error: 'Không có file ảnh' });
-        res.status(200).json({ url: req.file.path, type: 'image' });
+        if (err && err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+        }
+        if (!err && req.file && (req.file.path || req.file.secure_url)) {
+            return res.status(200).json({ url: req.file.path || req.file.secure_url, type: 'image' });
+        }
+        uploadLocal.single('file')(req, res, function (localErr) {
+            if (localErr) {
+                if (localErr.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+                }
+                return res.status(400).json({ error: 'Không thể upload ảnh: ' + localErr.message });
+            }
+            if (!req.file) return res.status(400).json({ error: 'Không thể upload ảnh' });
+            const host = req.get('host') || 'localhost:5000';
+            const protocol = req.protocol || 'http';
+            const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+            res.status(200).json({ url: localUrl, imageUrl: localUrl, type: 'image' });
+        });
     });
 });
 
-// Upload File nặng/Video API mới (S3)
+// Upload File nặng/Video API mới (Local Disk Storage trực tiếp + S3)
 router.post('/api/upload/file', (req, res) => {
-    uploadFile.single('file')(req, res, function (err) {
-        if (err) return res.status(500).json({ error: 'S3 Error: ' + err.message });
-        if (!req.file) return res.status(400).json({ error: 'Không có file' });
-        
-        let type = 'document';
-        if (req.file.mimetype.startsWith('video/')) type = 'video';
-        else if (req.file.mimetype.startsWith('audio/')) type = 'audio';
+    uploadLocal.single('file')(req, res, function (localErr) {
+        if (localErr) {
+            if (localErr.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+            }
+            return res.status(400).json({ error: 'Không thể upload file: ' + localErr.message });
+        }
+        if (req.file) {
+            const host = req.get('host') || 'localhost:5000';
+            const protocol = req.protocol || 'http';
+            const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+            let type = 'document';
+            if (req.file.mimetype && req.file.mimetype.startsWith('video/')) type = 'video';
+            else if (req.file.mimetype && req.file.mimetype.startsWith('audio/')) type = 'audio';
+            return res.status(200).json({ url: localUrl, fileUrl: localUrl, type: type });
+        }
 
-        res.status(200).json({ url: req.file.location, type: type });
+        // Dự phòng sang S3
+        uploadFile.single('file')(req, res, function (err) {
+            if (err) {
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+                }
+                return res.status(400).json({ error: 'Không thể upload file: ' + err.message });
+            }
+            if (!req.file) return res.status(400).json({ error: 'Thiếu file' });
+            let type = 'document';
+            if (req.file.mimetype && req.file.mimetype.startsWith('video/')) type = 'video';
+            else if (req.file.mimetype && req.file.mimetype.startsWith('audio/')) type = 'audio';
+            return res.status(200).json({ url: req.file.location || req.file.path, fileUrl: req.file.location || req.file.path, type: type });
+        });
     });
+});
+
+// Route Tải xuống & Xem tệp tin (Khắc phục triệt để lỗi S3 AccessDenied và hỗ trợ mọi định dạng)
+router.get(['/api/download-file', '/api/view-file'], async (req, res) => {
+    try {
+        const targetUrl = req.query.url || req.query.file_url || '';
+        const customName = req.query.name || req.query.filename || '';
+        const isView = (req.path === '/api/view-file' || req.query.action === 'view');
+
+        if (!targetUrl) {
+            return res.status(400).json({ error: 'Thiếu đường dẫn tệp tin (url)' });
+        }
+
+        // 1. Trường hợp file cục bộ trong thư mục /uploads
+        if (targetUrl.includes('/uploads/')) {
+            const parts = targetUrl.split('/uploads/');
+            const filename = decodeURIComponent(parts[1].split('?')[0]);
+            const filePath = path.join(__dirname, '../uploads', filename);
+
+            if (fs.existsSync(filePath)) {
+                const displayName = customName || filename;
+                const mimeType = getMimeType(displayName);
+                res.setHeader('Content-Type', mimeType);
+                if (isView) {
+                    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(displayName)}"`);
+                } else {
+                    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(displayName)}"`);
+                }
+                return res.sendFile(filePath);
+            }
+        }
+
+        // 2. Trường hợp file nằm trên AWS S3
+        if (targetUrl.includes('amazonaws.com') || targetUrl.includes('htwork_files/')) {
+            let s3Key = '';
+            if (targetUrl.includes('amazonaws.com/')) {
+                const parts = targetUrl.split('amazonaws.com/');
+                s3Key = decodeURIComponent(parts[1].split('?')[0]);
+            } else if (targetUrl.includes('htwork_files/')) {
+                s3Key = 'htwork_files/' + targetUrl.split('htwork_files/')[1].split('?')[0];
+            } else {
+                s3Key = targetUrl;
+            }
+
+            const command = new GetObjectCommand({
+                Bucket: process.env.AWS_S3_BUCKET_NAME || 'htwork-app-storage',
+                Key: s3Key
+            });
+
+            try {
+                const s3Res = await s3Client.send(command);
+                const originalFilename = customName || path.basename(s3Key);
+                const mimeType = getMimeType(originalFilename) || s3Res.ContentType || 'application/octet-stream';
+
+                res.setHeader('Content-Type', mimeType);
+                if (isView) {
+                    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(originalFilename)}"`);
+                } else {
+                    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(originalFilename)}"`);
+                }
+                if (s3Res.ContentLength) {
+                    res.setHeader('Content-Length', s3Res.ContentLength);
+                }
+                return s3Res.Body.pipe(res);
+            } catch (s3Err) {
+                console.error('S3 GetObject Error:', s3Err.message);
+                return res.status(404).json({ error: 'Không thể truy xuất tệp từ máy chủ lưu trữ: ' + s3Err.message });
+            }
+        }
+
+        // 3. Fallback cho URL khác (Cloudinary, external link)
+        return res.redirect(targetUrl);
+    } catch (err) {
+        console.error('Lỗi khi tải hoặc xem tệp:', err);
+        res.status(500).json({ error: 'Lỗi khi tải hoặc mở tệp: ' + err.message });
+    }
+});
+
+// Route Upload Base64 (Hỗ trợ Dán ảnh trực tiếp từ Clipboard / Ctrl+V)
+router.post('/api/upload/base64', (req, res) => {
+    try {
+        const { base64, filename, file_type } = req.body;
+        if (!base64) return res.status(400).json({ error: 'Thiếu dữ liệu base64' });
+
+        const matches = base64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        const dataBuffer = matches ? Buffer.from(matches[2], 'base64') : Buffer.from(base64, 'base64');
+        
+        if (dataBuffer.length > 50 * 1024 * 1024) {
+            return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+        }
+
+        const ext = (file_type && file_type.includes('png')) ? '.png' : (file_type && file_type.includes('jpeg')) ? '.jpg' : '.png';
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const savedName = 'clipboard_' + uniqueSuffix + ext;
+        const filePath = path.join(__dirname, '../uploads', savedName);
+        
+        fs.writeFileSync(filePath, dataBuffer);
+        const host = req.get('host') || 'localhost:5000';
+        const protocol = req.protocol || 'http';
+        const fileUrl = `${protocol}://${host}/uploads/${savedName}`;
+        res.status(200).json({ success: true, url: fileUrl, imageUrl: fileUrl, file_name: filename || savedName, file_type: file_type || 'image/png' });
+    } catch (e) {
+        res.status(500).json({ error: 'Lỗi lưu base64: ' + e.message });
+    }
 });
 
 // 1. Xem Hồ sơ cá nhân (Profile) kèm Thống kê Client
@@ -194,28 +450,45 @@ router.get('/api/users/:id', async (req, res) => {
 
         // Tính toán Thống kê cho Khách hàng (Client Stats)
         let totalSpent = 0;
-        let hireRate = 0;
+        let hireRate = 100;
         let jobsPosted = 0;
+        let completedCount = 0;
+        let recentJobs = [];
+        let creditTier = 'Hạng A (Uy tín cao)';
+        let tierBadge = 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800';
 
         if (user.role === 'client') {
             const { data: jobs } = await supabase
                 .from('jobs')
-                .select('id, status, budget')
-                .eq('client_id', id);
+                .select('id, title, status, budget, created_at')
+                .eq('client_id', id)
+                .order('created_at', { ascending: false });
 
             if (jobs && jobs.length > 0) {
                 jobsPosted = jobs.length;
-                const hiredCount = jobs.filter(j => ['planning', 'pending_plan_approval', 'in_progress', 'completed'].includes(j.status)).length;
-                hireRate = Math.round((hiredCount / jobsPosted) * 100);
+                const hiredList = jobs.filter(j => ['planning', 'pending_plan_approval', 'in_progress', 'completed'].includes(j.status));
+                const completedList = jobs.filter(j => j.status === 'completed');
+                completedCount = completedList.length;
+                hireRate = jobsPosted > 0 ? Math.round((hiredList.length / jobsPosted) * 100) : 100;
 
                 // Tính tổng chi tiêu
                 totalSpent = jobs
                     .filter(j => j.status === 'completed' || j.status === 'in_progress')
                     .reduce((sum, j) => sum + (parseFloat(j.budget) || 0), 0);
+
+                if (totalSpent >= 10000 && hireRate >= 80) {
+                    creditTier = 'Kim Cương (VIP)';
+                    tierBadge = 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800';
+                } else if (totalSpent === 0 && jobsPosted <= 1) {
+                    creditTier = 'Khách mới (Đã nạp Escrow)';
+                    tierBadge = 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800';
+                }
+
+                recentJobs = jobs.slice(0, 5);
             }
         }
 
-        console.log(`✅ [API GET /api/users] Hồ sơ: ${user.full_name} | Role: ${user.role} | Category: ${primary_category || 'N/A'}`);
+        console.log(`✅ [API GET /api/users] Hồ sơ: ${user.full_name} | Role: ${user.role} | Tier: ${creditTier} | Category: ${primary_category || 'N/A'}`);
 
         res.status(200).json({
             ...user,
@@ -223,11 +496,17 @@ router.get('/api/users/:id', async (req, res) => {
             location,
             nickname,
             primary_category,
+            recent_jobs: recentJobs,
             stats: {
                 total_spent: totalSpent,
                 hire_rate: hireRate,
                 jobs_posted: jobsPosted,
-                rating: 5.0 // Đánh giá mặc định
+                completed_count: completedCount,
+                rating: 5.0, // Đánh giá mặc định
+                response_rate: '100%',
+                response_time: '~15 phút',
+                credit_tier: creditTier,
+                tier_badge: tierBadge
             }
         });
     } catch (err) {

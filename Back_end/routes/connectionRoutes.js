@@ -71,7 +71,95 @@ router.post('/api/connections/respond', async (req, res) => {
     }
 });
 
-// 3. Lấy mạng lưới bạn bè / mối ruột & lời mời đang chờ
+// 3. Thả tim / Bỏ tim Mối Ruột (Toggle Favorite)
+router.post('/api/connections/toggle-favorite', async (req, res) => {
+    const { user_id, target_user_id } = req.body;
+    try {
+        const result = await connectionStore.toggleFavorite(user_id, target_user_id);
+        
+        logEvent({
+            module: 'AUTH',
+            action: result.is_favorite ? 'ADD_FAVORITE_PARTNER' : 'REMOVE_FAVORITE_PARTNER',
+            actor_id: user_id,
+            target_id: target_user_id,
+            level: 'INFO',
+            details: `Người dùng ${user_id} đã ${result.is_favorite ? 'thêm' : 'bỏ'} ${target_user_id} vào danh sách Mối Ruột ❤️`,
+            metadata: { user_id, target_user_id, is_favorite: result.is_favorite }
+        });
+
+        res.status(200).json({ success: true, ...result });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 4. Hủy kết bạn (Unfriend)
+router.post('/api/connections/unfriend', async (req, res) => {
+    const { user_id, target_user_id } = req.body;
+    try {
+        const result = await connectionStore.unfriend(user_id, target_user_id);
+        
+        logEvent({
+            module: 'AUTH',
+            action: 'UNFRIEND_USER',
+            actor_id: user_id,
+            target_id: target_user_id,
+            level: 'INFO',
+            details: `Người dùng ${user_id} đã hủy kết bạn với ${target_user_id}`,
+            metadata: { user_id, target_user_id }
+        });
+
+        res.status(200).json({ success: true, ...result });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 5. Chặn người dùng (Block)
+router.post('/api/connections/block', async (req, res) => {
+    const { user_id, target_user_id } = req.body;
+    try {
+        const result = await connectionStore.blockUser(user_id, target_user_id);
+        
+        logEvent({
+            module: 'AUTH',
+            action: 'BLOCK_USER',
+            actor_id: user_id,
+            target_id: target_user_id,
+            level: 'WARNING',
+            details: `Người dùng ${user_id} đã chặn ${target_user_id}`,
+            metadata: { user_id, target_user_id }
+        });
+
+        res.status(200).json({ success: true, ...result });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 6. Bỏ chặn người dùng (Unblock)
+router.post('/api/connections/unblock', async (req, res) => {
+    const { user_id, target_user_id } = req.body;
+    try {
+        const result = await connectionStore.unblockUser(user_id, target_user_id);
+        
+        logEvent({
+            module: 'AUTH',
+            action: 'UNBLOCK_USER',
+            actor_id: user_id,
+            target_id: target_user_id,
+            level: 'INFO',
+            details: `Người dùng ${user_id} đã bỏ chặn ${target_user_id}`,
+            metadata: { user_id, target_user_id }
+        });
+
+        res.status(200).json({ success: true, ...result });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 7. Lấy mạng lưới bạn bè / mối ruột & lời mời đang chờ
 router.get('/api/connections/:user_id', async (req, res) => {
     const { user_id } = req.params;
     const { search } = req.query;
@@ -83,16 +171,16 @@ router.get('/api/connections/:user_id', async (req, res) => {
     }
 });
 
-// 4. Kiểm tra trạng thái quan hệ giữa 2 người dùng
+// 8. Kiểm tra trạng thái quan hệ giữa 2 người dùng
 router.get('/api/connections/status/:user_1/:user_2', async (req, res) => {
     const { user_1, user_2 } = req.params;
     try {
         const status = connectionStore.getConnectionStatus(user_1, user_2);
-        const isFriend = connectionStore.isFriend(user_1, user_2);
-        res.status(200).json({ success: true, ...status, is_friend: isFriend });
+        res.status(200).json({ success: true, ...status });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
 
 module.exports = router;
+

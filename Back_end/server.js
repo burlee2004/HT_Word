@@ -2,10 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
+const path = require('path');
+const fs = require('fs');
+
 // 1. Khởi tạo Express app & Middleware toàn cục
 const app = express();
 app.use(cors()); // Cho phép Frontend gọi API
-app.use(express.json()); // Hỗ trợ đọc dữ liệu JSON từ request body
+app.use(express.json({ limit: '50mb' })); // Hỗ trợ đọc dữ liệu JSON & Base64 từ request body
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Đảm bảo thư mục uploads tồn tại để phục vụ static files & fallback uploads
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use('/uploads', express.static(uploadsDir));
 
 // 2. Route kiểm tra trạng thái Server
 app.get('/', (req, res) => {

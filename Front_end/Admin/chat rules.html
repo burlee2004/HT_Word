@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HT Work Admin - Kiểm Duyệt & Quy Tắc Chat, Hình Ảnh & Bài Bạc</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444',
+                        darkBg: '#0b0f19',
+                        darkCard: '#111827',
+                        darkBorder: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 9999px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+        
+        /* High Contrast Badges */
+        .badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            transition: all 0.15s ease;
+        }
+        .badge-tag-default {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+        }
+        .dark .badge-tag-default {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #334155;
+        }
+        .badge-tag-default:hover {
+            border-color: #6366f1;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-darkBg text-slate-900 dark:text-slate-100 h-screen flex overflow-hidden font-sans transition-colors duration-200">
+
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container" class="shrink-0"></div>
+
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container" class="shrink-0"></div>
+
+        <!-- Main Scrollable Body -->
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-5 md:p-7 space-y-6 max-w-7xl w-full mx-auto pb-24 md:pb-12">
+            
+            <!-- Page Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center space-x-4">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-600 via-pink-600 to-indigo-600 text-white flex items-center justify-center text-2xl font-black shadow-lg shadow-rose-500/20 shrink-0">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Kiểm Duyệt Chat, Hình Ảnh & Phòng Chống Gian Lận</h1>
+                            <span id="systemStatusBadge" class="px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/40 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Đang Hoạt Động
+                            </span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">Cấu hình từ khóa cấm, cấm cờ bạc/cá độ/game bài, lọc file khiêu dâm/đồi trụy, chống lôi kéo ngoài sàn (Zalo, SĐT, STK) & bảo vệ Escrow.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <button onclick="saveAllRules()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-black transition flex items-center gap-2 shadow-md shadow-indigo-600/30 cursor-pointer">
+                        <i class="fas fa-save"></i> Lưu Cấu Hình
+                    </button>
+                    <button onclick="loadModerationRules()" class="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                        <i class="fas fa-sync-alt" id="refreshIcon"></i> Làm mới
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-darkCard p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Trạng Thái Toàn Sàn</div>
+                        <div class="flex items-center gap-3 mt-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="masterToggle" onchange="toggleMasterSwitch()" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                            <span class="text-xs font-black text-slate-900 dark:text-white" id="masterToggleText">BẬT Kiểm Duyệt</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fas fa-power-off"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-darkCard p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">Tin & File Đã Chặn</div>
+                        <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1" id="statBlocked">0</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Bảo vệ giao dịch an toàn</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-darkCard p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Tổng Từ Khóa & Mẫu Cấm</div>
+                        <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1" id="statKeywords">0</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Trong 7 nhóm danh mục</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fas fa-spell-check"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-darkCard p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Tổng Lượt Quét Tin Nhắn</div>
+                        <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1" id="statScanned">0</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Thời gian thực 0ms</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fas fa-radar"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Action Mode Configuration Card -->
+            <div class="bg-white dark:bg-darkCard p-5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fas fa-sliders text-indigo-600 dark:text-indigo-400"></i> Chế Độ Xử Lý Mặc Định Khi Phát Hiện Vi Phạm
+                        </h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">Lựa chọn hành vi xử lý khi người dùng gửi tin nhắn hoặc tệp tin chứa từ khóa / mẫu cấm.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <label class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer text-xs font-black hover:border-rose-500 transition shadow-xs">
+                            <input type="radio" name="globalAction" value="BLOCK" onchange="updateDefaultAction('BLOCK')" class="text-rose-600 focus:ring-rose-500 w-4 h-4">
+                            <span class="text-rose-700 dark:text-rose-400"><i class="fas fa-ban mr-1"></i> Chặn Gửi (Block)</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer text-xs font-black hover:border-amber-500 transition shadow-xs">
+                            <input type="radio" name="globalAction" value="MASK" onchange="updateDefaultAction('MASK')" class="text-amber-600 focus:ring-amber-500 w-4 h-4">
+                            <span class="text-amber-700 dark:text-amber-400"><i class="fas fa-mask mr-1"></i> Che Hoa Thị (***)</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer text-xs font-black hover:border-indigo-500 transition shadow-xs">
+                            <input type="radio" name="globalAction" value="WARN" onchange="updateDefaultAction('WARN')" class="text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                            <span class="text-indigo-700 dark:text-indigo-400"><i class="fas fa-triangle-exclamation mr-1"></i> Cảnh Báo & Ghi Log</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Rules Management Tabs & Category Content -->
+            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
+                
+                <!-- Category Tabs Header -->
+                <div class="p-3 sm:p-4 border-b border-slate-300 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center gap-2 overflow-x-auto text-xs font-bold custom-scrollbar">
+                    <button onclick="switchCategory('BYPASS_SOCIAL')" id="tab-BYPASS_SOCIAL" class="cat-tab-btn px-4 py-2.5 rounded-xl bg-indigo-600 text-white shadow-sm flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                        <i class="fab fa-facebook-messenger"></i> Mạng Xã Hội (Zalo, FB...)
+                        <span id="badge-BYPASS_SOCIAL" class="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black">0</span>
+                    </button>
+                    <button onclick="switchCategory('BYPASS_CONTACT')" id="tab-BYPASS_CONTACT" class="cat-tab-btn px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                        <i class="fas fa-phone-volume text-cyan-600"></i> SĐT & Email Ngoài
+                        <span id="badge-BYPASS_CONTACT" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-black">0</span>
+                    </button>
+                    <button onclick="switchCategory('BYPASS_PAYMENT')" id="tab-BYPASS_PAYMENT" class="cat-tab-btn px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                        <i class="fas fa-credit-card text-emerald-600"></i> STK & Chuyển Khoản Ngoài
+                        <span id="badge-BYPASS_PAYMENT" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-black">0</span>
+                    </button>
+                    <button onclick="switchCategory('GAMBLING_BETTING')" id="tab-GAMBLING_BETTING" class="cat-tab-btn px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                        <i class="fas fa-dice text-amber-500"></i> Cờ Bạc & Web Đánh Bài
+                        <span id="badge-GAMBLING_BETTING" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-black">0</span>
+                    </button>
+                    <button onclick="switchCategory('MEDIA_CONTENT')" id="tab-MEDIA_CONTENT" class="cat-tab-btn px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                        <i class="fas fa-image text-purple-600"></i> Ảnh Khiêu Dâm & Tệp Độc Hại
+                        <span id="badge-MEDIA_CONTENT" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-black">0</span>
+                    </button>
+                    <button onclick="switchCategory('PROFANITY')" id="tab-PROFANITY" class="cat-tab-btn px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                        <i class="fas fa-face-angry text-rose-500"></i> Ngôn Từ Thô Tục
+                        <span id="badge-PROFANITY" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-black">0</span>
+                    </button>
+                    <button onclick="switchCategory('SCAM_FRAUD')" id="tab-SCAM_FRAUD" class="cat-tab-btn px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                        <i class="fas fa-user-ninja text-red-600"></i> Lừa Đảo & Cọc Ngoài
+                        <span id="badge-SCAM_FRAUD" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-black">0</span>
+                    </button>
+                    <button onclick="switchCategory('WHITELIST')" id="tab-WHITELIST" class="cat-tab-btn px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                        <i class="fas fa-circle-check text-emerald-500"></i> Whitelist
+                        <span id="badge-WHITELIST" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-black">0</span>
+                    </button>
+                    <button onclick="switchCategory('MEDIA_GALLERY')" id="tab-MEDIA_GALLERY" class="cat-tab-btn px-4 py-2.5 rounded-xl text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800 flex items-center gap-2 whitespace-nowrap cursor-pointer ml-auto">
+                        <i class="fas fa-photo-film"></i> Giám Sát Ảnh & File Chat
+                    </button>
+                </div>
+
+                <!-- Category Content Area (Tab Content) -->
+                <div id="categoryNormalView" class="p-6 space-y-6">
+                    
+                    <!-- Category Header Info & Actions -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                        <div>
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h3 class="font-black text-lg text-slate-900 dark:text-white" id="catTitle">Mạng Xã Hội & Ứng Dụng Chat Ngoài</h3>
+                                <span class="px-3 py-1 rounded-lg text-xs font-black shadow-xs" id="catSeverityBadge">CRITICAL</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium" id="catDesc">Ngăn chặn lôi kéo giao dịch ra ngoài sàn qua Zalo, Facebook, Telegram, WhatsApp...</p>
+                        </div>
+
+                        <!-- Category Action Selector -->
+                        <div class="flex items-center gap-2.5 shrink-0" id="catActionBox">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Hành động khi vi phạm:</span>
+                            <select id="catActionSelect" onchange="updateCurrentCategoryAction()" class="px-3.5 py-2 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-xl font-bold focus:ring-2 focus:ring-indigo-500 shadow-xs">
+                                <option value="BLOCK">🚫 Chặn Gửi (Block)</option>
+                                <option value="MASK">🎭 Che Ký Tự (Mask ***)</option>
+                                <option value="WARN">⚠️ Cảnh Báo & Ghi Log (Warn)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Add Keyword Bar -->
+                    <div class="bg-slate-100 dark:bg-slate-900/80 p-4 rounded-2xl border border-slate-300 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div class="relative flex-1">
+                            <i class="fas fa-plus absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="newKeywordInput" onkeypress="handleKeywordKeyPress(event)" placeholder="Nhập từ khóa cấm mới (có thể nhập nhiều từ cách nhau bởi dấu phẩy)..." class="w-full pl-9 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-900 dark:text-white placeholder:text-slate-400 placeholder:font-normal shadow-xs">
+                        </div>
+                        <button onclick="addNewKeywords()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 shrink-0 shadow-md cursor-pointer">
+                            <i class="fas fa-plus"></i> Thêm Từ Khóa
+                        </button>
+                    </div>
+
+                    <!-- Keywords Search & Filter -->
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="relative max-w-sm w-full">
+                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="keywordSearchInput" oninput="renderKeywordsList()" placeholder="Tìm kiếm từ khóa trong danh mục này..." class="w-full pl-9 pr-3 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 placeholder:font-normal shadow-xs">
+                        </div>
+                        <span class="text-xs font-black text-slate-600 dark:text-slate-400 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700" id="keywordCountDisplay">0 từ khóa</span>
+                    </div>
+
+                    <!-- Keywords Badges Container -->
+                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-800 min-h-[160px] max-h-[340px] overflow-y-auto custom-scrollbar flex flex-wrap gap-2.5 items-start content-start" id="keywordsBadgeContainer">
+                        <!-- Badges rendered dynamically with high contrast -->
+                    </div>
+
+                    <!-- Category Warning Message Setting -->
+                    <div class="p-5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/60 space-y-2">
+                        <label class="text-xs sm:text-sm font-black text-indigo-950 dark:text-indigo-200 block flex items-center gap-2">
+                            <i class="fas fa-comment-dots text-indigo-600 dark:text-indigo-400"></i> Thông Điệp Cảnh Báo Gửi Cho Người Dùng Khi Vi Phạm Danh Mục Này:
+                        </label>
+                        <input type="text" id="catWarningMsgInput" onchange="updateCurrentCategoryWarningMsg()" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-indigo-300 dark:border-indigo-800 rounded-xl text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-xs">
+                    </div>
+
+                </div>
+
+                <!-- Media Gallery Audit View (Dedicated Tab) -->
+                <div id="mediaGalleryView" class="p-6 space-y-5 hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                        <div>
+                            <h3 class="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="fas fa-photo-film text-indigo-600"></i> Giám Sát Tệp Tin & Hình Ảnh Trong Khung Chat (Media Audit)
+                            </h3>
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">Kiểm duyệt các hình ảnh, video, tệp tin được gửi giữa Client & Freelancer để ngăn chặn nội dung khiêu dâm, đồi trụy hoặc file độc hại.</p>
+                        </div>
+                        <button onclick="loadChatMediaAudit()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0">
+                            <i class="fas fa-sync-alt"></i> Tải lại danh sách
+                        </button>
+                    </div>
+
+                    <!-- Media Grid Container -->
+                    <div id="mediaGridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto custom-scrollbar p-1">
+                        <!-- Media items dynamically injected -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- LIVE CHAT MODERATION TESTER (PHÒNG THỬ NGHIỆM TRỰC TIẾP) -->
+            <!-- ============================================================== -->
+            <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-black p-6 sm:p-7 rounded-2xl text-white border border-indigo-700 shadow-xl space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-11 h-11 rounded-2xl bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-xl font-black shrink-0">
+                            <i class="fas fa-vial"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-base sm:text-lg tracking-tight">Phòng Thử Nghiệm Kiểm Duyệt Trực Tiếp (Live Tester)</h3>
+                            <p class="text-xs text-indigo-200 font-medium">Thử nghiệm câu chat, tên file, cú pháp lách luật cờ bạc, Zalo, SĐT, STK, nội dung nhạy cảm thời gian thực.</p>
+                        </div>
+                    </div>
+                    <span class="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/40">Regex + Anti-Evasion AI Engine</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                    <div class="lg:col-span-8 space-y-3">
+                        <div class="relative">
+                            <textarea id="liveTestInput" rows="3" placeholder="Nhập câu chat hoặc tên file thử nghiệm (Ví dụ: 'Nhận làm web đánh bài tài xỉu kubet ib qua z.a.l.o 0987654321')..." class="w-full p-4 text-xs sm:text-sm bg-slate-900/90 border border-indigo-500/50 rounded-xl text-white placeholder-indigo-300/50 focus:outline-none focus:ring-2 focus:ring-indigo-400 custom-scrollbar font-medium"></textarea>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-[11px] text-indigo-300 font-bold">Thử nhanh mẫu:</span>
+                            <button onclick="setTestSample('Nhận code web đánh bài tài xỉu, game bài đổi thưởng nổ hũ ib qua z.a.l.o 0987654321 nhé')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] text-amber-300 font-bold transition">🎲 Test Cờ Bạc + Zalo</button>
+                            <button onclick="setTestSample('Gửi file hack_tool.exe và anh_sex_clip.mp4 qua cho mình xem')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] text-purple-300 font-bold transition">🔞 Test File Độc Hại & 18+</button>
+                            <button onclick="setTestSample('STK Vietcombank: 19038291039 chuyển khoản ngoài nha bạn')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] text-indigo-200 font-bold transition">💳 Test STK Bank</button>
+                            <button onclick="setTestSample('Dự án này hoàn thành trong 3 ngày qua HT Work Escrow nhé')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] text-emerald-300 font-bold transition">🟢 Test Tin Sạch</button>
+                            <button onclick="runLiveTest()" class="ml-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs sm:text-sm font-black transition shadow-lg flex items-center gap-2 cursor-pointer">
+                                <i class="fas fa-play text-xs"></i> Phân Tích Ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Test Output Result Box -->
+                    <div class="lg:col-span-4 bg-slate-900 border border-indigo-500/50 rounded-2xl p-4 space-y-3 min-h-[160px] flex flex-col justify-between shadow-inner">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-indigo-800/80 pb-2">
+                                <span class="text-xs font-black text-indigo-300 uppercase tracking-wider">Kết Quả Phân Tích:</span>
+                                <span id="testStatusBadge" class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">CHỜ KIỂM TRA</span>
+                            </div>
+
+                            <div id="testOutputContent" class="py-3 text-xs text-slate-300 leading-relaxed space-y-2 font-medium">
+                                <p class="text-slate-400 italic">Nhập văn bản và bấm [Phân Tích Ngay] để xem chi tiết.</p>
+                            </div>
+                        </div>
+
+                        <div id="testSanitizedBox" class="hidden pt-2.5 border-t border-indigo-900/80 text-[11px] text-indigo-200">
+                            <b class="text-indigo-300">Sau khi xử lý (Sanitized):</b>
+                            <div id="testSanitizedText" class="mt-1 p-2.5 rounded-xl bg-slate-950 font-mono text-emerald-400 border border-emerald-900/40 text-xs"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- UI Core Script -->
+    <script src="admin-ui.js"></script>
+
+    <!-- Page Logic Script -->
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let currentConfig = null;
+        let activeCategory = 'BYPASS_SOCIAL';
+
+        async function loadModerationRules() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/chat-rules`);
+                const data = await res.json();
+                if (res.ok && data.config) {
+                    currentConfig = data.config;
+                    renderConfigUI();
+                } else {
+                    console.error('Lỗi load rules:', data);
+                }
+            } catch (err) {
+                console.error('Lỗi kết nối loadModerationRules:', err);
+            } finally {
+                if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 400);
+            }
+        }
+
+        function renderConfigUI() {
+            if (!currentConfig) return;
+
+            // 1. Master toggle & status
+            const isEnabled = currentConfig.is_enabled;
+            document.getElementById('masterToggle').checked = isEnabled;
+            document.getElementById('masterToggleText').innerText = isEnabled ? 'BẬT Kiểm Duyệt' : 'TẮT Kiểm Duyệt';
+            
+            const statusBadge = document.getElementById('systemStatusBadge');
+            if (statusBadge) {
+                if (isEnabled) {
+                    statusBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/40 flex items-center gap-1.5";
+                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Đang Hoạt Động`;
+                } else {
+                    statusBadge.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/40 flex items-center gap-1.5";
+                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Đã Tắt`;
+                }
+            }
+
+            // 2. Global Action Mode
+            const defaultAction = currentConfig.default_action || 'BLOCK';
+            document.querySelectorAll('input[name="globalAction"]').forEach(radio => {
+                radio.checked = radio.value === defaultAction;
+            });
+
+            // 3. Stats
+            const stats = currentConfig.stats || {};
+            document.getElementById('statBlocked').innerText = (stats.total_blocked || 0).toLocaleString();
+            document.getElementById('statScanned').innerText = (stats.total_scanned || 0).toLocaleString();
+
+            let totalKeywords = 0;
+            const categories = currentConfig.categories || {};
+            for (const cat of Object.values(categories)) {
+                totalKeywords += (cat.keywords || []).length;
+            }
+            document.getElementById('statKeywords').innerText = totalKeywords.toLocaleString();
+
+            // 4. Update Tab Badges
+            for (const catId of ['BYPASS_SOCIAL', 'BYPASS_CONTACT', 'BYPASS_PAYMENT', 'GAMBLING_BETTING', 'MEDIA_CONTENT', 'PROFANITY', 'SCAM_FRAUD']) {
+                const bEl = document.getElementById(`badge-${catId}`);
+                if (bEl && categories[catId]) {
+                    bEl.innerText = (categories[catId].keywords || []).length;
+                }
+            }
+            const whiteBadge = document.getElementById('badge-WHITELIST');
+            if (whiteBadge && currentConfig.whitelist) {
+                whiteBadge.innerText = currentConfig.whitelist.length;
+            }
+
+            // 5. Render Active Category
+            renderCategoryContent();
+        }
+
+        function switchCategory(catId) {
+            activeCategory = catId;
+            
+            document.querySelectorAll('.cat-tab-btn').forEach(btn => {
+                btn.className = 'cat-tab-btn px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap cursor-pointer';
+            });
+            const activeBtn = document.getElementById(`tab-${catId}`);
+            if (activeBtn) {
+                activeBtn.className = 'cat-tab-btn px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-black shadow-sm flex items-center gap-2 whitespace-nowrap cursor-pointer';
+            }
+
+            if (catId === 'MEDIA_GALLERY') {
+                document.getElementById('categoryNormalView').classList.add('hidden');
+                document.getElementById('mediaGalleryView').classList.remove('hidden');
+                loadChatMediaAudit();
+            } else {
+                document.getElementById('categoryNormalView').classList.remove('hidden');
+                document.getElementById('mediaGalleryView').classList.add('hidden');
+                renderCategoryContent();
+            }
+        }
+
+        function renderCategoryContent() {
+            if (!currentConfig || activeCategory === 'MEDIA_GALLERY') return;
+
+            const isWhitelist = activeCategory === 'WHITELIST';
+            const catActionBox = document.getElementById('catActionBox');
+            const catSeverityBadge = document.getElementById('catSeverityBadge');
+
+            if (isWhitelist) {
+                document.getElementById('catTitle').innerText = 'Danh Sách Trắng (Whitelist - Được Phép)';
+                document.getElementById('catDesc').innerText = 'Các từ khóa, tên miền được phép xuất hiện trong tin nhắn mà không bị bộ lọc chặn nhầm (như github.com, drive.google.com, token, milestone...).';
+                catActionBox.classList.add('hidden');
+                catSeverityBadge.className = 'px-3 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700';
+                catSeverityBadge.innerText = 'ALLOWED';
+                document.getElementById('catWarningMsgInput').parentElement.classList.add('hidden');
+            } else {
+                catActionBox.classList.remove('hidden');
+                document.getElementById('catWarningMsgInput').parentElement.classList.remove('hidden');
+
+                const cat = currentConfig.categories[activeCategory];
+                if (!cat) return;
+
+                document.getElementById('catTitle').innerText = cat.name;
+                document.getElementById('catDesc').innerText = cat.description;
+                document.getElementById('catActionSelect').value = cat.action || currentConfig.default_action || 'BLOCK';
+                document.getElementById('catWarningMsgInput').value = cat.warning_message || '';
+
+                if (cat.severity === 'CRITICAL') {
+                    catSeverityBadge.className = 'px-3 py-1 rounded-lg text-xs font-black bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-700';
+                    catSeverityBadge.innerText = 'CRITICAL (NGHIÊM TRỌNG)';
+                } else if (cat.severity === 'HIGH') {
+                    catSeverityBadge.className = 'px-3 py-1 rounded-lg text-xs font-black bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 border border-orange-300 dark:border-orange-700';
+                    catSeverityBadge.innerText = 'HIGH (MỨC CAO)';
+                } else {
+                    catSeverityBadge.className = 'px-3 py-1 rounded-lg text-xs font-black bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-700';
+                    catSeverityBadge.innerText = 'MEDIUM (MỨC VỪA)';
+                }
+            }
+
+            renderKeywordsList();
+        }
+
+        function renderKeywordsList() {
+            if (!currentConfig || activeCategory === 'MEDIA_GALLERY') return;
+            const container = document.getElementById('keywordsBadgeContainer');
+            const search = (document.getElementById('keywordSearchInput').value || '').toLowerCase().trim();
+
+            let list = [];
+            if (activeCategory === 'WHITELIST') {
+                list = currentConfig.whitelist || [];
+            } else {
+                list = currentConfig.categories[activeCategory]?.keywords || [];
+            }
+
+            let filtered = list;
+            if (search) {
+                filtered = list.filter(k => k.toLowerCase().includes(search));
+            }
+
+            document.getElementById('keywordCountDisplay').innerText = `${filtered.length} / ${list.length} từ khóa`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="w-full py-10 text-center text-slate-500 dark:text-slate-400 text-sm font-semibold italic">Chưa có từ khóa nào trong danh mục này hoặc không khớp với tìm kiếm.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(kw => {
+                const isWhitelist = activeCategory === 'WHITELIST';
+                const pillTheme = isWhitelist 
+                    ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700' 
+                    : activeCategory === 'GAMBLING_BETTING'
+                    ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700'
+                    : activeCategory === 'MEDIA_CONTENT'
+                    ? 'bg-purple-50 dark:bg-purple-950/50 text-purple-900 dark:text-purple-200 border-purple-300 dark:border-purple-700'
+                    : activeCategory === 'PROFANITY'
+                    ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-900 dark:text-rose-200 border-rose-300 dark:border-rose-700'
+                    : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-600';
+
+                return `
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold border ${pillTheme} shadow-xs group transition hover:scale-105">
+                    <span>${escapeHtml(kw)}</span>
+                    <button onclick="removeKeyword('${escapeHtml(kw)}')" class="w-4 h-4 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-950 transition text-xs font-black cursor-pointer" title="Xóa từ khóa này">
+                        &times;
+                    </button>
+                </div>`;
+            }).join('');
+        }
+
+        function handleKeywordKeyPress(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewKeywords();
+            }
+        }
+
+        async function addNewKeywords() {
+            const input = document.getElementById('newKeywordInput');
+            const raw = input.value.trim();
+            if (!raw) return;
+
+            const items = raw.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+            if (items.length === 0) return;
+
+            for (const item of items) {
+                if (activeCategory === 'WHITELIST') {
+                    await fetch(`${API_URL}/api/admin/chat-rules/whitelist`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ item })
+                    });
+                } else {
+                    await fetch(`${API_URL}/api/admin/chat-rules/keyword`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ category_id: activeCategory, keyword: item })
+                    });
+                }
+            }
+
+            input.value = '';
+            await loadModerationRules();
+        }
+
+        async function removeKeyword(kw) {
+            if (!confirm(`Xóa từ khóa "${kw}" khỏi danh mục?`)) return;
+
+            if (activeCategory === 'WHITELIST') {
+                await fetch(`${API_URL}/api/admin/chat-rules/whitelist`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item: kw })
+                });
+            } else {
+                await fetch(`${API_URL}/api/admin/chat-rules/keyword`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category_id: activeCategory, keyword: kw })
+                });
+            }
+
+            await loadModerationRules();
+        }
+
+        function toggleMasterSwitch() {
+            if (!currentConfig) return;
+            currentConfig.is_enabled = document.getElementById('masterToggle').checked;
+            renderConfigUI();
+        }
+
+        function updateDefaultAction(action) {
+            if (!currentConfig) return;
+            currentConfig.default_action = action;
+        }
+
+        function updateCurrentCategoryAction() {
+            if (!currentConfig || activeCategory === 'WHITELIST') return;
+            const val = document.getElementById('catActionSelect').value;
+            if (currentConfig.categories[activeCategory]) {
+                currentConfig.categories[activeCategory].action = val;
+            }
+        }
+
+        function updateCurrentCategoryWarningMsg() {
+            if (!currentConfig || activeCategory === 'WHITELIST') return;
+            const val = document.getElementById('catWarningMsgInput').value;
+            if (currentConfig.categories[activeCategory]) {
+                currentConfig.categories[activeCategory].warning_message = val;
+            }
+        }
+
+        async function saveAllRules() {
+            if (!currentConfig) return;
+            try {
+                const res = await fetch(`${API_URL}/api/admin/chat-rules`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentConfig)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('✅ Đã lưu toàn bộ cấu hình quy tắc kiểm duyệt chat thành công!');
+                    await loadModerationRules();
+                } else {
+                    alert('❌ Lỗi lưu cấu hình: ' + (data.error || 'Unknown'));
+                }
+            } catch (err) {
+                alert('❌ Lỗi kết nối: ' + err.message);
+            }
+        }
+
+        // ==============================================================
+        // MEDIA GALLERY AUDIT
+        // ==============================================================
+        async function loadChatMediaAudit() {
+            const container = document.getElementById('mediaGridContainer');
+            container.innerHTML = `<div class="col-span-full text-center py-10 text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải danh sách tệp tin & hình ảnh...</div>`;
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/chat-media`);
+                const data = await res.json();
+                const list = data.media || [];
+
+                if (list.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-sm">Chưa có tệp tin hoặc hình ảnh nào được gửi trong hệ thống chat.</div>`;
+                    return;
+                }
+
+                container.innerHTML = list.map(m => {
+                    const isImg = m.file_url && (m.file_type?.startsWith('image/') || m.file_url.match(/\.(jpg|jpeg|png|gif|webp)/i));
+                    const isQuarantined = m.is_quarantined || !m.file_url;
+                    
+                    return `
+                    <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border ${m.is_flagged ? 'border-rose-400 dark:border-rose-700 bg-rose-50/20' : 'border-slate-200 dark:border-slate-800'} shadow-sm flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-2">
+                                <span class="font-bold truncate max-w-[120px]">${escapeHtml(m.sender_name)}</span>
+                                <span>${m.created_at ? new Date(m.created_at).toLocaleDateString('vi-VN') : ''}</span>
+                            </div>
+
+                            <div class="h-32 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 relative group">
+                                ${isQuarantined 
+                                    ? `<div class="text-rose-500 font-bold text-xs text-center p-2"><i class="fas fa-ban text-2xl block mb-1"></i> Đã bị cách ly</div>`
+                                    : isImg 
+                                        ? `<img src="${m.file_url}" alt="${escapeHtml(m.file_name)}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105">`
+                                        : `<div class="text-center p-2 text-indigo-500"><i class="fas fa-file-lines text-3xl mb-1"></i><div class="text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">${escapeHtml(m.file_name || 'Tệp đính kèm')}</div></div>`
+                                }
+                                ${m.is_flagged ? `<span class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[10px] font-black shadow-md"><i class="fas fa-triangle-exclamation mr-1"></i> Nghi vấn</span>` : ''}
+                            </div>
+
+                            <div class="mt-2 text-xs font-bold text-slate-800 dark:text-slate-200 truncate" title="${escapeHtml(m.file_name)}">
+                                ${escapeHtml(m.file_name || 'Tệp không tên')}
+                            </div>
+
+                            ${m.content ? `<div class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 italic">"${escapeHtml(m.content)}"</div>` : ''}
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                            ${!isQuarantined && m.file_url ? `<a href="${m.file_url}" target="_blank" class="flex-1 py-1.5 text-center rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 text-xs font-bold transition">Xem gốc</a>` : ''}
+                            ${!isQuarantined ? `
+                                <button onclick="quarantineMedia('${m.id}')" class="px-3 py-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/60 text-rose-600 hover:bg-rose-200 text-xs font-bold transition cursor-pointer" title="Cách ly / Xóa file">
+                                    <i class="fas fa-trash-can"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = `<div class="col-span-full text-center py-8 text-rose-500 text-xs font-bold">Lỗi tải media: ${e.message}</div>`;
+            }
+        }
+
+        async function quarantineMedia(messageId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa & cách ly vĩnh viễn tệp tin/hình ảnh này khỏi cuộc trò chuyện?')) return;
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/chat-media/${messageId}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('✅ Đã xóa và cách ly tệp tin thành công!');
+                    loadChatMediaAudit();
+                } else {
+                    alert('❌ Lỗi: ' + (data.error || 'Thất bại'));
+                }
+            } catch (err) {
+                alert('❌ Lỗi kết nối: ' + err.message);
+            }
+        }
+
+        // ==============================================================
+        // LIVE CHAT TESTER
+        // ==============================================================
+        function setTestSample(sampleText) {
+            document.getElementById('liveTestInput').value = sampleText;
+            runLiveTest();
+        }
+
+        async function runLiveTest() {
+            const input = document.getElementById('liveTestInput');
+            const text = input.value.trim();
+            if (!text) return alert('Vui lòng nhập văn bản để thử nghiệm!');
+
+            const statusBadge = document.getElementById('testStatusBadge');
+            const outputBox = document.getElementById('testOutputContent');
+            const sanitizedBox = document.getElementById('testSanitizedBox');
+            const sanitizedText = document.getElementById('testSanitizedText');
+
+            outputBox.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Đang phân tích thuật toán...`;
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/chat-rules/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: text })
+                });
+                const data = await res.json();
+                const result = data.result || {};
+
+                if (result.is_flagged) {
+                    if (result.action === 'BLOCK') {
+                        statusBadge.className = 'text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40';
+                        statusBadge.innerText = '🚫 BỊ CHẶN (BLOCK)';
+                    } else if (result.action === 'MASK') {
+                        statusBadge.className = 'text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40';
+                        statusBadge.innerText = '🎭 CHE DẤU HOA THỊ (MASK)';
+                    } else {
+                        statusBadge.className = 'text-[10px] font-black px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/40';
+                        statusBadge.innerText = '⚠️ CẢNH BÁO (WARN)';
+                    }
+
+                    outputBox.innerHTML = `
+                    <div class="space-y-1.5">
+                        <div class="text-rose-300 font-bold flex items-center gap-1.5">
+                            <i class="fas fa-circle-exclamation"></i> Phát hiện ${result.violations.length} vi phạm chính sách:
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 text-slate-200 pl-1 text-[11px] font-medium">
+                            ${result.violations.map(v => `
+                                <li><b>${escapeHtml(v.category_name)}:</b> <span class="text-amber-300 font-bold">${escapeHtml(v.matched_keywords.join(', '))}</span></li>
+                            `).join('')}
+                        </ul>
+                        <div class="p-2.5 rounded-xl bg-slate-950 text-indigo-300 text-[11px] mt-1.5 border border-indigo-900/60 font-semibold leading-relaxed">
+                            <b>Cảnh báo hiển thị:</b> ${escapeHtml(result.warning_message)}
+                        </div>
+                    </div>`;
+
+                    if (result.action === 'MASK' || (result.sanitized_content && result.sanitized_content !== text)) {
+                        sanitizedBox.classList.remove('hidden');
+                        sanitizedText.innerText = result.sanitized_content;
+                    } else {
+                        sanitizedBox.classList.add('hidden');
+                    }
+                } else {
+                    statusBadge.className = 'text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40';
+                    statusBadge.innerText = '🟢 HỢP LỆ (ALLOW)';
+                    outputBox.innerHTML = `
+                    <div class="text-emerald-300 text-xs flex items-center gap-1.5 font-bold">
+                        <i class="fas fa-circle-check"></i> Không phát hiện từ khóa hoặc mẫu vi phạm nào. Tin nhắn hợp lệ!
+                    </div>`;
+                    sanitizedBox.classList.add('hidden');
+                }
+            } catch (e) {
+                outputBox.innerHTML = `<span class="text-rose-400 text-xs font-bold">Lỗi kiểm tra: ${e.message}</span>`;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadModerationRules);
+    </script>
+</body>
+</html>

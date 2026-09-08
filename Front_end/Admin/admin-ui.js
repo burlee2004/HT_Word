@@ -59,6 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="categories.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
                 <i class="fas fa-folder-tree w-5 text-purple-400"></i> <span>Quản lý Danh mục</span>
             </a>
+            <a href="chat-rules.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
+                <i class="fas fa-shield-halved w-5 text-rose-400"></i> <span>Kiểm duyệt & Quy tắc Chat</span>
+            </a>
             <a href="blockchain-audit.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
                 <i class="fas fa-shield-alt w-5 text-cyan-400"></i> <span>Kiểm toán Blockchain</span>
             </a>
@@ -113,6 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </a>
                 <a href="categories.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
                     <i class="fas fa-folder-tree w-5 text-purple-400"></i> <span>Quản lý Danh mục</span>
+                </a>
+                <a href="chat-rules.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
+                    <i class="fas fa-shield-halved w-5 text-rose-400"></i> <span>Kiểm duyệt & Quy tắc Chat</span>
                 </a>
                 <a href="blockchain-audit.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
                     <i class="fas fa-shield-alt w-5 text-cyan-400"></i> <span>Kiểm toán Blockchain</span>

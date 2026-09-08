@@ -50,26 +50,34 @@
                     <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center">
                         <i class="fas fa-wallet mr-3 text-amber-500"></i> Quản Lý Ví & Doanh Thu
                     </h1>
-                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Theo dõi thù lao dự án, ký quỹ Escrow và thực hiện rút tiền về ngân hàng 24/7.</p>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Nạp Token vào tài khoản, theo dõi thù lao dự án, ký quỹ Escrow và rút tiền về ngân hàng 24/7.</p>
                 </div>
-                <button onclick="loadWalletData()" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm">
-                    <i class="fas fa-sync-alt mr-2 text-indigo-500"></i> Làm mới ví
-                </button>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="toggleDepositForm()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow-md transition flex items-center text-xs sm:text-sm cursor-pointer">
+                        <i class="fas fa-plus-circle mr-2"></i> Nạp Tiền
+                    </button>
+                    <button onclick="toggleWithdrawForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow-md transition flex items-center text-xs sm:text-sm cursor-pointer">
+                        <i class="fas fa-money-bill-wave mr-2"></i> Rút Tiền
+                    </button>
+                    <button onclick="loadWalletData()" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm cursor-pointer" title="Làm mới dữ liệu ví">
+                        <i class="fas fa-sync-alt text-indigo-500"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Financial Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
                 <!-- Available Balance -->
-                <div class="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl p-6 text-white shadow-md relative overflow-hidden flex flex-col justify-between">
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-800 rounded-3xl p-6 text-white shadow-md relative overflow-hidden flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-3">
-                            <span class="text-xs font-black uppercase tracking-wider text-emerald-100">Số Dư Khả Dụng</span>
+                            <span class="text-xs font-black uppercase tracking-wider text-indigo-100">Số Dư Khả Dụng</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm">💎</span>
                         </div>
                         <p id="balance" class="text-3xl sm:text-4xl font-black tracking-tight">0</p>
-                        <span class="text-xs text-emerald-100 font-bold mt-1 inline-block">Token (Có thể rút ngay)</span>
+                        <span class="text-xs text-indigo-100 font-bold mt-1 inline-block">Token (Có thể dùng & rút ngay)</span>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-white/20 flex justify-between items-center text-[11px] text-emerald-100">
+                    <div class="mt-4 pt-3 border-t border-white/20 flex justify-between items-center text-[11px] text-indigo-100">
                         <span>Quy đổi: <b id="balanceVND">~0 VNĐ</b></span>
                         <span class="bg-white/20 px-2 py-0.5 rounded-md font-bold">1 Token = 1 VNĐ</span>
                     </div>
@@ -83,7 +91,7 @@
                             <span class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500 flex items-center justify-center text-sm"><i class="fas fa-lock"></i></span>
                         </div>
                         <p id="locked_balance" class="text-3xl sm:text-4xl font-black text-gray-800 dark:text-white tracking-tight">0</p>
-                        <span class="text-xs text-gray-400 font-semibold mt-1 inline-block">Token (Dự án đang làm)</span>
+                        <span class="text-xs text-gray-400 font-semibold mt-1 inline-block">Token (Dự án đang thực hiện)</span>
                     </div>
                     <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-[11px] text-gray-500 flex justify-between items-center">
                         <span>Giải ngân khi nghiệm thu</span>
@@ -96,9 +104,9 @@
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <span class="text-xs font-black uppercase tracking-wider text-gray-400">Tổng Thu Nhập Tích Lũy</span>
-                            <span class="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-500 flex items-center justify-center text-sm"><i class="fas fa-chart-line"></i></span>
+                            <span class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 flex items-center justify-center text-sm"><i class="fas fa-chart-line"></i></span>
                         </div>
-                        <p id="total_earned" class="text-3xl sm:text-4xl font-black text-purple-600 dark:text-purple-400 tracking-tight">0</p>
+                        <p id="total_earned" class="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">0</p>
                         <span class="text-xs text-gray-400 font-semibold mt-1 inline-block">Token (Từ các hợp đồng đã xong)</span>
                     </div>
                     <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-[11px] text-gray-500 flex justify-between items-center">
@@ -108,14 +116,102 @@
                 </div>
             </div>
 
+            <!-- KHỐI FORM NẠP TIỀN VIETQR & PAYOS (TỰ ĐỘNG & THỦ CÔNG) -->
+            <div id="depositContainer" class="hidden bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8 transition-all animate-in fade-in slide-in-from-top-4 duration-200">
+                <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-4 mb-6">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-black text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-qrcode mr-2.5 text-indigo-600 dark:text-indigo-400"></i> Nạp Token Vào Ví Freelancer
+                        </h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Quét mã QR để nạp tiền tự động qua PayOS / VietQR (Xử lý tức thì 24/7)</p>
+                    </div>
+                    <button onclick="toggleDepositForm()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-300 flex items-center justify-center font-bold text-lg cursor-pointer transition">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Cột Nhập Số Tiền -->
+                    <div class="space-y-4">
+                        <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/60 flex justify-between items-center">
+                            <span class="text-xs text-indigo-900 dark:text-indigo-300 font-bold flex items-center gap-1.5">
+                                <i class="fas fa-exchange-alt text-indigo-600"></i> Tỷ giá nạp tiền:
+                            </span>
+                            <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">1 Token = 1 VNĐ</span>
+                        </div>
+
+                        <!-- Nhập Số Lượng -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Nhập số lượng Token muốn nạp (*):</label>
+                            <div class="relative">
+                                <input type="number" id="depositAmountInput" required min="10000" step="1000" class="block w-full border-2 border-gray-200 dark:border-gray-600 p-3.5 pl-11 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition text-lg font-black text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-700" placeholder="Tối thiểu 10,000" value="50000">
+                                <span class="absolute left-4 top-3.5 text-lg">💎</span>
+                            </div>
+                            <!-- Quick Amount Buttons -->
+                            <div class="flex flex-wrap gap-2 mt-2.5">
+                                <button type="button" onclick="setQuickDepositAmount(10000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-xl font-bold transition">10,000</button>
+                                <button type="button" onclick="setQuickDepositAmount(50000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-xl font-bold transition">50,000</button>
+                                <button type="button" onclick="setQuickDepositAmount(100000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-xl font-bold transition">100,000</button>
+                                <button type="button" onclick="setQuickDepositAmount(500000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-xl font-bold transition">500,000</button>
+                                <button type="button" onclick="setQuickDepositAmount(1000000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold px-3 py-1.5 rounded-xl transition">1,000,000</button>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="button" onclick="handleDeposit()" id="btnSubmitDeposit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-md transition flex justify-center items-center text-sm cursor-pointer">
+                                <i class="fas fa-qrcode mr-2"></i> Tạo Mã Nạp Tiền (VietQR)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cột Hiển Thị Mã QR & Thông Tin Thanh Toán -->
+                    <div id="qrSection" class="hidden flex flex-col items-center justify-center border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-700 pt-6 lg:pt-0 lg:pl-8">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5 font-bold uppercase tracking-wider">Số tiền thanh toán:</p>
+                        <p class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 mb-2"><span id="qrAmount">0</span> VNĐ</p>
+                        
+                        <!-- Đếm ngược thời gian -->
+                        <div id="countdownTimer" class="text-red-500 font-bold text-xs mb-3 flex items-center bg-red-50 dark:bg-red-950/40 px-3 py-1 rounded-full border border-red-200 dark:border-red-900">
+                            <i class="fas fa-clock mr-1.5"></i> Hết hạn sau: <span id="timeDisplay" class="ml-1 font-mono font-bold text-sm">05:00</span>
+                        </div>
+
+                        <!-- Nội dung chuyển khoản -->
+                        <div class="bg-gray-50 dark:bg-gray-750 px-4 py-3 rounded-2xl mb-3 w-full text-center border border-dashed border-gray-300 dark:border-gray-600">
+                            <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-0.5 font-bold">Nội dung chuyển khoản (BẮT BUỘC):</p>
+                            <p id="transferContentDisplay" class="font-black text-indigo-600 dark:text-indigo-400 text-base tracking-widest font-mono select-all"></p>
+                        </div>
+                        
+                        <!-- Ảnh QR -->
+                        <div class="relative group cursor-pointer" onclick="openQrModal()">
+                            <img id="qrImage" src="" alt="VietQR" class="w-56 h-56 border-2 border-indigo-200 dark:border-indigo-800 p-2.5 rounded-3xl shadow-lg bg-white group-hover:scale-103 transition-transform object-contain">
+                            <div class="absolute inset-0 bg-black/40 rounded-3xl hidden group-hover:flex items-center justify-center transition-all">
+                                <span class="text-white text-xs font-bold bg-black/60 px-3.5 py-1.5 rounded-xl backdrop-blur-sm"><i class="fas fa-search-plus mr-1"></i>Phóng to QR</span>
+                            </div>
+                        </div>
+
+                        <p id="qrNoticeText" class="text-[11px] text-gray-500 dark:text-gray-400 text-center mt-3 max-w-xs">
+                            ⚡ <b>Tự động 100%:</b> Quét mã xong tiền sẽ tự động cộng ngay trong 3 giây!
+                        </p>
+
+                        <!-- Trạng thái thanh toán -->
+                        <div class="mt-4 w-full flex flex-col items-center gap-2">
+                            <button id="btnCheckStatus" class="bg-indigo-600 text-white px-4 py-2.5 rounded-2xl font-bold transition w-full shadow flex justify-center items-center text-xs">
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Đang chờ tín hiệu thanh toán...
+                            </button>
+                            <a id="linkPayosDirect" href="#" target="_blank" class="hidden text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline py-1">
+                                <i class="fas fa-external-link-alt mr-1"></i> Mở trang thanh toán PayOS
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRID 2 CỘT: FORM RÚT TIỀN & LỊCH SỬ GIAO DỊCH -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Left 2 Cols: Form Rút Tiền & Lệnh Pending -->
                 <div class="lg:col-span-2 space-y-6">
                     <!-- Form Rút Tiền VietQR -->
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div id="withdrawContainer" class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
-                                <i class="fas fa-university mr-2 text-emerald-500"></i> Rút Tiền Về Ngân Hàng (VietQR)
+                                <i class="fas fa-university mr-2.5 text-emerald-500"></i> Rút Tiền Về Ngân Hàng (VietQR)
                             </h2>
                             <span class="text-[11px] bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                                 Miễn phí giao dịch 0%
@@ -123,10 +219,10 @@
                         </div>
 
                         <!-- Bank Info Card -->
-                        <div id="bankInfoBox" class="bg-gradient-to-r from-gray-900 to-indigo-950 text-white p-4 rounded-2xl mb-5 shadow-inner relative">
+                        <div id="bankInfoBox" class="bg-gradient-to-r from-gray-900 to-indigo-950 text-white p-5 rounded-2xl mb-5 shadow-inner relative">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Tài khoản thụ hưởng</p>
+                                    <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Tài khoản thụ hưởng</p>
                                     <p id="txtBankName" class="font-bold text-sm text-indigo-200">Đang tải...</p>
                                 </div>
                                 <a href="profile.html" class="text-xs text-indigo-300 hover:text-white font-bold underline flex items-center">
@@ -141,12 +237,12 @@
                         <form id="withdrawForm" class="space-y-4">
                             <div>
                                 <div class="flex justify-between items-center mb-1.5">
-                                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Nhập số lượng Token muốn rút (*):</label>
+                                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Nhập số lượng Token muốn rút (*):</label>
                                     <span class="text-[10px] text-gray-400 font-semibold">Tối thiểu: 10,000 Token</span>
                                 </div>
                                 <div class="relative">
-                                    <input type="number" id="withdrawAmount" required min="10000" step="1000" class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-base font-black text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập số Token muốn rút...">
-                                    <span class="absolute left-3.5 top-3.5 text-base">💎</span>
+                                    <input type="number" id="withdrawAmount" required min="10000" step="1000" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-base font-black text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập số Token muốn rút...">
+                                    <span class="absolute left-4 top-3.5 text-base">💎</span>
                                 </div>
                                 <p id="withdrawErrorMsg" class="text-red-500 text-xs mt-1.5 hidden font-bold"></p>
                             </div>
@@ -156,18 +252,18 @@
                                 <button type="button" onclick="setWithdrawAmount(50000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold px-3 py-1.5 rounded-xl transition">+50,000</button>
                                 <button type="button" onclick="setWithdrawAmount(100000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold px-3 py-1.5 rounded-xl transition">+100,000</button>
                                 <button type="button" onclick="setWithdrawAmount(500000)" class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold px-3 py-1.5 rounded-xl transition">+500,000</button>
-                                <button type="button" onclick="withdrawAll()" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-black px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition">Rút toàn bộ</button>
+                                <button type="button" onclick="withdrawAll()" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-black px-3.5 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition">Rút toàn bộ</button>
                             </div>
 
-                            <button type="submit" id="btnSubmitWithdraw" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-2xl shadow-md transition flex items-center justify-center text-sm">
+                            <button type="submit" id="btnSubmitWithdraw" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-2xl shadow-md transition flex items-center justify-center text-sm cursor-pointer">
                                 <i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền Về Ngân Hàng
                             </button>
                         </form>
                     </div>
 
                     <!-- Lệnh Rút Tiền Đang Xử Lý (Pending Withdrawals) -->
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <div class="flex justify-between items-center mb-3">
+                    <div class="bg-white dark:bg-gray-800 p-6 sm:p-7 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
                             <h2 class="text-base font-black text-gray-900 dark:text-white flex items-center">
                                 <i class="fas fa-clock mr-2 text-amber-500"></i> Lệnh Rút Tiền Đang Chờ Duyệt (Pending)
                             </h2>
@@ -181,20 +277,46 @@
 
                 <!-- Right Col: Lịch Sử Giao Dịch & Xuất Hóa Đơn -->
                 <div class="space-y-6">
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="bg-white dark:bg-gray-800 p-6 sm:p-7 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-base font-black text-gray-900 dark:text-white flex items-center">
                                 <i class="fas fa-history mr-2 text-indigo-500"></i> Lịch Sử Giao Dịch
                             </h2>
+                            <button onclick="loadWalletData()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                                <i class="fas fa-sync-alt mr-1"></i> Tải lại
+                            </button>
                         </div>
 
-                        <div class="space-y-3 max-h-[500px] overflow-y-auto" id="transactionList">
+                        <div class="space-y-3 max-h-[550px] overflow-y-auto custom-scrollbar pr-1" id="transactionList">
                             <p class="text-gray-400 text-xs py-4 text-center">Đang tải lịch sử...</p>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Modal Phóng To QR -->
+    <div id="qrModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white dark:bg-gray-800 p-6 sm:p-7 rounded-3xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-gray-700 animate-in zoom-in-95 duration-150">
+            <button onclick="closeQrModal()" class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-8 h-8 font-bold text-lg hover:bg-red-700 shadow-lg flex items-center justify-center cursor-pointer">&times;</button>
+            <h3 class="text-center font-black text-gray-900 dark:text-white mb-2 text-lg">Quét Mã Thanh Toán VietQR</h3>
+            
+            <div class="text-center mb-3 text-red-500 font-bold text-sm">
+                <i class="fas fa-clock mr-1"></i><span id="modalTimeDisplay">05:00</span>
+            </div>
+
+            <div class="bg-indigo-50 dark:bg-indigo-950/50 px-4 py-2.5 rounded-2xl mb-3 text-center border border-indigo-200 dark:border-indigo-800">
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">Nội dung chuyển khoản:</p>
+                <p id="modalTransferContent" class="font-black text-indigo-600 dark:text-indigo-400 text-lg font-mono"></p>
+            </div>
+
+            <img id="qrModalImage" src="" alt="VietQR To" class="w-full h-auto rounded-2xl border p-2 bg-white">
+            <p class="text-center mt-3 text-gray-700 dark:text-gray-300 text-sm">Số tiền: <span id="qrModalAmount" class="font-black text-red-600 text-xl"></span> VNĐ</p>
+            <div class="mt-4 bg-indigo-50/80 dark:bg-gray-750 text-gray-700 dark:text-gray-300 p-3.5 rounded-2xl text-xs text-left shadow-xs border border-indigo-100 dark:border-gray-700">
+                <p><i class="fas fa-shield-alt text-indigo-600 mr-1.5"></i> <strong>Lưu ý:</strong> Vui lòng chuyển đúng số tiền và chính xác nội dung chuyển khoản để hệ thống tự động cộng Token vào ví ngay trong 3 giây.</p>
+            </div>
+        </div>
     </div>
 
     <!-- KHU VỰC IN BIÊN LAI (Ẩn trên Web, chỉ hiện khi in PDF) -->
@@ -236,6 +358,32 @@
 
         let currentUser = JSON.parse(localStorage.getItem('user'));
         let currentWalletBalance = 0;
+        let countdownInterval = null;
+        let currentPendingRequestId = null;
+        let statusPollingInterval = null;
+        let payosPollingInterval = null;
+
+        function toggleDepositForm() {
+            const container = document.getElementById('depositContainer');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function toggleWithdrawForm() {
+            const container = document.getElementById('withdrawContainer');
+            container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function openQrModal() { document.getElementById('qrModal').classList.remove('hidden'); }
+        function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
+
+        function setQuickDepositAmount(amt) {
+            document.getElementById('depositAmountInput').value = amt;
+        }
 
         function setWithdrawAmount(amt) {
             document.getElementById('withdrawAmount').value = amt;
@@ -245,8 +393,238 @@
             document.getElementById('withdrawAmount').value = currentWalletBalance;
         }
 
+        function startCountdown(initialTimeSeconds = 300) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            let time = initialTimeSeconds;
+            if (time <= 0) time = 0;
+            
+            const displayTime = () => {
+                const minutes = Math.floor(time / 60);
+                const seconds = time % 60;
+                const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                const d1 = document.getElementById('timeDisplay');
+                const d2 = document.getElementById('modalTimeDisplay');
+                if (d1) d1.textContent = formatted;
+                if (d2) d2.textContent = formatted;
+                
+                if (time <= 0) {
+                    clearInterval(countdownInterval);
+                    if (d1) d1.textContent = "HẾT GIỜ";
+                    if (d2) d2.textContent = "HẾT GIỜ";
+                    document.getElementById('qrImage').style.opacity = '0.2';
+                    document.getElementById('qrModalImage').style.opacity = '0.2';
+                }
+                time--;
+            };
+            
+            displayTime();
+            if (time > 0) {
+                countdownInterval = setInterval(displayTime, 1000);
+            }
+            
+            document.getElementById('qrImage').style.opacity = '1';
+            document.getElementById('qrModalImage').style.opacity = '1';
+        }
+
+        // Tạo mã nạp tiền (VietQR / PayOS)
+        async function handleDeposit() {
+            const amount = document.getElementById('depositAmountInput').value;
+            if (!amount || amount < 10000) {
+                alert('Số lượng Token nạp tối thiểu là 10,000 Token');
+                return;
+            }
+
+            const btnSubmit = document.getElementById('btnSubmitDeposit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang tạo mã nạp tiền...';
+
+            if (payosPollingInterval) clearInterval(payosPollingInterval);
+            if (statusPollingInterval) clearInterval(statusPollingInterval);
+
+            try {
+                const response = await fetch(`${API_URL}/api/payment/create-deposit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, amount: amount })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (data.type === 'payos') {
+                        // LUỒNG TỰ ĐỘNG PAYOS
+                        const transferDesc = `Nap Token ${data.orderCode}`;
+                        const fallbackUrl = `https://img.vietqr.io/image/MB-0347793976-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferDesc)}&accountName=${encodeURIComponent('TRINH HUY HOANG')}`;
+                        const qrUrl = data.qrCode 
+                            ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode)}`
+                            : fallbackUrl;
+                        
+                        const qrImg = document.getElementById('qrImage');
+                        const qrModalImg = document.getElementById('qrModalImage');
+                        qrImg.onerror = () => { qrImg.src = fallbackUrl; };
+                        qrModalImg.onerror = () => { qrModalImg.src = fallbackUrl; };
+                        qrImg.src = qrUrl;
+                        qrModalImg.src = qrUrl; 
+                        
+                        document.getElementById('qrAmount').textContent = parseInt(amount).toLocaleString();
+                        document.getElementById('qrModalAmount').textContent = parseInt(amount).toLocaleString();
+                        
+                        document.getElementById('transferContentDisplay').textContent = transferDesc;
+                        document.getElementById('modalTransferContent').textContent = transferDesc;
+                        
+                        const linkDirect = document.getElementById('linkPayosDirect');
+                        if (linkDirect && data.checkoutUrl) {
+                            linkDirect.href = data.checkoutUrl;
+                            linkDirect.classList.remove('hidden');
+                        }
+
+                        const statusBtn = document.getElementById('btnCheckStatus');
+                        if (statusBtn) {
+                            statusBtn.className = "bg-indigo-600 text-white px-4 py-2.5 rounded-2xl font-bold transition w-full shadow flex justify-center items-center text-xs";
+                            statusBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang chờ chuyển khoản (Tự duyệt 100%)...';
+                        }
+
+                        document.getElementById('qrNoticeText').innerHTML = '⚡ <b>Tự động 100%:</b> Quét mã xong tiền sẽ tự động cộng ngay trong 3 giây!';
+                        document.getElementById('qrSection').classList.remove('hidden');
+                        disableDepositForm(true);
+                        startCountdown(300);
+
+                        // Auto-polling kiểm tra thanh toán
+                        const currentOrderCode = data.orderCode;
+                        payosPollingInterval = setInterval(async () => {
+                            try {
+                                const vRes = await fetch(`${API_URL}/api/payment/verify-deposit`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ orderCode: currentOrderCode })
+                                });
+                                const vData = await vRes.json();
+                                if (vData.success) {
+                                    clearInterval(payosPollingInterval);
+                                    if (statusBtn) {
+                                        statusBtn.className = "bg-emerald-600 text-white px-4 py-2.5 rounded-2xl font-bold transition w-full shadow flex justify-center items-center text-xs";
+                                        statusBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Nạp Thành Công! Đã cộng tiền vào ví.';
+                                    }
+
+                                    alert(`🎉 Chúc mừng! Bạn vừa nạp thành công ${parseInt(amount).toLocaleString()} Token vào ví!`);
+                                    loadWalletData();
+                                    if (window.loadGlobalBalance) window.loadGlobalBalance();
+
+                                    setTimeout(() => {
+                                        document.getElementById('qrSection').classList.add('hidden');
+                                        disableDepositForm(false);
+                                    }, 2500);
+                                }
+                            } catch (err) {
+                                console.warn('Lỗi polling payos verify:', err);
+                            }
+                        }, 2500);
+
+                    } else if (data.type === 'manual') {
+                        // LUỒNG THỦ CÔNG
+                        const bankId = 'MB';
+                        const accountNo = '0347793976'; 
+                        const accountName = 'TRINH HUY HOANG';
+                        const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(data.transferCode)}&accountName=${encodeURIComponent(accountName)}`;
+                        
+                        document.getElementById('qrImage').src = qrUrl;
+                        document.getElementById('qrModalImage').src = qrUrl; 
+                        
+                        document.getElementById('qrAmount').textContent = parseInt(amount).toLocaleString();
+                        document.getElementById('qrModalAmount').textContent = parseInt(amount).toLocaleString();
+                        
+                        document.getElementById('transferContentDisplay').textContent = data.transferCode;
+                        document.getElementById('modalTransferContent').textContent = data.transferCode;
+                        
+                        const linkDirect = document.getElementById('linkPayosDirect');
+                        if (linkDirect) linkDirect.classList.add('hidden');
+
+                        const statusBtn = document.getElementById('btnCheckStatus');
+                        if (statusBtn) {
+                            statusBtn.className = "bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-2xl font-bold transition w-full shadow flex justify-center items-center text-xs";
+                            statusBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang chờ Admin duyệt lệnh...';
+                        }
+
+                        document.getElementById('qrNoticeText').innerHTML = '🏦 <b>Chuyển khoản:</b> Vui lòng nhập chính xác nội dung chuyển khoản để hệ thống đối soát.';
+                        document.getElementById('qrSection').classList.remove('hidden');
+                        
+                        currentPendingRequestId = data.request_id;
+                        disableDepositForm(true);
+                        startCountdown(300);
+                        
+                        statusPollingInterval = setInterval(checkDepositStatus, 5000);
+                        alert('Đã tạo lệnh nạp tiền! Vui lòng chuyển khoản đúng nội dung để kiểm tra và duyệt.');
+                    }
+                } else {
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể tạo lệnh nạp'));
+                }
+            } catch (err) {
+                console.error('[Deposit Error]', err);
+                alert('❌ Lỗi kết nối: ' + err.message);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fas fa-qrcode mr-2"></i> Tạo Mã Nạp Tiền (VietQR)';
+            }
+        }
+
+        function disableDepositForm(disabled) {
+            const amountInput = document.getElementById('depositAmountInput');
+            const btnSubmit = document.getElementById('btnSubmitDeposit');
+            if (amountInput) amountInput.disabled = disabled;
+            if (btnSubmit) {
+                btnSubmit.disabled = disabled;
+                if (disabled) btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+                else btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        async function checkDepositStatus() {
+            if (!currentPendingRequestId) return;
+            try {
+                const res = await fetch(`${API_URL}/api/deposit/check/${currentPendingRequestId}`);
+                const data = await res.json();
+                if (data.status === 'approved') {
+                    clearInterval(statusPollingInterval);
+                    alert('🎉 Lệnh nạp tiền đã được duyệt thành công!');
+                    loadWalletData();
+                    if (window.loadGlobalBalance) window.loadGlobalBalance();
+                    document.getElementById('qrSection').classList.add('hidden');
+                    disableDepositForm(false);
+                } else if (data.status === 'rejected') {
+                    clearInterval(statusPollingInterval);
+                    alert('❌ Lệnh nạp tiền đã bị từ chối.');
+                    document.getElementById('qrSection').classList.add('hidden');
+                    disableDepositForm(false);
+                }
+            } catch (e) {
+                console.warn('Lỗi check deposit status:', e);
+            }
+        }
+
         async function loadWalletData() {
             try {
+                // Kiểm tra return parameters từ PayOS (nếu có redirect về)
+                const urlParams = new URLSearchParams(window.location.search);
+                const orderCodeParam = urlParams.get('orderCode');
+                const statusParam = urlParams.get('status');
+
+                if (orderCodeParam && (statusParam === 'success' || statusParam === 'PAID')) {
+                    try {
+                        const verifyRes = await fetch(`${API_URL}/api/payment/verify-deposit`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ orderCode: orderCodeParam })
+                        });
+                        const verifyData = await verifyRes.json();
+                        if (verifyData.success) {
+                            alert('🎉 Chúc mừng! Nạp tiền qua PayOS thành công. Tiền đã được cộng vào ví của bạn!');
+                            window.history.replaceState(null, '', window.location.pathname);
+                        }
+                    } catch (e) {
+                        console.error('Lỗi verify return:', e);
+                    }
+                }
+
                 // 1. Lấy thông tin ví
                 const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
                 const data = await response.json();
@@ -258,7 +636,7 @@
                     document.getElementById('locked_balance').textContent = parseInt(data.locked_balance || 0).toLocaleString();
                 }
 
-                // 2. Lấy ngân hàng
+                // 2. Lấy ngân hàng liên kết
                 const uRes = await fetch(`${API_URL}/api/users/${currentUser.id}`);
                 const uData = await uRes.json();
                 if (uData.bank_account) {
@@ -297,7 +675,7 @@
                                     </div>
                                     <span class="text-[10px] text-gray-400 mt-1 block">${new Date(r.created_at).toLocaleString('vi-VN')}</span>
                                 </div>
-                                <button onclick="cancelWithdrawal('${r.id}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl text-xs transition">
+                                <button onclick="cancelWithdrawal('${r.id}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl text-xs transition cursor-pointer">
                                     <i class="fas fa-times mr-1"></i> Hủy lệnh
                                 </button>
                             </div>
@@ -321,8 +699,9 @@
                     txList.innerHTML = txData.transactions.map(tx => {
                         const dateStr = new Date(tx.created_at).toLocaleString('vi-VN');
                         const isReceiver = tx.receiver_id === currentUser.id;
-                        const amountColor = isReceiver ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
-                        const amountSign = isReceiver ? '+' : '-';
+                        const isDeposit = tx.type === 'DEPOSIT' || tx.type === 'PAYOS_DEPOSIT';
+                        const amountColor = (isReceiver || isDeposit) ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
+                        const amountSign = (isReceiver || isDeposit) ? '+' : '-';
                         return `
                             <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
                                 <div>
@@ -331,7 +710,7 @@
                                 </div>
                                 <div class="text-right">
                                     <span class="font-black text-sm ${amountColor} block">${amountSign}${parseInt(tx.amount).toLocaleString()}</span>
-                                    <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${tx.note || ''}')" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                                    <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${tx.note || ''}')" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline cursor-pointer">
                                         Xuất PDF
                                     </button>
                                 </div>

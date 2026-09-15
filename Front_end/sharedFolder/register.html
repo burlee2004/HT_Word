@@ -3,140 +3,853 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký - HT Work</title>
+    <title>Tham gia HT Work - Đăng ký tài khoản</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .skill-tag { display: inline-flex; items-center; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 9999px; font-size: 14px; margin: 4px; }
-        .skill-tag button { margin-left: 6px; color: #ef4444; font-weight: bold; cursor: pointer; }
-    </style>
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 py-8 font-sans">
-    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 mx-auto">
-        <div class="flex justify-center mb-4">
-            <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT Work Logo" class="w-16 h-16 rounded-full shadow-md object-cover bg-black">
-        </div>
-        <h2 class="text-2xl font-black mb-6 text-center text-gray-800">Tạo tài khoản HT Work</h2>
-        
-        <form id="registerForm" class="space-y-4">
-            <!-- Chọn Vai Trò -->
-            <div class="flex justify-center space-x-4 mb-4">
-                <label class="flex items-center cursor-pointer">
-                    <input type="radio" name="role" value="client" checked class="form-radio text-blue-600 h-4 w-4" onchange="toggleFreelancerFields()">
-                    <span class="ml-2 text-gray-700 font-medium">Khách hàng</span>
-                </label>
-                <label class="flex items-center cursor-pointer">
-                    <input type="radio" name="role" value="freelancer" class="form-radio text-blue-600 h-4 w-4" onchange="toggleFreelancerFields()">
-                    <span class="ml-2 text-gray-700 font-medium">Freelancer (Nhận việc)</span>
-                </label>
-            </div>
-
-            <div><label class="block text-sm font-medium">Họ và Tên</label><input type="text" id="fullName" required class="mt-1 block w-full px-3 py-2 border rounded-md"></div>
-            <div><label class="block text-sm font-medium">Email</label><input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border rounded-md"></div>
-            <div><label class="block text-sm font-medium">Mật khẩu</label><input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border rounded-md"></div>
-
-            <!-- Vùng ẩn dành riêng cho Freelancer -->
-            <div id="freelancerFields" class="hidden space-y-4 p-4 bg-blue-50 rounded-md border border-blue-100">
-                <div>
-                    <label class="block text-sm font-medium text-blue-800">Chuyên ngành chính</label>
-                    <select id="mainCategory" class="mt-1 block w-full px-3 py-2 border rounded-md">
-                        <option value="Web & Mobile Development">Web & Mobile Development</option>
-                        <option value="IT Helpdesk & Network">IT Helpdesk & Network (Quản trị mạng/Cài win)</option>
-                        <option value="Data Science & AI">Data Science & AI</option>
-                        <option value="Tutor & Assignment">Hỗ trợ Bài tập / Đồ án (Tutor)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-blue-800">Kỹ năng (Tối đa 5 - Gõ & Ấn Enter)</label>
-                    <input type="text" id="skillInput" list="skillSuggestions" placeholder="VD: Flutter, .NET, React..." class="mt-1 block w-full px-3 py-2 border rounded-md">
-                    <datalist id="skillSuggestions">
-                        <option value="Flutter"><option value="React Native"><option value=".NET Core">
-                        <option value="Python"><option value="Cybersecurity"><option value="Full-Stack">
-                    </datalist>
-                    <div id="skillTagsContainer" class="mt-2 min-h-[30px] border border-dashed border-blue-300 p-2 rounded bg-white"></div>
-                </div>
-            </div>
-
-            <button type="submit" id="submitBtn" class="w-full flex justify-center py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition">Đăng ký ngay</button>
-        </form>
-    </div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
     <script>
-        const API_URL = 'https://htwork-backend.onrender.com';
-        let skillsArray = [];
-
-        // Hiển thị form Freelancer
-        function toggleFreelancerFields() {
-            const role = document.querySelector('input[name="role"]:checked').value;
-            document.getElementById('freelancerFields').style.display = role === 'freelancer' ? 'block' : 'none';
-        }
-
-        // Xử lý Tag Kỹ năng (Tối đa 5)
-        const skillInput = document.getElementById('skillInput');
-        const skillTagsContainer = document.getElementById('skillTagsContainer');
-
-        skillInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const skill = this.value.trim();
-                if (skill && skillsArray.length < 5 && !skillsArray.includes(skill)) {
-                    skillsArray.push(skill);
-                    renderSkills();
-                    this.value = '';
-                } else if (skillsArray.length >= 5) {
-                    alert("Chỉ được thêm tối đa 5 kỹ năng!");
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                    }
                 }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .role-box {
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .role-box:hover {
+            transform: translateY(-4px);
+        }
+        .role-selected-client {
+            border-color: #4f46e5 !important;
+            background: linear-gradient(145deg, rgba(238, 242, 255, 0.95) 0%, rgba(255, 255, 255, 1) 100%) !important;
+            box-shadow: 0 14px 30px -8px rgba(79, 70, 229, 0.22), 0 0 0 2px #4f46e5 !important;
+        }
+        .dark .role-selected-client {
+            background: linear-gradient(145deg, rgba(49, 46, 129, 0.35) 0%, rgba(17, 24, 39, 0.95) 100%) !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 14px 30px -8px rgba(99, 102, 241, 0.3), 0 0 0 2px #6366f1 !important;
+        }
+        .role-selected-freelancer {
+            border-color: #7c3aed !important;
+            background: linear-gradient(145deg, rgba(245, 243, 255, 0.95) 0%, rgba(255, 255, 255, 1) 100%) !important;
+            box-shadow: 0 14px 30px -8px rgba(124, 58, 237, 0.22), 0 0 0 2px #7c3aed !important;
+        }
+        .dark .role-selected-freelancer {
+            background: linear-gradient(145deg, rgba(88, 28, 135, 0.35) 0%, rgba(17, 24, 39, 0.95) 100%) !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 14px 30px -8px rgba(168, 85, 247, 0.3), 0 0 0 2px #a855f7 !important;
+        }
+        .ambient-glow-1 {
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
+        }
+        .ambient-glow-2 {
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0) 70%);
+        }
+        .otp-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            background-color: #ffffff;
+        }
+        .dark .otp-input:focus {
+            background-color: #1f2937;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col justify-between transition-colors duration-200 relative overflow-x-hidden">
+
+    <!-- Ambient Glow Orbs -->
+    <div class="ambient-glow-1 fixed -top-32 -left-32 w-96 h-96 pointer-events-none z-0"></div>
+    <div class="ambient-glow-2 fixed -bottom-32 -right-32 w-96 h-96 pointer-events-none z-0"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full px-4 sm:px-8 py-3.5 flex items-center justify-between border-b border-gray-200/70 dark:border-gray-800/70 bg-white/75 dark:bg-gray-900/75 backdrop-blur-md sticky top-0 z-30">
+        <a href="../user/home.html" class="flex items-center space-x-2.5 group">
+            <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md overflow-hidden text-white font-bold transition-transform group-hover:scale-105">
+                <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <span class="font-black text-lg text-gray-900 dark:text-white tracking-tight">HT Work</span>
+                <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 block -mt-1 tracking-wider uppercase">Sàn IT & Freelancer Hub</span>
+            </div>
+        </a>
+
+        <div class="flex items-center space-x-3">
+            <button id="themeToggle" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center justify-center transition shadow-sm" title="Chuyển chế độ Sáng / Tối">
+                <i class="fas fa-moon dark:hidden text-xs sm:text-sm"></i>
+                <i class="fas fa-sun hidden dark:block text-xs sm:text-sm text-yellow-400"></i>
+            </button>
+            <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                Đã có tài khoản? 
+                <a href="login.html" class="font-bold text-indigo-600 dark:text-indigo-400 hover:underline ml-0.5">Đăng nhập</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 flex items-center justify-center p-4 sm:p-6 z-10 my-auto">
+        
+        <!-- STEP 1: ULTRA-CLEAN & MAGNETIC ROLE SELECTOR -->
+        <div id="stepRoleSelect" class="w-full max-w-3xl mx-auto transition-all duration-300">
+            
+            <!-- Headline Header -->
+            <div class="text-center max-w-xl mx-auto mb-6 sm:mb-8">
+                <span class="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 mb-2 inline-block">
+                    ⚡ Bắt đầu cùng HT Work
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-snug">
+                    Chọn vai trò trải nghiệm của bạn
+                </h1>
+                <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1">
+                    Hệ thống sẽ tối ưu hóa giao diện và tính năng phù hợp nhất với nhu cầu của bạn.
+                </p>
+            </div>
+
+            <!-- Role Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-6">
+                
+                <!-- CARD 1: KHÁCH HÀNG (CLIENT) -->
+                <div id="roleCardClient" onclick="selectRole('client')" ondblclick="proceedToForm()" class="role-box role-selected-client relative bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-6 border border-gray-200 dark:border-gray-800 cursor-pointer select-none">
+                    
+                    <!-- Top Row: Icon & Status Radio -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl shadow-md shadow-indigo-600/30">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div id="radioClient" class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs shadow-sm">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Badge & Title -->
+                    <span class="text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md mb-1.5 inline-block">
+                        Client Hub • Dành cho người cần thuê
+                    </span>
+                    <h2 class="text-lg sm:text-xl font-black text-gray-900 dark:text-white leading-tight mb-2">
+                        Tôi muốn thuê Lập Trình Viên & IT
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
+                        Đăng bài tuyển dụng, tìm kiếm chuyên gia IT hàng đầu, quản lý tiến độ từng mốc và giải ngân an toàn 100%.
+                    </p>
+
+                    <!-- Sleek Highlights Pills -->
+                    <div class="flex flex-wrap gap-1.5 pt-3 border-t border-gray-100 dark:border-gray-800/80">
+                        <span class="inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/50">
+                            <i class="fas fa-shield-alt text-[10px]"></i>
+                            <span>Ký quỹ Escrow 100%</span>
+                        </span>
+                        <span class="inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/50">
+                            <i class="fas fa-bolt text-[10px]"></i>
+                            <span>Khóa thợ siêu tốc</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- CARD 2: FREELANCER -->
+                <div id="roleCardFreelancer" onclick="selectRole('freelancer')" ondblclick="proceedToForm()" class="role-box relative bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-6 border border-gray-200 dark:border-gray-800 cursor-pointer select-none">
+                    
+                    <!-- Top Row: Icon & Status Radio -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-xl shadow-md shadow-purple-600/30">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div id="radioFreelancer" class="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center text-white text-xs">
+                            <i class="fas fa-check hidden"></i>
+                        </div>
+                    </div>
+
+                    <!-- Badge & Title -->
+                    <span class="text-[10px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-md mb-1.5 inline-block">
+                        Freelancer Hub • Dành cho lập trình viên
+                    </span>
+                    <h2 class="text-lg sm:text-xl font-black text-gray-900 dark:text-white leading-tight mb-2">
+                        Tôi là Freelancer tìm Việc & Dự Án
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
+                        Khám phá sàn việc làm IT phong phú, ứng tuyển không giới hạn, kết nối khách hàng uy tín và nhận Token tức thì.
+                    </p>
+
+                    <!-- Sleek Highlights Pills -->
+                    <div class="flex flex-wrap gap-1.5 pt-3 border-t border-gray-100 dark:border-gray-800/80">
+                        <span class="inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/50">
+                            <i class="fas fa-gem text-[10px]"></i>
+                            <span>Thu nhập Token ngay</span>
+                        </span>
+                        <span class="inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/50">
+                            <i class="fas fa-paper-plane text-[10px]"></i>
+                            <span>Ứng tuyển không giới hạn</span>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Primary Action Button -->
+            <div class="text-center max-w-sm mx-auto space-y-3">
+                <button id="btnProceedToForm" onclick="proceedToForm()" class="w-full py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm sm:text-base shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center space-x-2 group">
+                    <span id="btnProceedText">Tiếp tục với tư cách Khách Hàng</span>
+                    <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                </button>
+                <p class="text-[11px] sm:text-xs text-gray-400">
+                    💡 Mẹo: Bạn cũng có thể bấm đúp vào thẻ để tiếp tục nhanh
+                </p>
+            </div>
+        </div>
+
+        <!-- STEP 2: STREAMLINED REGISTRATION FORM -->
+        <div id="stepRegisterForm" class="w-full max-w-md mx-auto hidden transition-all duration-300">
+            <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-7 shadow-2xl border border-gray-100 dark:border-gray-800">
+                
+                <!-- Back Button & Role Header -->
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-100 dark:border-gray-800">
+                    <button type="button" onclick="backToRoleSelect()" class="text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center space-x-1 transition">
+                        <i class="fas fa-arrow-left text-[11px]"></i>
+                        <span>Đổi vai trò</span>
+                    </button>
+
+                    <div id="activeRoleBadge" class="flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                        <i class="fas fa-briefcase text-[10px]"></i>
+                        <span>Client Hub</span>
+                    </div>
+                </div>
+
+                <div class="text-center mb-5">
+                    <h2 id="formTitle" class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                        Tạo tài khoản Khách Hàng
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        Điền thông tin và xác thực email để kích hoạt tài khoản
+                    </p>
+                </div>
+
+                <!-- Global Error Message Box -->
+                <div id="formErrorMessage" class="hidden mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/60 rounded-xl text-xs text-red-600 dark:text-red-400 flex items-start space-x-2">
+                    <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+                    <span id="formErrorText"></span>
+                </div>
+
+                <form id="registerForm" class="space-y-3.5">
+                    <!-- Họ và Tên -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                            Họ và Tên <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                <i class="fas fa-user text-xs"></i>
+                            </div>
+                            <input type="text" id="fullName" required placeholder="Nguyễn Văn A" class="w-full pl-9 pr-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-800 transition">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                            Địa chỉ Email <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                <i class="fas fa-envelope text-xs"></i>
+                            </div>
+                            <input type="email" id="email" required placeholder="name@company.com" class="w-full pl-9 pr-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-800 transition">
+                        </div>
+                    </div>
+
+                    <!-- Mật khẩu -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                            Mật khẩu <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                <i class="fas fa-lock text-xs"></i>
+                            </div>
+                            <input type="password" id="password" required placeholder="Tối thiểu 6 ký tự" minlength="6" class="w-full pl-9 pr-9 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-800 transition" oninput="checkPasswordStrength(this.value)">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <i id="passwordEyeIcon" class="fas fa-eye text-xs"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Mini Strength Meter -->
+                        <div class="mt-1.5 flex items-center space-x-2">
+                            <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                <div id="pwdStrengthBar" class="h-full w-0 bg-red-500 transition-all duration-300"></div>
+                            </div>
+                            <span id="pwdStrengthText" class="text-[10px] text-gray-400 font-medium">Chưa nhập</span>
+                        </div>
+                    </div>
+
+                    <!-- Terms Agreement Checkbox -->
+                    <div class="pt-1">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="agreeTerms" required checked class="h-3.5 w-3.5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-700 dark:bg-gray-800">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                Tôi đồng ý với <a href="#" class="text-indigo-600 dark:text-indigo-400 hover:underline font-bold">Điều khoản & Bảo mật</a>.
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-1.5">
+                        <button type="submit" id="submitBtn" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                            <span id="submitBtnText">Tiếp tục xác thực Email</span>
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <p class="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+                    Đã có tài khoản? 
+                    <a href="login.html" class="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Đăng nhập</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- STEP 3: 6-DIGIT EMAIL OTP VERIFICATION SCREEN -->
+        <div id="stepOtpVerify" class="w-full max-w-md mx-auto hidden transition-all duration-300">
+            <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-7 shadow-2xl border border-gray-100 dark:border-gray-800">
+                
+                <!-- Back to Form Button -->
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-800">
+                    <button type="button" onclick="backToForm()" class="text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center space-x-1 transition">
+                        <i class="fas fa-arrow-left text-[11px]"></i>
+                        <span>Sửa thông tin</span>
+                    </button>
+
+                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/70 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                        Bước 3: Xác thực OTP
+                    </span>
+                </div>
+
+                <!-- OTP Header & Target Email -->
+                <div class="text-center mb-6">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl mx-auto mb-3 border border-indigo-100 dark:border-indigo-800/80 shadow-sm">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                        Xác thực Email của bạn
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Mã OTP 6 số đã được gửi tới:
+                    </p>
+                    <div class="inline-block mt-1 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 font-mono">
+                        <span id="targetEmailDisplay">user@example.com</span>
+                    </div>
+                </div>
+
+                <!-- OTP Error Message Box -->
+                <div id="otpErrorMessage" class="hidden mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/60 rounded-xl text-xs text-red-600 dark:text-red-400 flex items-start space-x-2">
+                    <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+                    <span id="otpErrorText"></span>
+                </div>
+
+                <!-- 6 Individual Digit Inputs -->
+                <div class="mb-5">
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 text-center mb-2.5">
+                        Nhập mã xác thực 6 chữ số:
+                    </label>
+                    <div class="flex justify-center space-x-2 sm:space-x-3" id="otpInputGroup">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white outline-none transition duration-150" data-index="0" autofocus>
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white outline-none transition duration-150" data-index="1">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white outline-none transition duration-150" data-index="2">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white outline-none transition duration-150" data-index="3">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white outline-none transition duration-150" data-index="4">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white outline-none transition duration-150" data-index="5">
+                    </div>
+                    <p class="text-[11px] text-gray-400 text-center mt-2">
+                        💡 Mẹo: Bạn có thể dán (Ctrl + V) mã 6 số từ clipboard
+                    </p>
+                </div>
+
+                <!-- Expiry & Resend Controls -->
+                <div class="flex items-center justify-between py-3 px-3.5 bg-gray-50 dark:bg-gray-800/60 rounded-xl mb-5 text-xs">
+                    <div class="flex items-center space-x-1.5 text-gray-500 dark:text-gray-400">
+                        <i class="far fa-clock"></i>
+                        <span>Hiệu lực:</span>
+                        <span id="otpCountdownTimer" class="font-bold text-indigo-600 dark:text-indigo-400 font-mono">05:00</span>
+                    </div>
+
+                    <button type="button" id="btnResendOtp" onclick="resendOtpCode()" disabled class="font-bold text-xs text-gray-400 cursor-not-allowed transition disabled:opacity-60">
+                        Gửi lại mã (<span id="resendCooldownSec">60</span>s)
+                    </button>
+                </div>
+
+                <!-- Verify Button -->
+                <button type="button" id="btnVerifyOtp" onclick="submitOtpVerification()" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <span id="btnVerifyText">Kích hoạt & Hoàn tất Đăng ký</span>
+                    <i class="fas fa-check text-xs"></i>
+                </button>
+
+                <!-- Spam Folder Reminder Box -->
+                <div class="mt-4 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-center flex items-center justify-center space-x-2">
+                    <i class="fas fa-info-circle text-amber-600 dark:text-amber-400 text-sm"></i>
+                    <span class="text-xs font-medium text-amber-800 dark:text-amber-300">
+                        Nếu không thấy thư gửi về, vui lòng kiểm tra mục <strong>Thư rác (Spam)</strong> hoặc <strong>Quảng cáo</strong> nhé!
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-3 text-center text-[11px] text-gray-400 border-t border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 z-10">
+        <p>© 2026 HT Work Platform. Sàn kết nối Lập Trình Viên & Nhân Sự IT.</p>
+    </footer>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        let selectedRole = 'client';
+        let pendingRegistration = null;
+        let otpExpiryInterval = null;
+        let resendCooldownInterval = null;
+        let remainingExpirySeconds = 300; // 5 phút
+        let remainingCooldownSeconds = 60; // 60 giây
+
+        // 1. Dark Mode Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlEl = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlEl.classList.add('dark');
+        } else {
+            htmlEl.classList.remove('dark');
+        }
+        themeToggle.addEventListener('click', () => {
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
             }
         });
 
-        function renderSkills() {
-            skillTagsContainer.innerHTML = skillsArray.map((skill, index) => 
-                `<span class="skill-tag">${skill} <button type="button" onclick="removeSkill(${index})">×</button></span>`
-            ).join('');
+        // 2. Select Role Function (Step 1)
+        function selectRole(role) {
+            selectedRole = role;
+            const clientCard = document.getElementById('roleCardClient');
+            const freelancerCard = document.getElementById('roleCardFreelancer');
+            const radioClient = document.getElementById('radioClient');
+            const radioFreelancer = document.getElementById('radioFreelancer');
+            const btnProceed = document.getElementById('btnProceedToForm');
+            const btnProceedText = document.getElementById('btnProceedText');
+
+            if (role === 'client') {
+                clientCard.className = 'role-box role-selected-client relative bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-6 border cursor-pointer select-none';
+                freelancerCard.className = 'role-box relative bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-6 border border-gray-200 dark:border-gray-800 cursor-pointer select-none';
+                
+                radioClient.className = 'w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs shadow-sm';
+                radioClient.innerHTML = '<i class="fas fa-check"></i>';
+                
+                radioFreelancer.className = 'w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center text-white text-xs';
+                radioFreelancer.innerHTML = '<i class="fas fa-check hidden"></i>';
+
+                btnProceed.className = 'w-full py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm sm:text-base shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center space-x-2 group';
+                btnProceedText.innerText = 'Tiếp tục với tư cách Khách Hàng';
+            } else {
+                freelancerCard.className = 'role-box role-selected-freelancer relative bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-6 border cursor-pointer select-none';
+                clientCard.className = 'role-box relative bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-6 border border-gray-200 dark:border-gray-800 cursor-pointer select-none';
+                
+                radioFreelancer.className = 'w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs shadow-sm';
+                radioFreelancer.innerHTML = '<i class="fas fa-check"></i>';
+                
+                radioClient.className = 'w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center text-white text-xs';
+                radioClient.innerHTML = '<i class="fas fa-check hidden"></i>';
+
+                btnProceed.className = 'w-full py-3.5 px-6 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-sm sm:text-base shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center space-x-2 group';
+                btnProceedText.innerText = 'Tiếp tục với tư cách Freelancer IT';
+            }
         }
 
-        function removeSkill(index) {
-            skillsArray.splice(index, 1);
-            renderSkills();
+        // 3. Switch between Steps
+        function proceedToForm() {
+            document.getElementById('stepRoleSelect').classList.add('hidden');
+            document.getElementById('stepOtpVerify').classList.add('hidden');
+            document.getElementById('stepRegisterForm').classList.remove('hidden');
+
+            const activeRoleBadge = document.getElementById('activeRoleBadge');
+            const formTitle = document.getElementById('formTitle');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (selectedRole === 'client') {
+                activeRoleBadge.className = 'flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800';
+                activeRoleBadge.innerHTML = '<i class="fas fa-briefcase text-[10px]"></i> <span>Client Hub</span>';
+                formTitle.innerText = 'Tạo tài khoản Khách Hàng';
+                submitBtn.className = 'w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all flex items-center justify-center space-x-2';
+            } else {
+                activeRoleBadge.className = 'flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-50 text-purple-700 dark:bg-purple-950/70 dark:text-purple-300 border border-purple-200 dark:border-purple-800';
+                activeRoleBadge.innerHTML = '<i class="fas fa-laptop-code text-[10px]"></i> <span>Freelancer Hub</span>';
+                formTitle.innerText = 'Tạo tài khoản Freelancer IT';
+                submitBtn.className = 'w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-xl shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 transition-all flex items-center justify-center space-x-2';
+            }
         }
 
-        // Gửi dữ liệu
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const role = document.querySelector('input[name="role"]:checked').value;
-            const payload = {
-                full_name: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                role: role
-            };
+        function backToRoleSelect() {
+            document.getElementById('stepRegisterForm').classList.add('hidden');
+            document.getElementById('stepOtpVerify').classList.add('hidden');
+            document.getElementById('stepRoleSelect').classList.remove('hidden');
+        }
 
-            if (role === 'freelancer') {
-                payload.main_category = document.getElementById('mainCategory').value;
-                payload.skills = skillsArray;
-                if (skillsArray.length === 0) return alert("Vui lòng nhập ít nhất 1 kỹ năng!");
+        function backToForm() {
+            document.getElementById('stepOtpVerify').classList.add('hidden');
+            document.getElementById('stepRegisterForm').classList.remove('hidden');
+        }
+
+        // 4. Password Visibility & Strength Check
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('passwordEyeIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        function checkPasswordStrength(password) {
+            const bar = document.getElementById('pwdStrengthBar');
+            const text = document.getElementById('pwdStrengthText');
+            if (!password) {
+                bar.style.width = '0%';
+                text.innerText = 'Chưa nhập';
+                text.className = 'text-[10px] text-gray-400 font-medium';
+                return;
             }
 
+            let score = 0;
+            if (password.length >= 6) score += 1;
+            if (password.length >= 10) score += 1;
+            if (/[A-Z]/.test(password)) score += 1;
+            if (/[0-9]/.test(password)) score += 1;
+            if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+            if (score <= 1) {
+                bar.style.width = '25%';
+                bar.className = 'h-full bg-red-500 transition-all duration-300';
+                text.innerText = 'Yếu';
+                text.className = 'text-[10px] text-red-500 font-bold';
+            } else if (score <= 3) {
+                bar.style.width = '65%';
+                bar.className = 'h-full bg-amber-500 transition-all duration-300';
+                text.innerText = 'Trung bình';
+                text.className = 'text-[10px] text-amber-500 font-bold';
+            } else {
+                bar.style.width = '100%';
+                bar.className = 'h-full bg-emerald-500 transition-all duration-300';
+                text.innerText = 'Mạnh & An toàn';
+                text.className = 'text-[10px] text-emerald-500 font-bold';
+            }
+        }
+
+        // 5. Form Submission -> Triggers /send-otp and shows Step 3 OTP screen
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideFormError();
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!fullName || !email || !password) {
+                showFormError('Vui lòng điền đầy đủ tất cả các trường bắt buộc!');
+                return;
+            }
+
+            if (password.length < 6) {
+                showFormError('Mật khẩu phải có độ dài tối thiểu từ 6 ký tự!');
+                return;
+            }
+
+            pendingRegistration = {
+                full_name: fullName,
+                email: email,
+                password: password,
+                role: selectedRole
+            };
+
             const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true; submitBtn.innerHTML = 'Đang xử lý...';
+            const submitBtnText = document.getElementById('submitBtnText');
+            submitBtn.disabled = true;
+            submitBtnText.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1.5"></i> Đang gửi mã OTP...';
 
             try {
-                const response = await fetch(`${API_URL}/register`, {
+                const response = await fetch(`${API_URL}/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        full_name: fullName,
+                        role: selectedRole
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Chuyển sang Màn hình Step 3: Nhập OTP
+                    showOtpStep(email);
+                } else {
+                    showFormError(data.error || 'Không thể gửi mã OTP xác thực. Vui lòng thử lại!');
+                }
+            } catch (error) {
+                console.error('Lỗi gửi OTP:', error);
+                showFormError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng!');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtnText.innerText = 'Tiếp tục xác thực Email';
+            }
+        });
+
+        // 6. Hiển thị màn hình OTP và khởi động Timers
+        function showOtpStep(email) {
+            document.getElementById('stepRegisterForm').classList.add('hidden');
+            document.getElementById('stepOtpVerify').classList.remove('hidden');
+            document.getElementById('targetEmailDisplay').innerText = email;
+            
+            // Xóa sạch các ô OTP input
+            const otpInputs = document.querySelectorAll('.otp-input');
+            otpInputs.forEach(input => { input.value = ''; });
+            otpInputs[0].focus();
+            hideOtpError();
+
+            // Khởi động 5-minute countdown timer
+            startExpiryTimer(300);
+
+            // Khởi động 60s cooldown timer cho nút gửi lại
+            startCooldownTimer(60);
+        }
+
+        // Timer đếm ngược 5 phút hết hạn mã OTP
+        function startExpiryTimer(seconds) {
+            clearInterval(otpExpiryInterval);
+            remainingExpirySeconds = seconds;
+            const timerDisplay = document.getElementById('otpCountdownTimer');
+
+            function updateDisplay() {
+                const mins = Math.floor(remainingExpirySeconds / 60).toString().padStart(2, '0');
+                const secs = (remainingExpirySeconds % 60).toString().padStart(2, '0');
+                timerDisplay.innerText = `${mins}:${secs}`;
+
+                if (remainingExpirySeconds <= 0) {
+                    clearInterval(otpExpiryInterval);
+                    timerDisplay.innerText = '00:00 (Hết hạn)';
+                    timerDisplay.className = 'font-bold text-red-500 font-mono';
+                    showOtpError('Mã OTP đã hết hạn hiệu lực (quá 5 phút). Vui lòng bấm "Gửi lại mã"!');
+                }
+                remainingExpirySeconds--;
+            }
+
+            timerDisplay.className = 'font-bold text-indigo-600 dark:text-indigo-400 font-mono';
+            updateDisplay();
+            otpExpiryInterval = setInterval(updateDisplay, 1000);
+        }
+
+        // Timer đếm ngược 60 giây giãn cách gửi lại (Cooldown)
+        function startCooldownTimer(seconds) {
+            clearInterval(resendCooldownInterval);
+            remainingCooldownSeconds = seconds;
+            const btnResend = document.getElementById('btnResendOtp');
+            btnResend.disabled = true;
+            btnResend.className = 'font-bold text-xs text-gray-400 cursor-not-allowed transition disabled:opacity-60';
+
+            function updateResend() {
+                if (remainingCooldownSeconds <= 0) {
+                    clearInterval(resendCooldownInterval);
+                    btnResend.disabled = false;
+                    btnResend.innerText = 'Gửi lại mã OTP';
+                    btnResend.className = 'font-bold text-xs text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer transition';
+                    return;
+                }
+                btnResend.innerHTML = `Gửi lại mã (<span id="resendCooldownSec">${remainingCooldownSeconds}</span>s)`;
+                remainingCooldownSeconds--;
+            }
+
+            updateResend();
+            resendCooldownInterval = setInterval(updateResend, 1000);
+        }
+
+        // 7. Xử lý Gửi lại mã OTP (Resend OTP)
+        async function resendOtpCode() {
+            if (!pendingRegistration || !pendingRegistration.email) return;
+
+            const btnResend = document.getElementById('btnResendOtp');
+            btnResend.disabled = true;
+            btnResend.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1"></i> Đang gửi...';
+
+            try {
+                const response = await fetch(`${API_URL}/resend-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: pendingRegistration.email,
+                        full_name: pendingRegistration.full_name
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    hideOtpError();
+                    startExpiryTimer(300);
+                    startCooldownTimer(60);
+                    alert(`✅ Mã OTP mới đã được gửi tới email: ${pendingRegistration.email}`);
+                } else {
+                    showOtpError(data.error || 'Không thể gửi lại mã OTP lúc này!');
+                    if (data.remainingSeconds) {
+                        startCooldownTimer(data.remainingSeconds);
+                    }
+                }
+            } catch (err) {
+                showOtpError('Lỗi kết nối máy chủ khi gửi lại OTP!');
+            }
+        }
+
+        // 8. Quản lý Focus & Paste cho 6 ô OTP Inputs
+        const otpInputs = document.querySelectorAll('.otp-input');
+        otpInputs.forEach((input, index) => {
+            // Lắng nghe sự kiện gõ phím
+            input.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (val.length === 1) {
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                }
+            });
+
+            // Lắng nghe phím Backspace và mũi tên
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                } else if (e.key === 'ArrowLeft' && index > 0) {
+                    otpInputs[index - 1].focus();
+                } else if (e.key === 'ArrowRight' && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                } else if (e.key === 'Enter') {
+                    submitOtpVerification();
+                }
+            });
+
+            // Lắng nghe Paste (Dán mã 6 số từ clipboard)
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+                const digits = pasteData.replace(/[^0-9]/g, '').slice(0, 6);
+                
+                if (digits) {
+                    digits.split('').forEach((char, i) => {
+                        if (i < otpInputs.length) {
+                            otpInputs[i].value = char;
+                        }
+                    });
+                    const focusIndex = Math.min(digits.length, otpInputs.length - 1);
+                    otpInputs[focusIndex].focus();
+                }
+            });
+        });
+
+        // 9. Xác thực OTP & Hoàn tất Đăng ký
+        async function submitOtpVerification() {
+            hideOtpError();
+
+            let enteredOtp = '';
+            otpInputs.forEach(input => { enteredOtp += input.value.trim(); });
+
+            if (enteredOtp.length !== 6) {
+                showOtpError('Vui lòng nhập đầy đủ 6 chữ số mã OTP!');
+                return;
+            }
+
+            if (!pendingRegistration) {
+                showOtpError('Thiếu dữ liệu đăng ký. Vui lòng quay lại bước trước!');
+                return;
+            }
+
+            const btnVerify = document.getElementById('btnVerifyOtp');
+            const btnVerifyText = document.getElementById('btnVerifyText');
+            btnVerify.disabled = true;
+            btnVerifyText.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1.5"></i> Đang xác thực OTP & Tạo tài khoản...';
+
+            try {
+                const payload = {
+                    email: pendingRegistration.email,
+                    otp: enteredOtp,
+                    full_name: pendingRegistration.full_name,
+                    password: pendingRegistration.password,
+                    role: pendingRegistration.role
+                };
+
+                const response = await fetch(`${API_URL}/verify-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+
                 const data = await response.json();
+
                 if (response.ok) {
-                    alert('Đăng ký thành công!'); window.location.href = 'login.html';
+                    clearInterval(otpExpiryInterval);
+                    clearInterval(resendCooldownInterval);
+
+                    alert(`🎉 CHÚC MỪNG BẠN!\n\nTài khoản ${pendingRegistration.role === 'client' ? '[Client Hub]' : '[Freelancer Hub]'} của bạn đã được xác thực Email và kích hoạt thành công!\n\nHệ thống sẽ chuyển bạn đến trang đăng nhập ngay.`);
+                    window.location.href = 'login.html';
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    showOtpError(data.error || 'Mã OTP không chính xác hoặc đã hết hạn!');
+                    // Tự động clear input để nhập lại nếu sai
+                    otpInputs.forEach(inp => inp.value = '');
+                    otpInputs[0].focus();
                 }
             } catch (error) {
-                alert('Lỗi kết nối máy chủ!');
+                console.error('Lỗi xác thực OTP:', error);
+                showOtpError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường truyền!');
             } finally {
-                submitBtn.disabled = false; submitBtn.innerHTML = 'Đăng ký ngay';
+                btnVerify.disabled = false;
+                btnVerifyText.innerHTML = '<span>Kích hoạt & Hoàn tất Đăng ký</span> <i class="fas fa-check text-xs ml-1.5"></i>';
             }
-        });
+        }
+
+        // Helper hiển thị lỗi
+        function showFormError(msg) {
+            const errBox = document.getElementById('formErrorMessage');
+            const errText = document.getElementById('formErrorText');
+            errText.innerText = msg;
+            errBox.classList.remove('hidden');
+        }
+
+        function hideFormError() {
+            document.getElementById('formErrorMessage').classList.add('hidden');
+        }
+
+        function showOtpError(msg) {
+            const errBox = document.getElementById('otpErrorMessage');
+            const errText = document.getElementById('otpErrorText');
+            errText.innerText = msg;
+            errBox.classList.remove('hidden');
+        }
+
+        function hideOtpError() {
+            document.getElementById('otpErrorMessage').classList.add('hidden');
+        }
     </script>
 </body>
 </html>

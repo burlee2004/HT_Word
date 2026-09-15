@@ -149,9 +149,9 @@
                     <!-- Giá nhận làm & Thời gian -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Giá chào thầu (Token) (*)</label>
-                                <span id="budgetHint" class="text-[10px] text-gray-400 font-semibold"></span>
+                            <div class="flex flex-wrap justify-between items-center mb-1 gap-x-2 gap-y-1">
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">Giá chào thầu (*)</label>
+                                <span id="budgetHint" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full whitespace-nowrap empty:hidden"></span>
                             </div>
                             <div class="relative">
                                 <input type="number" id="bid_amount" required oninput="calculateTakeHome()" class="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-black text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -371,7 +371,35 @@
                 const data = await response.json();
                 
                 if (data.jobs) {
-                    allJobsData = data.jobs;
+                    allJobsData = data.jobs.map(job => {
+                        let rawDesc = job.description || '';
+                        
+                        // Parse Files
+                        let files = [];
+                        const filesMatch = rawDesc.match(/📎\s*\[Tài liệu đính kèm:\s*([\s\S]*?)\]/i);
+                        if (filesMatch) {
+                            const lines = filesMatch[1].split('\n');
+                            lines.forEach(line => {
+                                const parts = line.match(/\d+\.\s*(.*?)\s*->\s*(https?:\/\/[^\s]+)/);
+                                if (parts) {
+                                    files.push({ name: parts[1].trim(), url: parts[2].trim() });
+                                }
+                            });
+                        }
+                        
+                        // Clean description
+                        let cleanDesc = rawDesc
+                            .replace(/\[Danh mục:\s*[^\]]+\]\s*/gi, '')
+                            .replace(/⏰\s*\[Hạn chót mong muốn:\s*[^\]]+\]/gi, '')
+                            .replace(/👥\s*\[Đối tượng:\s*[^\]]+\]/gi, '')
+                            .replace(/🏷️\s*\[Kỹ năng yêu cầu:\s*[^\]]+\]/gi, '')
+                            .replace(/📎\s*\[Tài liệu đính kèm:\s*[\s\S]*?\]/gi, '')
+                            .trim();
+                            
+                        job.files = files;
+                        job.clean_description = cleanDesc;
+                        return job;
+                    });
                     renderJobsList();
                 } else {
                     listDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-12">Chưa có dự án nào đang mở.</p>';
@@ -498,26 +526,29 @@
                             <span class="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mr-2 font-bold text-[10px]">💰</span>
                             <div>
                                 <p class="text-[9px] text-gray-400 font-bold uppercase">Đã chi tiêu</p>
-                                <p class="font-bold text-gray-800 dark:text-white">${trust.total_tokens_spent.toLocaleString()} Token</p>
+                                <p class="font-bold text-gray-800 dark:text-white">${trust.total_tokens_spent ? trust.total_tokens_spent.toLocaleString() + ' Token' : '0 Token'}</p>
                             </div>
                         </div>
                         <div class="flex items-center text-gray-700 dark:text-gray-300">
                             <span class="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mr-2 font-bold text-[10px]">🎯</span>
                             <div>
                                 <p class="text-[9px] text-gray-400 font-bold uppercase">Nghiệm thu</p>
-                                <p class="font-bold text-gray-800 dark:text-white">${trust.completion_rate}% (${trust.total_projects_completed}/${trust.total_projects_posted})</p>
+                                <p class="font-bold text-gray-800 dark:text-white">${trust.completion_rate !== 'Chưa có' ? `${trust.completion_rate} (${trust.total_projects_completed}/${trust.total_projects_posted})` : 'Chưa có'}</p>
                             </div>
                         </div>
                         <div class="flex items-center text-gray-700 dark:text-gray-300">
                             <span class="w-6 h-6 rounded-lg bg-yellow-100 dark:bg-yellow-900/60 text-yellow-600 dark:text-yellow-400 flex items-center justify-center mr-2 font-bold text-[10px]">⭐</span>
                             <div>
                                 <p class="text-[9px] text-gray-400 font-bold uppercase">Đánh giá</p>
-                                <p class="font-bold text-yellow-600">${trust.rating_score} / 5.0</p>
+                                <p class="font-bold text-yellow-600">${trust.rating_display || (trust.rating_score ? `${trust.rating_score} / 5.0` : 'Chưa có')}</p>
                             </div>
                         </div>
                     </div>
 
-                    <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm mb-3 line-clamp-2 leading-relaxed">${escapeHtml(descText)}</p>
+                    <div>
+                        <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm line-clamp-2 leading-relaxed">${escapeHtml(descText)}</p>
+                        ${descText.length > 100 ? `<button type="button" onclick="viewJobDetail('${job.id}')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 mt-1 inline-block">Xem thêm</button>` : ''}
+                    </div>
                     
                     ${tagsBadges ? `<div class="flex flex-wrap mb-3">${tagsBadges}</div>` : ''}
 
@@ -573,6 +604,27 @@
                     <h4 class="text-xs font-black uppercase tracking-wider text-gray-500">Mô Tả Chi Tiết Yêu Cầu</h4>
                     <div class="text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">${escapeHtml(job.clean_description || job.description)}</div>
                 </div>
+
+                ${job.files && job.files.length > 0 ? `
+                <div class="bg-indigo-50/50 dark:bg-indigo-950/20 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 space-y-3">
+                    <h4 class="text-xs font-black uppercase tracking-wider text-indigo-800 dark:text-indigo-400 flex items-center gap-2">
+                        <i class="fas fa-paperclip"></i> Tài liệu đính kèm
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${job.files.map(f => `
+                            <a href="${f.url}" target="_blank" class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-indigo-100 dark:border-indigo-800/50 hover:shadow-md hover:border-indigo-300 transition group">
+                                <div class="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-file-alt text-lg"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">${escapeHtml(f.name)}</p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Click để xem / tải về</p>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
 
                 ${job.tags && job.tags.length > 0 ? `
                 <div>
@@ -781,7 +833,7 @@
                 }
 
                 const stats = userData.stats || {};
-                const tier = stats.credit_tier || 'Hạng A (Uy tín cao)';
+                const tier = stats.credit_tier || 'Khách mới';
                 const tierBadgeEl = document.getElementById('cpmTierBadge');
                 if (tierBadgeEl) {
                     tierBadgeEl.innerText = tier;
@@ -789,10 +841,10 @@
 
                 document.getElementById('cpmTotalSpent').innerText = `${(stats.total_spent || 0).toLocaleString()} Token`;
                 document.getElementById('cpmJobsPosted').innerText = `${stats.jobs_posted || 0} bài (${stats.completed_count || 0} hoàn tất)`;
-                document.getElementById('cpmHireRate').innerText = `${stats.hire_rate || 100}%`;
+                document.getElementById('cpmHireRate').innerText = stats.jobs_posted > 0 ? `${stats.hire_rate}%` : 'Chưa có';
                 document.getElementById('cpmResponseRate').innerText = stats.response_rate || '100%';
                 document.getElementById('cpmResponseTime').innerText = stats.response_time || '~15 phút';
-                document.getElementById('cpmRating').innerText = `⭐ ${stats.rating || 5.0} / 5.0`;
+                document.getElementById('cpmRating').innerText = (stats.rating_display && stats.rating_display !== 'Chưa có') ? `⭐ ${stats.rating_display}` : 'Chưa có';
 
                 const bioContainer = document.getElementById('cpmBioContainer');
                 if (userData.bio) {

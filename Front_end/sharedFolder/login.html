@@ -4,103 +4,231 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - HT Work</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 font-sans">
-    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-sm border border-gray-100 mx-auto">
-        <div class="flex justify-center mb-4">
-            <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT Work Logo" class="w-16 h-16 rounded-full shadow-md object-cover bg-black">
-        </div>
-        <h2 class="text-2xl font-black mb-6 text-center text-gray-800">Đăng nhập HT Work</h2>
-        
-        <form id="loginForm" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Mật khẩu</label>
-                <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            <button type="submit" id="submitBtn" class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed">
-                Đăng nhập
-            </button>
-        </form>
-        <p class="mt-4 text-center text-sm text-gray-600">Chưa có tài khoản? <a href="register.html" class="text-blue-600 hover:underline">Đăng ký</a></p>
-    </div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-   <script>
-    const API_URL = 'https://htwork-backend.onrender.com';
-
-    // 1. KIỂM TRA PHIÊN ĐĂNG NHẬP (Chống vòng lặp)
-    const userStr = localStorage.getItem('user');
-    console.log("1. Kiểm tra localStorage:", userStr);
-
-    if (userStr) {
-        try {
-            const user = JSON.parse(userStr);
-            console.log("2. Role hiện tại là:", user.role);
-
-            // Dùng đường dẫn tương đối (../) để nhảy từ sharedFolder ra ngoài rồi vào các thư mục tương ứng
-            if (user.role === 'admin') {
-                window.location.replace('../Admin/home.html');
-            } else if (user.role === 'freelancer') {
-                window.location.replace('../freelancer/home.html');
-            } else {
-                window.location.replace('../user/home.html');
-            }
-        } catch (error) {
-            console.error("Lỗi đọc dữ liệu, đang xóa user...", error);
-            localStorage.removeItem('user');
-        }
-    }
-
-    // 2. XỬ LÝ SỰ KIỆN SUBMIT FORM
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const submitBtn = document.getElementById('submitBtn');
-
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Đang xử lý...';
-
-        try {
-            console.log("3. Đang gửi request đăng nhập lên Server...");
-            const response = await fetch(`${API_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await response.json();
-            console.log("4. Phản hồi từ Server:", data);
-
-            if (response.ok) {
-                // Lưu thông tin user
-                localStorage.setItem('user', JSON.stringify(data.user));
-                
-                // ĐIỀU HƯỚNG THÔNG MINH
-                const role = data.user.role;
-                if (role === 'admin') {
-                    window.location.href = '../Admin/home.html';
-                } else if (role === 'freelancer') {
-                    window.location.href = '../freelancer/home.html';
-                } else {
-                    window.location.href = '../user/home.html';
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                    }
                 }
-            } else {
-                alert('Lỗi: ' + data.error);
             }
-        } catch (error) {
-            console.error('Lỗi kết nối:', error);
-            alert('Không thể kết nối đến máy chủ Backend. Có thể Server đang khởi động!');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Đăng nhập';
         }
-    });
-</script>
+    </script>
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col justify-between transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full px-4 sm:px-8 py-4 flex items-center justify-between border-b border-gray-200/80 dark:border-gray-800/80 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-30">
+        <a href="../user/home.html" class="flex items-center space-x-3 group">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md overflow-hidden text-white font-bold transition-transform group-hover:scale-105">
+                <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <span class="font-black text-xl text-gray-900 dark:text-white tracking-tight">HT Work</span>
+                <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 block -mt-1 tracking-wider uppercase">Sàn IT & Freelancer Hub</span>
+            </div>
+        </a>
+
+        <div class="flex items-center space-x-3">
+            <!-- Theme Toggle -->
+            <button id="themeToggle" class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center justify-center transition shadow-sm" title="Chuyển chế độ Sáng / Tối">
+                <i class="fas fa-moon dark:hidden text-sm"></i>
+                <i class="fas fa-sun hidden dark:block text-sm text-yellow-400"></i>
+            </button>
+            <div class="hidden sm:block text-sm text-gray-500 dark:text-gray-400">
+                Chưa có tài khoản? 
+                <a href="register.html" class="font-bold text-indigo-600 dark:text-indigo-400 hover:underline ml-1">Đăng ký ngay</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-10">
+        <div class="w-full max-w-md mx-auto">
+            <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-800">
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-3xl mx-auto mb-4 shadow-sm">
+                        <i class="fas fa-lock-open"></i>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                        Đăng nhập HT Work
+                    </h1>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Chào mừng bạn quay trở lại! Vui lòng nhập thông tin đăng nhập.
+                    </p>
+                </div>
+
+                <form id="loginForm" class="space-y-4">
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                            Địa chỉ Email <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                <i class="fas fa-envelope text-sm"></i>
+                            </div>
+                            <input type="email" id="email" required placeholder="name@example.com" class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-800 transition">
+                        </div>
+                    </div>
+
+                    <!-- Mật khẩu -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300">
+                                Mật khẩu <span class="text-red-500">*</span>
+                            </label>
+                            <a href="forgot-password.html" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400">
+                                Quên mật khẩu?
+                            </a>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                <i class="fas fa-lock text-sm"></i>
+                            </div>
+                            <input type="password" id="password" required placeholder="Nhập mật khẩu của bạn" class="w-full pl-10 pr-10 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-800 transition">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <i id="passwordEyeIcon" class="fas fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Nút Đăng nhập -->
+                    <div class="pt-2">
+                        <button type="submit" id="submitBtn" class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black text-sm sm:text-base rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                            <span id="submitBtnText">Đăng nhập ngay</span>
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800 text-center">
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                        Chưa có tài khoản HT Work? 
+                        <a href="register.html" class="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Đăng ký tài khoản</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-4 text-center text-xs text-gray-400 border-t border-gray-200/60 dark:border-gray-800/60 bg-white/40 dark:bg-gray-900/40">
+        <p>© 2026 HT Work Platform. Nền tảng kết nối nhân sự IT & Freelancer hàng đầu.</p>
+    </footer>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+
+        // 1. Dark Mode Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlEl = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlEl.classList.add('dark');
+        } else {
+            htmlEl.classList.remove('dark');
+        }
+        themeToggle.addEventListener('click', () => {
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // 2. Toggle Show/Hide Password
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('passwordEyeIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        // 3. Kiểm tra phiên đăng nhập hiện tại
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                if (user.role === 'admin') {
+                    window.location.replace('../Admin/home.html');
+                } else if (user.role === 'freelancer') {
+                    window.location.replace('../freelancer/home.html');
+                } else {
+                    window.location.replace('../user/home.html');
+                }
+            } catch (error) {
+                localStorage.removeItem('user');
+            }
+        }
+
+        // 4. Xử lý Submit Form Đăng nhập
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+
+            submitBtn.disabled = true;
+            submitBtnText.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Đang xác thực...';
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    const role = data.user.role;
+                    if (role === 'admin') {
+                        window.location.href = '../Admin/home.html';
+                    } else if (role === 'freelancer') {
+                        window.location.href = '../freelancer/home.html';
+                    } else {
+                        window.location.href = '../user/home.html';
+                    }
+                } else {
+                    alert('❌ Đăng nhập thất bại: ' + (data.error || 'Email hoặc mật khẩu không chính xác!'));
+                }
+            } catch (error) {
+                console.error('Lỗi kết nối:', error);
+                alert('❌ Không thể kết nối đến máy chủ Backend. Có thể Server đang khởi động lại!');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtnText.innerText = 'Đăng nhập ngay';
+            }
+        });
+    </script>
 </body>
-</html>
+</html>

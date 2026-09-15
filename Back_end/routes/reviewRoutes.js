@@ -12,7 +12,8 @@ function loadReviews() {
             return [];
         }
         const raw = fs.readFileSync(reviewFilePath, 'utf-8');
-        return JSON.parse(raw);
+        const clean = raw.replace(/^\uFEFF/, '').trim();
+        return clean ? JSON.parse(clean) : [];
     } catch (err) {
         console.error('Lỗi đọc reviews.json:', err);
         return [];
@@ -119,6 +120,20 @@ router.get('/api/reviews/freelancer/:freelancer_id', (req, res) => {
  } catch (error) {
  res.status(400).json({ error: error.message });
  }
+});
+// 4. API: Lấy toàn bộ đánh giá do một Client viết
+router.get('/api/reviews/client/:client_id', (req, res) => {
+    try {
+        const { client_id } = req.params;
+        const reviews = loadReviews();
+        const cReviews = reviews.filter(r => r.client_id === client_id).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+        res.status(200).json({
+            total_reviews: cReviews.length,
+            reviews: cReviews
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
 
 module.exports = router;

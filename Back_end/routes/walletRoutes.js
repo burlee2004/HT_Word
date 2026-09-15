@@ -35,7 +35,7 @@ router.get('/api/wallet/:user_id', async (req, res) => {
                 const expectedTotal = dbBalance + dbLocked;
                 
                 if (bcBalance !== expectedTotal) {
-                    console.error(`[CẢNH BÁO HACK] User ${user_id} bị lệch số dư! DB: ${expectedTotal} != Blockchain: ${bcBalance}`);
+                    // console.error(`[CẢNH BÁO HACK] User ${user_id} bị lệch số dư! DB: ${expectedTotal} != Blockchain: ${bcBalance}`);
                 }
             }
         }
@@ -49,6 +49,33 @@ router.get('/api/wallet/:user_id', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+// SSE: Bắn dữ liệu Real-time số dư về Frontend
+router.get('/api/stream/wallet/:user_id', (req, res) => {
+    const { user_id } = req.params;
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Supabase realtime listen
+    const channel = supabase.channel(`wallet_changes_${user_id}`)
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'wallets', 
+            filter: `user_id=eq.${user_id}` 
+        }, (payload) => {
+            if (payload.new) {
+                res.write(`data: ${JSON.stringify(payload.new)}\n\n`);
+            }
+        })
+        .subscribe();
+
+    req.on('close', () => {
+        supabase.removeChannel(channel);
+    });
+});
+
 
 // 15.1 API: Lấy lịch sử giao dịch (Sổ cái) của user
 router.get('/api/wallet/:user_id/transactions', async (req, res) => {

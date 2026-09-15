@@ -56,9 +56,14 @@
                         <div class="mb-1">
                             <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                                 <h1 id="displayName" class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">Đang tải...</h1>
-                                <span class="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 text-xs font-black px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-800 flex items-center">
-                                    <i class="fas fa-check-circle mr-1"></i> Đã xác thực
+                                
+                                <!-- Email Verified Badge -->
+                                <span id="emailVerifiedBadge" class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm">
+                                    <i class="fas fa-check-circle mr-1.5 text-emerald-600"></i> Email đã xác thực
                                 </span>
+
+                                <!-- Phone Verified / WhatsApp Badge -->
+                                <span id="phoneVerifiedBadge"></span>
                             </div>
                             <p id="displayHeadline" class="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-1">Chuyên gia Lập trình & Phát triển Phần mềm</p>
                             <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
@@ -70,7 +75,10 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-2.5 mb-2 w-full sm:w-auto justify-center">
+                    <div class="flex flex-wrap gap-2.5 mb-2 w-full sm:w-auto justify-center">
+                        <button onclick="openPhoneVerifyModal()" id="btnQuickVerifyPhone" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow-md transition flex items-center text-xs sm:text-sm">
+                            <i class="fab fa-whatsapp mr-1.5 text-base"></i> Xác thực WhatsApp
+                        </button>
                         <button onclick="openEditModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-5 rounded-2xl shadow-md transition flex items-center text-xs sm:text-sm">
                             <i class="fas fa-edit mr-2"></i> Chỉnh sửa Hồ sơ
                         </button>
@@ -86,7 +94,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-bold text-gray-400 uppercase">Hoàn thành</p>
-                        <p id="statCompletedJobs" class="text-lg font-black text-gray-800 dark:text-white">100%</p>
+                        <p id="statCompletedJobs" class="text-lg font-black text-gray-800 dark:text-white">Chưa có</p>
                     </div>
                 </div>
 
@@ -96,7 +104,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-bold text-gray-400 uppercase">Đánh giá</p>
-                        <p id="statRating" class="text-lg font-black text-gray-800 dark:text-white">5.0 / 5.0</p>
+                        <p id="statRating" class="text-lg font-black text-gray-800 dark:text-white">Chưa có</p>
                     </div>
                 </div>
 
@@ -116,7 +124,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-bold text-gray-400 uppercase">Uy tín thợ</p>
-                        <p class="text-lg font-black text-purple-600 dark:text-purple-400">Cấp Pro</p>
+                        <p id="statReputationTier" class="text-lg font-black text-purple-600 dark:text-purple-400">Mới bắt đầu</p>
                     </div>
                 </div>
             </div>
@@ -180,33 +188,16 @@
 
                     <!-- Portfolio Dự án đã thực hiện -->
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4 flex items-center">
-                            <i class="fas fa-laptop-code mr-2 text-purple-500"></i> Portfolio & Sản phẩm mẫu
-                        </h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 bg-gray-50 dark:bg-gray-750 hover:shadow-md transition">
-                                <div class="h-32 bg-indigo-100 dark:bg-indigo-950/60 rounded-xl flex items-center justify-center text-indigo-500 text-3xl mb-3">
-                                    💻
-                                </div>
-                                <h3 class="font-bold text-sm text-gray-800 dark:text-white">Dự án Web App & Dashboard</h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">Xây dựng hệ thống quản lý chuẩn Responsive, tích hợp REST API và bảo mật Token.</p>
-                                <div class="flex flex-wrap gap-1.5 mt-2">
-                                    <span class="text-[10px] bg-white dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600 font-bold">ReactJS</span>
-                                    <span class="text-[10px] bg-white dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600 font-bold">Tailwind</span>
-                                </div>
-                            </div>
-
-                            <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 bg-gray-50 dark:bg-gray-750 hover:shadow-md transition">
-                                <div class="h-32 bg-purple-100 dark:bg-purple-950/60 rounded-xl flex items-center justify-center text-purple-500 text-3xl mb-3">
-                                    📱
-                                </div>
-                                <h3 class="font-bold text-sm text-gray-800 dark:text-white">Ứng dụng Mobile Cross-Platform</h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">Phát triển ứng dụng Android & iOS mượt mà, tối ưu UX và gửi thông báo đẩy real-time.</p>
-                                <div class="flex flex-wrap gap-1.5 mt-2">
-                                    <span class="text-[10px] bg-white dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600 font-bold">Flutter</span>
-                                    <span class="text-[10px] bg-white dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600 font-bold">NodeJS</span>
-                                </div>
-                            </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-laptop-code mr-2 text-purple-500"></i> Portfolio & Sản phẩm mẫu
+                            </h2>
+                            <button onclick="openPortfolioModal()" class="text-xs text-indigo-600 hover:text-indigo-800 font-bold transition flex items-center gap-1">
+                                <i class="fas fa-plus"></i> Thêm dự án
+                            </button>
+                        </div>
+                        <div id="portfolioGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="col-span-full text-center text-xs text-gray-400 py-6 italic">Chưa có dự án nào trong Portfolio.</div>
                         </div>
                     </div>
                 </div>
@@ -238,10 +229,27 @@
                         </div>
                         <div>
                             <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">🎯 Lĩnh vực chuyên môn chính</label>
-                            <select id="primary_category" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold">
+                            <select id="primary_category" onchange="handleCategoryChange(this.value)" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold">
                                 <option value="">-- Chọn lĩnh vực --</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Custom Category with AI Moderation (Hiển thị khi chọn "Lĩnh vực Khác...") -->
+                    <div id="customCategoryBox" class="hidden p-4 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/80 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="font-bold text-xs text-indigo-900 dark:text-indigo-300 flex items-center">
+                                <i class="fas fa-magic mr-1.5 text-indigo-600"></i> Nhập chuyên môn tùy chỉnh (AI Kiểm duyệt & Phê duyệt tức thì)
+                            </label>
+                            <span class="text-[10px] bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-md font-bold uppercase">Groq AI</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="customCategoryInput" placeholder="VD: Lập trình UAV Drone Nông Nghiệp, Hệ thống nhúng STM32..." class="flex-1 border border-gray-300 dark:border-gray-600 rounded-xl px-3.5 py-2 text-xs sm:text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <button type="button" id="btnValidateCustom" onclick="validateCustomCategoryWithAI()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center flex-shrink-0 shadow-sm">
+                                <i class="fas fa-sparkles mr-1"></i> <span>AI Duyệt</span>
+                            </button>
+                        </div>
+                        <div id="customAiFeedback" class="hidden text-xs p-2.5 rounded-xl"></div>
                     </div>
 
                     <!-- Tiểu sử / Bio -->
@@ -255,7 +263,7 @@
                         <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">🏷️ Kỹ năng (Nhấn Enter hoặc Dấu phẩy để tạo thẻ)</label>
                         <div class="border border-gray-200 dark:border-gray-600 rounded-xl p-2 bg-gray-50 dark:bg-gray-700 flex flex-wrap items-center gap-1.5 min-h-[44px]">
                             <div id="modalTagBadgesContainer" class="flex flex-wrap gap-1.5"></div>
-                            <input type="text" id="tagInput" placeholder="Thêm kỹ năng (VD: React, NodeJS, Figma...)" class="flex-1 bg-transparent border-none text-sm text-gray-800 dark:text-white focus:outline-none min-w-[150px] p-1">
+                            <input type="text" id="tagInput" placeholder="Thêm kỹ năng (VD: React, NodeJS, Drone, IoT...)" class="flex-1 bg-transparent border-none text-sm text-gray-800 dark:text-white focus:outline-none min-w-[150px] p-1">
                         </div>
                         <input type="hidden" id="skills">
                         
@@ -264,29 +272,83 @@
                             <span class="text-[11px] text-gray-400 font-semibold">Gợi ý nhanh:</span>
                             <button type="button" onclick="addSkillTag('ReactJS')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ ReactJS</button>
                             <button type="button" onclick="addSkillTag('NodeJS')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ NodeJS</button>
-                            <button type="button" onclick="addSkillTag('Figma UI/UX')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ Figma UI/UX</button>
+                            <button type="button" onclick="addSkillTag('ESP32 / IoT')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ ESP32 / IoT</button>
+                            <button type="button" onclick="addSkillTag('PX4 Drone')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ PX4 Drone</button>
                             <button type="button" onclick="addSkillTag('Python/AI')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ Python/AI</button>
-                            <button type="button" onclick="addSkillTag('Flutter')" class="text-[11px] bg-gray-200 dark:bg-gray-600 hover:bg-indigo-100 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded-lg">+ Flutter</button>
                         </div>
                     </div>
 
-                    <!-- Ngân hàng nhận tiền -->
+                    <!-- Số Điện Thoại & Xác Thực WhatsApp -->
                     <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
-                        <label class="font-bold text-sm text-gray-800 dark:text-white block mb-3 flex items-center">
-                            <i class="fas fa-credit-card mr-2 text-emerald-500"></i> Thông tin Ngân hàng rút tiền (VietQR)
+                        <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5 flex items-center justify-between">
+                            <span><i class="fab fa-whatsapp text-emerald-500 mr-1.5"></i> Số điện thoại liên hệ</span>
+                            <span id="formPhoneVerifiedNotice" class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hidden">
+                                <i class="fas fa-check-circle"></i> Đã xác thực WhatsApp
+                            </span>
                         </label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="phone_number" placeholder="VD: 0834779397" class="flex-1 border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono">
+                            <button type="button" onclick="openPhoneVerifyModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center flex-shrink-0">
+                                <i class="fab fa-whatsapp mr-1"></i> <span>Xác thực WhatsApp</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ngân hàng nhận tiền (VietQR Direct) -->
+                    <div class="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="font-bold text-sm text-gray-800 dark:text-white flex items-center">
+                                <i class="fas fa-university mr-2 text-emerald-500"></i> Thông tin Ngân hàng rút tiền
+                            </label>
+                            <span class="text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md border border-gray-200 dark:border-gray-600">
+                                Nhập chính xác
+                            </span>
+                        </div>
+                        
+                        <!-- Cảnh báo trách nhiệm nhập đúng STK & Tên -->
+                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 rounded-xl flex items-start gap-2.5 text-amber-800 dark:text-amber-300 text-xs">
+                            <i class="fas fa-exclamation-triangle text-amber-500 mt-0.5 text-sm flex-shrink-0"></i>
+                            <div class="leading-relaxed">
+                                <span class="font-bold">Lưu ý quan trọng:</span> Vui lòng kiểm tra và nhập thật chính xác <b>Số tài khoản</b> và <b>Tên chủ tài khoản</b> ngân hàng thụ hưởng. Hệ thống <b>hoàn toàn không chịu trách nhiệm</b> trong trường hợp bạn nhập sai thông tin dẫn đến việc chuyển nhầm hoặc thất thoát tiền!
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <!-- Dropdown Ngân hàng chính quy -->
                             <div>
-                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Tên Ngân hàng</label>
-                                <input type="text" id="bank_name" placeholder="VD: MB Bank, Vietcombank" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Chọn Ngân hàng (*)</label>
+                                <select id="bank_name" onchange="updateModalBankPreview()" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-semibold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="">-- Đang tải ngân hàng... --</option>
+                                </select>
                             </div>
+
+                            <!-- Số Tài Khoản -->
                             <div>
-                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Số Tài Khoản</label>
-                                <input type="text" id="bank_account" placeholder="VD: 0987654321" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono font-bold">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Số Tài Khoản (*)</label>
+                                <input type="text" id="bank_account" oninput="updateModalBankPreview()" placeholder="VD: 0347793976" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
                             </div>
+
+                            <!-- Tên Chủ Tài Khoản -->
                             <div>
-                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Tên Chủ Tài Khoản</label>
-                                <input type="text" id="bank_owner" placeholder="VD: NGUYEN VAN A" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white uppercase font-bold">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Tên Chủ Tài Khoản (*)</label>
+                                <input type="text" id="bank_owner" oninput="this.value = removeVietnameseTones(this.value).toUpperCase(); updateModalBankPreview();" placeholder="VD: TRINH HUY HOANG" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white uppercase font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Live VietQR Mini Card Preview -->
+                        <div id="modalBankPreview" class="p-3 bg-gradient-to-r from-gray-900 via-indigo-950 to-gray-900 text-white rounded-xl text-xs flex items-center justify-between shadow-inner border border-indigo-900/50">
+                            <div class="flex items-center space-x-3">
+                                <div id="previewBankLogo" class="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                    <i class="fas fa-university text-gray-800 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p id="previewBankName" class="font-bold text-indigo-200 text-xs">Chưa chọn ngân hàng</p>
+                                    <p id="previewBankAccount" class="font-mono text-[11px] text-gray-300">STK: **** ****</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] text-gray-400 uppercase">Chủ TK</p>
+                                <p id="previewBankOwner" class="font-bold text-xs uppercase tracking-wider text-emerald-400">CHƯA CẬP NHẬT</p>
                             </div>
                         </div>
                     </div>
@@ -303,6 +365,96 @@
         </div>
     </div>
 
+    <!-- MODAL XÁC THỰC SỐ ĐIỆN THOẠI QUA WHATSAPP -->
+    <div id="phoneVerifyModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                    <i class="fab fa-whatsapp text-emerald-500 text-lg mr-2"></i> Xác Thực SĐT Qua WhatsApp
+                </h3>
+                <button onclick="closePhoneVerifyModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    &times;
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <!-- Step 1: Nhập SĐT & Gửi OTP -->
+                <div id="phoneStepInput">
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Số điện thoại WhatsApp của bạn:</label>
+                    <div class="flex space-x-2 mb-3">
+                        <input type="text" id="targetPhoneInput" placeholder="VD: 0834779397" class="flex-1 border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <button type="button" id="btnSendPhoneOtp" onclick="requestPhoneOtp()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-md transition flex items-center flex-shrink-0">
+                            <span>Gửi mã OTP</span>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-gray-400">
+                        ⚡ Hệ thống sẽ tự động gửi mã OTP 6 số trực tiếp vào tài khoản WhatsApp của bạn (hoàn toàn miễn phí).
+                    </p>
+                </div>
+
+                <!-- Step 2: Nhập OTP WhatsApp (Ẩn mặc định) -->
+                <div id="phoneStepOtp" class="hidden space-y-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+                        <span>Đã gửi mã OTP tới: <strong id="dispTargetPhone" class="font-mono">...</strong></span>
+                        <button type="button" onclick="resetPhoneStep()" class="text-[11px] text-emerald-600 font-bold hover:underline">Đổi SĐT</button>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Nhập mã OTP 6 chữ số:</label>
+                        <input type="text" id="inputPhoneOtp" maxlength="6" placeholder="123456" class="w-full text-center text-2xl font-mono font-black tracking-widest border-2 border-emerald-300 dark:border-emerald-700 rounded-xl py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span>⏱️ Hết hạn sau: <strong id="phoneOtpTimer" class="font-mono text-emerald-600 font-bold">05:00</strong></span>
+                        <button type="button" id="btnResendPhoneOtp" onclick="requestPhoneOtp()" disabled class="text-xs font-bold text-gray-400 cursor-not-allowed">Gửi lại (60s)</button>
+                    </div>
+
+                    <button type="button" id="btnConfirmPhoneOtp" onclick="submitPhoneOtpVerification()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-black shadow-lg shadow-emerald-600/30 transition flex items-center justify-center space-x-2">
+                        <span>Xác nhận & Kích hoạt SĐT</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm/Sửa Portfolio -->
+    <div id="portfolioModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-project-diagram mr-2 text-indigo-500"></i> <span id="portfolioModalTitle">Thêm Dự Án Mẫu</span>
+                </h3>
+                <button onclick="closePortfolioModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    &times;
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="port_id">
+                <div>
+                    <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">Tên dự án (*)</label>
+                    <input type="text" id="port_title" placeholder="VD: Website TMĐT..." required class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">Mô tả dự án</label>
+                    <textarea id="port_desc" rows="3" placeholder="Mô tả ngắn gọn về dự án và vai trò của bạn..." class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">Link Video (YouTube) / Giới thiệu</label>
+                    <input type="url" id="port_video" placeholder="https://youtube.com/watch?v=..." class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">Link Website / Sản phẩm (Demo)</label>
+                    <input type="url" id="port_link" placeholder="https://your-project.com" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                
+                <button type="button" id="btnSavePortfolio" onclick="savePortfolio()" class="w-full py-3 mt-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-black shadow-md transition flex justify-center items-center">
+                    <i class="fas fa-save mr-2"></i> Lưu Dự Án
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Load UI Framework -->
     <script src="freelancer-ui.js"></script>
 
@@ -313,9 +465,23 @@
 
         let user = JSON.parse(localStorage.getItem('user'));
         let currentSkillTags = [];
+        let validatedCustomCategory = null;
+        let phoneOtpCountdown = null;
+        let phoneCooldownInterval = null;
 
         function openEditModal() { document.getElementById('editModal').classList.remove('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
+
+        function openPhoneVerifyModal() {
+            document.getElementById('phoneVerifyModal').classList.remove('hidden');
+            const curPhone = document.getElementById('phone_number').value.trim();
+            if (curPhone) {
+                document.getElementById('targetPhoneInput').value = curPhone;
+            }
+        }
+        function closePhoneVerifyModal() {
+            document.getElementById('phoneVerifyModal').classList.add('hidden');
+        }
 
         // Tag Handling
         function renderSkillTagBadges() {
@@ -351,7 +517,7 @@
             }
         });
 
-        // Upload Helper
+        // 1. Upload Helper
         async function uploadImageFile(file) {
             const formData = new FormData();
             formData.append('file', file);
@@ -361,7 +527,6 @@
             return data.url;
         }
 
-        // Handle Avatar File
         document.getElementById('avatarUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -387,7 +552,6 @@
             }
         });
 
-        // Handle Cover File
         document.getElementById('coverUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -406,6 +570,7 @@
             }
         });
 
+        // 2. Load 15+ Categories
         async function loadCategories() {
             try {
                 const res = await fetch(`${API_URL}/api/categories`);
@@ -413,13 +578,74 @@
                 if (data.success && data.categories) {
                     const select = document.getElementById('primary_category');
                     select.innerHTML = '<option value="">-- Chọn lĩnh vực --</option>' + 
-                        data.categories.map(c => `<option value="${c.name}">${c.icon || '📁'} ${c.name}</option>`).join('');
+                        data.categories.map(c => `<option value="${c.name}">${c.icon || '📁'} ${c.name}</option>`).join('') +
+                        `<option value="__custom__">💡 + Lĩnh vực Khác (Tự do nhập - AI Duyệt)</option>`;
                 }
             } catch (e) {
                 console.error(e);
             }
         }
 
+        function handleCategoryChange(val) {
+            const box = document.getElementById('customCategoryBox');
+            if (val === '__custom__' || val.includes('Lĩnh vực Khác')) {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
+        // 3. AI Kiểm duyệt Chuyên môn tùy chỉnh
+        async function validateCustomCategoryWithAI() {
+            const input = document.getElementById('customCategoryInput').value.trim();
+            const feedback = document.getElementById('customAiFeedback');
+            const btn = document.getElementById('btnValidateCustom');
+
+            if (!input) {
+                feedback.className = 'text-xs p-2.5 rounded-xl bg-red-50 dark:bg-red-950 text-red-600 block';
+                feedback.innerText = 'Vui lòng nhập tên chuyên môn của bạn!';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang duyệt...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/categories/validate-custom`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category_name: input })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.isValid) {
+                    validatedCustomCategory = data.normalizedName;
+                    feedback.className = 'text-xs p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 text-emerald-800 dark:text-emerald-300 block space-y-1';
+                    feedback.innerHTML = `
+                        <div class="font-bold flex items-center"><i class="fas fa-check-circle mr-1 text-emerald-600"></i> AI Đã Phê Duyệt Tức Thì!</div>
+                        <div><strong>Tên chuẩn hóa:</strong> ${data.normalizedName}</div>
+                        <div><strong>Nhóm ngành:</strong> ${data.parentCategory}</div>
+                    `;
+
+                    // Tự động thêm các skills gợi ý từ AI
+                    if (data.suggestedSkills && data.suggestedSkills.length > 0) {
+                        data.suggestedSkills.forEach(s => addSkillTag(s));
+                    }
+                } else {
+                    validatedCustomCategory = null;
+                    feedback.className = 'text-xs p-2.5 rounded-xl bg-red-50 dark:bg-red-950/70 border border-red-200 text-red-700 dark:text-red-300 block';
+                    feedback.innerHTML = `<strong>❌ Từ chối:</strong> ${data.reason || 'Nội dung không hợp lệ.'}`;
+                }
+            } catch (err) {
+                feedback.className = 'text-xs p-2.5 rounded-xl bg-red-50 dark:bg-red-950 text-red-600 block';
+                feedback.innerText = 'Lỗi kết nối AI kiểm duyệt!';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sparkles mr-1"></i> <span>AI Duyệt</span>';
+            }
+        }
+
+        // 4. Render UI Profile
         function renderUI(data) {
             const name = data.full_name || data.email || 'Freelancer';
             document.getElementById('displayName').innerText = name;
@@ -429,6 +655,21 @@
 
             if (data.avatar_url) document.getElementById('avatarContainer').src = data.avatar_url;
             if (data.cover_url) document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
+
+            // Phone Verified Badge
+            const phoneBadge = document.getElementById('phoneVerifiedBadge');
+            const btnQuickVerify = document.getElementById('btnQuickVerifyPhone');
+            const formPhoneNotice = document.getElementById('formPhoneVerifiedNotice');
+
+            if (data.is_phone_verified && data.phone_number) {
+                phoneBadge.innerHTML = `<span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm"><i class="fab fa-whatsapp mr-1.5 text-emerald-600"></i> ${data.phone_number} (Đã xác minh)</span>`;
+                btnQuickVerify.classList.add('hidden');
+                formPhoneNotice.classList.remove('hidden');
+            } else {
+                phoneBadge.innerHTML = `<span class="bg-gray-100 dark:bg-gray-800 text-gray-500 text-xs font-bold px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700 flex items-center"><i class="fas fa-phone mr-1.5 text-gray-400"></i> Chưa xác thực SĐT</span>`;
+                btnQuickVerify.classList.remove('hidden');
+                formPhoneNotice.classList.add('hidden');
+            }
 
             // Category badge
             const catBadge = document.getElementById('displayCategoryBadge');
@@ -461,7 +702,8 @@
                 skillsDiv.innerHTML = '<span class="text-gray-400 italic text-xs">Chưa cập nhật kỹ năng.</span>';
             }
 
-            // Bank Info
+            // Phone & Bank Info
+            document.getElementById('phone_number').value = data.phone_number || '';
             if (data.bank_name) document.getElementById('dispBankName').innerText = data.bank_name;
             if (data.bank_account) document.getElementById('dispBankAccount').innerText = data.bank_account;
             if (data.bank_owner) document.getElementById('dispBankOwner').innerText = data.bank_owner;
@@ -469,29 +711,191 @@
             document.getElementById('bank_name').value = data.bank_name || '';
             document.getElementById('bank_account').value = data.bank_account || '';
             document.getElementById('bank_owner').value = data.bank_owner || '';
+
+            // Real Stats Bar (Hoàn thành, Đánh giá, Doanh thu, Cấp uy tín)
+            const stats = data.stats || {};
+            const statCompleted = document.getElementById('statCompletedJobs');
+            const statRate = document.getElementById('statRating');
+            const statEarn = document.getElementById('statEarnings');
+            const statTier = document.getElementById('statReputationTier');
+
+            if (statCompleted) {
+                statCompleted.innerText = stats.completion_rate || 'Chưa có';
+            }
+            if (statRate) {
+                statRate.innerText = stats.rating_display || 'Chưa có';
+            }
+            if (statEarn) {
+                statEarn.innerText = stats.earnings_display || '0 Token';
+            }
+            if (statTier) {
+                statTier.innerText = stats.credit_tier || 'Mới bắt đầu';
+            }
+        }
+
+        let currentPortfolios = [];
+
+        function renderPortfolios() {
+            const grid = document.getElementById('portfolioGrid');
+            if (currentPortfolios.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-xs text-gray-400 py-6 italic">Chưa có dự án nào trong Portfolio.</div>';
+                return;
+            }
+            grid.innerHTML = currentPortfolios.map((p, idx) => `
+                <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 bg-gray-50 dark:bg-gray-750 hover:shadow-md transition flex flex-col relative group">
+                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition flex space-x-1">
+                        <button onclick="openPortfolioModal(${idx})" class="w-7 h-7 rounded-full bg-white dark:bg-gray-800 text-indigo-500 shadow hover:bg-indigo-50 dark:hover:bg-gray-700 flex items-center justify-center transition">
+                            <i class="fas fa-edit text-xs"></i>
+                        </button>
+                        <button onclick="deletePortfolio(${idx})" class="w-7 h-7 rounded-full bg-white dark:bg-gray-800 text-red-500 shadow hover:bg-red-50 dark:hover:bg-gray-700 flex items-center justify-center transition">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden flex items-center justify-center text-3xl mb-3 relative group/vid">
+                        ${p.video ? `
+                            <iframe class="w-full h-full object-cover" src="${p.video.includes('youtube.com') || p.video.includes('youtu.be') ? getYouTubeEmbedUrl(p.video) : p.video}" frameborder="0" allowfullscreen></iframe>
+                        ` : `
+                            <i class="fas fa-image text-gray-400"></i>
+                        `}
+                    </div>
+                    <h3 class="font-bold text-sm text-gray-800 dark:text-white line-clamp-1">${escapeHtml(p.title)}</h3>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 flex-1">${escapeHtml(p.desc || 'Không có mô tả')}</p>
+                    ${p.link ? `
+                    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <a href="${p.link.startsWith('http') ? p.link : 'https://'+p.link}" target="_blank" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 flex items-center">
+                            <i class="fas fa-external-link-alt mr-1"></i> Xem thực tế
+                        </a>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function getYouTubeEmbedUrl(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            if (match && match[2].length === 11) {
+                return `https://www.youtube.com/embed/${match[2]}`;
+            }
+            return url;
+        }
+
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.toString()
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function openPortfolioModal(idx = null) {
+            document.getElementById('portfolioModal').classList.remove('hidden');
+            if (idx !== null) {
+                const p = currentPortfolios[idx];
+                document.getElementById('portfolioModalTitle').innerText = 'Sửa Dự Án';
+                document.getElementById('port_id').value = idx;
+                document.getElementById('port_title').value = p.title || '';
+                document.getElementById('port_desc').value = p.desc || '';
+                document.getElementById('port_video').value = p.video || '';
+                document.getElementById('port_link').value = p.link || '';
+            } else {
+                document.getElementById('portfolioModalTitle').innerText = 'Thêm Dự Án Mẫu';
+                document.getElementById('port_id').value = '';
+                document.getElementById('port_title').value = '';
+                document.getElementById('port_desc').value = '';
+                document.getElementById('port_video').value = '';
+                document.getElementById('port_link').value = '';
+            }
+        }
+
+        function closePortfolioModal() {
+            document.getElementById('portfolioModal').classList.add('hidden');
+        }
+
+        async function savePortfolio() {
+            const idx = document.getElementById('port_id').value;
+            const title = document.getElementById('port_title').value.trim();
+            const desc = document.getElementById('port_desc').value.trim();
+            const video = document.getElementById('port_video').value.trim();
+            const link = document.getElementById('port_link').value.trim();
+
+            if (!title) {
+                alert('Vui lòng nhập Tên dự án!');
+                return;
+            }
+
+            const p = { title, desc, video, link };
+            if (idx === '') {
+                currentPortfolios.push(p);
+            } else {
+                currentPortfolios[parseInt(idx)] = p;
+            }
+
+            // Gửi API update
+            await syncPortfoliosToServer();
+            closePortfolioModal();
+            renderPortfolios();
+        }
+
+        async function deletePortfolio(idx) {
+            if (confirm('Bạn có chắc chắn muốn xóa dự án này khỏi Portfolio?')) {
+                currentPortfolios.splice(idx, 1);
+                await syncPortfoliosToServer();
+                renderPortfolios();
+            }
+        }
+
+        async function syncPortfoliosToServer() {
+            try {
+                const btn = document.getElementById('btnSavePortfolio');
+                if(btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang lưu...';
+                
+                await fetch(`${API_URL}/api/users/${user.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ portfolios: currentPortfolios })
+                });
+                
+                if(btn) btn.innerHTML = '<i class="fas fa-save mr-2"></i> Lưu Dự Án';
+            } catch(e) {
+                console.error(e);
+            }
         }
 
         async function loadProfile() {
             try {
                 const res = await fetch(`${API_URL}/api/users/${user.id}`);
                 const data = await res.json();
-                if (res.ok) renderUI(data);
+                if (res.ok) {
+                    currentPortfolios = data.portfolios || [];
+                    renderUI(data);
+                    renderPortfolios();
+                }
             } catch (err) {
                 console.error(err);
             }
         }
 
+        // 5. Submit Profile Form
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSaveProfile');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang lưu...';
 
+            let selectedCat = document.getElementById('primary_category').value;
+            if ((selectedCat === '__custom__' || selectedCat.includes('Lĩnh vực Khác')) && validatedCustomCategory) {
+                selectedCat = validatedCustomCategory;
+            }
+
             const payload = {
                 full_name: document.getElementById('full_name').value,
                 bio: document.getElementById('bio').value,
-                primary_category: document.getElementById('primary_category').value,
+                primary_category: selectedCat,
                 skills: currentSkillTags.join(', '),
+                phone_number: document.getElementById('phone_number').value.trim(),
                 bank_name: document.getElementById('bank_name').value,
                 bank_account: document.getElementById('bank_account').value,
                 bank_owner: document.getElementById('bank_owner').value
@@ -509,7 +913,7 @@
                     localStorage.setItem('user', JSON.stringify(user));
                     renderUI(data.user);
                     closeEditModal();
-                    alert('✅ Cập nhật hồ sơ thành công!');
+                    alert('✅ Cập nhật hồ sơ năng lực thành công!');
                 } else {
                     alert('❌ Lỗi: ' + data.error);
                 }
@@ -521,7 +925,199 @@
             }
         });
 
+        // 6. Xử lý Gửi & Xác thực OTP WhatsApp
+        async function requestPhoneOtp() {
+            const phone = document.getElementById('targetPhoneInput').value.trim();
+            if (!phone || phone.length < 9) {
+                alert('Vui lòng nhập số điện thoại hợp lệ (từ 9-10 chữ số)!');
+                return;
+            }
+
+            const btn = document.getElementById('btnSendPhoneOtp');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang gửi...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth/send-phone-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone_number: phone, user_id: user.id })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('dispTargetPhone').innerText = phone;
+                    document.getElementById('phoneStepInput').classList.add('hidden');
+                    document.getElementById('phoneStepOtp').classList.remove('hidden');
+                    document.getElementById('inputPhoneOtp').focus();
+
+                    // Khởi động đếm ngược 5 phút
+                    startPhoneTimer(300);
+                    startPhoneCooldown(60);
+
+                    alert(`✅ ${data.message}`);
+                } else {
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể gửi mã OTP WhatsApp'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối máy chủ!');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Gửi mã OTP</span>';
+            }
+        }
+
+        function resetPhoneStep() {
+            document.getElementById('phoneStepOtp').classList.add('hidden');
+            document.getElementById('phoneStepInput').classList.remove('hidden');
+        }
+
+        function startPhoneTimer(sec) {
+            clearInterval(phoneOtpCountdown);
+            let rem = sec;
+            const disp = document.getElementById('phoneOtpTimer');
+            phoneOtpCountdown = setInterval(() => {
+                rem--;
+                const m = Math.floor(rem / 60).toString().padStart(2, '0');
+                const s = (rem % 60).toString().padStart(2, '0');
+                disp.innerText = `${m}:${s}`;
+                if (rem <= 0) clearInterval(phoneOtpCountdown);
+            }, 1000);
+        }
+
+        function startPhoneCooldown(sec) {
+            clearInterval(phoneCooldownInterval);
+            let rem = sec;
+            const btn = document.getElementById('btnResendPhoneOtp');
+            btn.disabled = true;
+            btn.className = 'text-xs font-bold text-gray-400 cursor-not-allowed';
+            phoneCooldownInterval = setInterval(() => {
+                rem--;
+                btn.innerText = `Gửi lại (${rem}s)`;
+                if (rem <= 0) {
+                    clearInterval(phoneCooldownInterval);
+                    btn.disabled = false;
+                    btn.innerText = 'Gửi lại mã OTP';
+                    btn.className = 'text-xs font-bold text-emerald-600 hover:underline cursor-pointer';
+                }
+            }, 1000);
+        }
+
+        async function submitPhoneOtpVerification() {
+            const phone = document.getElementById('targetPhoneInput').value.trim();
+            const otp = document.getElementById('inputPhoneOtp').value.trim();
+
+            if (!otp || otp.length < 6) {
+                alert('Vui lòng nhập đủ 6 chữ số mã OTP!');
+                return;
+            }
+
+            const btn = document.getElementById('btnConfirmPhoneOtp');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang xác thực...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth/verify-phone-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user.id,
+                        phone_number: phone,
+                        otp: otp
+                    })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(`🎉 XÁC THỰC THÀNH CÔNG!\n\nSố điện thoại WhatsApp [${phone}] của bạn đã được xác minh chính chủ.`);
+                    closePhoneVerifyModal();
+                    loadProfile();
+                } else {
+                    alert('❌ ' + (data.error || 'Mã OTP không đúng!'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối máy chủ!');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Xác nhận & Kích hoạt SĐT</span>';
+            }
+        }
+
+        // 7. Xử lý Ngân hàng & VietQR Helper Functions
+        let availableBanks = [];
+
+        function removeVietnameseTones(str) {
+            if (!str) return '';
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+            str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+            str = str.replace(/đ/g, 'd');
+            str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, 'A');
+            str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, 'E');
+            str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, 'I');
+            str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, 'O');
+            str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, 'U');
+            str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, 'Y');
+            str = str.replace(/Đ/g, 'D');
+            str = str.replace(/[^a-zA-Z0-9\s]/g, '');
+            return str.toUpperCase();
+        }
+
+        async function loadBanks() {
+            try {
+                const res = await fetch(`${API_URL}/api/banks`);
+                const data = await res.json();
+                if (data.success && data.banks) {
+                    availableBanks = data.banks;
+                    const select = document.getElementById('bank_name');
+                    select.innerHTML = '<option value="">-- Chọn ngân hàng thụ hưởng --</option>' + 
+                        availableBanks.map(b => `<option value="${b.shortName}" data-code="${b.code}" data-bin="${b.bin}" data-logo="${b.logo}">${b.shortName} (${b.code}) - ${b.name}</option>`).join('');
+
+                    if (user && user.bank_name) {
+                        select.value = user.bank_name;
+                        updateModalBankPreview();
+                    }
+                }
+            } catch (e) {
+                console.error('Lỗi tải danh sách ngân hàng:', e);
+            }
+        }
+
+        function updateModalBankPreview() {
+            const bankSelect = document.getElementById('bank_name');
+            const selectedBankName = bankSelect.value;
+            const accountNum = document.getElementById('bank_account').value.trim();
+            const ownerName = document.getElementById('bank_owner').value.trim();
+
+            const selectedOption = bankSelect.options[bankSelect.selectedIndex];
+            const logoUrl = selectedOption ? selectedOption.getAttribute('data-logo') : '';
+
+            const prevBank = document.getElementById('previewBankName');
+            const prevAcc = document.getElementById('previewBankAccount');
+            const prevOwner = document.getElementById('previewBankOwner');
+            const prevLogo = document.getElementById('previewBankLogo');
+
+            if (selectedBankName) {
+                prevBank.innerText = selectedBankName;
+            } else {
+                prevBank.innerText = 'Chưa chọn ngân hàng';
+            }
+
+            if (logoUrl) {
+                prevLogo.innerHTML = `<img src="${logoUrl}" alt="${selectedBankName}" class="w-full h-full object-contain" onerror="this.innerHTML='🏦'">`;
+            } else {
+                prevLogo.innerHTML = `<i class="fas fa-university text-gray-800 text-sm"></i>`;
+            }
+
+            prevAcc.innerText = accountNum ? `STK: ${accountNum}` : 'STK: **** ****';
+            prevOwner.innerText = ownerName ? ownerName.toUpperCase() : 'CHƯA CẬP NHẬT';
+        }
+
         loadCategories();
+        loadBanks();
         loadProfile();
     </script>
 </body>

@@ -244,17 +244,7 @@
                             </div>
                             <div id="uploadedFilesList" class="flex flex-wrap gap-2 mt-2"></div>
                         </div>
-                    </div>
-
-                    <!-- BƯỚC 3: Ngân sách & Xác nhận -->
-                    <div id="step3" class="hidden space-y-4">
-                        <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/60">
-                            <h3 class="font-bold text-indigo-900 dark:text-indigo-300 text-sm mb-2 flex items-center">
-                                <i class="fas fa-clipboard-check mr-1.5"></i> Tóm tắt Thông Tin Dự Án
-                            </h3>
-                            <ul class="text-xs text-indigo-950 dark:text-indigo-200 space-y-1.5" id="summaryList"></ul>
-                        </div>
-                        
+                        <!-- Ngân sách dự án -->
                         <div>
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
                                 Ngân sách Ký quỹ (Token) <span class="text-red-500">*</span>
@@ -265,8 +255,18 @@
                             </div>
                             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2 flex items-start">
                                 <i class="fas fa-shield-alt text-emerald-500 mt-0.5 mr-1.5 text-sm shrink-0"></i>
-                                Số Token này sẽ được Ký quỹ (Tạm khóa) trên hệ thống để đảm bảo uy tín với Freelancer. Bạn có thể Rút hoặc Hủy dự án để nhận lại 100% Token nếu chưa chọn ai.
+                                Số Token này sẽ được Ký quỹ trên hệ thống để đảm bảo uy tín. Bạn có thể Rút hoặc Hủy dự án để nhận lại 100% Token nếu chưa chọn ai.
                             </p>
+                        </div>
+                    </div>
+
+                    <!-- BƯỚC 3: Ngân sách & Xác nhận -->
+                    <div id="step3" class="hidden space-y-4">
+                        <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/60">
+                            <h3 class="font-bold text-indigo-900 dark:text-indigo-300 text-sm mb-2 flex items-center">
+                                <i class="fas fa-clipboard-check mr-1.5"></i> Tóm tắt Thông Tin Dự Án
+                            </h3>
+                            <ul class="text-xs text-indigo-950 dark:text-indigo-200 space-y-1.5" id="summaryList"></ul>
                         </div>
                     </div>
 
@@ -1098,6 +1098,7 @@
                 } else if (currentStep === 2) {
                     const title = document.getElementById('title')?.value?.trim();
                     const desc = document.getElementById('description')?.value?.trim();
+                    const budget = document.getElementById('budget')?.value;
                     if (!title) {
                         alert('Vui lòng nhập tiêu đề dự án!');
                         document.getElementById('title')?.focus();
@@ -1106,6 +1107,11 @@
                     if (!desc) {
                         alert('Vui lòng nhập mô tả chi tiết yêu cầu công việc!');
                         document.getElementById('description')?.focus();
+                        return;
+                    }
+                    if (!budget || isNaN(budget) || parseInt(budget) < 10000) {
+                        alert('Vui lòng nhập ngân sách hợp lệ (tối thiểu 10,000 Token)!');
+                        document.getElementById('budget')?.focus();
                         return;
                     }
                 }
@@ -1127,6 +1133,8 @@
             const fType = document.querySelector('input[name="freelancer_type"]:checked')?.value || "Cá nhân";
             const tagsCount = selectedTags.length;
             const filesCount = uploadedFiles.length;
+            const budgetVal = document.getElementById('budget')?.value || 0;
+            const formattedBudget = new Intl.NumberFormat('en-US').format(budgetVal) + ' Token';
             
             summaryList.innerHTML = `
                 <li><strong>• Lĩnh vực:</strong> ${escapeHtml(catName)}</li>
@@ -1135,6 +1143,7 @@
                 <li><strong>• Đối tượng mong muốn:</strong> ${escapeHtml(fType)}</li>
                 <li><strong>• Kỹ năng yêu cầu:</strong> ${tagsCount > 0 ? selectedTags.map(t => '#' + escapeHtml(t)).join(', ') : 'Chưa gắn tag'}</li>
                 <li><strong>• Tệp đính kèm:</strong> ${filesCount} tệp</li>
+                <li><strong>• Ngân sách ký quỹ:</strong> <span class="text-indigo-600 dark:text-indigo-400 font-extrabold text-sm">${formattedBudget}</span> 💎</li>
             `;
         }
 
@@ -1870,6 +1879,13 @@
                     msgDiv.textContent = '✅ ' + (data.message || 'Đăng dự án thành công!');
                     msgDiv.className = "mt-3 text-emerald-600 font-bold block text-center text-sm";
                     document.getElementById('postJobForm').reset();
+                    
+                    // Xóa các state lưu trữ tạm thời
+                    uploadedFiles = [];
+                    selectedTags = [];
+                    document.getElementById('uploadedFilesList').innerHTML = '';
+                    document.getElementById('selectedTagBadges').innerHTML = '';
+                    document.getElementById('summaryList').innerHTML = '';
                     
                     setTimeout(() => {
                         closePostModal();

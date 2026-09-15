@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const supabase = require('../config/supabase');
 const { logEvent } = require('../services/auditLogger');
 
@@ -111,15 +113,35 @@ router.get('/api/jobs', async (req, res) => {
                 .replace(/\n\n🏷️ \[Kỹ năng yêu cầu:\s*[^\]]+\]/gi, '')
                 .trim();
             
-            const completionRate = totalPosted > 0 ? Math.round((completedJobs.length / totalPosted) * 100) : 100;
+            const completionRate = totalPosted > 0 && completedJobs.length > 0 ? `${Math.round((completedJobs.length / totalPosted) * 100)}%` : 'Chưa có';
             
-            let creditTier = 'Hạng A (Uy tín cao)';
-            let tierBadge = 'bg-emerald-100 text-emerald-800 border-emerald-300';
-            if (totalSpent >= 10000 && completionRate >= 80) {
+            // Lấy rating thực tế của client từ reviews.json
+            let clientRatingScore = null;
+            let clientRatingDisplay = 'Chưa có';
+            try {
+                const reviewFilePath = path.join(__dirname, '..', 'data', 'reviews.json');
+                if (fs.existsSync(reviewFilePath)) {
+                    const rawRev = fs.readFileSync(reviewFilePath, 'utf-8').replace(/^\uFEFF/, '').trim();
+                    const allRev = rawRev ? JSON.parse(rawRev) : [];
+                    const cRev = allRev.filter(r => r.client_id === job.client_id);
+                    if (cRev.length > 0) {
+                        const sumScore = cRev.reduce((acc, cur) => acc + (parseFloat(cur.rating) || 5), 0);
+                        clientRatingScore = Math.round((sumScore / cRev.length) * 10) / 10;
+                        clientRatingDisplay = `${clientRatingScore.toFixed(1)} / 5.0`;
+                    }
+                }
+            } catch (rErr) {}
+
+            let creditTier = 'Khách mới';
+            let tierBadge = 'bg-gray-100 text-gray-800 border-gray-300';
+            if (totalSpent >= 10000 && completedJobs.length >= 5 && (clientRatingScore || 0) >= 4.8) {
                 creditTier = 'Kim Cương (VIP)';
                 tierBadge = 'bg-purple-100 text-purple-800 border-purple-300';
-            } else if (totalSpent === 0 && totalPosted <= 1) {
-                creditTier = 'Khách mới (Đã nạp Escrow)';
+            } else if (completedJobs.length >= 2 || totalSpent >= 2000) {
+                creditTier = 'Hạng A (Uy tín cao)';
+                tierBadge = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            } else if (totalPosted > 0) {
+                creditTier = 'Thành viên mới';
                 tierBadge = 'bg-blue-100 text-blue-800 border-blue-300';
             }
 
@@ -133,7 +155,8 @@ router.get('/api/jobs', async (req, res) => {
                     total_projects_posted: totalPosted,
                     total_projects_completed: completedJobs.length,
                     completion_rate: completionRate,
-                    rating_score: 5.0,
+                    rating_score: clientRatingScore,
+                    rating_display: clientRatingDisplay,
                     credit_tier: creditTier,
                     tier_badge: tierBadge
                 }
@@ -409,6 +432,25 @@ router.get('/api/client/:client_id/my-jobs', async (req, res) => {
             .order('created_at', { ascending: false });
             
         if (error) throw error;
+
+        // Lấy đánh giá do khách hàng đã viết từ reviews.json
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const reviewFilePath = path.join(__dirname, '..', 'data', 'reviews.json');
+            if (fs.existsSync(reviewFilePath)) {
+                const allRev = JSON.parse(fs.readFileSync(reviewFilePath, 'utf8') || '[]');
+                for (let job of (jobs || [])) {
+                    if (job.status === 'completed') {
+                        const r = allRev.find(rev => rev.job_id === job.id && rev.client_id === client_id);
+                        if (r) job.review = r;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Lỗi đọc reviews.json (client my-jobs):', e);
+        }
+
         console.log(`✅ [API GET /api/client/my-jobs] Trả về ${jobs ? jobs.length : 0} dự án`);
         res.status(200).json({ jobs });
     } catch (error) {
@@ -470,6 +512,24 @@ router.get('/api/freelancer/:id/active-jobs', async (req, res) => {
                 .eq('job_id', job.id)
                 .order('created_at', { ascending: true });
             job.milestones = milestones || [];
+        }
+
+        // Lấy đánh giá của khách hàng từ reviews.json
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const reviewFilePath = path.join(__dirname, '..', 'data', 'reviews.json');
+            if (fs.existsSync(reviewFilePath)) {
+                const allRev = JSON.parse(fs.readFileSync(reviewFilePath, 'utf8') || '[]');
+                for (let job of jobs) {
+                    if (job.status === 'completed') {
+                        const r = allRev.find(rev => rev.job_id === job.id && rev.freelancer_id === id);
+                        if (r) job.review = r;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Lỗi đọc reviews.json:', e);
         }
 
         res.status(200).json({ jobs });
@@ -781,14 +841,15 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
             .eq('freelancer_id', id)
             .eq('status', 'accepted');
 
-        // Lấy danh sách đánh giá từ khách hàng
+        // Lấy danh sách đánh giá từ reviews.json
         let reviews = [];
         try {
-            const { data: revData } = await supabase
-                .from('reviews')
-                .select('*')
-                .eq('freelancer_id', id);
-            reviews = revData || [];
+            const reviewFilePath = path.join(__dirname, '..', 'data', 'reviews.json');
+            if (fs.existsSync(reviewFilePath)) {
+                const rawRev = fs.readFileSync(reviewFilePath, 'utf-8').replace(/^\uFEFF/, '').trim();
+                const allRev = rawRev ? JSON.parse(rawRev) : [];
+                reviews = allRev.filter(r => r.freelancer_id === id);
+            }
         } catch (e) {}
 
         const completedJobs = [];
@@ -807,8 +868,9 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
                 status: j.status,
                 created_at: j.created_at,
                 client: j.clients || { full_name: 'Khách Hàng' },
-                rating: review ? review.rating : 5.0,
-                review_comment: review ? review.comment : 'Hoàn thành công việc xuất sắc, giao đúng hạn!'
+                rating: review ? review.rating : null,
+                rating_display: review ? `${review.rating} ⭐` : 'Chưa có đánh giá',
+                review_comment: review ? review.comment : 'Chưa có nhận xét.'
             };
 
             if (j.status === 'completed') {
@@ -819,19 +881,52 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
         });
 
         // Tính điểm đánh giá trung bình
-        let totalRating = completedJobs.reduce((sum, j) => sum + j.rating, 0);
-        let avgRating = completedJobs.length > 0 ? (totalRating / completedJobs.length).toFixed(1) : 5.0;
+        let avgRating = 'Chưa có';
+        let ratingScore = null;
+        if (reviews.length > 0) {
+            let totalRating = reviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 5), 0);
+            ratingScore = Math.round((totalRating / reviews.length) * 10) / 10;
+            avgRating = `${ratingScore.toFixed(1)} / 5.0`;
+        }
+
+        let rawSkills = [];
+        let location = 'Việt Nam';
+        let bio = 'Chuyên gia uy tín trên sàn HT Work.';
+        let portfolios = [];
+        
+        if (user.skills) {
+            try {
+                const parsed = JSON.parse(user.skills);
+                location = parsed.location || location;
+                portfolios = parsed.portfolios || [];
+                if (parsed.skills) {
+                    rawSkills = parsed.skills.split(',').map(s => s.trim()).filter(Boolean);
+                }
+            } catch(e) {
+                if (typeof user.skills === 'string') {
+                    rawSkills = user.skills.split(',').map(s => s.trim()).filter(Boolean);
+                }
+            }
+        }
+        
+        if (!user.bio && rawSkills.length > 0) {
+            bio = `Chuyên gia ${rawSkills.slice(0, 3).join(', ')} với ${completedJobs.length} dự án đã hoàn thành trên sàn HT Work.`;
+        } else if (user.bio) {
+            bio = user.bio;
+        }
 
         res.status(200).json({
             success: true,
             freelancer: {
                 ...user,
+                location: location,
+                skills: rawSkills,
+                portfolios: portfolios,
                 completed_count: completedJobs.length,
                 in_progress_count: inProgressJobs.length,
-                rating_score: avgRating,
-                bio: user.skills && Array.isArray(user.skills) 
-                    ? `Chuyên gia ${user.skills.slice(0, 3).join(', ')} với ${completedJobs.length} dự án đã hoàn thành trên sàn HT Work.` 
-                    : 'Chuyên gia uy tín trên sàn HT Work.'
+                rating_score: ratingScore,
+                rating_display: avgRating,
+                bio: bio
             },
             completed_jobs: completedJobs,
             in_progress_jobs: inProgressJobs,

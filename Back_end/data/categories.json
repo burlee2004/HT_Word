@@ -5,14 +5,7 @@
     "slug": "web-dev",
     "icon": "🌐",
     "description": "Web bán hàng, web công ty, landing page, SaaS, hệ thống Web...",
-    "tags_preset": [
-      "ReactJS",
-      "VueJS",
-      "NodeJS",
-      "Laravel",
-      "WordPress",
-      "Fullstack"
-    ],
+    "tags_preset": ["ReactJS", "VueJS", "NodeJS", "Laravel", "WordPress", "Fullstack"],
     "is_active": true,
     "sort_order": 1,
     "created_at": "2026-09-03T13:34:53.172Z"
@@ -22,14 +15,8 @@
     "name": "Ứng dụng Di Động (Mobile App)",
     "slug": "mobile-app",
     "icon": "📱",
-    "description": "App iOS, Android, Flutter, React Native, hệ thống quản lý di động...",
-    "tags_preset": [
-      "Flutter",
-      "React Native",
-      "iOS Swift",
-      "Android Kotlin",
-      "Firebase"
-    ],
+    "description": "App iOS, Android, Flutter, React Native, hệ thống di động...",
+    "tags_preset": ["Flutter", "React Native", "iOS Swift", "Android Kotlin", "Firebase"],
     "is_active": true,
     "sort_order": 2,
     "created_at": "2026-09-03T13:34:53.172Z"
@@ -40,95 +27,141 @@
     "slug": "ui-ux",
     "icon": "🎨",
     "description": "Thiết kế giao diện app/web trên Figma, logo thương hiệu, banner...",
-    "tags_preset": [
-      "Figma",
-      "Adobe XD",
-      "UI Design",
-      "UX Research",
-      "Logo & Branding"
-    ],
+    "tags_preset": ["Figma", "Adobe XD", "UI Design", "UX Research", "Logo & Branding"],
     "is_active": true,
     "sort_order": 3,
     "created_at": "2026-09-03T13:34:53.172Z"
   },
   {
     "id": "cat_ai",
-    "name": "Trí Tuệ Nhân Tạo & Dữ Liệu (AI/ML)",
+    "name": "Trí Tuệ Nhân Tạo & Học Máy (AI / ML / LLM)",
     "slug": "ai-data",
     "icon": "🤖",
-    "description": "Tích hợp OpenAI/LLM, Chatbot AI, Python Automation, Xử lý dữ liệu...",
-    "tags_preset": [
-      "Python",
-      "OpenAI API",
-      "Machine Learning",
-      "Data Scraping",
-      "Chatbot"
-    ],
+    "description": "Tích hợp OpenAI/LLM, RAG, Chatbot AI, Python Automation, Computer Vision...",
+    "tags_preset": ["Python", "OpenAI / LLM", "Machine Learning", "Computer Vision", "Chatbot AI"],
     "is_active": true,
     "sort_order": 4,
     "created_at": "2026-09-03T13:34:53.172Z"
   },
   {
+    "id": "cat_iot",
+    "name": "IoT & Hệ Thống Nhúng (Internet of Things & Embedded)",
+    "slug": "iot-embedded",
+    "icon": "📡",
+    "description": "Lập trình vi điều khiển STM32/ESP32, Firmware C/C++, RTOS, MQTT, Smart Home...",
+    "tags_preset": ["ESP32 / ESP8266", "STM32", "Firmware C/C++", "MQTT / LoRa", "FreeRTOS", "Arduino"],
+    "is_active": true,
+    "sort_order": 5,
+    "created_at": "2026-09-08T07:15:00.000Z"
+  },
+  {
+    "id": "cat_uav",
+    "name": "UAV, Drone & Thiết Bị Bay Tự Hành",
+    "slug": "uav-drone",
+    "icon": "🛸",
+    "description": "Phần mềm điều khiển bay PX4, ArduPilot, MAVLink, Khảo sát địa hình & Nông nghiệp...",
+    "tags_preset": ["PX4 Autopilot", "ArduPilot", "MAVLink", "ROS / Gazebo", "Flight Controller", "Flycam"],
+    "is_active": true,
+    "sort_order": 6,
+    "created_at": "2026-09-08T07:15:00.000Z"
+  },
+  {
+    "id": "cat_robotics",
+    "name": "Robotics, Cơ Điện Tử & Tự Động Hóa",
+    "slug": "robotics-automation",
+    "icon": "🦾",
+    "description": "Lập trình Robot công nghiệp, ROS/ROS2, PLC, SCADA, Xử lý ảnh công nghiệp...",
+    "tags_preset": ["ROS / ROS2", "PLC Siemens", "SCADA", "Cơ điện tử", "Kinematics", "Automation"],
+    "is_active": true,
+    "sort_order": 7,
+    "created_at": "2026-09-08T07:15:00.000Z"
+  },
+  {
+    "id": "cat_game",
+    "name": "Lập Trình Game (Unity / Unreal Engine / 3D)",
+    "slug": "game-development",
+    "icon": "🎮",
+    "description": "Phát triển Game 2D/3D trên Mobile & PC, Unity, Unreal Engine, Shaders...",
+    "tags_preset": ["Unity 3D", "Unreal Engine", "C# Game", "C++ Game", "Godot", "Game 2D/3D"],
+    "is_active": true,
+    "sort_order": 8,
+    "created_at": "2026-09-08T07:15:00.000Z"
+  },
+  {
+    "id": "cat_ar_vr",
+    "name": "Thực Tế Ảo & AR / VR / Metaverse",
+    "slug": "ar-vr-metaverse",
+    "icon": "🕶️",
+    "description": "Ứng dụng AR/VR, WebXR, Three.js, Không gian ảo tương tác 3D...",
+    "tags_preset": ["Three.js", "WebXR", "Oculus Quest", "Vision Pro", "Blender 3D", "AR Core/Kit"],
+    "is_active": true,
+    "sort_order": 9,
+    "created_at": "2026-09-08T07:15:00.000Z"
+  },
+  {
     "id": "cat_blockchain",
     "name": "Blockchain, Web3 & Smart Contract",
     "slug": "blockchain-web3",
-    "icon": "🔒",
+    "icon": "⛓️",
     "description": "Hợp đồng thông minh Solidity, DApp, Audit bảo mật, Tích hợp Ví Web3...",
-    "tags_preset": [
-      "Solidity",
-      "Smart Contract",
-      "Web3.js",
-      "Ethers.js",
-      "Security Audit"
-    ],
+    "tags_preset": ["Solidity", "Smart Contract", "Web3.js", "Ethers.js", "Rust / Solana", "DeFi"],
     "is_active": true,
-    "sort_order": 5,
+    "sort_order": 10,
     "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_data",
+    "name": "Kỹ Sư Dữ Liệu & Big Data (Data Engineering)",
+    "slug": "data-engineering",
+    "icon": "📊",
+    "description": "Xử lý dữ liệu lớn, ETL Pipeline, Data Warehouse, Spark, Kafka, SQL, Power BI...",
+    "tags_preset": ["Apache Spark", "Kafka", "Data Pipeline", "PostgreSQL / SQL", "Power BI", "Airflow"],
+    "is_active": true,
+    "sort_order": 11,
+    "created_at": "2026-09-08T07:15:00.000Z"
   },
   {
     "id": "cat_devops",
-    "name": "Hạ Tầng, DevOps & Sửa Lỗi",
+    "name": "Điện Toán Đám Mây & DevOps (Cloud / CI/CD)",
     "slug": "devops-cloud",
-    "icon": "🔧",
-    "description": "Cấu hình VPS, CI/CD, Docker, Tối ưu tốc độ, Nâng cấp & Sửa lỗi hệ thống...",
-    "tags_preset": [
-      "Docker",
-      "AWS / Cloud",
-      "Linux / VPS",
-      "Nginx",
-      "Fix Bug / Tối ưu"
-    ],
+    "icon": "☁️",
+    "description": "AWS, GCP, Azure, Docker, Kubernetes, CI/CD Pipeline, Linux Server, Terraform...",
+    "tags_preset": ["Docker", "Kubernetes", "AWS / Cloud", "CI/CD", "Linux / VPS", "Terraform"],
     "is_active": true,
-    "sort_order": 6,
+    "sort_order": 12,
     "created_at": "2026-09-03T13:34:53.172Z"
+  },
+  {
+    "id": "cat_security",
+    "name": "An Ninh Mạng & Bảo Mật (Cybersecurity)",
+    "slug": "cybersecurity",
+    "icon": "🛡️",
+    "description": "Penetration Testing, Đánh giá an toàn thông tin, Rà soát lỗ hổng, Bảo mật hệ thống...",
+    "tags_preset": ["Bảo mật Web", "Penetration Testing", "Rà soát lỗ hổng", "SOC / SIEM", "OWASP"],
+    "is_active": true,
+    "sort_order": 13,
+    "created_at": "2026-09-04T04:25:37.809Z"
+  },
+  {
+    "id": "cat_ecommerce",
+    "name": "Thương Mại Điện Tử & Hệ Thống ERP / CRM",
+    "slug": "ecommerce-erp",
+    "icon": "🛒",
+    "description": "Hệ thống ERP, CRM, Odoo, SAP, Shopify, WooCommerce, Tích hợp cổng thanh toán...",
+    "tags_preset": ["Odoo ERP", "Shopify", "WooCommerce", "Cổng thanh toán", "SAP", "CRM"],
+    "is_active": true,
+    "sort_order": 14,
+    "created_at": "2026-09-08T07:15:00.000Z"
   },
   {
     "id": "cat_other",
-    "name": "Lĩnh vực Khác (Miscellaneous)",
+    "name": "Lĩnh vực Khác (Chuyên ngành tùy chỉnh - AI Kiểm duyệt)",
     "slug": "other",
     "icon": "💡",
-    "description": "Viết script, nhập liệu, dịch thuật kỹ thuật, tư vấn giải pháp tổng thể...",
-    "tags_preset": [
-      "Tư vấn IT",
-      "Viết Script",
-      "Cần gấp ⚡",
-      "Hỗ trợ kỹ thuật"
-    ],
+    "description": "Chuyên môn kỹ thuật đặc thù khác được Groq AI kiểm duyệt và gắn tự động...",
+    "tags_preset": ["Chuyên ngành đặc thù", "Tư vấn kỹ thuật", "AI Auto-Approve"],
     "is_active": true,
     "sort_order": 99,
     "created_at": "2026-09-03T13:34:53.172Z"
-  },
-  {
-    "id": "cat_mtmgaxox",
-    "name": "Bảo mật",
-    "slug": "bao-mat",
-    "icon": "🛡️",
-    "description": "bảo mật website và bảo trì deploy",
-    "tags_preset": [
-      "bảo mật"
-    ],
-    "is_active": true,
-    "sort_order": 8,
-    "created_at": "2026-09-04T04:25:37.809Z"
   }
 ]

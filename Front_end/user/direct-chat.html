@@ -288,7 +288,7 @@
                     <input type="file" id="realChatImageInput" accept="image/*" class="hidden" onchange="handleRealImageChange(event)">
                     <input type="file" id="realChatFileInput" class="hidden" onchange="handleRealFileChange(event)">
 
-                    <form id="chatForm" onsubmit="event.preventDefault(); handleSendMessage(event); return false;" class="flex items-center gap-1 sm:gap-1.5">
+                    <div id="chatForm" class="flex items-center gap-1 sm:gap-1.5">
                         <button type="button" onclick="toggleEmojiPicker()" id="btnEmojiPicker" disabled class="p-2 sm:p-2.5 rounded-xl text-gray-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-gray-700 transition disabled:opacity-40 disabled:cursor-not-allowed text-base cursor-pointer shrink-0" title="Biểu tượng cảm xúc (Emoji)">
                             <i class="far fa-face-smile"></i>
                         </button>
@@ -301,11 +301,11 @@
                         <button type="button" onclick="triggerFileUpload()" id="btnDirectFileUpload" disabled class="p-2 sm:p-2.5 rounded-xl text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-700 transition disabled:opacity-40 disabled:cursor-not-allowed text-sm cursor-pointer shrink-0" title="Gửi tệp / tài liệu từ máy tính (PDF, Word, Excel, ZIP...)">
                             <i class="fas fa-paperclip text-indigo-500"></i>
                         </button>
-                        <input type="text" id="messageInput" disabled placeholder="Nhập tin nhắn trao đổi (nhấn Enter để gửi)..." autocomplete="off" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); handleSendMessage(event); }" class="flex-1 min-w-0 px-4 py-2.5 text-xs sm:text-sm bg-gray-100 dark:bg-gray-750 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:cursor-not-allowed text-gray-800 dark:text-gray-100">
-                        <button type="button" onclick="handleSendMessage(event)" id="btnSendMessage" disabled class="px-4 sm:px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                        <input type="text" id="messageInput" disabled placeholder="Nhập tin nhắn trao đổi (nhấn Enter để gửi)..." autocomplete="off" onkeydown="if(event.key === 'Enter' && !event.shiftKey && !event.isComposing){ event.preventDefault(); event.stopPropagation(); handleSendMessage(event); return false; }" class="flex-1 min-w-0 px-4 py-2.5 text-xs sm:text-sm bg-gray-100 dark:bg-gray-750 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:cursor-not-allowed text-gray-800 dark:text-gray-100">
+                        <button type="button" onclick="event.preventDefault(); event.stopPropagation(); handleSendMessage(event); return false;" id="btnSendMessage" disabled class="px-4 sm:px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
                             <span>Gửi</span> <i class="fas fa-paper-plane text-xs"></i>
                         </button>
-                    </form>
+                    </div>
                 </div>
 
             </div>
@@ -334,7 +334,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Lời nhắn gửi kèm (tùy chọn):</label>
-                    <input type="text" id="pastedImageCaption" placeholder="Nhập lời nhắn gửi kèm hình ảnh này (nhấn Enter để gửi ngay)..." onkeydown="if(event.key==='Enter') submitPastedImage()" class="w-full px-3.5 py-2 text-xs sm:text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-800 dark:text-gray-100">
+                    <input type="text" id="pastedImageCaption" placeholder="Nhập lời nhắn gửi kèm hình ảnh này (nhấn Enter để gửi ngay)..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); submitPastedImage(); }" class="w-full px-3.5 py-2 text-xs sm:text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-800 dark:text-gray-100">
                 </div>
             </div>
 
@@ -358,7 +358,7 @@
                         <p class="text-[10px] text-gray-500 dark:text-gray-400">Chọn bất kỳ biểu tượng cảm xúc nào để bày tỏ cảm nghĩ</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeFullReactionPickerModal()" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-white flex items-center justify-center cursor-pointer transition">&times;</button>
+                <button type="button" onclick="closeFullReactionPickerModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition cursor-pointer text-lg leading-none">&times;</button>
             </div>
 
             <!-- Search Bar -->
@@ -405,12 +405,12 @@
             </div>
             
             <!-- Modal Body -->
-            <form onsubmit="submitFriendRequest(event)" class="p-6 space-y-4">
+            <form action="javascript:void(0);" onsubmit="event.preventDefault(); submitFriendRequest(event); return false;" class="p-6 space-y-4">
                 <input type="hidden" id="frPartnerId">
                 
                 <!-- Partner Info Card -->
                 <div class="flex items-center space-x-3.5 p-3.5 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700">
-                    <img id="frPartnerAvatar" src="https://via.placeholder.com/60" class="w-12 h-12 rounded-2xl object-cover border-2 border-indigo-200 dark:border-gray-600 shrink-0">
+                    <img id="frPartnerAvatar" src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" class="w-12 h-12 rounded-2xl object-cover border-2 border-indigo-200 dark:border-gray-600 shrink-0">
                     <div class="min-w-0 flex-1">
                         <h4 class="font-bold text-sm sm:text-base text-gray-900 dark:text-white truncate" id="frPartnerName">Tên</h4>
                         <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300" id="frPartnerRole">Freelancer Chuyên Nghiệp</span>
@@ -453,7 +453,7 @@
             
             <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
                 <div class="flex items-center space-x-4">
-                    <img id="mAvatar" src="https://via.placeholder.com/80" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-200">
+                    <img id="mAvatar" src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-200">
                     <div>
                         <h4 class="font-bold text-base text-gray-900 dark:text-white" id="mFullName">Tên</h4>
                         <p class="text-xs text-gray-500" id="mEmail">email@...</p>
@@ -468,8 +468,14 @@
 
                 <div>
                     <h5 class="text-xs font-bold text-gray-500 uppercase mb-2">Lịch Sử Các Dự Án Đã Hoàn Thành:</h5>
-                    <div id="mWorkHistoryList" class="space-y-2.5">
+                    <div id="mWorkHistoryList" class="space-y-2.5 max-h-40 overflow-y-auto pr-1">
                         <p class="text-xs text-gray-400 italic">Đang tải lịch sử...</p>
+                    </div>
+                </div>
+
+                <div id="mPortfolioSection" class="hidden">
+                    <h5 class="text-xs font-bold text-indigo-500 uppercase mb-2 mt-4 pt-3 border-t border-gray-100"><i class="fas fa-laptop-code mr-1"></i> Portfolio / Dự Án Nổi Bật</h5>
+                    <div id="mPortfolioList" class="flex overflow-x-auto gap-3 pb-2 snap-x custom-scrollbar">
                     </div>
                 </div>
             </div>
@@ -502,13 +508,13 @@
             </div>
 
             <!-- Modal Body (Scrollable) -->
-            <form onsubmit="submitDirectHire(event)" class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-grow">
+            <form action="javascript:void(0);" onsubmit="event.preventDefault(); submitDirectHire(event); return false;" class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-grow">
                 <input type="hidden" id="dhFreelancerId">
 
                 <!-- Freelancer Info Pill -->
                 <div class="flex items-center justify-between p-3 bg-indigo-50/70 dark:bg-gray-700/50 rounded-2xl border border-indigo-100 dark:border-gray-600">
                     <div class="flex items-center space-x-3">
-                        <img id="dhAvatar" src="https://via.placeholder.com/50" class="w-11 h-11 rounded-2xl object-cover border-2 border-indigo-200 dark:border-gray-500 shrink-0">
+                        <img id="dhAvatar" src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" class="w-11 h-11 rounded-2xl object-cover border-2 border-indigo-200 dark:border-gray-500 shrink-0">
                         <div>
                             <span class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Freelancer Chỉ Định:</span>
                             <h4 class="font-bold text-sm text-gray-900 dark:text-white" id="dhName">--</h4>
@@ -662,7 +668,7 @@
             </div>
 
             <!-- Modal Body (Scrollable) -->
-            <form onsubmit="submitChatEditJob(event)" class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-grow">
+            <form action="javascript:void(0);" onsubmit="event.preventDefault(); submitChatEditJob(event); return false;" class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-grow">
                 <input type="hidden" id="chatEditJobId">
 
                 <!-- BOX TRỢ LÝ AI GROQ HỖ TRỢ TỐI ƯU LẠI DỰ ÁN -->
@@ -900,13 +906,15 @@
             const search = (document.getElementById('chatSearchInput')?.value || '').toLowerCase().trim();
 
             if (currentTab === 'chats') {
-                const strangerChats = conversations.filter(c => c.is_stranger);
-                let list = conversations.filter(c => !c.is_stranger);
+                const strangerChats = conversations.filter(c => c && c.is_stranger);
+                let list = conversations.filter(c => c && !c.is_stranger);
                 if (search) {
-                    list = list.filter(c => 
-                        (c.partner.full_name || '').toLowerCase().includes(search) ||
-                        (c.last_message.content || '').toLowerCase().includes(search)
-                    );
+                    list = list.filter(c => {
+                        const partnerName = ((c.partner && c.partner.full_name) || '').toLowerCase();
+                        const partnerEmail = ((c.partner && c.partner.email) || '').toLowerCase();
+                        const msgContent = ((c.last_message && c.last_message.content) || '').toLowerCase();
+                        return partnerName.includes(search) || partnerEmail.includes(search) || msgContent.includes(search);
+                    });
                 }
 
                 let html = '';
@@ -954,17 +962,19 @@
                 }
 
                 html += list.map(c => {
-                    const p = c.partner;
-                    const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
-                    const isActive = p.id === activePartnerId;
+                    const p = c.partner || { id: c.partner_id, full_name: 'Đối tác', avatar_url: '' };
+                    const partnerId = p.id || c.partner_id;
+                    const partnerName = p.full_name || 'Đối tác';
+                    const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
+                    const isActive = partnerId === activePartnerId;
                     const isLastMsgRecalled = c.last_message && c.last_message.is_recalled;
                     const isLastMsgMe = c.last_message && (c.last_message.sender_id === currentUser.id);
-                    const senderPrefix = isLastMsgMe ? 'Bạn: ' : `${p.full_name || 'Đối tác'}: `;
+                    const senderPrefix = isLastMsgMe ? 'Bạn: ' : `${partnerName}: `;
                     const rawMsgContent = c.last_message ? (c.last_message.content || (c.last_message.file_name ? `[Tệp] ${c.last_message.file_name}` : '[Tệp đính kèm]')) : '';
                     const isFav = c.is_favorite;
 
                     return `
-                    <div onclick="selectPartner('${p.id}')" class="p-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition flex items-center space-x-3 ${isActive ? 'bg-indigo-50/70 dark:bg-gray-700 border-l-4 border-indigo-600' : ''}">
+                    <div onclick="selectPartner('${partnerId}')" class="p-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition flex items-center space-x-3 ${isActive ? 'bg-indigo-50/70 dark:bg-gray-700 border-l-4 border-indigo-600' : ''}">
                         <div class="relative w-11 h-11 shrink-0">
                             <img src="${avatar}" class="w-11 h-11 rounded-2xl object-cover border">
                             <span class="w-3 h-3 ${c.is_blocked ? 'bg-red-500' : 'bg-emerald-500'} border-2 border-white dark:border-gray-800 rounded-full absolute -bottom-0.5 -right-0.5"></span>
@@ -972,7 +982,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-baseline">
                                 <div class="flex items-center gap-1.5 min-w-0">
-                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(partnerName)}</h4>
                                     ${isFav ? '<i class="fas fa-heart text-rose-500 text-[10px] shrink-0" title="Mối Ruột"></i>' : ''}
                                 </div>
                                 <span class="text-[10px] text-gray-400 shrink-0 font-mono">${formatTime(c.last_message ? c.last_message.created_at : c.last_activity)}</span>
@@ -989,12 +999,14 @@
 
                 container.innerHTML = html;
             } else if (currentTab === 'strangers') {
-                let list = conversations.filter(c => c.is_stranger);
+                let list = conversations.filter(c => c && c.is_stranger);
                 if (search) {
-                    list = list.filter(c => 
-                        (c.partner.full_name || '').toLowerCase().includes(search) ||
-                        (c.last_message.content || '').toLowerCase().includes(search)
-                    );
+                    list = list.filter(c => {
+                        const partnerName = ((c.partner && c.partner.full_name) || '').toLowerCase();
+                        const partnerEmail = ((c.partner && c.partner.email) || '').toLowerCase();
+                        const msgContent = ((c.last_message && c.last_message.content) || '').toLowerCase();
+                        return partnerName.includes(search) || partnerEmail.includes(search) || msgContent.includes(search);
+                    });
                 }
 
                 if (list.length === 0) {
@@ -1018,16 +1030,18 @@
                 </div>`;
 
                 html += list.map(c => {
-                    const p = c.partner;
-                    const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
-                    const isActive = p.id === activePartnerId;
+                    const p = c.partner || { id: c.partner_id, full_name: 'Người lạ', avatar_url: '' };
+                    const partnerId = p.id || c.partner_id;
+                    const partnerName = p.full_name || 'Người lạ';
+                    const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
+                    const isActive = partnerId === activePartnerId;
                     const isLastMsgRecalled = c.last_message && c.last_message.is_recalled;
                     const isLastMsgMe = c.last_message && (c.last_message.sender_id === currentUser.id);
-                    const senderPrefix = isLastMsgMe ? 'Bạn: ' : `${p.full_name || 'Đối tác'}: `;
+                    const senderPrefix = isLastMsgMe ? 'Bạn: ' : `${partnerName}: `;
                     const rawMsgContent = c.last_message ? (c.last_message.content || (c.last_message.file_name ? `[Tệp] ${c.last_message.file_name}` : '[Tệp đính kèm]')) : '';
 
                     return `
-                    <div onclick="selectPartner('${p.id}')" class="p-3.5 hover:bg-amber-50/50 dark:hover:bg-gray-700/50 cursor-pointer transition flex items-center space-x-3 ${isActive ? 'bg-amber-50/90 dark:bg-gray-700 border-l-4 border-amber-500' : ''}">
+                    <div onclick="selectPartner('${partnerId}')" class="p-3.5 hover:bg-amber-50/50 dark:hover:bg-gray-700/50 cursor-pointer transition flex items-center space-x-3 ${isActive ? 'bg-amber-50/90 dark:bg-gray-700 border-l-4 border-amber-500' : ''}">
                         <div class="relative w-11 h-11 shrink-0">
                             <img src="${avatar}" class="w-11 h-11 rounded-2xl object-cover border">
                             <span class="w-3 h-3 bg-amber-400 border-2 border-white dark:border-gray-800 rounded-full absolute -bottom-0.5 -right-0.5" title="Chưa kết bạn"></span>
@@ -1035,7 +1049,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-baseline">
                                 <div class="flex items-center gap-1.5 min-w-0">
-                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(partnerName)}</h4>
                                     <span class="px-1.5 py-0.2 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 text-[9px] font-bold rounded-md shrink-0">Người lạ</span>
                                 </div>
                                 <span class="text-[10px] text-gray-400 shrink-0 font-mono">${formatTime(c.last_message ? c.last_message.created_at : c.last_activity)}</span>
@@ -1055,10 +1069,11 @@
                 // Tab Mối Ruột (Chỉ hiện những ai đã thả tim ❤️)
                 let list = networkData.favorites || [];
                 if (search) {
-                    list = list.filter(f => 
-                        (f.partner.full_name || '').toLowerCase().includes(search) ||
-                        (f.partner.email || '').toLowerCase().includes(search)
-                    );
+                    list = list.filter(f => {
+                        const partnerName = ((f.partner && f.partner.full_name) || '').toLowerCase();
+                        const partnerEmail = ((f.partner && f.partner.email) || '').toLowerCase();
+                        return partnerName.includes(search) || partnerEmail.includes(search);
+                    });
                 }
 
                 if (list.length === 0) {
@@ -1077,28 +1092,30 @@
                 }
 
                 container.innerHTML = list.map(f => {
-                    const p = f.partner;
-                    const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
+                    const p = f.partner || { id: f.partner_id || f.user_id, full_name: 'Mối Ruột', avatar_url: '' };
+                    const partnerId = p.id || f.partner_id || f.user_id;
+                    const partnerName = p.full_name || 'Mối Ruột';
+                    const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
 
                     return `
                     <div class="p-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition flex items-center justify-between space-x-3">
-                        <div onclick="selectPartner('${p.id}')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
+                        <div onclick="selectPartner('${partnerId}')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
                             <img src="${avatar}" class="w-10 h-10 rounded-2xl object-cover border shrink-0">
                             <div class="min-w-0">
-                                <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(partnerName)}</h4>
                                 <p class="text-[11px] text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1">
                                     <i class="fas fa-heart text-[10px]"></i> Mối Ruột ❤️
                                 </p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-1.5">
-                            <button onclick="handleToggleFavorite('${p.id}')" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-gray-700 dark:text-rose-400 rounded-xl text-xs font-bold transition" title="Bỏ khỏi Mối Ruột">
+                            <button onclick="handleToggleFavorite('${partnerId}')" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-gray-700 dark:text-rose-400 rounded-xl text-xs font-bold transition" title="Bỏ khỏi Mối Ruột">
                                 <i class="fas fa-heart"></i>
                             </button>
-                            <button onclick="openDirectHireForPartner('${p.id}', '${escapeHtml(p.full_name)}', '${avatar}')" class="p-2 bg-purple-50 hover:bg-purple-100 text-purple-600 dark:bg-gray-700 dark:text-purple-400 rounded-xl text-xs font-bold transition" title="Giao việc trực tiếp">
+                            <button onclick="openDirectHireForPartner('${partnerId}', '${escapeHtml(partnerName)}', '${avatar}')" class="p-2 bg-purple-50 hover:bg-purple-100 text-purple-600 dark:bg-gray-700 dark:text-purple-400 rounded-xl text-xs font-bold transition" title="Giao việc trực tiếp">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
-                            <button onclick="selectPartner('${p.id}')" class="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-gray-700 dark:text-indigo-400 rounded-xl text-xs font-bold transition" title="Nhắn tin ngay">
+                            <button onclick="selectPartner('${partnerId}')" class="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-gray-700 dark:text-indigo-400 rounded-xl text-xs font-bold transition" title="Nhắn tin ngay">
                                 <i class="fas fa-comment-dots"></i>
                             </button>
                         </div>
@@ -1111,10 +1128,11 @@
                 const sent = networkData.pending_sent || [];
 
                 if (search) {
-                    friends = friends.filter(f => 
-                        (f.partner.full_name || '').toLowerCase().includes(search) ||
-                        (f.partner.email || '').toLowerCase().includes(search)
-                    );
+                    friends = friends.filter(f => {
+                        const partnerName = ((f.partner && f.partner.full_name) || '').toLowerCase();
+                        const partnerEmail = ((f.partner && f.partner.email) || '').toLowerCase();
+                        return partnerName.includes(search) || partnerEmail.includes(search);
+                    });
                 }
 
                 if (friends.length === 0 && received.length === 0 && sent.length === 0) {
@@ -1141,15 +1159,17 @@
                     </div>`;
 
                     html += received.map(req => {
-                        const p = req.partner;
-                        const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
+                        const p = req.partner || { id: req.partner_id || req.user_id, full_name: 'Người dùng', avatar_url: '' };
+                        const partnerId = p.id || req.partner_id || req.user_id;
+                        const partnerName = p.full_name || 'Người dùng';
+                        const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
 
                         return `
                         <div class="p-4 bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-gray-800 space-y-2.5">
-                            <div class="flex items-center space-x-3 cursor-pointer" onclick="selectPartner('${p.id}')">
+                            <div class="flex items-center space-x-3 cursor-pointer" onclick="selectPartner('${partnerId}')">
                                 <img src="${avatar}" class="w-10 h-10 rounded-2xl object-cover border shrink-0">
                                 <div class="min-w-0 flex-1">
-                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(partnerName)}</h4>
                                     <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">${p.role === 'freelancer' ? 'Freelancer' : 'Khách Hàng'}</span>
                                 </div>
                             </div>
@@ -1157,10 +1177,10 @@
                                 "${escapeHtml(req.note || 'Xin chào bạn! Mình muốn kết nối để trao đổi và hợp tác các dự án.')}"
                             </div>
                             <div class="flex items-center space-x-2 pt-1">
-                                <button onclick="respondFriendRequest('${p.id}', 'accept')" class="flex-1 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-black transition shadow-sm flex items-center justify-center gap-1.5">
+                                <button onclick="respondFriendRequest('${partnerId}', 'accept')" class="flex-1 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-black transition shadow-sm flex items-center justify-center gap-1.5">
                                     <i class="fas fa-check"></i> Chấp nhận
                                 </button>
-                                <button onclick="respondFriendRequest('${p.id}', 'reject')" class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition">
+                                <button onclick="respondFriendRequest('${partnerId}', 'reject')" class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition">
                                     Từ chối
                                 </button>
                             </div>
@@ -1175,20 +1195,22 @@
                     </div>`;
 
                     html += sent.map(req => {
-                        const p = req.partner;
-                        const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
+                        const p = req.partner || { id: req.partner_id || req.user_id, full_name: 'Người dùng', avatar_url: '' };
+                        const partnerId = p.id || req.partner_id || req.user_id;
+                        const partnerName = p.full_name || 'Người dùng';
+                        const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
 
                         return `
                         <div class="p-3.5 space-y-2">
                             <div class="flex items-center justify-between space-x-2">
-                                <div class="flex items-center space-x-2.5 min-w-0 cursor-pointer" onclick="selectPartner('${p.id}')">
+                                <div class="flex items-center space-x-2.5 min-w-0 cursor-pointer" onclick="selectPartner('${partnerId}')">
                                     <img src="${avatar}" class="w-9 h-9 rounded-xl object-cover border shrink-0">
                                     <div class="min-w-0">
-                                        <h4 class="font-bold text-xs text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                        <h4 class="font-bold text-xs text-gray-900 dark:text-white truncate">${escapeHtml(partnerName)}</h4>
                                         <span class="text-[10px] text-amber-600 font-semibold">Đang chờ phản hồi...</span>
                                     </div>
                                 </div>
-                                <button onclick="respondFriendRequest('${p.id}', 'unfriend')" class="px-2.5 py-1 text-[11px] font-bold text-red-600 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition border border-red-200 dark:border-red-900/50">
+                                <button onclick="respondFriendRequest('${partnerId}', 'unfriend')" class="px-2.5 py-1 text-[11px] font-bold text-red-600 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition border border-red-200 dark:border-red-900/50">
                                     Thu hồi
                                 </button>
                             </div>
@@ -1203,16 +1225,18 @@
                     </div>`;
 
                     html += friends.map(f => {
-                        const p = f.partner;
-                        const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name)}&background=4f46e5&color=fff`;
+                        const p = f.partner || { id: f.partner_id || f.user_id, full_name: 'Bạn Bè', avatar_url: '' };
+                        const partnerId = p.id || f.partner_id || f.user_id;
+                        const partnerName = p.full_name || 'Bạn Bè';
+                        const avatar = p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
                         const isFav = f.is_favorite;
 
                         return `
                         <div class="p-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition flex items-center justify-between space-x-3">
-                            <div onclick="selectPartner('${p.id}')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
+                            <div onclick="selectPartner('${partnerId}')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
                                 <img src="${avatar}" class="w-10 h-10 rounded-2xl object-cover border shrink-0">
                                 <div class="min-w-0">
-                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(p.full_name)}</h4>
+                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">${escapeHtml(partnerName)}</h4>
                                     <div class="flex items-center gap-1.5 mt-0.5">
                                         <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">👥 Bạn Bè</span>
                                         ${isFav ? '<span class="text-[10px] text-rose-600 dark:text-rose-400 font-bold">❤️ Mối Ruột</span>' : ''}
@@ -1220,13 +1244,13 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-1.5">
-                                <button onclick="handleToggleFavorite('${p.id}')" class="p-2 rounded-xl text-xs font-bold transition ${isFav ? 'bg-rose-50 text-rose-600 dark:bg-gray-700 dark:text-rose-400' : 'bg-gray-100 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:bg-gray-700'}" title="${isFav ? 'Bỏ khỏi Mối Ruột' : 'Thả tim thêm vào Mối Ruột ❤️'}">
+                                <button onclick="handleToggleFavorite('${partnerId}')" class="p-2 rounded-xl text-xs font-bold transition ${isFav ? 'bg-rose-50 text-rose-600 dark:bg-gray-700 dark:text-rose-400' : 'bg-gray-100 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:bg-gray-700'}" title="${isFav ? 'Bỏ khỏi Mối Ruột' : 'Thả tim thêm vào Mối Ruột ❤️'}">
                                     <i class="${isFav ? 'fas fa-heart text-rose-500' : 'far fa-heart'}"></i>
                                 </button>
-                                <button onclick="openDirectHireForPartner('${p.id}', '${escapeHtml(p.full_name)}', '${avatar}')" class="p-2 bg-purple-50 hover:bg-purple-100 text-purple-600 dark:bg-gray-700 dark:text-purple-400 rounded-xl text-xs font-bold transition" title="Giao việc trực tiếp">
+                                <button onclick="openDirectHireForPartner('${partnerId}', '${escapeHtml(partnerName)}', '${avatar}')" class="p-2 bg-purple-50 hover:bg-purple-100 text-purple-600 dark:bg-gray-700 dark:text-purple-400 rounded-xl text-xs font-bold transition" title="Giao việc trực tiếp">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
-                                <button onclick="selectPartner('${p.id}')" class="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-gray-700 dark:text-indigo-400 rounded-xl text-xs font-bold transition" title="Nhắn tin">
+                                <button onclick="selectPartner('${partnerId}')" class="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-gray-700 dark:text-indigo-400 rounded-xl text-xs font-bold transition" title="Nhắn tin">
                                     <i class="fas fa-comment-dots"></i>
                                 </button>
                             </div>
@@ -1496,13 +1520,61 @@
                             mergedMsgs.push(localMsg);
                         }
                     }
-                    currentActiveMessages = mergedMsgs;
+
                     const lastMsg = mergedMsgs.length > 0 ? mergedMsgs[mergedMsgs.length - 1] : null;
                     const lastEditOrRecall = mergedMsgs.map(m => (m.edited_at || '') + '_' + (m.is_recalled ? '1' : '0') + '_' + (m.is_blocked_by_policy ? '1' : '0')).join('|');
                     const signature = `${mergedMsgs.length}_${lastMsg ? lastMsg.created_at : ''}_${lastEditOrRecall}_${activePartnerConnection?.is_blocked}_${activePartnerConnection?.is_favorite}_${activePartnerConnection?.status}`;
+
                     if (signature !== lastRenderedMessageSignature) {
-                        lastRenderedMessageSignature = signature;
-                        renderMessages(mergedMsgs);
+                        const container = document.getElementById('messagesContainer');
+                        const hasExistingMessages = container && container.querySelector('.msg-row-item');
+
+                        // Cập nhật thông minh (Smart Reconciliation) thay vì xóa sạch DOM
+                        if (hasExistingMessages && lastRenderedMessageSignature) {
+                            // 1. Lưu state cuộn
+                            const isScrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 120;
+                            
+                            // 2. Map các tin nhắn cũ để so sánh
+                            const oldMsgsMap = new Map((currentActiveMessages || []).map(m => [m.id, m]));
+                            
+                            currentActiveMessages = mergedMsgs;
+                            lastRenderedMessageSignature = signature;
+
+                            // 3. Xóa các tin nhắn không còn tồn tại
+                            const mergedIds = new Set(mergedMsgs.map(m => String(m.id)));
+                            Array.from(container.querySelectorAll('.msg-row-item')).forEach(el => {
+                                const id = el.getAttribute('data-msg-id');
+                                if (id && !mergedIds.has(id)) {
+                                    el.remove();
+                                }
+                            });
+
+                            // 4. Thêm mới hoặc cập nhật in-place
+                            for (const msg of mergedMsgs) {
+                                const existingEl = document.getElementById('msg_row_' + msg.id);
+                                if (!existingEl) {
+                                    appendMessageToDOM(msg);
+                                } else {
+                                    const oldMsg = oldMsgsMap.get(msg.id);
+                                    // So sánh sự thay đổi của tin nhắn này để quyết định có render lại không
+                                    const msgSignature = (m) => m ? `${m.content}_${m.is_edited}_${m.is_recalled}_${m.is_blocked_by_policy}_${m.reactions ? JSON.stringify(m.reactions) : ''}` : '';
+                                    if (msgSignature(oldMsg) !== msgSignature(msg)) {
+                                        updateMessageInDOM(msg.id, msg);
+                                    }
+                                }
+                            }
+                            
+                            // 5. Khôi phục cuộn nếu cần
+                            if (isScrolledToBottom) {
+                                container.scrollTop = container.scrollHeight;
+                            }
+                        } else {
+                            currentActiveMessages = mergedMsgs;
+                            lastRenderedMessageSignature = signature;
+                            renderMessages(mergedMsgs);
+                        }
+                    } else {
+                        currentActiveMessages = mergedMsgs;
                     }
                 }
             } catch (err) {
@@ -1512,8 +1584,8 @@
 
         function dismissBlockedMessage(msgId) {
             currentActiveMessages = (currentActiveMessages || []).filter(m => m.id !== msgId);
-            lastRenderedMessageSignature = null;
-            renderMessages(currentActiveMessages);
+            const el = document.getElementById('msg_row_' + msgId);
+            if (el) el.remove();
         }
 
         function showLockoutModal(errorMsg, lockedUntil) {
@@ -1570,10 +1642,8 @@
             } catch (e) {}
         }
 
-        function renderMessages(messages) {
-            const container = document.getElementById('messagesContainer');
+        function getHeaderBannersHtml() {
             let html = '';
-
             const partnerName = activePartnerData ? activePartnerData.full_name : 'Đối tác';
             const partnerAvatar = activePartnerData && activePartnerData.avatar_url ? activePartnerData.avatar_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
             const activeConv = conversations.find(c => c.partner_id === activePartnerId);
@@ -1631,7 +1701,6 @@
                     const note = activePartnerConnection.connection?.note || '';
 
                     if (connStatus === 'pending' && !isSender) {
-                        // ĐỐI PHƯƠNG GỬI LỜI MỜI CHO MÌNH
                         html += `
                         <div class="bg-gradient-to-br from-indigo-50/95 via-purple-50/90 to-pink-50/80 dark:from-gray-800 dark:to-gray-750 p-4 sm:p-5 rounded-3xl border-2 border-indigo-200 dark:border-indigo-900 shadow-md mb-5">
                             <div class="flex items-start space-x-3.5">
@@ -1662,7 +1731,6 @@
                             </div>
                         </div>`;
                     } else if (connStatus === 'pending' && isSender) {
-                        // MÌNH GỬI CHO ĐỐI PHƯƠNG
                         html += `
                         <div class="bg-amber-50 dark:bg-amber-950/40 p-3.5 sm:p-4 rounded-2xl border border-amber-200 dark:border-amber-900/60 text-xs mb-4 flex items-center justify-between gap-3 shadow-2xs">
                             <div class="flex items-center space-x-2.5 min-w-0">
@@ -1707,11 +1775,469 @@
                     }
                 }
             }
+            return html;
+        }
 
-            // === DANH SÁCH TIN NHẮN 1-1 ===
+        function renderSingleMessageHtml(msg) {
+            const isMe = String(msg.sender_id) === String(currentUser.id);
+            const time = formatTime(msg.created_at);
+            const partnerName = activePartnerData ? activePartnerData.full_name : 'Đối tác';
+            const partnerAvatar = activePartnerData && activePartnerData.avatar_url ? activePartnerData.avatar_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=4f46e5&color=fff`;
+
+            const isDirectHire = msg.content && (
+                msg.content.includes('[GIAO VIỆC TRỰC TIẾP]') ||
+                msg.content.includes('[ĐỀ XUẤT HỢP ĐỒNG]') ||
+                msg.content.includes('[CHỐT GIÁ & KHÓA ESCROW]') ||
+                msg.content.includes('[CẬP NHẬT GIÁ]') ||
+                msg.content.includes('[CẬP NHẬT DỰ ÁN]') ||
+                msg.content.includes('[ĐỒNG Ý MỨC GIÁ]')
+            );
+
+            const isRevokeNotice = msg.content && msg.content.includes('[THU HỒI DỰ ÁN]');
+            let itemHtml = '';
+
+            if (msg.is_blocked_by_policy) {
+                let mediaHtml = '';
+                const isImageOrGif = checkIsImageOrGif(msg.file_url, msg.file_type, msg.file_name);
+
+                if (isImageOrGif) {
+                    mediaHtml = `
+                    <div class="my-2 rounded-2xl overflow-hidden shadow-md max-w-[280px] sm:max-w-[340px] bg-red-950/20 border border-red-300 dark:border-red-800 relative opacity-80">
+                        <img src="${msg.file_url}" alt="${escapeHtml(msg.file_name || 'Hình ảnh')}" class="w-full max-h-[200px] object-cover grayscale">
+                        <div class="absolute inset-0 bg-red-950/60 backdrop-blur-[1px] flex items-center justify-center text-white font-bold text-xs gap-1.5 p-2 text-center">
+                            <i class="fas fa-ban text-red-400 text-sm"></i>
+                            <span>Tệp bị chặn</span>
+                        </div>
+                    </div>`;
+                } else if (msg.file_url) {
+                    mediaHtml = `
+                    <div class="my-2 p-3 rounded-2xl bg-red-100/70 dark:bg-red-950/50 border border-red-300 dark:border-red-800 text-red-900 dark:text-red-200 shadow-sm flex items-center gap-2.5">
+                        <i class="fas fa-file-circle-xmark text-red-500 text-xl"></i>
+                        <div class="min-w-0 flex-1">
+                            <span class="font-bold block text-xs truncate line-through">${escapeHtml(msg.file_name || 'Tệp đính kèm')}</span>
+                            <span class="text-[10px] text-red-500 font-semibold">Tệp tin không được phép gửi</span>
+                        </div>
+                    </div>`;
+                }
+
+                const contentHtml = msg.content ? `<p class="whitespace-pre-wrap leading-relaxed select-all">${escapeHtml(msg.content)}</p>` : '';
+
+                itemHtml = `
+                <div class="flex justify-end items-end space-x-2 group my-2 relative animate-in fade-in duration-200">
+                    <button type="button" onclick="dismissBlockedMessage('${msg.id}')" title="Bỏ qua và ẩn thông báo này" class="opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 rounded-lg text-xs self-center">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+
+                    <div class="max-w-[85%] sm:max-w-md bg-rose-50 dark:bg-rose-950/80 text-rose-950 dark:text-rose-100 rounded-2xl rounded-tr-xs p-3.5 sm:p-4 shadow-md border-2 border-rose-500 dark:border-rose-600 relative">
+                        ${mediaHtml}
+                        ${contentHtml}
+
+                        <div class="mt-2.5 pt-2 border-t border-rose-200 dark:border-rose-900/60 space-y-1.5">
+                            <div class="flex items-center gap-1.5 font-bold text-rose-700 dark:text-rose-300 text-xs">
+                                <i class="fas fa-circle-exclamation text-rose-600 text-sm animate-pulse"></i>
+                                <span>Không thể gửi do vi phạm chính sách!</span>
+                            </div>
+                            <div class="text-[11px] text-rose-800 dark:text-rose-200 bg-rose-100/90 dark:bg-rose-900/50 p-2 rounded-xl border border-rose-300 dark:border-rose-800 leading-snug">
+                                <i class="fas fa-shield-halved mr-1 text-rose-600"></i> ${escapeHtml(msg.policy_error || 'Nội dung vi phạm điều khoản trao đổi thông tin / cờ bạc / ngôn từ ngoài sàn.')}
+                            </div>
+                            ${msg.warning_banner ? `
+                            <div class="text-[11px] font-bold text-amber-900 dark:text-amber-200 bg-amber-100/90 dark:bg-amber-950/80 p-2 rounded-xl border border-amber-300 dark:border-amber-700 flex items-start gap-1.5 leading-snug shadow-xs">
+                                <i class="fas fa-triangle-exclamation text-amber-600 text-sm mt-0.5 shrink-0"></i>
+                                <div>${escapeHtml(msg.warning_banner)}</div>
+                            </div>` : ''}
+                        </div>
+
+                        <div class="flex items-center justify-between gap-1.5 mt-2 text-[10px] text-rose-400 dark:text-rose-400">
+                            <span class="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 font-bold">
+                                <i class="fas fa-ban"></i> Bị chặn gửi
+                            </span>
+                            <span>${time}</span>
+                        </div>
+                    </div>
+                </div>`;
+            } else if (msg.is_recalled) {
+                if (isMe) {
+                    itemHtml = `
+                    <div class="flex justify-end items-end space-x-2 my-1">
+                        <div class="max-w-[80%] sm:max-w-md bg-gray-100/90 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-2xl rounded-tr-xs px-3.5 py-2 shadow-2xs border border-dashed border-gray-300 dark:border-gray-700 text-xs flex items-center gap-2 italic">
+                            <i class="fas fa-undo-alt text-gray-400 text-xs"></i>
+                            <span>Tin nhắn đã được thu hồi</span>
+                            <span class="text-[10px] text-gray-400 not-italic ml-1 opacity-70">${time}</span>
+                        </div>
+                    </div>`;
+                } else {
+                    itemHtml = `
+                    <div class="flex items-end space-x-2 my-1">
+                        <img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">
+                        <div class="max-w-[80%] sm:max-w-md bg-gray-100/90 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-2xl rounded-tl-xs px-3.5 py-2 shadow-2xs border border-dashed border-gray-300 dark:border-gray-700 text-xs flex items-center gap-2 italic">
+                            <i class="fas fa-undo-alt text-gray-400 text-xs"></i>
+                            <span>Tin nhắn đã được thu hồi</span>
+                            <span class="text-[10px] text-gray-400 not-italic ml-1 opacity-70">${time}</span>
+                        </div>
+                    </div>`;
+                }
+            } else if (isRevokeNotice) {
+                if (isMe) {
+                    itemHtml = `
+                    <div class="flex justify-end items-end space-x-2 my-2">
+                        <div class="max-w-[85%] sm:max-w-md bg-gradient-to-br from-red-600 to-rose-700 text-white rounded-2xl rounded-tr-xs p-4 shadow-md text-xs sm:text-sm border border-red-400/40">
+                            <div class="flex items-center gap-2 pb-2 mb-2 border-b border-red-400/40 font-bold text-xs text-red-100">
+                                <span class="w-6 h-6 rounded-lg bg-red-500/50 flex items-center justify-center"><i class="fas fa-undo"></i></span>
+                                <span>THÔNG BÁO THU HỒI DỰ ÁN</span>
+                            </div>
+                            <p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>
+                            <div class="mt-2 text-right">
+                                <span class="text-[10px] text-red-200">${time}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                    itemHtml = `
+                    <div class="flex items-end space-x-2 my-2">
+                        <img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">
+                        <div class="max-w-[85%] sm:max-w-md bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200 rounded-2xl rounded-tl-xs p-4 shadow-md border-2 border-red-200 dark:border-red-900/60 text-xs sm:text-sm">
+                            <div class="flex items-center gap-2 pb-2 mb-2 border-b border-red-200 dark:border-red-900/60 font-bold text-xs text-red-700 dark:text-red-300">
+                                <span class="w-6 h-6 rounded-lg bg-red-100 dark:bg-red-900/60 flex items-center justify-center text-red-600"><i class="fas fa-undo"></i></span>
+                                <span>THÔNG BÁO THU HỒI DỰ ÁN</span>
+                            </div>
+                            <p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>
+                            <div class="mt-2 text-right">
+                                <span class="text-[10px] text-gray-400">${time}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+            } else if (isDirectHire) {
+                const jobIdMatch = msg.content ? msg.content.match(/(?:Mã dự án:\s*#?|ID:\s*#?)([a-zA-Z0-9\-_]+)/i) : null;
+                const matchedJobId = jobIdMatch ? jobIdMatch[1] : (msg.job_id || '');
+                const targetClientLink = (currentUser && currentUser.role === 'freelancer')
+                    ? (matchedJobId ? `my-jobs.html?job_id=${matchedJobId}` : 'my-jobs.html')
+                    : (matchedJobId ? `my-requests.html?job_id=${matchedJobId}` : 'my-requests.html');
+
+                const rawBudgetMatch = msg.content ? msg.content.match(/(\d[\d.,]*)\s*Token/i) : null;
+                const parsedBudget = rawBudgetMatch ? parseFloat(rawBudgetMatch[1].replace(/,/g, '')) : 0;
+                const currentBudget = msg.job_budget || parsedBudget || 0;
+
+                const jobStatus = msg.job_status || (msg.content.includes('[CHỐT GIÁ & KHÓA ESCROW]') ? 'planning' : 'negotiating');
+                const hasRevokeMsgInChat = (currentActiveMessages || []).some(m => m.content && m.content.includes('[THU HỒI DỰ ÁN]') && (matchedJobId ? m.content.includes(matchedJobId) : true));
+                const isRevoked = msg.is_revoked === true || jobStatus === 'cancelled' || jobStatus === 'revoked' || hasRevokeMsgInChat;
+                const isPlanningOrAccepted = ['planning', 'pending_plan_approval', 'in_progress', 'completed', 'accepted'].includes(jobStatus);
+                const isCardCollapsed = collapsedProposalCards.has(msg.id);
+
+                if (isRevoked) {
+                    itemHtml = `
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'} items-end space-x-2 my-2">
+                        ${!isMe ? `<img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">` : ''}
+                        <div class="max-w-[88%] sm:max-w-md ${isMe ? 'bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 text-white border-red-500/40' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-red-300 dark:border-red-900/80'} rounded-2xl ${isMe ? 'rounded-tr-xs' : 'rounded-tl-xs'} p-4 shadow-md border-2 text-xs sm:text-sm">
+                            <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b ${isMe ? 'border-red-400/30 text-red-200' : 'border-red-100 dark:border-red-900/60 text-red-600 dark:text-red-400'} font-bold text-xs">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-6 h-6 rounded-lg ${isMe ? 'bg-red-500/30 text-red-300' : 'bg-red-100 dark:bg-red-950 text-red-600'} flex items-center justify-center"><i class="fas fa-ban"></i></span>
+                                    <span>HỢP ĐỒNG ĐÃ THU HỒI</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="px-2 py-0.5 ${isMe ? 'bg-red-500/30 text-red-200 border-red-400/30' : 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'} text-[10px] font-bold rounded-full border">Đã Hoàn Escrow</span>
+                                    <button type="button" onclick="toggleProposalCollapse('${msg.id}')" class="text-[10px] hover:underline opacity-80 cursor-pointer p-1" title="Thu gọn / Mở rộng">
+                                        <i class="fas ${isCardCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            ${!isCardCollapsed ? `
+                            <div class="p-2.5 ${isMe ? 'bg-red-950/50 text-red-200 border-red-800/60' : 'bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border-red-200 dark:border-red-900/60'} rounded-xl text-xs font-semibold mb-2.5 border">
+                                <i class="fas fa-info-circle mr-1 ${isMe ? 'text-red-400' : 'text-red-500'}"></i> ${isMe ? 'Bạn đã thu hồi dự án này. Tiền ký quỹ Escrow đã được hoàn về ví.' : 'Khách hàng đã thu hồi thỏa thuận giao việc này. Dự án đã kết thúc.'}
+                            </div>
+                            <p class="whitespace-pre-wrap leading-relaxed ${isMe ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 line-through opacity-80'}">${escapeHtml(msg.content)}</p>
+                            ` : `
+                            <p class="text-xs italic truncate opacity-75">${escapeHtml(msg.content.slice(0, 80))}...</p>
+                            `}
+                            <div class="mt-3 pt-2 border-t ${isMe ? 'border-gray-600/40' : 'border-gray-100 dark:border-gray-700'} flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    ${isMe ? `
+                                    <a href="${targetClientLink}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 rounded-xl text-[11px] font-bold text-white transition">
+                                        <i class="fas fa-list-check"></i> Xem Yêu Cầu
+                                    </a>
+                                    ` : `
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-xl text-[11px] font-bold">
+                                        <i class="fas fa-times-circle text-xs"></i> Đã kết thúc
+                                    </span>
+                                    `}
+                                    ${renderFloatingReactionBar(msg.id, isMe ? 'right' : 'left', true)}
+                                </div>
+                                <span class="text-[10px] text-gray-400">${time}</span>
+                            </div>
+                            <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
+                        </div>
+                    </div>`;
+                } else if (isPlanningOrAccepted) {
+                    itemHtml = `
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'} items-end space-x-2 my-2">
+                        ${!isMe ? `<img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">` : ''}
+                        <div class="max-w-[88%] sm:max-w-md ${isMe ? 'bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 text-white border-indigo-400/40' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-emerald-500'} rounded-2xl ${isMe ? 'rounded-tr-xs' : 'rounded-tl-xs'} p-4 shadow-xl border-2 text-xs sm:text-sm">
+                            <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b ${isMe ? 'border-indigo-400/30 text-emerald-300' : 'border-gray-100 dark:border-gray-700 text-emerald-600 dark:text-emerald-400'} font-bold text-xs">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-6 h-6 rounded-lg ${isMe ? 'bg-emerald-500/30 text-emerald-300' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600'} flex items-center justify-center"><i class="fas fa-shield-halved"></i></span>
+                                    <span>🟢 ĐÃ CHỐT GIÁ & KHÓA ESCROW</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="px-2 py-0.5 ${isMe ? 'bg-emerald-500/30 text-emerald-200 border-emerald-400/30' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'} text-[10px] font-bold rounded-full border">Đã Ký Quỹ</span>
+                                    <button type="button" onclick="toggleProposalCollapse('${msg.id}')" class="text-[10px] hover:underline opacity-80 cursor-pointer p-1" title="Thu gọn / Mở rộng">
+                                        <i class="fas ${isCardCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            ${!isCardCollapsed ? `
+                            <p class="whitespace-pre-wrap leading-relaxed ${isMe ? 'text-indigo-100' : ''}">${escapeHtml(msg.content)}</p>
+                            ` : `
+                            <p class="text-xs italic truncate opacity-75">${escapeHtml(msg.content.slice(0, 80))}...</p>
+                            `}
+                            <div class="mt-3 pt-2.5 border-t ${isMe ? 'border-indigo-400/30' : 'border-gray-100 dark:border-gray-700'} flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    <a href="${targetClientLink}" class="inline-flex items-center gap-1.5 px-3 py-1.5 ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300'} rounded-xl text-[11px] font-bold transition shadow-sm">
+                                        <i class="fas fa-list-check"></i> Xem trong Yêu Cầu
+                                    </a>
+                                    ${renderFloatingReactionBar(msg.id, isMe ? 'right' : 'left', true)}
+                                </div>
+                                <span class="text-[10px] ${isMe ? 'text-indigo-300' : 'text-gray-400'}">${time}</span>
+                            </div>
+                            <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
+                        </div>
+                    </div>`;
+                } else {
+                    itemHtml = `
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'} items-end space-x-2 my-2">
+                        ${!isMe ? `<img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">` : ''}
+                        <div class="max-w-[88%] sm:max-w-md bg-gradient-to-br from-amber-500/10 via-indigo-500/10 to-purple-500/10 dark:bg-gray-800 rounded-2xl ${isMe ? 'rounded-tr-xs' : 'rounded-tl-xs'} p-4 shadow-lg border-2 border-amber-400 dark:border-amber-500 text-xs sm:text-sm text-gray-800 dark:text-gray-100">
+                            <div class="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-amber-300 dark:border-amber-500/40">
+                                <span class="flex items-center gap-1.5 font-extrabold text-amber-700 dark:text-amber-300 text-xs">
+                                    <span class="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center text-amber-600 dark:text-amber-400"><i class="fas fa-handshake-angle"></i></span>
+                                    <span>🟡 ĐỀ XUẤT HỢP ĐỒNG (ĐANG THỎA THUẬN)</span>
+                                </span>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-bold rounded-full border border-amber-300 dark:border-amber-800">Chưa Khóa Ví</span>
+                                    <button type="button" onclick="toggleProposalCollapse('${msg.id}')" class="text-[10px] text-amber-700 dark:text-amber-300 hover:underline opacity-80 cursor-pointer p-1" title="Thu gọn / Mở rộng">
+                                        <i class="fas ${isCardCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="p-2.5 bg-amber-50 dark:bg-amber-950/40 rounded-xl text-amber-900 dark:text-amber-200 text-xs font-semibold mb-2.5 border border-amber-200 dark:border-amber-900/60 flex items-center justify-between">
+                                <span><i class="fas fa-coins text-yellow-500 mr-1"></i> Giá Đề Xuất:</span>
+                                <span class="text-sm font-black text-amber-600 dark:text-amber-400">${currentBudget ? currentBudget.toLocaleString() + ' Token' : 'Thỏa thuận'}</span>
+                            </div>
+
+                            ${!isCardCollapsed ? `
+                            <p class="whitespace-pre-wrap leading-relaxed text-xs text-gray-700 dark:text-gray-300">${escapeHtml(msg.content)}</p>
+                            ` : `
+                            <p class="text-xs italic truncate opacity-75">${escapeHtml(msg.content.slice(0, 80))}...</p>
+                            `}
+
+                            <div class="mt-3 pt-2.5 border-t border-amber-200 dark:border-gray-700 flex flex-wrap gap-2 items-center justify-between">
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button onclick="handleConfirmDirectHire('${matchedJobId}', ${currentBudget})" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-[11px] font-extrabold shadow-sm transition">
+                                        <i class="fas fa-lock text-xs"></i> Chốt Giá & Khóa Escrow
+                                    </button>
+                                    <button onclick="handleUpdateOfferPrice('${matchedJobId}', ${currentBudget})" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/60 dark:hover:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-xl text-[11px] font-bold transition">
+                                        <i class="fas fa-edit text-xs"></i> Đổi Giá
+                                    </button>
+                                    <button onclick="openChatEditJobModal('${matchedJobId}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/60 dark:hover:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-xl text-[11px] font-bold transition">
+                                        <i class="fas fa-pen-to-square text-xs"></i> Sửa
+                                    </button>
+                                    <button onclick="handleDeleteProposalJob('${matchedJobId}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/60 dark:hover:bg-red-900 text-red-800 dark:text-red-200 rounded-xl text-[11px] font-bold transition">
+                                        <i class="fas fa-trash-alt text-xs"></i> Xóa
+                                    </button>
+                                    ${renderFloatingReactionBar(msg.id, isMe ? 'right' : 'left', true)}
+                                </div>
+                                <span class="text-[10px] text-gray-400 self-center">${time}</span>
+                            </div>
+                            <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
+                        </div>
+                    </div>`;
+                }
+            } else if (isMe) {
+                let mediaHtml = '';
+                const isImageOrGif = checkIsImageOrGif(msg.file_url, msg.file_type, msg.file_name);
+
+                if (isImageOrGif) {
+                    const accessibleImg = getAccessibleFileUrl(msg.file_url, 'view');
+                    mediaHtml = `
+                    <div class="my-2 rounded-2xl overflow-hidden shadow-md max-w-[280px] sm:max-w-[340px] bg-black/10 dark:bg-black/30 border border-white/20 relative group/img">
+                        <img src="${accessibleImg}" alt="${escapeHtml(msg.file_name || 'Hình ảnh')}" class="w-full max-h-[280px] object-cover cursor-pointer hover:opacity-95 transition" onclick="handleOpenFilePreview('${msg.file_url}', '${escapeHtml(msg.file_name || 'image')}')">
+                        <div class="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover/img:opacity-100 transition shadow-sm z-10">
+                            <button type="button" onclick="event.stopPropagation(); handleCopyImageLink('${msg.file_url}', event)" title="Sao chép liên kết ảnh" class="w-7 h-7 rounded-xl bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-xs cursor-pointer shadow-xs">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button type="button" onclick="event.stopPropagation(); handleRecallMessage('${msg.id}')" title="Thu hồi ảnh / GIF này" class="w-7 h-7 rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs cursor-pointer shadow-xs">
+                                <i class="fas fa-undo-alt"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                } else if (msg.file_url) {
+                    const iconClass = getFileIconClass(msg.file_name, msg.file_type);
+                    mediaHtml = `
+                    <div class="my-2 p-3 rounded-2xl bg-white/10 dark:bg-black/25 backdrop-blur-md border border-white/20 text-white shadow-sm flex items-center justify-between gap-3 min-w-[230px] max-w-[340px]">
+                        <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer hover:opacity-90 transition" onclick="handleOpenFilePreview('${msg.file_url}', '${escapeHtml(msg.file_name || 'file')}')" title="Nhấn để mở / xem tệp">
+                            <div class="w-9 h-9 rounded-xl bg-white dark:bg-gray-800 flex items-center justify-center text-base shrink-0 shadow-2xs">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <span class="font-bold block text-xs truncate" title="${escapeHtml(msg.file_name || 'Tệp đính kèm')}">${escapeHtml(msg.file_name || 'Tệp đính kèm')}</span>
+                                <span class="text-[10px] text-white/80 flex items-center gap-1 mt-0.5"><i class="far fa-eye"></i> Mở xem / Tải về</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button type="button" onclick="event.stopPropagation(); handleCopyImageLink('${msg.file_url}', event)" title="Sao chép link tệp" class="w-7 h-7 rounded-xl bg-white/15 hover:bg-white/25 text-white flex items-center justify-center text-xs font-bold transition cursor-pointer">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button type="button" onclick="event.stopPropagation(); handleDownloadDirectFile('${msg.file_url}', '${escapeHtml(msg.file_name || 'file')}', event)" class="w-7 h-7 rounded-xl bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-xs font-bold transition cursor-pointer" title="Tải xuống tệp">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button type="button" onclick="event.stopPropagation(); handleRecallMessage('${msg.id}')" title="Thu hồi tệp này" class="w-7 h-7 rounded-xl bg-red-500/40 hover:bg-red-500 text-white flex items-center justify-center text-xs font-bold transition cursor-pointer">
+                                <i class="fas fa-undo-alt"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                }
+
+                const contentHtml = msg.content ? `<p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>` : '';
+
+                itemHtml = `
+                <div class="flex justify-end items-end space-x-2 group my-1.5 relative">
+                    <!-- Quick action buttons on hover -->
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1 mb-1 mr-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-1.5 py-0.5 shadow-sm shrink-0 z-20">
+                        ${renderFloatingReactionBar(msg.id, 'right', false)}
+                        ${msg.content ? `
+                        <button type="button" onclick="handleCopyMessageContent('${msg.id}', event)" title="Sao chép tin nhắn" class="w-6 h-6 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 flex items-center justify-center text-[11px] transition cursor-pointer">
+                            <i class="far fa-copy"></i>
+                        </button>` : ''}
+                        ${msg.content ? `
+                        <button type="button" onclick="startEditMessage('${msg.id}')" title="Sửa tin nhắn" class="w-6 h-6 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 flex items-center justify-center text-[11px] transition cursor-pointer">
+                            <i class="fas fa-pen"></i>
+                        </button>` : ''}
+                        <button type="button" onclick="handleRecallMessage('${msg.id}')" title="Thu hồi tin nhắn / tệp tin / hình ảnh" class="w-6 h-6 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 flex items-center justify-center text-[11px] transition cursor-pointer">
+                            <i class="fas fa-undo-alt"></i>
+                        </button>
+                    </div>
+                    <div class="max-w-[78%] sm:max-w-md bg-indigo-600 text-white rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-sm text-xs sm:text-sm relative">
+                        ${mediaHtml}
+                        ${contentHtml}
+                        <div class="flex items-center justify-end gap-1.5 mt-1 text-[10px] text-indigo-200">
+                            ${msg.is_edited ? '<span class="italic opacity-80">(Đã sửa)</span>' : ''}
+                            <span>${time}</span>
+                            ${msg.is_pending ? '<i class="fas fa-circle-notch fa-spin text-[9px] opacity-75" title="Đang gửi..."></i>' : (msg.send_failed ? '<i class="fas fa-exclamation-circle text-red-300 text-[10px]" title="Gửi thất bại"></i>' : '<i class="fas fa-check text-[9px] opacity-75" title="Đã gửi"></i>')}
+                        </div>
+                        <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
+                    </div>
+                </div>`;
+            } else {
+                let mediaHtml = '';
+                const isImageOrGif = checkIsImageOrGif(msg.file_url, msg.file_type, msg.file_name);
+
+                if (isImageOrGif) {
+                    const accessibleImg = getAccessibleFileUrl(msg.file_url, 'view');
+                    mediaHtml = `
+                    <div class="my-2 rounded-2xl overflow-hidden shadow-md max-w-[280px] sm:max-w-[340px] bg-black/5 dark:bg-black/20 border border-gray-200 dark:border-gray-700 relative group/img">
+                        <img src="${accessibleImg}" alt="${escapeHtml(msg.file_name || 'Hình ảnh')}" class="w-full max-h-[280px] object-cover cursor-pointer hover:opacity-95 transition" onclick="handleOpenFilePreview('${msg.file_url}', '${escapeHtml(msg.file_name || 'image')}')">
+                        <button type="button" onclick="event.stopPropagation(); handleCopyImageLink('${msg.file_url}', event)" title="Sao chép liên kết ảnh" class="w-7 h-7 rounded-xl bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-xs opacity-0 group-hover/img:opacity-100 transition shadow-sm cursor-pointer absolute top-2 right-2">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>`;
+                } else if (msg.file_url) {
+                    const iconClass = getFileIconClass(msg.file_name, msg.file_type);
+                    mediaHtml = `
+                    <div class="my-2 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 shadow-sm flex items-center justify-between gap-3 min-w-[230px] max-w-[340px]">
+                        <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer hover:opacity-90 transition" onclick="handleOpenFilePreview('${msg.file_url}', '${escapeHtml(msg.file_name || 'file')}')" title="Nhấn để mở / xem tệp">
+                            <div class="w-9 h-9 rounded-xl bg-white dark:bg-gray-700 flex items-center justify-center text-base shrink-0 shadow-2xs border border-gray-200 dark:border-gray-600">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <span class="font-bold block text-xs truncate text-gray-800 dark:text-gray-100" title="${escapeHtml(msg.file_name || 'Tệp đính kèm')}">${escapeHtml(msg.file_name || 'Tệp đính kèm')}</span>
+                                <span class="text-[10px] text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5"><i class="far fa-eye"></i> Mở xem / Tải về</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button type="button" onclick="event.stopPropagation(); handleCopyImageLink('${msg.file_url}', event)" title="Sao chép link tệp" class="w-7 h-7 rounded-xl bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 flex items-center justify-center text-xs font-bold transition cursor-pointer">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button type="button" onclick="event.stopPropagation(); handleDownloadDirectFile('${msg.file_url}', '${escapeHtml(msg.file_name || 'file')}', event)" class="w-7 h-7 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer" title="Tải xuống tệp">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                }
+
+                const contentHtml = msg.content ? `<p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>` : '';
+
+                itemHtml = `
+                <div class="flex items-end space-x-2 group my-1.5 relative">
+                    <img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">
+                    <div class="max-w-[78%] sm:max-w-md bg-white dark:bg-gray-750 text-gray-800 dark:text-gray-100 rounded-2xl rounded-tl-xs px-4 py-2.5 shadow-sm border border-gray-100 dark:border-gray-700 text-xs sm:text-sm relative">
+                        ${mediaHtml}
+                        ${contentHtml}
+                        <div class="flex items-center justify-end gap-1.5 mt-1 text-[10px] text-gray-400">
+                            ${msg.is_edited ? '<span class="italic opacity-80 text-indigo-500 dark:text-indigo-400">(Đã sửa)</span>' : ''}
+                            <span>${time}</span>
+                        </div>
+                        <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
+                    </div>
+                    <!-- Quick reaction button on hover for received messages -->
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1 mb-1 ml-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-1.5 py-0.5 shadow-sm shrink-0 z-20">
+                        ${renderFloatingReactionBar(msg.id, 'left', false)}
+                        ${msg.content ? `
+                        <button type="button" onclick="handleCopyMessageContent('${msg.id}', event)" title="Sao chép tin nhắn" class="w-6 h-6 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 flex items-center justify-center text-[11px] transition cursor-pointer">
+                            <i class="far fa-copy"></i>
+                        </button>` : ''}
+                    </div>
+                </div>`;
+            }
+
+            return `<div id="msg_row_${msg.id}" data-msg-id="${msg.id}" class="msg-row-item">${itemHtml}</div>`;
+        }
+
+        function appendMessageToDOM(msg) {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+
+            const emptyBox = container.querySelector('.empty-chat-state');
+            if (emptyBox) {
+                emptyBox.remove();
+            }
+
+            const existing = document.getElementById('msg_row_' + msg.id);
+            if (existing) {
+                existing.outerHTML = renderSingleMessageHtml(msg);
+                return;
+            }
+
+            const temp = document.createElement('div');
+            temp.innerHTML = renderSingleMessageHtml(msg);
+            if (temp.firstElementChild) {
+                container.appendChild(temp.firstElementChild);
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            }
+        }
+
+        function updateMessageInDOM(oldId, newMsg) {
+            const el = document.getElementById('msg_row_' + oldId);
+            if (el) {
+                if (oldId !== newMsg.id) {
+                    el.id = 'msg_row_' + newMsg.id;
+                    el.setAttribute('data-msg-id', newMsg.id);
+                }
+                el.outerHTML = renderSingleMessageHtml(newMsg);
+            } else {
+                appendMessageToDOM(newMsg);
+            }
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            let html = '';
+
+            html += getHeaderBannersHtml();
+
             if (messages.length === 0) {
                 html += `
-                    <div class="flex flex-col items-center justify-center py-10 text-center text-gray-400 space-y-2">
+                    <div class="empty-chat-state flex flex-col items-center justify-center py-10 text-center text-gray-400 space-y-2">
                         <i class="far fa-paper-plane text-2xl text-indigo-400"></i>
                         <p class="text-xs font-semibold">Chưa có tin nhắn nào giữa hai bên.</p>
                         <p class="text-[11px]">Hãy gửi lời chào hoặc thảo luận về yêu cầu công việc ngay bên dưới!</p>
@@ -1719,415 +2245,7 @@
                 `;
             } else {
                 messages.forEach(msg => {
-                    const isMe = String(msg.sender_id) === String(currentUser.id);
-                    const time = formatTime(msg.created_at);
-                    const isDirectHire = msg.content && (
-                        msg.content.includes('[GIAO VIỆC TRỰC TIẾP]') ||
-                        msg.content.includes('[ĐỀ XUẤT HỢP ĐỒNG]') ||
-                        msg.content.includes('[CHỐT GIÁ & KHÓA ESCROW]') ||
-                        msg.content.includes('[CẬP NHẬT GIÁ]') ||
-                        msg.content.includes('[CẬP NHẬT DỰ ÁN]') ||
-                        msg.content.includes('[ĐỒNG Ý MỨC GIÁ]')
-                    );
-
-                    const isRevokeNotice = msg.content && msg.content.includes('[THU HỒI DỰ ÁN]');
-
-                    if (msg.is_blocked_by_policy) {
-                        let mediaHtml = '';
-                        const isImageOrGif = checkIsImageOrGif(msg.file_url, msg.file_type, msg.file_name);
-
-                        if (isImageOrGif) {
-                            mediaHtml = `
-                            <div class="my-2 rounded-2xl overflow-hidden shadow-md max-w-[280px] sm:max-w-[340px] bg-red-950/20 border border-red-300 dark:border-red-800 relative opacity-80">
-                                <img src="${msg.file_url}" alt="${escapeHtml(msg.file_name || 'Hình ảnh')}" class="w-full max-h-[200px] object-cover grayscale">
-                                <div class="absolute inset-0 bg-red-950/60 backdrop-blur-[1px] flex items-center justify-center text-white font-bold text-xs gap-1.5 p-2 text-center">
-                                    <i class="fas fa-ban text-red-400 text-sm"></i>
-                                    <span>Tệp bị chặn</span>
-                                </div>
-                            </div>`;
-                        } else if (msg.file_url) {
-                            mediaHtml = `
-                            <div class="my-2 p-3 rounded-2xl bg-red-100/70 dark:bg-red-950/50 border border-red-300 dark:border-red-800 text-red-900 dark:text-red-200 shadow-sm flex items-center gap-2.5">
-                                <i class="fas fa-file-circle-xmark text-red-500 text-xl"></i>
-                                <div class="min-w-0 flex-1">
-                                    <span class="font-bold block text-xs truncate line-through">${escapeHtml(msg.file_name || 'Tệp đính kèm')}</span>
-                                    <span class="text-[10px] text-red-500 font-semibold">Tệp tin không được phép gửi</span>
-                                </div>
-                            </div>`;
-                        }
-
-                        const contentHtml = msg.content ? `<p class="whitespace-pre-wrap leading-relaxed select-all">${escapeHtml(msg.content)}</p>` : '';
-
-                        html += `
-                        <div class="flex justify-end items-end space-x-2 group my-2 relative animate-in fade-in duration-200">
-                            <!-- Nút gỡ bỏ tin nhắn vi phạm khỏi khung nhìn tạm -->
-                            <button type="button" onclick="dismissBlockedMessage('${msg.id}')" title="Bỏ qua và ẩn thông báo này" class="opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 rounded-lg text-xs self-center">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-
-                            <div class="max-w-[85%] sm:max-w-md bg-rose-50 dark:bg-rose-950/80 text-rose-950 dark:text-rose-100 rounded-2xl rounded-tr-xs p-3.5 sm:p-4 shadow-md border-2 border-rose-500 dark:border-rose-600 relative">
-                                ${mediaHtml}
-                                ${contentHtml}
-
-                                <!-- KHỐI CẢNH BÁO VI PHẠM & 5 LẦN KHÓA 30 NGÀY -->
-                                <div class="mt-2.5 pt-2 border-t border-rose-200 dark:border-rose-900/60 space-y-1.5">
-                                    <div class="flex items-center gap-1.5 font-bold text-rose-700 dark:text-rose-300 text-xs">
-                                        <i class="fas fa-circle-exclamation text-rose-600 text-sm animate-pulse"></i>
-                                        <span>Không thể gửi do vi phạm chính sách!</span>
-                                    </div>
-                                    <div class="text-[11px] text-rose-800 dark:text-rose-200 bg-rose-100/90 dark:bg-rose-900/50 p-2 rounded-xl border border-rose-300 dark:border-rose-800 leading-snug">
-                                        <i class="fas fa-shield-halved mr-1 text-rose-600"></i> ${escapeHtml(msg.policy_error || 'Nội dung vi phạm điều khoản trao đổi thông tin / cờ bạc / ngôn từ ngoài sàn.')}
-                                    </div>
-                                    ${msg.warning_banner ? `
-                                    <div class="text-[11px] font-bold text-amber-900 dark:text-amber-200 bg-amber-100/90 dark:bg-amber-950/80 p-2 rounded-xl border border-amber-300 dark:border-amber-700 flex items-start gap-1.5 leading-snug shadow-xs">
-                                        <i class="fas fa-triangle-exclamation text-amber-600 text-sm mt-0.5 shrink-0"></i>
-                                        <div>${escapeHtml(msg.warning_banner)}</div>
-                                    </div>` : ''}
-                                </div>
-
-                                <div class="flex items-center justify-between gap-1.5 mt-2 text-[10px] text-rose-400 dark:text-rose-400">
-                                    <span class="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 font-bold">
-                                        <i class="fas fa-ban"></i> Bị chặn gửi
-                                    </span>
-                                    <span>${time}</span>
-                                </div>
-                            </div>
-                        </div>`;
-                    } else if (msg.is_recalled) {
-                        if (isMe) {
-                            html += `
-                            <div class="flex justify-end items-end space-x-2 my-1">
-                                <div class="max-w-[80%] sm:max-w-md bg-gray-100/90 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-2xl rounded-tr-xs px-3.5 py-2 shadow-2xs border border-dashed border-gray-300 dark:border-gray-700 text-xs flex items-center gap-2 italic">
-                                    <i class="fas fa-undo-alt text-gray-400 text-xs"></i>
-                                    <span>Tin nhắn đã được thu hồi</span>
-                                    <span class="text-[10px] text-gray-400 not-italic ml-1 opacity-70">${time}</span>
-                                </div>
-                            </div>`;
-                        } else {
-                            html += `
-                            <div class="flex items-end space-x-2 my-1">
-                                <img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">
-                                <div class="max-w-[80%] sm:max-w-md bg-gray-100/90 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-2xl rounded-tl-xs px-3.5 py-2 shadow-2xs border border-dashed border-gray-300 dark:border-gray-700 text-xs flex items-center gap-2 italic">
-                                    <i class="fas fa-undo-alt text-gray-400 text-xs"></i>
-                                    <span>Tin nhắn đã được thu hồi</span>
-                                    <span class="text-[10px] text-gray-400 not-italic ml-1 opacity-70">${time}</span>
-                                </div>
-                            </div>`;
-                        }
-                    } else if (isRevokeNotice) {
-                        if (isMe) {
-                            html += `
-                            <div class="flex justify-end items-end space-x-2">
-                                <div class="max-w-[85%] sm:max-w-md bg-gradient-to-br from-red-600 to-rose-700 text-white rounded-2xl rounded-tr-xs p-4 shadow-md text-xs sm:text-sm border border-red-400/40">
-                                    <div class="flex items-center gap-2 pb-2 mb-2 border-b border-red-400/40 font-bold text-xs text-red-100">
-                                        <span class="w-6 h-6 rounded-lg bg-red-500/50 flex items-center justify-center"><i class="fas fa-undo"></i></span>
-                                        <span>THÔNG BÁO THU HỒI DỰ ÁN</span>
-                                    </div>
-                                    <p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>
-                                    <div class="mt-2 text-right">
-                                        <span class="text-[10px] text-red-200">${time}</span>
-                                    </div>
-                                </div>
-                            </div>`;
-                        } else {
-                            html += `
-                            <div class="flex items-end space-x-2">
-                                <img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">
-                                <div class="max-w-[85%] sm:max-w-md bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200 rounded-2xl rounded-tl-xs p-4 shadow-md border-2 border-red-200 dark:border-red-900/60 text-xs sm:text-sm">
-                                    <div class="flex items-center gap-2 pb-2 mb-2 border-b border-red-200 dark:border-red-900/60 font-bold text-xs text-red-700 dark:text-red-300">
-                                        <span class="w-6 h-6 rounded-lg bg-red-100 dark:bg-red-900/60 flex items-center justify-center text-red-600"><i class="fas fa-undo"></i></span>
-                                        <span>THÔNG BÁO THU HỒI DỰ ÁN</span>
-                                    </div>
-                                    <p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>
-                                    <div class="mt-2 text-right">
-                                        <span class="text-[10px] text-gray-400">${time}</span>
-                                    </div>
-                                </div>
-                            </div>`;
-                        }
-                    } else if (isDirectHire) {
-                        const jobIdMatch = msg.content ? msg.content.match(/(?:Mã dự án:\s*#?|ID:\s*#?)([a-zA-Z0-9\-_]+)/i) : null;
-                        const matchedJobId = jobIdMatch ? jobIdMatch[1] : (msg.job_id || '');
-                        const targetClientLink = (currentUser && currentUser.role === 'freelancer')
-                            ? (matchedJobId ? `my-jobs.html?job_id=${matchedJobId}` : 'my-jobs.html')
-                            : (matchedJobId ? `my-requests.html?job_id=${matchedJobId}` : 'my-requests.html');
-
-                        const rawBudgetMatch = msg.content ? msg.content.match(/(\d[\d.,]*)\s*Token/i) : null;
-                        const parsedBudget = rawBudgetMatch ? parseFloat(rawBudgetMatch[1].replace(/,/g, '')) : 0;
-                        const currentBudget = msg.job_budget || parsedBudget || 0;
-
-                        const jobStatus = msg.job_status || (msg.content.includes('[CHỐT GIÁ & KHÓA ESCROW]') ? 'planning' : 'negotiating');
-                        const hasRevokeMsgInChat = messages.some(m => m.content && m.content.includes('[THU HỒI DỰ ÁN]') && (matchedJobId ? m.content.includes(matchedJobId) : true));
-                        const isRevoked = msg.is_revoked === true || jobStatus === 'cancelled' || jobStatus === 'revoked' || hasRevokeMsgInChat;
-                        const isPlanningOrAccepted = ['planning', 'pending_plan_approval', 'in_progress', 'completed', 'accepted'].includes(jobStatus);
-                        const isCardCollapsed = collapsedProposalCards.has(msg.id);
-
-                        if (isRevoked) {
-                            html += `
-                            <div class="flex ${isMe ? 'justify-end' : 'justify-start'} items-end space-x-2 my-2">
-                                ${!isMe ? `<img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">` : ''}
-                                <div class="max-w-[88%] sm:max-w-md ${isMe ? 'bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 text-white border-red-500/40' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-red-300 dark:border-red-900/80'} rounded-2xl ${isMe ? 'rounded-tr-xs' : 'rounded-tl-xs'} p-4 shadow-md border-2 text-xs sm:text-sm">
-                                    <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b ${isMe ? 'border-red-400/30 text-red-200' : 'border-red-100 dark:border-red-900/60 text-red-600 dark:text-red-400'} font-bold text-xs">
-                                        <span class="flex items-center gap-1.5">
-                                            <span class="w-6 h-6 rounded-lg ${isMe ? 'bg-red-500/30 text-red-300' : 'bg-red-100 dark:bg-red-950 text-red-600'} flex items-center justify-center"><i class="fas fa-ban"></i></span>
-                                            <span>HỢP ĐỒNG ĐÃ THU HỒI</span>
-                                        </span>
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="px-2 py-0.5 ${isMe ? 'bg-red-500/30 text-red-200 border-red-400/30' : 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'} text-[10px] font-bold rounded-full border">Đã Hoàn Escrow</span>
-                                            <button type="button" onclick="toggleProposalCollapse('${msg.id}')" class="text-[10px] hover:underline opacity-80 cursor-pointer p-1" title="Thu gọn / Mở rộng">
-                                                <i class="fas ${isCardCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    ${!isCardCollapsed ? `
-                                    <div class="p-2.5 ${isMe ? 'bg-red-950/50 text-red-200 border-red-800/60' : 'bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border-red-200 dark:border-red-900/60'} rounded-xl text-xs font-semibold mb-2.5 border">
-                                        <i class="fas fa-info-circle mr-1 ${isMe ? 'text-red-400' : 'text-red-500'}"></i> ${isMe ? 'Bạn đã thu hồi dự án này. Tiền ký quỹ Escrow đã được hoàn về ví.' : 'Khách hàng đã thu hồi thỏa thuận giao việc này. Dự án đã kết thúc.'}
-                                    </div>
-                                    <p class="whitespace-pre-wrap leading-relaxed ${isMe ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 line-through opacity-80'}">${escapeHtml(msg.content)}</p>
-                                    ` : `
-                                    <p class="text-xs italic truncate opacity-75">${escapeHtml(msg.content.slice(0, 80))}...</p>
-                                    `}
-                                    <div class="mt-3 pt-2 border-t ${isMe ? 'border-gray-600/40' : 'border-gray-100 dark:border-gray-700'} flex items-center justify-between">
-                                        <div class="flex items-center gap-1.5">
-                                            ${isMe ? `
-                                            <a href="${targetClientLink}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 rounded-xl text-[11px] font-bold text-white transition">
-                                                <i class="fas fa-list-check"></i> Xem Yêu Cầu
-                                            </a>
-                                            ` : `
-                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-xl text-[11px] font-bold">
-                                                <i class="fas fa-times-circle text-xs"></i> Đã kết thúc
-                                            </span>
-                                            `}
-                                            ${renderFloatingReactionBar(msg.id, isMe ? 'right' : 'left', true)}
-                                        </div>
-                                        <span class="text-[10px] text-gray-400">${time}</span>
-                                    </div>
-                                    <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
-                                </div>
-                            </div>`;
-                        } else if (isPlanningOrAccepted) {
-                            // TRẠNG THÁI: ĐÃ CHỐT GIÁ & KHÓA ESCROW
-                            html += `
-                            <div class="flex ${isMe ? 'justify-end' : 'justify-start'} items-end space-x-2 my-2">
-                                ${!isMe ? `<img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">` : ''}
-                                <div class="max-w-[88%] sm:max-w-md ${isMe ? 'bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 text-white border-indigo-400/40' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-emerald-500'} rounded-2xl ${isMe ? 'rounded-tr-xs' : 'rounded-tl-xs'} p-4 shadow-xl border-2 text-xs sm:text-sm">
-                                    <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b ${isMe ? 'border-indigo-400/30 text-emerald-300' : 'border-gray-100 dark:border-gray-700 text-emerald-600 dark:text-emerald-400'} font-bold text-xs">
-                                        <span class="flex items-center gap-1.5">
-                                            <span class="w-6 h-6 rounded-lg ${isMe ? 'bg-emerald-500/30 text-emerald-300' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600'} flex items-center justify-center"><i class="fas fa-shield-halved"></i></span>
-                                            <span>🟢 ĐÃ CHỐT GIÁ & KHÓA ESCROW</span>
-                                        </span>
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="px-2 py-0.5 ${isMe ? 'bg-emerald-500/30 text-emerald-200 border-emerald-400/30' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'} text-[10px] font-bold rounded-full border">Đã Ký Quỹ</span>
-                                            <button type="button" onclick="toggleProposalCollapse('${msg.id}')" class="text-[10px] hover:underline opacity-80 cursor-pointer p-1" title="Thu gọn / Mở rộng">
-                                                <i class="fas ${isCardCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    ${!isCardCollapsed ? `
-                                    <p class="whitespace-pre-wrap leading-relaxed ${isMe ? 'text-indigo-100' : ''}">${escapeHtml(msg.content)}</p>
-                                    ` : `
-                                    <p class="text-xs italic truncate opacity-75">${escapeHtml(msg.content.slice(0, 80))}...</p>
-                                    `}
-                                    <div class="mt-3 pt-2.5 border-t ${isMe ? 'border-indigo-400/30' : 'border-gray-100 dark:border-gray-700'} flex items-center justify-between">
-                                        <div class="flex items-center gap-1.5">
-                                            <a href="${targetClientLink}" class="inline-flex items-center gap-1.5 px-3 py-1.5 ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300'} rounded-xl text-[11px] font-bold transition shadow-sm">
-                                                <i class="fas fa-list-check"></i> Xem trong Yêu Cầu
-                                            </a>
-                                            ${renderFloatingReactionBar(msg.id, isMe ? 'right' : 'left', true)}
-                                        </div>
-                                        <span class="text-[10px] ${isMe ? 'text-indigo-300' : 'text-gray-400'}">${time}</span>
-                                    </div>
-                                    <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
-                                </div>
-                            </div>`;
-                        } else {
-                            // TRẠNG THÁI: NEGOTIATING (ĐANG THỎA THUẬN GIÁ - CHƯA KHÓA VÍ)
-                            html += `
-                            <div class="flex ${isMe ? 'justify-end' : 'justify-start'} items-end space-x-2 my-2">
-                                ${!isMe ? `<img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">` : ''}
-                                <div class="max-w-[88%] sm:max-w-md bg-gradient-to-br from-amber-500/10 via-indigo-500/10 to-purple-500/10 dark:bg-gray-800 rounded-2xl ${isMe ? 'rounded-tr-xs' : 'rounded-tl-xs'} p-4 shadow-lg border-2 border-amber-400 dark:border-amber-500 text-xs sm:text-sm text-gray-800 dark:text-gray-100">
-                                    <div class="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-amber-300 dark:border-amber-500/40">
-                                        <span class="flex items-center gap-1.5 font-extrabold text-amber-700 dark:text-amber-300 text-xs">
-                                            <span class="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center text-amber-600 dark:text-amber-400"><i class="fas fa-handshake-angle"></i></span>
-                                            <span>🟡 ĐỀ XUẤT HỢP ĐỒNG (ĐANG THỎA THUẬN)</span>
-                                        </span>
-                                        <div class="flex items-center gap-1.5 shrink-0">
-                                            <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-bold rounded-full border border-amber-300 dark:border-amber-800">Chưa Khóa Ví</span>
-                                            <button type="button" onclick="toggleProposalCollapse('${msg.id}')" class="text-[10px] text-amber-700 dark:text-amber-300 hover:underline opacity-80 cursor-pointer p-1" title="Thu gọn / Mở rộng">
-                                                <i class="fas ${isCardCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="p-2.5 bg-amber-50 dark:bg-amber-950/40 rounded-xl text-amber-900 dark:text-amber-200 text-xs font-semibold mb-2.5 border border-amber-200 dark:border-amber-900/60 flex items-center justify-between">
-                                        <span><i class="fas fa-coins text-yellow-500 mr-1"></i> Giá Đề Xuất:</span>
-                                        <span class="text-sm font-black text-amber-600 dark:text-amber-400">${currentBudget ? currentBudget.toLocaleString() + ' Token' : 'Thỏa thuận'}</span>
-                                    </div>
-
-                                    ${!isCardCollapsed ? `
-                                    <p class="whitespace-pre-wrap leading-relaxed text-xs text-gray-700 dark:text-gray-300">${escapeHtml(msg.content)}</p>
-                                    ` : `
-                                    <p class="text-xs italic truncate opacity-75">${escapeHtml(msg.content.slice(0, 80))}...</p>
-                                    `}
-
-                                    <!-- Nút thao tác dành cho Khách Hàng -->
-                                    <div class="mt-3 pt-2.5 border-t border-amber-200 dark:border-gray-700 flex flex-wrap gap-2 items-center justify-between">
-                                        <div class="flex flex-wrap gap-1.5">
-                                            <button onclick="handleConfirmDirectHire('${matchedJobId}', ${currentBudget})" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-[11px] font-extrabold shadow-sm transition">
-                                                <i class="fas fa-lock text-xs"></i> Chốt Giá & Khóa Escrow
-                                            </button>
-                                            <button onclick="handleUpdateOfferPrice('${matchedJobId}', ${currentBudget})" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/60 dark:hover:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-xl text-[11px] font-bold transition">
-                                                <i class="fas fa-edit text-xs"></i> Đổi Giá
-                                            </button>
-                                            <button onclick="openChatEditJobModal('${matchedJobId}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/60 dark:hover:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-xl text-[11px] font-bold transition">
-                                                <i class="fas fa-pen-to-square text-xs"></i> Sửa
-                                            </button>
-                                            <button onclick="handleDeleteProposalJob('${matchedJobId}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/60 dark:hover:bg-red-900 text-red-800 dark:text-red-200 rounded-xl text-[11px] font-bold transition">
-                                                <i class="fas fa-trash-alt text-xs"></i> Xóa
-                                            </button>
-                                            ${renderFloatingReactionBar(msg.id, isMe ? 'right' : 'left', true)}
-                                        </div>
-                                        <span class="text-[10px] text-gray-400 self-center">${time}</span>
-                                    </div>
-                                    <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
-                                </div>
-                            </div>`;
-                        }
-                    } else if (isMe) {
-                        let mediaHtml = '';
-                        const isImageOrGif = checkIsImageOrGif(msg.file_url, msg.file_type, msg.file_name);
-
-                        if (isImageOrGif) {
-                            const accessibleImg = getAccessibleFileUrl(msg.file_url, 'view');
-                            mediaHtml = `
-                            <div class="my-2 rounded-2xl overflow-hidden shadow-md max-w-[280px] sm:max-w-[340px] bg-black/10 dark:bg-black/30 border border-white/20 relative group/img">
-                                <img src="${accessibleImg}" alt="${escapeHtml(msg.file_name || 'Hình ảnh')}" class="w-full max-h-[280px] object-cover cursor-pointer hover:opacity-95 transition" onclick="handleOpenFilePreview('${msg.file_url}', '${escapeHtml(msg.file_name || 'image')}')">
-                                <div class="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover/img:opacity-100 transition shadow-sm z-10">
-                                    <button type="button" onclick="event.stopPropagation(); handleCopyImageLink('${msg.file_url}', event)" title="Sao chép liên kết ảnh" class="w-7 h-7 rounded-xl bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-xs cursor-pointer shadow-xs">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    <button type="button" onclick="event.stopPropagation(); handleRecallMessage('${msg.id}')" title="Thu hồi ảnh / GIF này" class="w-7 h-7 rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs cursor-pointer shadow-xs">
-                                        <i class="fas fa-undo-alt"></i>
-                                    </button>
-                                </div>
-                            </div>`;
-                        } else if (msg.file_url) {
-                            const iconClass = getFileIconClass(msg.file_name, msg.file_type);
-                            mediaHtml = `
-                            <div class="my-2 p-3 rounded-2xl bg-white/10 dark:bg-black/25 backdrop-blur-md border border-white/20 text-white shadow-sm flex items-center justify-between gap-3 min-w-[230px] max-w-[340px]">
-                                <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer hover:opacity-90 transition" onclick="handleOpenFilePreview('${msg.file_url}', '${escapeHtml(msg.file_name || 'file')}')" title="Nhấn để mở / xem tệp">
-                                    <div class="w-9 h-9 rounded-xl bg-white dark:bg-gray-800 flex items-center justify-center text-base shrink-0 shadow-2xs">
-                                        <i class="fas ${iconClass}"></i>
-                                    </div>
-                                    <div class="min-w-0 flex-1">
-                                        <span class="font-bold block text-xs truncate" title="${escapeHtml(msg.file_name || 'Tệp đính kèm')}">${escapeHtml(msg.file_name || 'Tệp đính kèm')}</span>
-                                        <span class="text-[10px] text-white/80 flex items-center gap-1 mt-0.5"><i class="far fa-eye"></i> Mở xem / Tải về</span>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-1 shrink-0">
-                                    <button type="button" onclick="event.stopPropagation(); handleCopyImageLink('${msg.file_url}', event)" title="Sao chép link tệp" class="w-7 h-7 rounded-xl bg-white/15 hover:bg-white/25 text-white flex items-center justify-center text-xs font-bold transition cursor-pointer">
-                                        <i class="fas fa-link"></i>
-                                    </button>
-                                    <button type="button" onclick="event.stopPropagation(); handleDownloadDirectFile('${msg.file_url}', '${escapeHtml(msg.file_name || 'file')}', event)" class="w-7 h-7 rounded-xl bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-xs font-bold transition cursor-pointer" title="Tải xuống tệp">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                    <button type="button" onclick="event.stopPropagation(); handleRecallMessage('${msg.id}')" title="Thu hồi tệp này" class="w-7 h-7 rounded-xl bg-red-500/40 hover:bg-red-500 text-white flex items-center justify-center text-xs font-bold transition cursor-pointer">
-                                        <i class="fas fa-undo-alt"></i>
-                                    </button>
-                                </div>
-                            </div>`;
-                        }
-
-                        const contentHtml = msg.content ? `<p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>` : '';
-
-                        html += `
-                        <div class="flex justify-end items-end space-x-2 group my-1.5 relative">
-                            <!-- Quick action buttons on hover -->
-                            <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1 mb-1 mr-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-1.5 py-0.5 shadow-sm shrink-0 z-20">
-                                ${renderFloatingReactionBar(msg.id, 'right', false)}
-                                ${msg.content ? `
-                                <button type="button" onclick="handleCopyMessageContent('${msg.id}', event)" title="Sao chép tin nhắn" class="w-6 h-6 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 flex items-center justify-center text-[11px] transition cursor-pointer">
-                                    <i class="far fa-copy"></i>
-                                </button>` : ''}
-                                ${msg.content ? `
-                                <button type="button" onclick="startEditMessage('${msg.id}')" title="Sửa tin nhắn" class="w-6 h-6 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 flex items-center justify-center text-[11px] transition cursor-pointer">
-                                    <i class="fas fa-pen"></i>
-                                </button>` : ''}
-                                <button type="button" onclick="handleRecallMessage('${msg.id}')" title="Thu hồi tin nhắn / tệp tin / hình ảnh" class="w-6 h-6 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 flex items-center justify-center text-[11px] transition cursor-pointer">
-                                    <i class="fas fa-undo-alt"></i>
-                                </button>
-                            </div>
-                            <div class="max-w-[78%] sm:max-w-md bg-indigo-600 text-white rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-sm text-xs sm:text-sm relative">
-                                ${mediaHtml}
-                                ${contentHtml}
-                                <div class="flex items-center justify-end gap-1.5 mt-1 text-[10px] text-indigo-200">
-                                    ${msg.is_edited ? '<span class="italic opacity-80">(Đã sửa)</span>' : ''}
-                                    <span>${time}</span>
-                                </div>
-                                <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
-                            </div>
-                        </div>`;
-                    } else {
-                        let mediaHtml = '';
-                        const isImageOrGif = checkIsImageOrGif(msg.file_url, msg.file_type, msg.file_name);
-
-                        if (isImageOrGif) {
-                            const accessibleImg = getAccessibleFileUrl(msg.file_url, 'view');
-                            mediaHtml = `
-                            <div class="my-2 rounded-2xl overflow-hidden shadow-md max-w-[280px] sm:max-w-[340px] bg-black/5 dark:bg-black/20 border border-gray-200 dark:border-gray-700 relative group/img">
-                                <img src="${accessibleImg}" alt="${escapeHtml(msg.file_name || 'Hình ảnh')}" class="w-full max-h-[280px] object-cover cursor-pointer hover:opacity-95 transition" onclick="handleOpenFilePreview('${msg.file_url}', '${escapeHtml(msg.file_name || 'image')}')">
-                                <button type="button" onclick="event.stopPropagation(); handleCopyImageLink('${msg.file_url}', event)" title="Sao chép liên kết ảnh" class="w-7 h-7 rounded-xl bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-xs opacity-0 group-hover/img:opacity-100 transition shadow-sm cursor-pointer absolute top-2 right-2">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>`;
-                        } else if (msg.file_url) {
-                            const iconClass = getFileIconClass(msg.file_name, msg.file_type);
-                            mediaHtml = `
-                            <div class="my-2 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 shadow-sm flex items-center justify-between gap-3 min-w-[230px] max-w-[340px]">
-                                <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer hover:opacity-90 transition" onclick="handleOpenFilePreview('${msg.file_url}', '${escapeHtml(msg.file_name || 'file')}')" title="Nhấn để mở / xem tệp">
-                                    <div class="w-9 h-9 rounded-xl bg-white dark:bg-gray-700 flex items-center justify-center text-base shrink-0 shadow-2xs border border-gray-200 dark:border-gray-600">
-                                        <i class="fas ${iconClass}"></i>
-                                    </div>
-                                    <div class="min-w-0 flex-1">
-                                        <span class="font-bold block text-xs truncate text-gray-800 dark:text-gray-100" title="${escapeHtml(msg.file_name || 'Tệp đính kèm')}">${escapeHtml(msg.file_name || 'Tệp đính kèm')}</span>
-                                        <span class="text-[10px] text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5"><i class="far fa-eye"></i> Mở xem / Tải về</span>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-1 shrink-0">
-                                    <button type="button" onclick="event.stopPropagation(); handleCopyImageLink('${msg.file_url}', event)" title="Sao chép link tệp" class="w-7 h-7 rounded-xl bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 flex items-center justify-center text-xs font-bold transition cursor-pointer">
-                                        <i class="fas fa-link"></i>
-                                    </button>
-                                    <button type="button" onclick="event.stopPropagation(); handleDownloadDirectFile('${msg.file_url}', '${escapeHtml(msg.file_name || 'file')}', event)" class="w-7 h-7 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer" title="Tải xuống tệp">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>`;
-                        }
-
-                        const contentHtml = msg.content ? `<p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.content)}</p>` : '';
-
-                        html += `
-                        <div class="flex items-end space-x-2 group my-1.5 relative">
-                            <img src="${partnerAvatar}" class="w-7 h-7 rounded-xl object-cover border shrink-0">
-                            <div class="max-w-[78%] sm:max-w-md bg-white dark:bg-gray-750 text-gray-800 dark:text-gray-100 rounded-2xl rounded-tl-xs px-4 py-2.5 shadow-sm border border-gray-100 dark:border-gray-700 text-xs sm:text-sm relative">
-                                ${mediaHtml}
-                                ${contentHtml}
-                                <div class="flex items-center justify-end gap-1.5 mt-1 text-[10px] text-gray-400">
-                                    ${msg.is_edited ? '<span class="italic opacity-80 text-indigo-500 dark:text-indigo-400">(Đã sửa)</span>' : ''}
-                                    <span>${time}</span>
-                                </div>
-                                <div id="reactions_container_${msg.id}">${renderReactions(msg)}</div>
-                            </div>
-                            <!-- Quick reaction button on hover for received messages -->
-                            <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1 mb-1 ml-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-1.5 py-0.5 shadow-sm shrink-0 z-20">
-                                ${renderFloatingReactionBar(msg.id, 'left', false)}
-                                ${msg.content ? `
-                                <button type="button" onclick="handleCopyMessageContent('${msg.id}', event)" title="Sao chép tin nhắn" class="w-6 h-6 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 flex items-center justify-center text-[11px] transition cursor-pointer">
-                                    <i class="far fa-copy"></i>
-                                </button>` : ''}
-                            </div>
-                        </div>`;
-                    }
+                    html += renderSingleMessageHtml(msg);
                 });
             }
 
@@ -2178,7 +2296,7 @@
                 targetMsg.file_name = null;
                 targetMsg.file_type = null;
                 targetMsg.reactions = {};
-                renderMessages(currentActiveMessages);
+                updateMessageInDOM(msgId, targetMsg);
             }
             if (editingMessageId === msgId) {
                 cancelEditingMessage();
@@ -2198,26 +2316,29 @@
                 if (res.ok && data.success) {
                     lastRenderedMessageSignature = null;
                     await loadMessages();
-                    await loadAllNetworkAndChats();
                 } else {
-                    alert('❌ Lỗi: ' + (data.error || 'Không thể thu hồi tin nhắn'));
-                    await loadMessages();
+                    showToast('❌ Lỗi: ' + (data.error || 'Không thể thu hồi tin nhắn'), 'error');
                 }
             } catch (err) {
-                alert('❌ Lỗi kết nối: ' + err.message);
-                await loadMessages();
+                showToast('❌ Lỗi kết nối: ' + err.message, 'error');
             }
         }
 
-        // 5. Gửi tin nhắn hoặc Lưu nội dung chỉnh sửa
+        // 5. Gửi tin nhắn hoặc Lưu nội dung chỉnh sửa (Zalo/Messenger 0ms Optimistic & Smooth)
         async function handleSendMessage(e) {
-            e.preventDefault();
+            if (e && typeof e.preventDefault === 'function') {
+                try { e.preventDefault(); } catch (err) {}
+            }
+            if (e && typeof e.stopPropagation === 'function') {
+                try { e.stopPropagation(); } catch (err) {}
+            }
             const input = document.getElementById('messageInput');
+            if (!input) return;
             const content = input.value.trim();
             if (!content || !activePartnerId) return;
 
             if (activePartnerConnection && activePartnerConnection.is_blocked) {
-                alert('Không thể gửi tin nhắn cho người dùng này do quan hệ đã bị chặn.');
+                showToast('Không thể gửi tin nhắn cho người dùng này do quan hệ đã bị chặn.', 'warning');
                 return;
             }
 
@@ -2239,22 +2360,35 @@
 
                     const data = await res.json();
                     if (res.ok && data.success) {
-                        lastRenderedMessageSignature = null;
-                        await loadMessages();
-                        await loadAllNetworkAndChats();
+                        const targetMsg = currentActiveMessages.find(m => m.id === editId);
+                        if (targetMsg) {
+                            targetMsg.content = content;
+                            targetMsg.is_edited = true;
+                            updateMessageInDOM(editId, targetMsg);
+                        }
+                        let activeConv = conversations.find(c => c.partner_id === activePartnerId);
+                        if (activeConv && activeConv.last_message) {
+                            activeConv.last_message.content = content;
+                            renderInboxList();
+                        }
                     } else {
-                        alert('❌ Lỗi: ' + (data.error || 'Không thể cập nhật tin nhắn'));
+                        showToast('❌ Lỗi: ' + (data.error || 'Không thể cập nhật tin nhắn'), 'error');
                     }
                 } catch (err) {
-                    alert('❌ Lỗi kết nối: ' + err.message);
+                    showToast('❌ Lỗi kết nối: ' + err.message, 'error');
                 }
                 return;
             }
 
+            // Xóa ô nhập liệu ngay lập tức và giữ con trỏ chuột trong ô chat (kiểu Zalo/Messenger)
             input.value = '';
+            setTimeout(() => { try { input.focus(); } catch(_) {} }, 10);
 
-            // 1. Optimistic Update 0ms: Thêm tin nhắn tạm vào giao diện ngay lập tức để hiển thị siêu mượt không giật
-            const tempId = 'temp_' + Date.now();
+            console.log('[CHAT_LOG] 1. Bắt đầu xử lý gửi tin nhắn. Nội dung:', content);
+            console.log('[CHAT_LOG] -> Ngăn chặn submit form mặc định thành công.');
+
+            // 1. Optimistic Update 0ms: Thêm tin nhắn tạm vào giao diện ngay lập tức để hiển thị siêu mượt
+            const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
             const optimisticMsg = {
                 id: tempId,
                 sender_id: currentUser.id,
@@ -2269,11 +2403,10 @@
             };
 
             currentActiveMessages.push(optimisticMsg);
-            renderMessages(currentActiveMessages);
-            const msgBox = document.getElementById('messagesContainer');
-            if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+            // Append single DOM element directly - Zero full wipe, Zero reflow flicker!
+            appendMessageToDOM(optimisticMsg);
 
-            // 2. Optimistic update: chuyển người lạ thành hội thoại chính ngay lập tức
+            // 2. Optimistic update: cập nhật danh sách hội thoại bên trái
             let activeConv = conversations.find(c => c.partner_id === activePartnerId);
             if (activeConv) {
                 activeConv.has_replied = true;
@@ -2285,6 +2418,7 @@
                     created_at: optimisticMsg.created_at
                 };
                 activeConv.unread_count = 0;
+                conversations = [activeConv, ...conversations.filter(c => c.partner_id !== activePartnerId)];
             } else if (activePartnerData) {
                 activeConv = {
                     partner_id: activePartnerId,
@@ -2308,6 +2442,9 @@
             updateTabCounts();
             renderInboxList();
 
+            console.log('[CHAT_LOG] 2. Đã thêm tin nhắn tạm vào giao diện (Optimistic UI 0ms).');
+            console.log('[CHAT_LOG] 3. Đang gọi API POST /api/messages/direct lên server...');
+
             try {
                 const res = await fetch(`${API_URL}/api/messages/direct`, {
                     method: 'POST',
@@ -2320,26 +2457,29 @@
                 });
 
                 const data = await res.json();
+                console.log('[CHAT_LOG] 4. Server phản hồi API gửi tin:', data);
+
                 if (res.ok && data.success) {
-                    // Thay thế tin nhắn tạm bằng tin nhắn chuẩn từ server
+                    console.log('[CHAT_LOG] -> Gửi thành công! Cập nhật lại ID thực từ Server.');
+                    // Thay thế tin nhắn tạm bằng tin nhắn chuẩn từ server in-place
                     const idx = currentActiveMessages.findIndex(m => m.id === tempId);
                     if (idx > -1 && data.message) {
                         currentActiveMessages[idx] = data.message;
+                        updateMessageInDOM(tempId, data.message);
                     }
                     const lastMsg = currentActiveMessages[currentActiveMessages.length - 1];
                     const lastEditOrRecall = currentActiveMessages.map(m => (m.edited_at || '') + '_' + (m.is_recalled ? '1' : '0') + '_' + (m.is_blocked_by_policy ? '1' : '0')).join('|');
                     lastRenderedMessageSignature = `${currentActiveMessages.length}_${lastMsg ? lastMsg.created_at : ''}_${lastEditOrRecall}_${activePartnerConnection?.is_blocked}_${activePartnerConnection?.is_favorite}_${activePartnerConnection?.status}`;
-                    loadAllNetworkAndChats();
                 } else {
                     if (data.code === 'ACCOUNT_LOCKED_30_DAYS' || res.status === 403) {
                         currentActiveMessages = currentActiveMessages.filter(m => m.id !== tempId);
-                        renderMessages(currentActiveMessages);
+                        const el = document.getElementById('msg_row_' + tempId);
+                        if (el) el.remove();
                         showLockoutModal(data.error, data.locked_until);
                         return;
                     }
 
                     if (data.code === 'POLICY_VIOLATION' || data.code === 'MEDIA_POLICY_VIOLATION' || data.is_moderated) {
-                        // Giữ tin nhắn trong khung chat của người gửi với trạng thái vi phạm & cảnh báo phạt
                         const idx = currentActiveMessages.findIndex(m => m.id === tempId);
                         if (idx > -1) {
                             currentActiveMessages[idx].is_pending = false;
@@ -2347,22 +2487,24 @@
                             currentActiveMessages[idx].policy_error = data.error || 'Nội dung vi phạm chính sách kiểm duyệt của sàn!';
                             currentActiveMessages[idx].warning_banner = data.warning_banner || (data.violation_count ? `⚠️ CẢNH BÁO VI PHẠM (Lần ${data.violation_count}/5): Nếu vi phạm 5 lần tài khoản sẽ bị KHÓA 30 NGÀY!` : '');
                             currentActiveMessages[idx].violation_count = data.violation_count;
+                            updateMessageInDOM(tempId, currentActiveMessages[idx]);
                         }
-                        lastRenderedMessageSignature = null;
-                        renderMessages(currentActiveMessages);
-                        const msgBox = document.getElementById('messagesContainer');
-                        if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
                         showToast(`🛡️ ${data.error}`, 'error');
                     } else {
                         currentActiveMessages = currentActiveMessages.filter(m => m.id !== tempId);
-                        renderMessages(currentActiveMessages);
+                        const el = document.getElementById('msg_row_' + tempId);
+                        if (el) el.remove();
                         showToast('❌ Lỗi gửi tin nhắn: ' + (data.error || 'Thất bại'), 'error');
                     }
                 }
             } catch (err) {
                 console.error('Lỗi gửi tin nhắn:', err);
-                currentActiveMessages = currentActiveMessages.filter(m => m.id !== tempId);
-                renderMessages(currentActiveMessages);
+                const idx = currentActiveMessages.findIndex(m => m.id === tempId);
+                if (idx > -1) {
+                    currentActiveMessages[idx].is_pending = false;
+                    currentActiveMessages[idx].send_failed = true;
+                    updateMessageInDOM(tempId, currentActiveMessages[idx]);
+                }
                 showToast('❌ Lỗi kết nối gửi tin nhắn', 'error');
             }
         }
@@ -2502,6 +2644,8 @@
             }
         }
 
+        let lastRenderedInboxSignature = null;
+
         // 10. Background Polling Realtime
         async function backgroundPoll() {
             try {
@@ -2520,7 +2664,9 @@
                         }
                         updateTabCounts();
                         const searchInput = document.getElementById('chatSearchInput');
-                        if (document.activeElement !== searchInput) {
+                        const newConvSig = JSON.stringify(conversations.map(c => [c.partner_id, c.last_message?.content, c.last_message?.created_at, c.unread_count, c.is_stranger]));
+                        if (newConvSig !== lastRenderedInboxSignature && document.activeElement !== searchInput) {
+                            lastRenderedInboxSignature = newConvSig;
                             renderInboxList();
                         }
                     }
@@ -2564,7 +2710,12 @@
         }
 
         async function submitFriendRequest(e) {
-            e.preventDefault();
+            if (e && typeof e.preventDefault === 'function') {
+                try { e.preventDefault(); } catch (_) {}
+            }
+            if (e && typeof e.stopPropagation === 'function') {
+                try { e.stopPropagation(); } catch (_) {}
+            }
             const partnerId = document.getElementById('frPartnerId').value;
             const note = document.getElementById('frNote').value.trim();
             const btn = document.getElementById('btnSubmitFr');
@@ -2610,40 +2761,9 @@
         }
 
         // 12. Xem Hồ Sơ Đối Tác
-        async function viewActivePartnerProfile() {
+        function viewActivePartnerProfile() {
             if (!activePartnerId) return;
-            const modal = document.getElementById('profileModal');
-            modal.classList.remove('hidden');
-
-            try {
-                const res = await fetch(`${API_URL}/api/freelancers/${activePartnerId}/work-history`);
-                const data = await res.json();
-                if (res.ok && data.success) {
-                    const f = data.freelancer;
-                    const avatar = f.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(f.full_name)}&background=4f46e5&color=fff`;
-                    document.getElementById('mAvatar').src = avatar;
-                    document.getElementById('mFullName').innerText = f.full_name;
-                    document.getElementById('mEmail').innerText = f.email;
-                    document.getElementById('mBio').innerText = f.bio || 'Chưa cập nhật.';
-
-                    const historyList = document.getElementById('mWorkHistoryList');
-                    const completed = data.completed_jobs || [];
-                    if (completed.length === 0) {
-                        historyList.innerHTML = '<p class="text-xs text-gray-400 italic">Chưa có dự án nào hoàn thành trên sàn.</p>';
-                    } else {
-                        historyList.innerHTML = completed.map(j => `
-                            <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl text-xs space-y-1">
-                                <div class="flex justify-between font-bold">
-                                    <span>${escapeHtml(j.title)}</span>
-                                    <span class="text-indigo-600">${j.budget} Token</span>
-                                </div>
-                                <div class="text-yellow-500 font-bold">⭐ ${j.rating} / 5.0</div>
-                                <div class="italic text-gray-500">"${escapeHtml(j.review_comment)}"</div>
-                            </div>
-                        `).join('');
-                    }
-                }
-            } catch(e){}
+            window.location.href = `freelancer-profile.html?id=${activePartnerId}`;
         }
 
         function closeProfileModal() {
@@ -2751,7 +2871,7 @@
         function openDirectHireForPartner(partnerId, name, avatar) {
             document.getElementById('dhFreelancerId').value = partnerId;
             document.getElementById('dhName').innerText = name;
-            document.getElementById('dhAvatar').src = avatar || 'https://via.placeholder.com/50';
+            document.getElementById('dhAvatar').src = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'Freelancer')}&background=4f46e5&color=fff`;
             
             // Reset fields
             if (document.getElementById('dhAiPrompt')) document.getElementById('dhAiPrompt').value = '';
@@ -2771,7 +2891,12 @@
         }
 
         async function submitDirectHire(e) {
-            e.preventDefault();
+            if (e && typeof e.preventDefault === 'function') {
+                try { e.preventDefault(); } catch (_) {}
+            }
+            if (e && typeof e.stopPropagation === 'function') {
+                try { e.stopPropagation(); } catch (_) {}
+            }
             const freelancerId = document.getElementById('dhFreelancerId').value;
             const title = document.getElementById('dhTitle').value.trim();
             const category = document.getElementById('dhCategory').value;
@@ -3080,7 +3205,12 @@
 
         // 18. Lưu Cập Nhật Dự Án Đang Thỏa Thuận
         async function submitChatEditJob(e) {
-            e.preventDefault();
+            if (e && typeof e.preventDefault === 'function') {
+                try { e.preventDefault(); } catch (_) {}
+            }
+            if (e && typeof e.stopPropagation === 'function') {
+                try { e.stopPropagation(); } catch (_) {}
+            }
             const jobId = document.getElementById('chatEditJobId').value;
             const title = document.getElementById('chatEditTitle').value.trim();
             const category = document.getElementById('chatEditCategory').value;
@@ -4159,7 +4289,7 @@
         }
 
         async function sendDirectMediaMessage(fileUrl, fileName, fileType, caption = '') {
-            const tempId = 'temp_' + Date.now();
+            const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
             const optimisticMsg = {
                 id: tempId,
                 sender_id: currentUser.id,
@@ -4174,9 +4304,25 @@
             };
 
             currentActiveMessages.push(optimisticMsg);
-            renderMessages(currentActiveMessages);
-            const msgBox = document.getElementById('messagesContainer');
-            if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+            appendMessageToDOM(optimisticMsg);
+
+            // Update left sidebar inbox list optimistically
+            let activeConv = conversations.find(c => c.partner_id === activePartnerId);
+            const displayPreview = caption || (fileName ? `[Tệp] ${fileName}` : '[Hình ảnh]');
+            if (activeConv) {
+                activeConv.has_replied = true;
+                activeConv.is_stranger = false;
+                activeConv.last_message = {
+                    sender_id: currentUser.id,
+                    receiver_id: activePartnerId,
+                    content: displayPreview,
+                    created_at: optimisticMsg.created_at
+                };
+                activeConv.unread_count = 0;
+                conversations = [activeConv, ...conversations.filter(c => c.partner_id !== activePartnerId)];
+            }
+            updateTabCounts();
+            renderInboxList();
 
             try {
                 const res = await fetch(`${API_URL}/api/messages/direct`, {
@@ -4197,15 +4343,16 @@
                     const idx = currentActiveMessages.findIndex(m => m.id === tempId);
                     if (idx > -1 && data.message) {
                         currentActiveMessages[idx] = data.message;
+                        updateMessageInDOM(tempId, data.message);
                     }
                     const lastMsg = currentActiveMessages[currentActiveMessages.length - 1];
                     const lastEditOrRecall = currentActiveMessages.map(m => (m.edited_at || '') + '_' + (m.is_recalled ? '1' : '0') + '_' + (m.is_blocked_by_policy ? '1' : '0')).join('|');
                     lastRenderedMessageSignature = `${currentActiveMessages.length}_${lastMsg ? lastMsg.created_at : ''}_${lastEditOrRecall}_${activePartnerConnection?.is_blocked}_${activePartnerConnection?.is_favorite}_${activePartnerConnection?.status}`;
-                    loadAllNetworkAndChats();
                 } else {
                     if (data.code === 'ACCOUNT_LOCKED_30_DAYS' || res.status === 403) {
                         currentActiveMessages = currentActiveMessages.filter(m => m.id !== tempId);
-                        renderMessages(currentActiveMessages);
+                        const el = document.getElementById('msg_row_' + tempId);
+                        if (el) el.remove();
                         showLockoutModal(data.error, data.locked_until);
                         return;
                     }
@@ -4218,21 +4365,23 @@
                             currentActiveMessages[idx].policy_error = data.error || 'Tệp đính kèm hoặc hình ảnh vi phạm chính sách kiểm duyệt!';
                             currentActiveMessages[idx].warning_banner = data.warning_banner || (data.violation_count ? `⚠️ CẢNH BÁO VI PHẠM (Lần ${data.violation_count}/5): Nếu vi phạm 5 lần tài khoản sẽ bị KHÓA 30 NGÀY!` : '');
                             currentActiveMessages[idx].violation_count = data.violation_count;
+                            updateMessageInDOM(tempId, currentActiveMessages[idx]);
                         }
-                        lastRenderedMessageSignature = null;
-                        renderMessages(currentActiveMessages);
-                        const msgBox = document.getElementById('messagesContainer');
-                        if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
                         showToast(`🛡️ ${data.error}`, 'error');
                     } else {
                         currentActiveMessages = currentActiveMessages.filter(m => m.id !== tempId);
-                        renderMessages(currentActiveMessages);
+                        const el = document.getElementById('msg_row_' + tempId);
+                        if (el) el.remove();
                         showToast('❌ Lỗi gửi tin nhắn: ' + (data.error || 'Thất bại'), 'error');
                     }
                 }
             } catch (err) {
-                currentActiveMessages = currentActiveMessages.filter(m => m.id !== tempId);
-                renderMessages(currentActiveMessages);
+                const idx = currentActiveMessages.findIndex(m => m.id === tempId);
+                if (idx > -1) {
+                    currentActiveMessages[idx].is_pending = false;
+                    currentActiveMessages[idx].send_failed = true;
+                    updateMessageInDOM(tempId, currentActiveMessages[idx]);
+                }
                 showToast('❌ Lỗi kết nối: ' + err.message, 'error');
             }
         }
@@ -4552,37 +4701,12 @@
             if (!activePartnerId || !currentUser || !gifUrl) return;
 
             if (activePartnerConnection && activePartnerConnection.is_blocked) {
-                alert('Không thể gửi tin nhắn cho người dùng này do quan hệ đã bị chặn.');
+                showToast('Không thể gửi tin nhắn cho người dùng này do quan hệ đã bị chặn.', 'warning');
                 return;
             }
 
             toggleGifPicker(false);
-
-            try {
-                const res = await fetch(`${API_URL}/api/messages/direct`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        sender_id: currentUser.id,
-                        receiver_id: activePartnerId,
-                        content: '',
-                        file_url: gifUrl,
-                        file_name: 'animated.gif',
-                        file_type: 'image/gif'
-                    })
-                });
-
-                const data = await res.json();
-                if (res.ok && data.success) {
-                    lastRenderedMessageSignature = null;
-                    await loadMessages();
-                    await loadAllNetworkAndChats();
-                } else {
-                    alert('❌ Lỗi: ' + (data.error || 'Không thể gửi GIF'));
-                }
-            } catch (err) {
-                alert('❌ Lỗi kết nối: ' + err.message);
-            }
+            await sendDirectMediaMessage(gifUrl, 'animated.gif', 'image/gif', '');
         }
 
         // Đóng Emoji, GIF, Attachment và Quick Reaction popover khi click ra ngoài
@@ -4621,50 +4745,60 @@
             }
         });
 
-        // Khởi tạo
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadAllNetworkAndChats();
-            await checkUserLockoutStatus();
+        // Khởi tạo toàn diện trang Chat 1-1
+        async function initDirectChatPage() {
+            try {
+                await loadAllNetworkAndChats();
+                await checkUserLockoutStatus();
 
-            // Khôi phục trạng thái thu gọn sidebar nếu trước đó đã lưu
-            const savedCollapsed = localStorage.getItem('ht_directchat_sidebar_collapsed');
-            if (savedCollapsed === '1' && window.innerWidth >= 768) {
-                toggleSidebarCollapse(true);
-            }
+                // Khôi phục trạng thái thu gọn sidebar nếu trước đó đã lưu
+                const savedCollapsed = localStorage.getItem('ht_directchat_sidebar_collapsed');
+                if (savedCollapsed === '1' && window.innerWidth >= 768) {
+                    toggleSidebarCollapse(true);
+                }
 
-            // Kiểm tra URL query ?partner=
-            const urlParams = new URLSearchParams(window.location.search);
-            const partnerParam = urlParams.get('partner');
-            if (partnerParam) {
-                await selectPartner(partnerParam);
-            } else if (conversations.length > 0) {
-                await selectPartner(conversations[0].partner_id);
-            }
+                // Kiểm tra URL query ?partner=
+                const urlParams = new URLSearchParams(window.location.search);
+                const partnerParam = urlParams.get('partner') || urlParams.get('freelancer_id') || urlParams.get('client_id');
+                if (partnerParam) {
+                    await selectPartner(partnerParam);
+                } else if (conversations.length > 0) {
+                    await selectPartner(conversations[0].partner_id);
+                }
 
-            // Realtime background polling mỗi 3 giây
-            if (pollingInterval) clearInterval(pollingInterval);
-            pollingInterval = setInterval(backgroundPoll, 3000);
+                // Realtime background polling mỗi 3 giây
+                if (pollingInterval) clearInterval(pollingInterval);
+                pollingInterval = setInterval(backgroundPoll, 3000);
 
-            // Tự động xóa thông báo chưa đọc khi focus vào ô chat
-            const msgInput = document.getElementById('messageInput');
-            if (msgInput) {
-                msgInput.addEventListener('focus', () => {
-                    if (activePartnerId) {
-                        const activeConv = conversations.find(c => c.partner_id === activePartnerId);
-                        if (activeConv && activeConv.unread_count > 0) {
-                            activeConv.unread_count = 0;
-                            updateTabCounts();
-                            renderInboxList();
-                            fetch(`${API_URL}/api/messages/mark-read`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ user_id: currentUser.id, partner_id: activePartnerId })
-                            }).catch(()=>{});
+                // Tự động xóa thông báo chưa đọc khi focus vào ô chat
+                const msgInput = document.getElementById('messageInput');
+                if (msgInput) {
+                    msgInput.addEventListener('focus', () => {
+                        if (activePartnerId) {
+                            const activeConv = conversations.find(c => c.partner_id === activePartnerId);
+                            if (activeConv && activeConv.unread_count > 0) {
+                                activeConv.unread_count = 0;
+                                updateTabCounts();
+                                renderInboxList();
+                                fetch(`${API_URL}/api/messages/mark-read`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ user_id: currentUser.id, partner_id: activePartnerId })
+                                }).catch(()=>{});
+                            }
                         }
-                    }
-                });
+                    });
+                }
+            } catch (err) {
+                console.error('Lỗi khởi tạo chat:', err);
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDirectChatPage);
+        } else {
+            initDirectChatPage();
+        }
     </script>
 </body>
 </html>

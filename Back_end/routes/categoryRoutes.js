@@ -29,14 +29,58 @@ function saveCategories(cats) {
     }
 }
 
+const { validateAndNormalizeCustomCategory, STANDARD_CATEGORIES } = require('../services/categoryAiService');
+
 // 1. API: Lấy danh sách danh mục đang kích hoạt (Dành cho Client & Freelancer)
 router.get('/api/categories', (req, res) => {
     try {
-        const cats = loadCategories();
+        let cats = loadCategories();
+        if (!cats || cats.length === 0) {
+            cats = STANDARD_CATEGORIES;
+            saveCategories(cats);
+        }
         const activeCats = cats.filter(c => c.is_active !== false).sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99));
         res.json({ success: true, categories: activeCats });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// 1.1. API AI Kiểm Duyệt & Tự Động Phê Duyệt Chuyên Môn Tự Nhập (Groq AI Llama 3.3)
+router.post('/api/categories/validate-custom', async (req, res) => {
+    try {
+        const { category_name } = req.body;
+        console.log(`\n🔍 [API POST /api/categories/validate-custom] Kiểm duyệt chuyên môn: "${category_name}"`);
+
+        if (!category_name || typeof category_name !== 'string') {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Vui lòng cung cấp tên chuyên môn cần kiểm duyệt!' 
+            });
+        }
+
+        const result = await validateAndNormalizeCustomCategory(category_name);
+
+        if (!result.isValid) {
+            return res.status(400).json({
+                success: false,
+                isValid: false,
+                reason: result.reason || 'Tên chuyên môn không hợp lệ hoặc chứa nội dung bị cấm.',
+                error: result.reason
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            isValid: true,
+            normalizedName: result.normalizedName,
+            parentCategory: result.parentCategory,
+            suggestedSkills: result.suggestedSkills,
+            reason: result.reason
+        });
+    } catch (err) {
+        console.error('Lỗi khi kiểm duyệt danh mục:', err);
+        res.status(500).json({ success: false, error: 'Lỗi máy chủ khi kiểm duyệt chuyên môn: ' + err.message });
     }
 });
 

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Năng Lực Ứng Viên | HT Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative">
+
+<div class="mb-4">
+    <button onclick="history.back()" class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm transition flex items-center w-fit">
+        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+    </button>
+</div>
+
+            <!-- Cover & Avatar Banner -->
+            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 relative">
+                <!-- Cover Photo -->
+                <div id="coverContainer" class="h-44 sm:h-64 md:h-72 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 w-full bg-cover bg-center relative">
+                    
+                    
+                </div>
+                
+                <!-- Profile Header Details -->
+                <div class="px-4 sm:px-8 pb-6 flex flex-col md:flex-row justify-between items-center md:items-end -mt-16 sm:-mt-20 relative z-10 gap-4">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-end text-center sm:text-left gap-4">
+                        <div class="relative group">
+                            <img id="avatarContainer" src="https://ui-avatars.com/api/?name=Freelancer&background=4f46e5&color=fff" alt="Avatar" class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-700">
+                            
+                            
+                            <span class="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full" title="Đang online"></span>
+                        </div>
+                        <div class="mb-1">
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                <h1 id="displayName" class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">Đang tải...</h1>
+                                
+                                <!-- Email Verified Badge -->
+                                <span id="emailVerifiedBadge" class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm">
+                                    <i class="fas fa-check-circle mr-1.5 text-emerald-600"></i> Email đã xác thực
+                                </span>
+
+                                <!-- Phone Verified / WhatsApp Badge -->
+                                <span id="phoneVerifiedBadge"></span>
+                            </div>
+                            <p id="displayHeadline" class="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-1">Chuyên gia Lập trình & Phát triển Phần mềm</p>
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
+                                <span id="displayCategoryBadge"></span>
+                                <span class="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Sẵn sàng nhận việc
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2.5 mb-2 w-full sm:w-auto justify-center">
+                        
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-6">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Hoàn thành</p>
+                        <p id="statCompletedJobs" class="text-lg font-black text-gray-800 dark:text-white">Chưa có</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-500 flex items-center justify-center text-lg font-bold">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Đánh giá</p>
+                        <p id="statRating" class="text-lg font-black text-gray-800 dark:text-white">Chưa có</p>
+                    </div>
+                </div>
+
+                
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-lg font-bold">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase">Uy tín thợ</p>
+                        <p id="statReputationTier" class="text-lg font-black text-purple-600 dark:text-purple-400">Mới bắt đầu</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Info Grid -->
+            
+<div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative pb-12">
+    <!-- Left Column: Bio + Portfolio (Sticky) -->
+    <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-6">
+        <!-- Giới thiệu -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-3 flex items-center">
+                            <i class="fas fa-user-tag mr-2 text-indigo-500"></i> Giới thiệu bản thân
+                        </h2>
+                        <div class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-line" id="displayBio">
+                            Chưa có thông tin giới thiệu. Hãy bấm "Chỉnh sửa Hồ sơ" để cập nhật!
+                        </div>
+                    </div>
+
+                    
+        <!-- Portfolio Dự án đã thực hiện -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-laptop-code mr-2 text-purple-500"></i> Portfolio & Sản phẩm mẫu
+                            </h2>
+                            
+                        </div>
+                        <div id="portfolioGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="col-span-full text-center text-xs text-gray-400 py-6 italic">Chưa có dự án nào trong Portfolio.</div>
+                        </div>
+                    </div>
+    </div>
+
+    <!-- Right Column: Skills + Work History (Scrollable) -->
+    <div class="lg:col-span-7 space-y-6" id="rightColumn">
+        <!-- Kỹ năng chuyên môn -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-tools mr-2 text-indigo-500"></i> Kỹ năng chuyên môn (Tech Stack)
+                            </h2>
+                            
+                        </div>
+                        <div id="displaySkills" class="flex flex-wrap gap-2">
+                            <!-- Skill Badges Render Here -->
+                        </div>
+                    </div>
+
+                    
+    </div>
+</div>
+</main>
+</div>
+
+<script>
+
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://htwork-backend.onrender.com';
+            
+        const urlParams = new URLSearchParams(window.location.search);
+        const freelancerId = urlParams.get('id');
+
+        let currentPortfolios = [];
+        let completedJobsList = [];
+
+        function renderPortfolios() {
+            const grid = document.getElementById('portfolioGrid');
+            if (!grid) return;
+            if (currentPortfolios.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-xs text-gray-400 py-6 italic">Chưa có dự án nào trong Portfolio.</div>';
+                return;
+            }
+            grid.innerHTML = currentPortfolios.map((p, idx) => `
+                <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 bg-gray-50 dark:bg-gray-750 hover:shadow-md transition flex flex-col relative group">
+                    <div class="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden flex items-center justify-center text-3xl mb-3 relative group/vid">
+                        ${p.video ? `
+                            <iframe class="w-full h-full object-cover" src="${p.video.includes('youtube.com') || p.video.includes('youtu.be') ? getYouTubeEmbedUrl(p.video) : p.video}" frameborder="0" allowfullscreen></iframe>
+                        ` : `
+                            <i class="fas fa-image text-gray-400"></i>
+                        `}
+                    </div>
+                    <h3 class="font-bold text-sm text-gray-800 dark:text-white line-clamp-1">${escapeHtml(p.title)}</h3>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 flex-1">${escapeHtml(p.desc || 'Không có mô tả')}</p>
+                    ${p.link ? `
+                    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <a href="${p.link.startsWith('http') ? p.link : 'https://'+p.link}" target="_blank" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 flex items-center">
+                            <i class="fas fa-external-link-alt mr-1"></i> Xem thực tế
+                        </a>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderWorkHistory() {
+            const rightCol = document.getElementById('rightColumn');
+            if (!rightCol) return;
+            
+            let container = document.getElementById('workHistoryContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'workHistoryContainer';
+                container.className = 'bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700';
+                rightCol.appendChild(container);
+            }
+
+            container.innerHTML = `
+                <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4 flex items-center">
+                    <i class="fas fa-history mr-2 text-emerald-500"></i> Lịch Sử Các Dự Án Đã Hoàn Thành
+                </h2>
+                ${completedJobsList.length === 0 ? `
+                    <div class="text-center text-xs text-gray-400 py-6 italic">Ứng viên chưa có dự án nào hoàn thành trên hệ thống.</div>
+                ` : `
+                    <div class="space-y-3 pr-2 custom-scrollbar">
+                        ${completedJobsList.map(j => `
+                            <div class="bg-gray-50 border border-gray-100 p-4 rounded-xl shadow-sm flex flex-col sm:flex-row gap-4">
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h5 class="text-sm font-bold text-gray-800">${escapeHtml(j.title)}</h5>
+                                        <span class="text-xs font-black text-emerald-600 whitespace-nowrap ml-2">${(parseFloat(j.budget) || 0).toLocaleString()} Token</span>
+                                    </div>
+                                    <div class="text-[11px] text-gray-500 mb-2">
+                                        Khách hàng: <strong>${escapeHtml(j.client.full_name || 'Khách Hàng')}</strong>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg text-xs border border-gray-200">
+                                        <div class="font-bold text-amber-500 mb-1">${j.rating_display}</div>
+                                        <div class="italic text-gray-600">"${escapeHtml(j.review_comment)}"</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            `;
+        }
+
+        function getYouTubeEmbedUrl(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            if (match && match[2].length === 11) {
+                return `https://www.youtube.com/embed/${match[2]}`;
+            }
+            return url;
+        }
+
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.toString()
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function renderUI(data) {
+            const name = data.full_name || data.email || 'Freelancer';
+            const elName = document.getElementById('displayName');
+            if (elName) elName.innerText = name;
+            
+            const elBio = document.getElementById('displayBio');
+            if (elBio) elBio.innerText = data.bio || 'Chưa cập nhật giới thiệu cá nhân.';
+
+            const elAva = document.getElementById('avatarContainer');
+            if (elAva && data.avatar_url) elAva.src = data.avatar_url;
+            
+            const elCover = document.getElementById('coverContainer');
+            if (elCover && data.cover_url) elCover.style.backgroundImage = `url('${data.cover_url}')`;
+
+            // Phone Verified Badge
+            const phoneBadge = document.getElementById('phoneVerifiedBadge');
+            if (phoneBadge) {
+                if (data.is_phone_verified && data.phone_number) {
+                    phoneBadge.innerHTML = `<span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm"><i class="fab fa-whatsapp mr-1.5 text-emerald-600"></i> ${data.phone_number} (Đã xác minh)</span>`;
+                } else {
+                    phoneBadge.innerHTML = `<span class="bg-gray-100 dark:bg-gray-800 text-gray-500 text-xs font-bold px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700 flex items-center"><i class="fas fa-phone mr-1.5 text-gray-400"></i> Chưa xác thực SĐT</span>`;
+                }
+            }
+
+            // Category badge
+            const catBadge = document.getElementById('displayCategoryBadge');
+            if (catBadge) {
+                if (data.primary_category) {
+                    catBadge.innerHTML = `<span class="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-800"><i class="fas fa-folder mr-1"></i>${data.primary_category}</span>`;
+                } else {
+                    catBadge.innerHTML = `<span class="bg-gray-100 dark:bg-gray-700 text-gray-500 text-xs font-semibold px-2.5 py-0.5 rounded-full">Chưa chọn lĩnh vực</span>`;
+                }
+            }
+
+            // Skills
+            const skillsDiv = document.getElementById('displaySkills');
+            if (skillsDiv) {
+                skillsDiv.innerHTML = '';
+                if (data.skills && data.skills.length > 0) {
+                    data.skills.forEach(sk => {
+                        const span = document.createElement('span');
+                        span.className = 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center';
+                        span.innerHTML = `<i class="fas fa-check text-[10px] mr-1.5 text-indigo-500"></i>${sk}`;
+                        skillsDiv.appendChild(span);
+                    });
+                } else {
+                    skillsDiv.innerHTML = '<span class="text-gray-400 italic text-xs">Chưa cập nhật kỹ năng.</span>';
+                }
+            }
+
+            // Stats Bar
+            const statCompleted = document.getElementById('statCompletedJobs');
+            const statRate = document.getElementById('statRating');
+            const statTier = document.getElementById('statReputationTier');
+
+            if (statCompleted) statCompleted.innerText = `${data.completed_count || 0} Dự án`;
+            if (statRate) statRate.innerText = data.rating_display || 'Chưa có';
+            if (statTier) statTier.innerText = data.rating_score && data.rating_score >= 4.8 && data.completed_count >= 10 ? 'Cấp Pro' : (data.completed_count >= 3 ? 'Tiềm năng' : (data.completed_count > 0 ? 'Tích cực' : 'Mới bắt đầu'));
+        }
+
+        async function loadProfile() {
+            if (!freelancerId) {
+                alert('Không có ID ứng viên!');
+                return;
+            }
+            try {
+                const res = await fetch(`${API_URL}/api/freelancers/${freelancerId}/work-history`);
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    currentPortfolios = data.freelancer.portfolios || [];
+                    completedJobsList = data.completed_jobs || [];
+                    renderUI(data.freelancer);
+                    renderPortfolios();
+                    renderWorkHistory();
+                } else {
+                    alert('Lỗi tải hồ sơ');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        loadProfile();
+
+</script>
+</body>
+</html>

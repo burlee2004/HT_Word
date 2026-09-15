@@ -198,6 +198,9 @@
                             <a id="linkPayosDirect" href="#" target="_blank" class="hidden text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline py-1">
                                 <i class="fas fa-external-link-alt mr-1"></i> Mở trang thanh toán PayOS
                             </a>
+                            <button type="button" onclick="cancelActiveDeposit()" class="text-xs text-rose-600 dark:text-rose-400 font-bold hover:underline transition flex items-center justify-center gap-1.5 mt-1 py-1 w-full text-center cursor-pointer">
+                                <i class="fas fa-times-circle"></i> Hủy mã nạp này & Đổi số tiền
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -362,6 +365,8 @@
         let currentPendingRequestId = null;
         let statusPollingInterval = null;
         let payosPollingInterval = null;
+        let isDepositSessionActive = false;
+        let isSubmittingDeposit = false;
 
         function toggleDepositForm() {
             const container = document.getElementById('depositContainer');
@@ -410,10 +415,14 @@
                 
                 if (time <= 0) {
                     clearInterval(countdownInterval);
+                    if (payosPollingInterval) clearInterval(payosPollingInterval);
+                    if (statusPollingInterval) clearInterval(statusPollingInterval);
+                    isDepositSessionActive = false;
                     if (d1) d1.textContent = "HẾT GIỜ";
                     if (d2) d2.textContent = "HẾT GIỜ";
                     document.getElementById('qrImage').style.opacity = '0.2';
                     document.getElementById('qrModalImage').style.opacity = '0.2';
+                    disableDepositForm(false);
                 }
                 time--;
             };
@@ -429,6 +438,12 @@
 
         // Tạo mã nạp tiền (VietQR / PayOS)
         async function handleDeposit() {
+            if (isSubmittingDeposit) return;
+            if (isDepositSessionActive) {
+                alert('Đang có mã nạp tiền hoạt động. Vui lòng hoàn tất thanh toán hoặc bấm "Hủy mã nạp này" bên dưới để đổi số tiền khác!');
+                return;
+            }
+
             const amount = document.getElementById('depositAmountInput').value;
             if (!amount || amount < 10000) {
                 alert('Số lượng Token nạp tối thiểu là 10,000 Token');
@@ -436,6 +451,7 @@
             }
 
             const btnSubmit = document.getElementById('btnSubmitDeposit');
+            isSubmittingDeposit = true;
             btnSubmit.disabled = true;
             btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang tạo mã nạp tiền...';
 
@@ -451,6 +467,7 @@
                 const data = await response.json();
                 
                 if (response.ok) {
+                    isDepositSessionActive = true;
                     if (data.type === 'payos') {
                         // LUỒNG TỰ ĐỘNG PAYOS
                         const transferDesc = `Nap Token ${data.orderCode}`;
@@ -501,6 +518,8 @@
                                 const vData = await vRes.json();
                                 if (vData.success) {
                                     clearInterval(payosPollingInterval);
+                                    if (countdownInterval) clearInterval(countdownInterval);
+                                    isDepositSessionActive = false;
                                     if (statusBtn) {
                                         statusBtn.className = "bg-emerald-600 text-white px-4 py-2.5 rounded-2xl font-bold transition w-full shadow flex justify-center items-center text-xs";
                                         statusBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Nạp Thành Công! Đã cộng tiền vào ví.';
@@ -562,8 +581,16 @@
                 console.error('[Deposit Error]', err);
                 alert('❌ Lỗi kết nối: ' + err.message);
             } finally {
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = '<i class="fas fa-qrcode mr-2"></i> Tạo Mã Nạp Tiền (VietQR)';
+                isSubmittingDeposit = false;
+                if (isDepositSessionActive) {
+                    btnSubmit.disabled = true;
+                    btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+                    btnSubmit.innerHTML = '<i class="fas fa-lock mr-2"></i> Đang có mã nạp hoạt động (5 phút)';
+                } else {
+                    btnSubmit.disabled = false;
+                    btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btnSubmit.innerHTML = '<i class="fas fa-qrcode mr-2"></i> Tạo Mã Nạp Tiền (VietQR)';
+                }
             }
         }
 
@@ -573,8 +600,37 @@
             if (amountInput) amountInput.disabled = disabled;
             if (btnSubmit) {
                 btnSubmit.disabled = disabled;
-                if (disabled) btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
-                else btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                if (disabled) {
+                    btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+                    btnSubmit.innerHTML = '<i class="fas fa-lock mr-2"></i> Đang có mã nạp hoạt động (5 phút)';
+                } else {
+                    btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btnSubmit.innerHTML = '<i class="fas fa-qrcode mr-2"></i> Tạo Mã Nạp Tiền (VietQR)';
+                }
+            }
+        }
+
+        async function cancelActiveDeposit() {
+            if (confirm('Bạn có chắc chắn muốn hủy mã nạp hiện tại và nhập lại số tiền không?')) {
+                if (countdownInterval) clearInterval(countdownInterval);
+                if (payosPollingInterval) clearInterval(payosPollingInterval);
+                if (statusPollingInterval) clearInterval(statusPollingInterval);
+                
+                try {
+                    if (currentUser && currentUser.id) {
+                        await fetch(`${API_URL}/api/payment/cancel-deposit`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ user_id: currentUser.id })
+                        });
+                    }
+                } catch (e) {
+                    console.warn('Lỗi gửi cancel-deposit:', e);
+                }
+
+                isDepositSessionActive = false;
+                document.getElementById('qrSection').classList.add('hidden');
+                disableDepositForm(false);
             }
         }
 
@@ -585,6 +641,8 @@
                 const data = await res.json();
                 if (data.status === 'approved') {
                     clearInterval(statusPollingInterval);
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    isDepositSessionActive = false;
                     alert('🎉 Lệnh nạp tiền đã được duyệt thành công!');
                     loadWalletData();
                     if (window.loadGlobalBalance) window.loadGlobalBalance();
@@ -592,6 +650,8 @@
                     disableDepositForm(false);
                 } else if (data.status === 'rejected') {
                     clearInterval(statusPollingInterval);
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    isDepositSessionActive = false;
                     alert('❌ Lệnh nạp tiền đã bị từ chối.');
                     document.getElementById('qrSection').classList.add('hidden');
                     disableDepositForm(false);
@@ -602,67 +662,83 @@
         }
 
         async function loadWalletData() {
-            try {
-                // Kiểm tra return parameters từ PayOS (nếu có redirect về)
-                const urlParams = new URLSearchParams(window.location.search);
-                const orderCodeParam = urlParams.get('orderCode');
-                const statusParam = urlParams.get('status');
+            // Kiểm tra return parameters từ PayOS (nếu có redirect về)
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderCodeParam = urlParams.get('orderCode');
+            const statusParam = urlParams.get('status');
 
-                if (orderCodeParam && (statusParam === 'success' || statusParam === 'PAID')) {
-                    try {
-                        const verifyRes = await fetch(`${API_URL}/api/payment/verify-deposit`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ orderCode: orderCodeParam })
-                        });
-                        const verifyData = await verifyRes.json();
-                        if (verifyData.success) {
-                            alert('🎉 Chúc mừng! Nạp tiền qua PayOS thành công. Tiền đã được cộng vào ví của bạn!');
-                            window.history.replaceState(null, '', window.location.pathname);
-                        }
-                    } catch (e) {
-                        console.error('Lỗi verify return:', e);
+            if (orderCodeParam && (statusParam === 'success' || statusParam === 'PAID')) {
+                try {
+                    const verifyRes = await fetch(`${API_URL}/api/payment/verify-deposit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderCode: orderCodeParam })
+                    });
+                    const verifyData = await verifyRes.json();
+                    if (verifyData.success) {
+                        alert('🎉 Chúc mừng! Nạp tiền qua PayOS thành công. Tiền đã được cộng vào ví của bạn!');
+                        window.history.replaceState(null, '', window.location.pathname);
                     }
+                } catch (e) {
+                    console.error('Lỗi verify return:', e);
                 }
+            }
 
-                // 1. Lấy thông tin ví
+            // 1. Lấy thông tin ví
+            try {
                 const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
-                const data = await response.json();
-                
                 if (response.ok) {
+                    const data = await response.json();
                     currentWalletBalance = data.balance || 0;
                     document.getElementById('balance').textContent = parseInt(data.balance).toLocaleString();
                     document.getElementById('balanceVND').textContent = `~${parseInt(data.balance).toLocaleString()} VNĐ`;
                     document.getElementById('locked_balance').textContent = parseInt(data.locked_balance || 0).toLocaleString();
                 }
+            } catch (e) {
+                console.error('Lỗi tải ví:', e);
+            }
 
-                // 2. Lấy ngân hàng liên kết
+            // 2. Lấy ngân hàng liên kết
+            try {
                 const uRes = await fetch(`${API_URL}/api/users/${currentUser.id}`);
-                const uData = await uRes.json();
-                if (uData.bank_account) {
-                    document.getElementById('txtBankName').textContent = uData.bank_name || 'Ngân hàng liên kết';
-                    document.getElementById('txtBankAccount').textContent = uData.bank_account;
-                    document.getElementById('txtBankOwner').textContent = uData.bank_owner || currentUser.full_name;
-                    document.getElementById('btnSubmitWithdraw').disabled = false;
+                if (uRes.ok) {
+                    const uData = await uRes.json();
+                    if (uData.bank_account) {
+                        document.getElementById('txtBankName').textContent = uData.bank_name || 'Ngân hàng liên kết';
+                        document.getElementById('txtBankAccount').textContent = uData.bank_account;
+                        document.getElementById('txtBankOwner').textContent = uData.bank_owner || currentUser.full_name;
+                        document.getElementById('btnSubmitWithdraw').disabled = false;
+                    } else {
+                        document.getElementById('bankInfoBox').innerHTML = `
+                            <div class="text-amber-300 font-bold text-xs flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2"></i> Bạn chưa liên kết tài khoản ngân hàng!
+                            </div>
+                            <p class="text-[11px] text-gray-300 mt-1">Vui lòng sang trang Hồ sơ để cập nhật tài khoản trước khi rút tiền.</p>
+                            <a href="profile.html" class="inline-block mt-2 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition">Cập nhật ngay</a>
+                        `;
+                        document.getElementById('btnSubmitWithdraw').disabled = true;
+                        document.getElementById('btnSubmitWithdraw').classList.add('opacity-50', 'cursor-not-allowed');
+                    }
                 } else {
-                    document.getElementById('bankInfoBox').innerHTML = `
-                        <div class="text-amber-300 font-bold text-xs flex items-center">
-                            <i class="fas fa-exclamation-triangle mr-2"></i> Bạn chưa liên kết tài khoản ngân hàng!
-                        </div>
-                        <p class="text-[11px] text-gray-300 mt-1">Vui lòng sang trang Hồ sơ để cập nhật tài khoản trước khi rút tiền.</p>
-                        <a href="profile.html" class="inline-block mt-2 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition">Cập nhật ngay</a>
-                    `;
-                    document.getElementById('btnSubmitWithdraw').disabled = true;
-                    document.getElementById('btnSubmitWithdraw').classList.add('opacity-50', 'cursor-not-allowed');
+                    document.getElementById('txtBankName').textContent = 'Lỗi tải ngân hàng';
+                    document.getElementById('txtBankAccount').textContent = '**** ****';
+                    document.getElementById('txtBankOwner').textContent = 'LỖI TẢI...';
                 }
+            } catch (e) {
+                console.error('Lỗi tải ngân hàng:', e);
+                document.getElementById('txtBankName').textContent = 'Lỗi kết nối';
+                document.getElementById('txtBankAccount').textContent = '**** ****';
+                document.getElementById('txtBankOwner').textContent = 'LỖI KẾT NỐI';
+            }
 
-                // 3. Lấy lệnh rút Pending
+            // 3. Lấy lệnh rút Pending
+            try {
                 const reqRes = await fetch(`${API_URL}/api/withdraw/my-requests/${currentUser.id}`);
+                const pContainer = document.getElementById('pendingWithdrawList');
                 if (reqRes.ok) {
                     const reqData = await reqRes.json();
                     const pendingList = (reqData.requests || []).filter(r => r.status === 'pending');
                     document.getElementById('pendingCountBadge').textContent = `${pendingList.length} lệnh`;
-                    const pContainer = document.getElementById('pendingWithdrawList');
                     if (pendingList.length === 0) {
                         pContainer.innerHTML = '<p class="text-gray-400 text-xs py-3 text-center">Không có lệnh rút nào đang chờ xử lý.</p>';
                     } else {
@@ -681,47 +757,59 @@
                             </div>
                         `).join('');
                     }
-                }
-
-                // 4. Lấy lịch sử giao dịch & tính tổng đã nhận
-                const txRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}/transactions`);
-                const txData = await txRes.json();
-                const txList = document.getElementById('transactionList');
-                if (txRes.ok && txData.transactions && txData.transactions.length > 0) {
-                    let earned = 0;
-                    txData.transactions.forEach(t => {
-                        if (t.receiver_id === currentUser.id && (t.type === 'ESCROW_RELEASE' || t.type === 'MILESTONE_PAYMENT' || t.type === 'RELEASE')) {
-                            earned += parseFloat(t.amount) || 0;
-                        }
-                    });
-                    document.getElementById('total_earned').textContent = earned.toLocaleString();
-
-                    txList.innerHTML = txData.transactions.map(tx => {
-                        const dateStr = new Date(tx.created_at).toLocaleString('vi-VN');
-                        const isReceiver = tx.receiver_id === currentUser.id;
-                        const isDeposit = tx.type === 'DEPOSIT' || tx.type === 'PAYOS_DEPOSIT';
-                        const amountColor = (isReceiver || isDeposit) ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
-                        const amountSign = (isReceiver || isDeposit) ? '+' : '-';
-                        return `
-                            <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
-                                <div>
-                                    <span class="font-bold text-gray-800 dark:text-white block">${tx.note || tx.type}</span>
-                                    <span class="text-[10px] text-gray-400">${dateStr}</span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="font-black text-sm ${amountColor} block">${amountSign}${parseInt(tx.amount).toLocaleString()}</span>
-                                    <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${tx.note || ''}')" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline cursor-pointer">
-                                        Xuất PDF
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
                 } else {
-                    txList.innerHTML = '<p class="text-gray-400 text-xs py-4 text-center">Chưa có giao dịch nào.</p>';
+                    pContainer.innerHTML = '<p class="text-red-500 text-xs py-3 text-center">Lỗi tải dữ liệu lệnh rút.</p>';
+                }
+            } catch (e) {
+                console.error('Lỗi tải lệnh rút:', e);
+                document.getElementById('pendingWithdrawList').innerHTML = '<p class="text-red-500 text-xs py-3 text-center">Lỗi kết nối.</p>';
+            }
+
+            // 4. Lấy lịch sử giao dịch & tính tổng đã nhận
+            try {
+                const txRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}/transactions`);
+                const txList = document.getElementById('transactionList');
+                if (txRes.ok) {
+                    const txData = await txRes.json();
+                    if (txData.transactions && txData.transactions.length > 0) {
+                        let earned = 0;
+                        txData.transactions.forEach(t => {
+                            if (t.receiver_id === currentUser.id && (t.type === 'ESCROW_RELEASE' || t.type === 'MILESTONE_PAYMENT' || t.type === 'RELEASE' || t.type === 'job_payment')) {
+                                earned += parseFloat(t.amount) || 0;
+                            }
+                        });
+                        document.getElementById('total_earned').textContent = earned.toLocaleString();
+
+                        txList.innerHTML = txData.transactions.map(tx => {
+                            const dateStr = new Date(tx.created_at).toLocaleString('vi-VN');
+                            const isReceiver = tx.receiver_id === currentUser.id;
+                            const isDeposit = tx.type === 'DEPOSIT' || tx.type === 'PAYOS_DEPOSIT';
+                            const amountColor = (isReceiver || isDeposit) ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
+                            const amountSign = (isReceiver || isDeposit) ? '+' : '-';
+                            return `
+                                <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
+                                    <div>
+                                        <span class="font-bold text-gray-800 dark:text-white block">${tx.note || tx.type}</span>
+                                        <span class="text-[10px] text-gray-400">${dateStr}</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="font-black text-sm ${amountColor} block">${amountSign}${parseInt(tx.amount).toLocaleString()}</span>
+                                        <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${tx.note || ''}')" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline cursor-pointer">
+                                            Xuất PDF
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        txList.innerHTML = '<p class="text-gray-400 text-xs py-4 text-center">Chưa có giao dịch nào.</p>';
+                    }
+                } else {
+                    txList.innerHTML = '<p class="text-red-500 text-xs py-4 text-center">Lỗi tải lịch sử giao dịch.</p>';
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Lỗi tải lịch sử giao dịch:', err);
+                document.getElementById('transactionList').innerHTML = '<p class="text-red-500 text-xs py-4 text-center">Lỗi kết nối.</p>';
             }
         }
 

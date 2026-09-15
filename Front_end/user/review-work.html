@@ -46,22 +46,30 @@
                     </div>
                 </div>
 
-                <!-- Page Header -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <!-- Page Header with Back Button -->
+                <div class="mb-2">
+                    <button onclick="window.history.back()" class="text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition flex items-center text-sm font-semibold">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </button>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                            <i class="fas fa-tasks text-indigo-600 dark:text-indigo-400"></i> Quản Lý Tiến Độ & Nghiệm Thu
+                        <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            Quản Lý Tiến Độ
                         </h1>
-                        <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            Theo dõi mốc kế hoạch, duyệt giải ngân từng giai đoạn và chấm điểm chất lượng Freelancer.
+                        <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-2 ml-[52px]">
+                            Theo dõi mốc kế hoạch, duyệt giải ngân từng giai đoạn và chấm điểm Freelancer.
                         </p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="loadPendingActions()" class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center">
-                            <i class="fas fa-sync-alt mr-1.5"></i> Làm mới
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <button onclick="loadPendingActions()" class="flex-1 sm:flex-none justify-center bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center shadow-sm">
+                            <i class="fas fa-sync-alt mr-2"></i> Làm mới
                         </button>
-                        <button onclick="window.location.href='home.html'" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition flex items-center">
-                            <i class="fas fa-search mr-1.5"></i> Tìm Freelancer
+                        <button onclick="window.location.href='home.html'" class="flex-1 sm:flex-none justify-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-indigo-500/20 transition flex items-center">
+                            <i class="fas fa-search mr-2"></i> Tìm Freelancer
                         </button>
                     </div>
                 </div>
@@ -407,12 +415,22 @@
 
             if (filtered.length === 0) {
                 listDiv.innerHTML = `
-                    <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-10 text-center">
-                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-400 text-2xl mx-auto mb-3">
-                            <i class="fas fa-inbox"></i>
+                    <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-12 text-center shadow-sm flex flex-col items-center justify-center">
+                        <div class="relative mb-6">
+                            <div class="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-500 dark:text-indigo-400 text-4xl mx-auto z-10 relative shadow-inner">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center text-amber-500 shadow-md">
+                                <i class="fas fa-star text-sm"></i>
+                            </div>
                         </div>
-                        <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base">Không có dự án nào trong mục này</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Các dự án đang tiến hành hoặc chờ nghiệm thu sẽ hiển thị tại đây.</p>
+                        <h3 class="font-black text-gray-900 dark:text-gray-100 text-xl mb-2">Chưa có dự án nào ở đây</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed mb-6">
+                            Các dự án của bạn sẽ xuất hiện tại đây khi bắt đầu làm việc với Freelancer. Nếu bạn chưa có dự án nào, hãy đăng một yêu cầu mới để tìm kiếm nhân sự phù hợp nhé!
+                        </p>
+                        <button onclick="window.location.href='post-job.html'" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-md shadow-indigo-500/30 transition flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Đăng Dự Án Mới
+                        </button>
                     </div>
                 `;
                 return;
@@ -442,19 +460,30 @@
             let milestonesHtml = '';
             if (milestones.length > 0) {
                 milestonesHtml = `
-                    <div class="mt-5 space-y-3">
-                        <div class="flex justify-between items-center text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                            <span>Tiến độ thực hiện (${paidMilestones}/${totalMilestones} mốc)</span>
+                    <details class="mt-5 group border border-gray-100 dark:border-gray-700 p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-800/50" open>
+                        <summary class="flex justify-between items-center text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 cursor-pointer select-none list-none outline-none">
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-chevron-down transition-transform duration-300 group-open:-rotate-180 text-gray-400"></i>
+                                <i class="fas fa-list-ul text-indigo-500 ml-1"></i> Tiến độ thực hiện (${paidMilestones}/${totalMilestones} mốc)
+                            </span>
                             <span class="text-indigo-600 dark:text-indigo-400">${percentProgress}%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
+                        </summary>
+                        
+                        <div class="w-full bg-gray-200 dark:bg-gray-600 h-2.5 rounded-full overflow-hidden shadow-inner mt-3">
                             <div class="bg-gradient-to-r from-indigo-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: ${percentProgress}%"></div>
                         </div>
 
-                        <div class="mt-4 space-y-3">
+                        <!-- Khung chứa các mốc có thể cuộn (Scrollable) -->
+                        <div class="mt-4 space-y-3 max-h-[320px] overflow-y-auto pr-1 sm:pr-2" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent;">
                             ${milestones.map((m, idx) => renderMilestoneItem(m, idx, job)).join('')}
                         </div>
-                    </div>
+                    </details>
+                    
+                    <style>
+                        details > summary::-webkit-details-marker {
+                            display: none;
+                        }
+                    </style>
                 `;
             } else if (job.status === 'planning') {
                 milestonesHtml = `
@@ -504,23 +533,47 @@
 
             // --- Nút Đánh Giá nếu dự án đã hoàn thành ---
             let reviewActionHtml = '';
-            if (job.status === 'completed' && job.freelancer_id) {
-                reviewActionHtml = `
-                    <div class="mt-4 p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 flex items-center justify-center text-xl shrink-0">
-                                <i class="fas fa-award"></i>
+            if (job.status === 'completed') {
+                if (job.review) {
+                    reviewActionHtml = `
+                        <div class="mt-4 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-amber-900 dark:text-amber-200 text-sm">Bạn đã đánh giá Freelancer này!</p>
+                                    <div class="text-xs text-amber-700 dark:text-amber-400 mt-1 flex items-center">
+                                        <div class="text-yellow-500 mr-2">
+                                            ${Array(5).fill(0).map((_, i) => `<i class="${i < job.review.rating ? 'fas' : 'far text-gray-300'} fa-star"></i>`).join('')}
+                                        </div>
+                                        <span>${job.review.rating}/5</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <p class="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Dự án đã hoàn tất nghiệm thu & thanh toán!</p>
-                                <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên HT Work.</p>
-                            </div>
+                            <button onclick="openReviewModal('${job.id}', '${job.freelancer_id || job.review?.freelancer_id || ''}', '${encodeURIComponent(freelancerName)}', '${encodeURIComponent(freelancerAvatar)}', '${encodeURIComponent(job.title)}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
+                                <i class="fas fa-edit mr-1.5"></i> Sửa Đánh Giá
+                            </button>
                         </div>
-                        <button onclick="openReviewModal('${job.id}', '${job.freelancer_id}', '${encodeURIComponent(freelancerName)}', '${encodeURIComponent(freelancerAvatar)}', '${encodeURIComponent(job.title)}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
-                            <i class="fas fa-star mr-1.5"></i> Viết Đánh Giá
-                        </button>
-                    </div>
-                `;
+                    `;
+                } else {
+                    reviewActionHtml = `
+                        <div class="mt-4 p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                                    <i class="fas fa-award"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Dự án đã hoàn tất nghiệm thu & thanh toán!</p>
+                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên HT Work.</p>
+                                </div>
+                            </div>
+                            <button onclick="openReviewModal('${job.id}', '${job.freelancer_id || job.review?.freelancer_id || ''}', '${encodeURIComponent(freelancerName)}', '${encodeURIComponent(freelancerAvatar)}', '${encodeURIComponent(job.title)}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
+                                <i class="fas fa-star mr-1.5"></i> Viết Đánh Giá
+                            </button>
+                        </div>
+                    `;
+                }
             }
 
             return `
@@ -867,22 +920,46 @@
                 document.getElementById('reviewFreelancerAvatar').src = decodeURIComponent(freelancerAvatar);
             }
 
-            // Reset stars to 5
-            document.getElementById('selectedRating').value = '5';
+            const existingJob = allJobsData.find(j => j.id === jobId);
+            const existingReview = existingJob ? existingJob.review : null;
+
+            // Rating
+            const initialRating = existingReview ? existingReview.rating : 5;
+            document.getElementById('selectedRating').value = initialRating;
+            const starLabels = {
+                1: '1 / 5 - Rất tệ 😡',
+                2: '2 / 5 - Tệ 😞',
+                3: '3 / 5 - Tạm được 😐',
+                4: '4 / 5 - Hài lòng 🙂',
+                5: '5 / 5 - Rất hài lòng / Xuất sắc ⭐⭐⭐⭐⭐'
+            };
+            document.getElementById('starLabel').textContent = starLabels[initialRating];
             document.querySelectorAll('.star-btn').forEach(s => {
-                s.classList.remove('text-gray-300', 'dark:text-gray-600');
-                s.classList.add('text-amber-400');
+                const sVal = parseInt(s.getAttribute('data-val'));
+                if (sVal <= initialRating) {
+                    s.classList.remove('text-gray-300', 'dark:text-gray-600');
+                    s.classList.add('text-amber-400');
+                } else {
+                    s.classList.remove('text-amber-400');
+                    s.classList.add('text-gray-300', 'dark:text-gray-600');
+                }
             });
-            document.getElementById('starLabel').textContent = '5 / 5 - Rất hài lòng / Xuất sắc ⭐⭐⭐⭐⭐';
 
-            // Reset tags
-            selectedComplimentTags = [];
+            // Tags
+            selectedComplimentTags = existingReview && existingReview.tags ? existingReview.tags : [];
             document.querySelectorAll('#complimentTags .tag-pill').forEach(btn => {
-                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
-                btn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+                const tagText = btn.textContent.trim();
+                if (selectedComplimentTags.includes(tagText)) {
+                    btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+                    btn.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+                } else {
+                    btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                    btn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+                }
             });
 
-            document.getElementById('reviewComment').value = '';
+            // Comment
+            document.getElementById('reviewComment').value = existingReview && existingReview.comment ? existingReview.comment : '';
             document.getElementById('reviewFreelancerModal').classList.remove('hidden');
         }
 
@@ -1195,9 +1272,34 @@
         }
 
         // --- Khởi động ---
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             initStarRating();
-            loadPendingActions();
+            await loadPendingActions();
+
+            // Kiểm tra URL xem có yêu cầu mở form sửa đánh giá không
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('edit_review') === 'true') {
+                const jid = urlParams.get('job_id');
+                if (jid) {
+                    const targetJob = allJobsData.find(j => j.id === jid);
+                    if (targetJob) {
+                        const fName = targetJob.freelancer?.full_name || 'Freelancer';
+                        const fAvatar = targetJob.freelancer?.avatar_url || '';
+                        // Fallback freelancer_id từ review nếu job_applications bị lỗi
+                        const fId = targetJob.freelancer_id || targetJob.review?.freelancer_id || '';
+                        
+                        openReviewModal(targetJob.id, fId, encodeURIComponent(fName), encodeURIComponent(fAvatar), encodeURIComponent(targetJob.title));
+                        
+                        // Xóa tham số khỏi URL để không mở lại khi F5
+                        const url = new URL(window.location);
+                        url.searchParams.delete('edit_review');
+                        url.searchParams.delete('job_id');
+                        window.history.replaceState({}, '', url);
+                    } else {
+                        alert('Không tìm thấy dự án để sửa đánh giá!');
+                    }
+                }
+            }
         });
     </script>
 

@@ -191,11 +191,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 4. Highlight current page across Desktop Sidebar, Mobile Drawer & Bottom Nav
-    const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+    const rawPage = window.location.pathname.split('/').pop() || 'home.html';
+    const decodedPage = decodeURIComponent(rawPage);
+    const pageAliases = {
+        'direct chat.html': 'direct-chat.html',
+        'direct_chat.html': 'direct-chat.html',
+        'my jobs.html': 'my-jobs.html',
+        'my_jobs.html': 'my-jobs.html',
+        'browse jobs.html': 'browse-jobs.html',
+        'browse_jobs.html': 'browse-jobs.html'
+    };
+    const currentPage = pageAliases[decodedPage] || pageAliases[rawPage] || decodedPage || 'home.html';
     
     // Desktop Nav
     document.querySelectorAll('.nav-item').forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
+        const href = link.getAttribute('href');
+        if (href === currentPage || href === decodedPage || href === rawPage) {
             link.classList.add('bg-indigo-50', 'dark:bg-gray-700', 'text-indigo-600', 'dark:text-indigo-400', 'font-black');
             link.classList.remove('text-gray-600', 'dark:text-gray-300');
             const titleEl = document.getElementById('pageTitle');
@@ -207,7 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mobile Drawer Nav
     document.querySelectorAll('.drawer-item').forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
+        const href = link.getAttribute('href');
+        if (href === currentPage || href === decodedPage || href === rawPage) {
             link.classList.add('bg-indigo-50', 'dark:bg-gray-700', 'text-indigo-600', 'dark:text-indigo-400', 'font-black');
             link.classList.remove('text-gray-700', 'dark:text-gray-300');
         }
@@ -215,7 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mobile Bottom Nav
     document.querySelectorAll('.bottom-nav-item').forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
+        const href = link.getAttribute('href');
+        if (href === currentPage || href === decodedPage || href === rawPage) {
             link.classList.add('text-indigo-600', 'dark:text-indigo-400');
             link.classList.remove('text-gray-500', 'dark:text-gray-400');
         }

@@ -255,55 +255,60 @@ router.post('/api/messages/direct', async (req, res) => {
             file_type
         });
 
-        // Lấy thông tin email & tên để ghi log điều tra rõ ràng
-        let senderEmail = null;
-        let senderName = sender_id;
-        let receiverName = receiver_id;
-        try {
-            const { data: users } = await supabase.from('users').select('id, full_name, email').in('id', [sender_id, receiver_id]);
-            if (users) {
-                const s = users.find(u => String(u.id) === String(sender_id));
-                const r = users.find(u => String(u.id) === String(receiver_id));
-                if (s) { senderEmail = s.email; senderName = s.full_name || s.email; }
-                if (r) { receiverName = r.full_name || r.email; }
-            }
-        } catch (e) {}
-
-        const detailsText = file_name 
-            ? `[CHAT 1-1] [${senderName} ➔ ${receiverName}]: "${finalContent}" | 📎 Tệp đính kèm: "${file_name}" (${file_url})`
-            : `[CHAT 1-1] [${senderName} ➔ ${receiverName}]: "${finalContent}"`;
-
-        logEvent({
-            module: 'CHAT',
-            action: 'SEND_DIRECT_MESSAGE',
-            user_id: sender_id,
-            user_email: senderEmail,
-            actor_id: sender_id,
-            target_id: receiver_id,
-            level: 'INFO',
-            details: detailsText,
-            metadata: {
-                message_id: msg.id,
-                sender_id,
-                sender_name: senderName,
-                sender_email: senderEmail,
-                receiver_id,
-                receiver_name: receiverName,
-                content: msg.content,
-                file_url: msg.file_url,
-                file_name: msg.file_name,
-                file_type: msg.file_type,
-                created_at: msg.created_at,
-                is_moderated: modResult.is_flagged
-            }
-        });
-
+        // Phản hồi ngay lập tức cho client (0ms response)
         res.status(201).json({ 
             success: true, 
             message: msg,
             is_moderated: modResult.is_flagged,
             moderation_warning: modResult.is_flagged ? modResult.warning_message : null
         });
+
+        // Ghi log kiểm toán ngầm trong background
+        (async () => {
+            let senderEmail = null;
+            let senderName = sender_id;
+            let receiverName = receiver_id;
+            try {
+                if (supabase) {
+                    const { data: users } = await supabase.from('users').select('id, full_name, email').in('id', [sender_id, receiver_id]);
+                    if (users) {
+                        const s = users.find(u => String(u.id) === String(sender_id));
+                        const r = users.find(u => String(u.id) === String(receiver_id));
+                        if (s) { senderEmail = s.email; senderName = s.full_name || s.email; }
+                        if (r) { receiverName = r.full_name || r.email; }
+                    }
+                }
+            } catch (e) {}
+
+            const detailsText = file_name 
+                ? `[CHAT 1-1] [${senderName} ➔ ${receiverName}]: "${finalContent}" | 📎 Tệp đính kèm: "${file_name}" (${file_url})`
+                : `[CHAT 1-1] [${senderName} ➔ ${receiverName}]: "${finalContent}"`;
+
+            logEvent({
+                module: 'CHAT',
+                action: 'SEND_DIRECT_MESSAGE',
+                user_id: sender_id,
+                user_email: senderEmail,
+                actor_id: sender_id,
+                target_id: receiver_id,
+                level: 'INFO',
+                details: detailsText,
+                metadata: {
+                    message_id: msg.id,
+                    sender_id,
+                    sender_name: senderName,
+                    sender_email: senderEmail,
+                    receiver_id,
+                    receiver_name: receiverName,
+                    content: msg.content,
+                    file_url: msg.file_url,
+                    file_name: msg.file_name,
+                    file_type: msg.file_type,
+                    created_at: msg.created_at,
+                    is_moderated: modResult.is_flagged
+                }
+            });
+        })().catch(e => console.warn('Background logging warning:', e.message));
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

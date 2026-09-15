@@ -6,12 +6,33 @@ const blockchain = require('../blockchain');
 const settingsStore = require('../services/settingsStore');
 const { logEvent } = require('../services/auditLogger');
 
+// Rate limiting store: user_id -> timestamp
+const lastDepositMap = new Map();
+
 // API PayOS: Tạo Link Thanh Toán & Lệnh nạp tiền
 router.post('/api/payment/create-deposit', async (req, res) => {
     const { user_id, amount, method } = req.body;
-    console.log(`
-💳 [API POST /api/payment/create-deposit] User: ${user_id} | Amount: ${amount} | Method: ${method || 'default'}`);
+    console.log(`\n💳 [API POST /api/payment/create-deposit] User: ${user_id} | Amount: ${amount} | Method: ${method || 'default'}`);
     try {
+        if (!user_id || !amount || Number(amount) < 10000) {
+            return res.status(400).json({ error: 'Số lượng Token nạp tối thiểu là 10,000 Token.' });
+        }
+
+        // Chống spam: Giới hạn tần suất tạo lệnh (tối thiểu cách nhau 3 giây)
+        const now = Date.now();
+        const lastCreated = lastDepositMap.get(user_id) || 0;
+        if (now - lastCreated < 3000) {
+            return res.status(429).json({ error: 'Thao tác quá nhanh. Vui lòng đợi vài giây trước khi tạo lệnh nạp mới.' });
+        }
+        lastDepositMap.set(user_id, now);
+
+        // HỦY CÁC LỆNH PENDING CŨ CỦA USER NÀY để tránh tạo hàng loạt rác trên màn hình Admin
+        await supabase
+            .from('deposit_requests')
+            .update({ status: 'cancelled' })
+            .eq('user_id', user_id)
+            .eq('status', 'pending');
+
         const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(Math.random() * 1000));
         
         // Lưu vào bảng deposit_requests
@@ -63,6 +84,25 @@ router.post('/api/payment/create-deposit', async (req, res) => {
     } catch (error) {
         console.error('❌ Lỗi tạo lệnh nạp tiền:', error.message);
         res.status(500).json({ error: error.message || 'Không thể tạo lệnh nạp tiền' });
+    }
+});
+
+// API: Hủy lệnh nạp tiền đang Pending của User
+router.post('/api/payment/cancel-deposit', async (req, res) => {
+    const { user_id, request_id } = req.body;
+    console.log(`\n🚫 [API POST /api/payment/cancel-deposit] User ${user_id} hủy lệnh nạp: ${request_id || 'tất cả pending'}`);
+    try {
+        if (!user_id) return res.status(400).json({ error: 'Thiếu user_id' });
+        let query = supabase.from('deposit_requests').update({ status: 'cancelled' }).eq('status', 'pending');
+        if (request_id) {
+            query = query.eq('id', request_id);
+        } else {
+            query = query.eq('user_id', user_id);
+        }
+        await query;
+        res.status(200).json({ success: true, message: 'Đã hủy lệnh nạp tiền.' });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
     }
 });
 
@@ -304,7 +344,7 @@ router.post('/api/admin/deposits/approve', async (req, res) => {
         if (reqData) {
             // ĐỒNG BỘ LÊN BLOCKCHAIN (WEB2.5)
             if (blockchain.isConfigured()) {
-                await blockchain.addBalance(reqData.user_id, reqData.amount);
+                blockchain.addBalance(reqData.user_id, reqData.amount).catch(err => console.warn('Lỗi đồng bộ Blockchain:', err.message));
             }
 
             await supabase.from('notifications').insert([{

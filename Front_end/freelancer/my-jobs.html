@@ -447,10 +447,39 @@
                 `;
             } else if (job.status === 'completed') {
                 headerBadge = '<span class="bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 text-xs font-black px-3 py-1 rounded-full border border-purple-200 dark:border-purple-800">Đã Nghiệm Thu Toàn Bộ</span>';
+                
+                let reviewHtml = '';
+                if (job.review) {
+                    const stars = Array(5).fill(0).map((_, i) => 
+                        `<i class="${i < job.review.rating ? 'fas text-yellow-400' : 'far text-gray-300 dark:text-gray-600'} fa-star text-sm"></i>`
+                    ).join('');
+                    
+                    reviewHtml = `
+                        <div class="mt-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 shadow-sm">
+                            <h3 class="font-black text-amber-900 dark:text-amber-300 mb-3 text-sm sm:text-base flex items-center">
+                                <i class="fas fa-award mr-2 text-amber-500 text-lg"></i> Đánh giá từ Khách hàng
+                            </h3>
+                            <div class="flex items-center mb-2">
+                                <div class="flex mr-3">${stars}</div>
+                                <span class="text-xs font-bold text-amber-800 dark:text-amber-200 bg-amber-200 dark:bg-amber-800 px-2 py-0.5 rounded-lg">${job.review.rating}/5</span>
+                            </div>
+                            <p class="text-sm text-gray-700 dark:text-gray-300 italic mt-3 bg-white/60 dark:bg-gray-900/40 p-4 rounded-xl border border-amber-100 dark:border-amber-900/50 leading-relaxed mb-3">
+                                "${job.review.comment || 'Không có bình luận.'}"
+                            </p>
+                            ${job.review.tags && job.review.tags.length > 0 ? `
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    ${job.review.tags.map(t => `<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white/80 dark:bg-gray-900/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800/80 shadow-sm">${t}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+
                 contentHtml = `
                     <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-2xl p-5 mt-4 text-xs sm:text-sm">
                         <p class="text-emerald-800 dark:text-emerald-300 font-bold"><i class="fas fa-check-circle mr-2"></i> Dự án đã hoàn tất và nghiệm thu 100%! Toàn bộ thù lao đã được chuyển vào ví của bạn.</p>
                     </div>
+                    ${reviewHtml}
                     <div class="mt-6">
                         <h3 class="font-black text-gray-800 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2 mb-4 text-base">Lịch Sử Các Giai Đoạn</h3>
                         <div class="space-y-4">

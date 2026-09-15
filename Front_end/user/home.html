@@ -172,7 +172,7 @@
                 <div class="grid grid-cols-3 gap-3 text-center">
                     <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-2xl border border-gray-100 dark:border-gray-700">
                         <span class="text-[10px] text-gray-400 font-bold uppercase block">Đánh giá</span>
-                        <span class="text-base font-black text-yellow-500" id="mRating">⭐ 5.0 / 5.0</span>
+                        <span class="text-base font-black text-yellow-500" id="mRating">Chưa có</span>
                     </div>
                     <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-2xl border border-gray-100 dark:border-gray-700">
                         <span class="text-[10px] text-gray-400 font-bold uppercase block">Đã Hoàn Thành</span>
@@ -628,7 +628,7 @@
                         <div class="bg-gray-50 dark:bg-gray-750 p-2.5 rounded-2xl mb-3.5 grid grid-cols-2 gap-2 text-center text-xs border border-gray-100 dark:border-gray-700/60">
                             <div>
                                 <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Đánh giá</span>
-                                <span class="font-black text-amber-500 text-xs mt-0.5 block">⭐ ${f.rating_score || '5.0'} / 5.0</span>
+                                <span class="font-black text-amber-500 text-xs mt-0.5 block">${(f.rating_score && f.rating_score !== 'Chưa có') ? `⭐ ${f.rating_score} / 5.0` : '⭐ Chưa có'}</span>
                             </div>
                             <div>
                                 <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Đã hoàn thành</span>
@@ -688,7 +688,7 @@
                     document.getElementById('mFullName').innerText = f.full_name;
                     document.getElementById('mEmail').innerText = f.email;
                     document.getElementById('mLocation').innerText = f.location || 'Việt Nam';
-                    document.getElementById('mRating').innerText = `⭐ ${f.rating_score} / 5.0`;
+                    document.getElementById('mRating').innerText = (f.rating_score && f.rating_score !== 'Chưa có') ? `⭐ ${f.rating_score} / 5.0` : (f.rating_display || 'Chưa có');
                     document.getElementById('mCompletedCount').innerText = `${f.completed_count} Dự án`;
                     document.getElementById('mInProgressCount').innerText = `${f.in_progress_count} Dự án`;
                     document.getElementById('mBio').innerText = f.bio || 'Chưa cập nhật giới thiệu cá nhân.';
@@ -726,7 +726,7 @@
                                 <div class="flex items-center gap-2 text-[11px] text-gray-400">
                                     <span>Khách hàng: <strong class="text-gray-700 dark:text-gray-300">${escapeHtml(j.client.full_name)}</strong></span>
                                     <span>•</span>
-                                    <span class="text-yellow-500 font-bold">⭐ ${j.rating} / 5.0</span>
+                                    <span class="text-yellow-500 font-bold">${j.rating ? `⭐ ${j.rating} / 5.0` : '⭐ Chưa có đánh giá'}</span>
                                 </div>
                                 <div class="p-2 bg-white dark:bg-gray-800 rounded-xl text-xs text-gray-600 dark:text-gray-300 italic border border-gray-100 dark:border-gray-700">
                                     "${escapeHtml(j.review_comment)}"

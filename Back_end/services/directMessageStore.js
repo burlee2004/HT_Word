@@ -73,22 +73,27 @@ async function sendDirectMessage(data) {
     messages.push(newMsg);
     saveLocalMessages(messages);
 
-    // Đồng bộ Supabase nếu có bảng
-    try {
-        await supabase.from('direct_messages').insert([newMsg]);
-    } catch (e) {}
+    // Đồng bộ Supabase & gửi notification ngầm trong background (Non-blocking để phản hồi siêu tốc 0ms)
+    (async () => {
+        try {
+            if (supabase) {
+                await supabase.from('direct_messages').insert([newMsg]);
+            }
+        } catch (e) {}
 
-    // Lấy thông tin sender để push notification
-    try {
-        const { data: sender } = await supabase.from('users').select('full_name, email').eq('id', sender_id).single();
-        const senderName = sender ? sender.full_name : 'Một người dùng';
-        
-        await supabase.from('notifications').insert([{
-            user_id: receiver_id,
-            title: `💬 Tin nhắn từ ${senderName}`,
-            content: content ? (content.length > 50 ? content.slice(0, 50) + '...' : content) : 'Đã gửi cho bạn một tệp đính kèm.'
-        }]);
-    } catch (e) {}
+        try {
+            if (supabase) {
+                const { data: sender } = await supabase.from('users').select('full_name, email').eq('id', sender_id).single();
+                const senderName = sender ? sender.full_name : 'Một người dùng';
+                
+                await supabase.from('notifications').insert([{
+                    user_id: receiver_id,
+                    title: `💬 Tin nhắn từ ${senderName}`,
+                    content: content ? (content.length > 50 ? content.slice(0, 50) + '...' : content) : 'Đã gửi cho bạn một tệp đính kèm.'
+                }]);
+            }
+        } catch (e) {}
+    })().catch(err => console.warn('Background sync warning:', err.message));
 
     return newMsg;
 }

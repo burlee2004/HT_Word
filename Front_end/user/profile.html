@@ -155,7 +155,7 @@
                             </div>
                             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
                                 <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center text-lg mb-2"><i class="fas fa-chart-line"></i></div>
-                                <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Tỉ lệ thuê (Hire rate)</p><p id="statHireRate" class="text-xl font-black text-blue-600 dark:text-blue-400 mt-0.5">0%</p></div>
+                                <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Tỉ lệ thuê (Hire rate)</p><p id="statHireRate" class="text-xl font-black text-blue-600 dark:text-blue-400 mt-0.5">Chưa có</p></div>
                             </div>
                             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
                                 <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-lg mb-2"><i class="fas fa-tasks"></i></div>
@@ -163,7 +163,7 @@
                             </div>
                             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
                                 <div class="w-10 h-10 rounded-xl bg-yellow-50 dark:bg-yellow-900/40 text-yellow-500 flex items-center justify-center text-lg mb-2"><i class="fas fa-star"></i></div>
-                                <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Đánh giá Uy tín</p><p id="statRating" class="text-xl font-black text-yellow-500 mt-0.5 flex items-center">5.0 <span class="text-xs text-gray-400 ml-1 font-normal">(100%)</span></p></div>
+                                <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Đánh giá Uy tín</p><p id="statRating" class="text-xl font-black text-yellow-500 mt-0.5 flex items-center">Chưa có</p></div>
                             </div>
                         </div>
                         <!-- HYBRID WEB2-WEB3 TRUST LEDGER CARD (ĐIỂM TÍN DỤNG KHÁCH HÀNG) -->
@@ -176,8 +176,8 @@
                                     </div>
                                     <p class="text-xs text-indigo-200/80 mt-1">Cơ chế đo lường minh bạch kết hợp Blockchain (On-chain) & Vòng đời dự án (Off-chain)</p>
                                 </div>
-                                <span class="bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full flex items-center">
-                                    <i class="fas fa-certificate mr-1.5 text-emerald-400"></i> Hạng A (Uy Tín Cao)
+                                <span id="creditTierBadge" class="bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full flex items-center">
+                                    <i class="fas fa-certificate mr-1.5 text-emerald-400"></i> Khách mới
                                 </span>
                             </div>
 
@@ -201,7 +201,7 @@
                                         <span class="text-[11px] text-blue-300 font-bold uppercase tracking-wider">2. Off-chain Metric</span>
                                         <i class="fas fa-check-double text-blue-400"></i>
                                     </div>
-                                    <p id="creditSuccessRate" class="text-xl font-black text-white mt-1">100%</p>
+                                    <p id="creditSuccessRate" class="text-xl font-black text-white mt-1">Chưa có</p>
                                     <p class="text-[11px] text-gray-300 mt-1">
                                         <b>Tỷ lệ dự án hoàn thành</b><br>
                                         <span class="text-gray-400 text-[10px]">Minh chứng làm việc nghiêm túc, không hủy kèo vô cớ.</span>
@@ -214,7 +214,7 @@
                                         <span class="text-[11px] text-yellow-300 font-bold uppercase tracking-wider">3. User Feedback</span>
                                         <i class="fas fa-star text-yellow-400"></i>
                                     </div>
-                                    <p id="creditRating" class="text-xl font-black text-yellow-400 mt-1">5.0 / 5.0 ⭐</p>
+                                    <p id="creditRating" class="text-xl font-black text-yellow-400 mt-1">Chưa có</p>
                                     <p class="text-[11px] text-gray-300 mt-1">
                                         <b>Đánh giá từ Freelancer</b><br>
                                         <span class="text-gray-400 text-[10px]">Thái độ hợp tác tốt & nghiệm thu đúng hẹn.</span>
@@ -269,7 +269,7 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">Họ và tên / Tên công ty <span class="text-red-500">*</span></label><input type="text" id="full_name" required oninput="validateBankOwnerMatch()" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700 font-medium"></div>
+                        <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">Họ và tên / Tên công ty <span class="text-red-500">*</span></label><input type="text" id="full_name" required class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700 font-medium"></div>
                         <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">Biệt danh (Nickname)</label><div class="relative"><span class="absolute left-3 top-2 text-gray-400 text-sm font-bold">@</span><input type="text" id="nickname" class="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700 font-medium" placeholder="vd: alex_tech"></div></div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -278,11 +278,52 @@
                     </div>
                     <div><label class="font-bold text-gray-800 dark:text-gray-200 text-xs block mb-1">Giới thiệu (Bio)</label><textarea id="bio" rows="3" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-700" placeholder="Mô tả ngắn gọn về bạn hoặc nhu cầu tuyển dụng..."></textarea></div>
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                        <div class="flex items-center justify-between mb-2"><label class="font-bold text-gray-800 dark:text-gray-200 text-sm flex items-center"><i class="fas fa-university text-indigo-600 mr-2"></i> Thông tin ngân hàng (Để rút tiền)</label><span class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-gray-700 px-2 py-0.5 rounded">Ràng buộc chính chủ</span></div>
-                        <div class="space-y-3 bg-gray-50 dark:bg-gray-750 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                            <div><label class="text-xs font-bold text-gray-600 dark:text-gray-300 block mb-1">Tên ngân hàng</label><select id="bank_name" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 font-medium"><option value="Vietcombank (VCB)">Vietcombank (VCB)</option><option value="MB Bank (Quân Đội)">MB Bank (Quân Đội)</option><option value="Techcombank (TCB)">Techcombank (TCB)</option><option value="ACB (Á Châu)">ACB (Á Châu)</option><option value="VPBank (Việt Nam Thịnh Vượng)">VPBank (Việt Nam Thịnh Vượng)</option><option value="TPBank (Tiên Phong)">TPBank (Tiên Phong)</option><option value="BIDV (Đầu tư & Phát triển)">BIDV (Đầu tư & Phát triển)</option><option value="Agribank (Nông Nghiệp)">Agribank (Nông Nghiệp)</option><option value="Sacombank (Sài Gòn Thương Tín)">Sacombank (Sài Gòn Thương Tín)</option><option value="VIB (Quốc Tế)">VIB (Quốc Tế)</option><option value="HDBank (Phát triển TP.HCM)">HDBank (Phát triển TP.HCM)</option><option value="Khác">Ngân hàng khác</option></select></div>
-                            <div><label class="text-xs font-bold text-gray-600 dark:text-gray-300 block mb-1">Số tài khoản ngân hàng</label><input type="text" id="bank_account" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 font-mono font-bold" placeholder="VD: 0123456789"></div>
-                            <div><div class="flex justify-between items-center mb-1"><label class="text-xs font-bold text-gray-600 dark:text-gray-300">Tên chủ tài khoản (Viết hoa không dấu)</label><span id="bankNameMatchStatus" class="text-[10px] font-bold"></span></div><input type="text" id="bank_owner" oninput="validateBankOwnerMatch()" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 uppercase font-bold" placeholder="VD: NGUYEN VAN A"><p id="bankNameMismatchWarning" class="text-xs text-red-500 font-semibold mt-1 hidden">⚠️ Chú ý: Tên chủ tài khoản rút tiền phải khớp với Họ tên đăng ký (<span id="warnRegisteredName"></span>) để tránh bị từ chối lệnh rút tiền!</p></div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="font-bold text-gray-800 dark:text-gray-200 text-sm flex items-center">
+                                <i class="fas fa-university text-indigo-600 mr-2"></i> Thông tin ngân hàng nhận tiền (VietQR)
+                            </label>
+                            <span class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-gray-700 px-2 py-0.5 rounded">Ràng buộc chính chủ</span>
+                        </div>
+                        <div class="space-y-4 bg-gray-50 dark:bg-gray-750 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
+                            <!-- Live Card Preview -->
+                            <div class="p-4 rounded-xl bg-gradient-to-br from-gray-900 via-indigo-950 to-slate-900 text-white shadow-md relative overflow-hidden">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center space-x-2">
+                                        <div id="previewBankLogo" class="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center overflow-hidden">
+                                            <i class="fas fa-university text-gray-800 text-sm"></i>
+                                        </div>
+                                        <span id="previewBankName" class="text-xs font-black tracking-wider text-indigo-200">CHƯA CHỌN NGÂN HÀNG</span>
+                                    </div>
+                                    <span class="text-[10px] bg-indigo-500/20 text-indigo-300 font-bold px-2 py-0.5 rounded-full border border-indigo-500/30">Tài khoản thụ hưởng</span>
+                                </div>
+                                <p id="previewBankAccount" class="font-mono text-base font-black tracking-widest text-emerald-300 my-1">STK: **** ****</p>
+                                <p id="previewBankOwner" class="text-[11px] font-bold uppercase tracking-wider text-gray-300">CHƯA CẬP NHẬT</p>
+                            </div>
+
+                            <!-- Cảnh báo trách nhiệm nhập đúng STK & Tên -->
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 rounded-xl flex items-start gap-2.5 text-amber-800 dark:text-amber-300 text-xs">
+                                <i class="fas fa-exclamation-triangle text-amber-500 mt-0.5 text-sm flex-shrink-0"></i>
+                                <div class="leading-relaxed">
+                                    <span class="font-bold">Lưu ý quan trọng:</span> Vui lòng kiểm tra và nhập thật chính xác <b>Số tài khoản</b> và <b>Tên chủ tài khoản</b> ngân hàng thụ hưởng. Hệ thống <b>hoàn toàn không chịu trách nhiệm</b> trong trường hợp bạn nhập sai thông tin dẫn đến việc chuyển nhầm hoặc thất thoát tiền!
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-gray-600 dark:text-gray-300 block mb-1">Chọn Ngân Hàng:</label>
+                                <select id="bank_name" onchange="updateModalBankPreview()" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 font-medium">
+                                    <option value="">-- Đang tải danh sách ngân hàng chính quy... --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-gray-600 dark:text-gray-300 block mb-1">Số tài khoản ngân hàng (STK):</label>
+                                <input type="text" id="bank_account" oninput="updateModalBankPreview()" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 font-mono font-bold" placeholder="VD: 0347793976">
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-gray-600 dark:text-gray-300 block mb-1">Tên chủ tài khoản (Viết hoa không dấu):</label>
+                                <input type="text" id="bank_owner" oninput="this.value = removeVietnameseTones(this.value); updateModalBankPreview();" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 uppercase font-bold" placeholder="VD: TRINH HUY HOANG">
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -310,16 +351,55 @@
         </div>
     </div>
 
-    <!-- MODAL 3: PHONE OTP -->
+    <!-- MODAL 3: PHONE OTP WHATSAPP -->
     <div id="phoneModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 dark:border-gray-700">
-            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4"><h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center"><i class="fas fa-mobile-alt text-green-600 mr-2"></i> Xác thực Số Điện Thoại (OTP)</h3><button onclick="closePhoneModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button></div>
-            <div class="space-y-4 text-sm">
-                <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Số điện thoại cần xác thực:</label><div class="flex gap-2"><input type="tel" id="otpPhoneNumber" class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 bg-gray-50 dark:bg-gray-700 font-bold" placeholder="0912345678"><button type="button" onclick="sendPhoneOtp()" id="btnSendOtp" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow shrink-0 transition">Gửi OTP</button></div></div>
-                <div id="otpInputSection" class="hidden space-y-2"><label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Nhập mã OTP 6 số:</label><input type="text" id="otpCode" maxlength="6" class="w-full text-center tracking-widest text-xl font-bold font-mono border border-gray-300 dark:border-gray-600 rounded-lg py-2 focus:ring-2 focus:ring-green-500 bg-gray-50 dark:bg-gray-700" placeholder="------"><p class="text-xs text-gray-500 italic text-center">(Mã thử nghiệm hệ thống: <b class="text-green-600">123456</b>)</p></div>
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-gray-100 dark:border-gray-700 animate-in zoom-in-95 duration-150">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4">
+                <h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center">
+                    <i class="fab fa-whatsapp text-emerald-500 text-lg mr-2"></i> Xác Thực SĐT Qua WhatsApp
+                </h3>
+                <button onclick="closePhoneModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
             </div>
-            <div class="mt-6 flex flex-col gap-2">
-                <button onclick="confirmPhoneOtp()" id="btnConfirmOtp" class="hidden w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center"><i class="fas fa-shield-check mr-2"></i> Xác Nhận Mã OTP</button>
+            
+            <div class="space-y-4 text-sm">
+                <!-- Step 1: Input phone & Send OTP -->
+                <div id="phoneStepInput">
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Số điện thoại WhatsApp của bạn:</label>
+                    <div class="flex space-x-2 mb-2">
+                        <input type="tel" id="otpPhoneNumber" class="flex-1 border border-gray-300 dark:border-gray-600 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 bg-gray-50 dark:bg-gray-700 font-mono font-bold" placeholder="VD: 0834779397">
+                        <button type="button" onclick="sendPhoneOtp()" id="btnSendOtp" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md shrink-0 transition flex items-center">
+                            <span>Gửi mã OTP</span>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-gray-400">
+                        ⚡ Hệ thống sẽ tự động gửi mã OTP 6 số trực tiếp vào tin nhắn WhatsApp của bạn (hoàn toàn miễn phí).
+                    </p>
+                </div>
+
+                <!-- Step 2: Enter OTP -->
+                <div id="otpInputSection" class="hidden space-y-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+                        <span>Đã gửi mã OTP tới: <strong id="dispTargetPhone" class="font-mono">...</strong></span>
+                        <button type="button" onclick="resetPhoneStep()" class="text-[11px] text-emerald-600 font-bold hover:underline">Đổi SĐT</button>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Nhập mã OTP 6 số:</label>
+                        <input type="text" id="otpCode" maxlength="6" class="w-full text-center tracking-widest text-2xl font-black font-mono border-2 border-emerald-300 dark:border-emerald-700 rounded-xl py-2.5 focus:ring-2 focus:ring-emerald-500 bg-gray-50 dark:bg-gray-700" placeholder="123456">
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span>⏱️ Hết hạn sau: <strong id="phoneOtpTimer" class="font-mono text-emerald-600 font-bold">05:00</strong></span>
+                        <button type="button" id="btnResendPhoneOtp" onclick="sendPhoneOtp()" disabled class="text-xs font-bold text-gray-400 cursor-not-allowed">Gửi lại (60s)</button>
+                    </div>
+
+                    <button onclick="confirmPhoneOtp()" id="btnConfirmOtp" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition text-sm flex items-center justify-center">
+                        <i class="fas fa-shield-check mr-2"></i> Xác Nhận & Kích Hoạt SĐT
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-col gap-2">
                 <button onclick="closePhoneModal()" class="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-2 rounded-xl text-xs hover:bg-gray-200 transition">Đóng</button>
             </div>
         </div>
@@ -333,6 +413,10 @@
             
         let currentUser = null;
         let profileData = {};
+        let availableBanks = [];
+        let bankLookupTimeout = null;
+        let phoneOtpCountdown = null;
+        let phoneCooldownInterval = null;
 
         const userStr = localStorage.getItem('user');
         if (!userStr) {
@@ -391,297 +475,231 @@
             str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
             str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
             str = str.replace(/Đ/g, "D");
+            str = str.replace(/[^a-zA-Z0-9\s]/g, "");
             return str.trim().toUpperCase();
         }
 
-        function validateBankOwnerMatch() {
-            const fullName = document.getElementById('full_name').value.trim();
-            const bankOwner = document.getElementById('bank_owner').value.trim();
-            const statusEl = document.getElementById('bankNameMatchStatus');
-            const warnEl = document.getElementById('bankNameMismatchWarning');
-            const warnName = document.getElementById('warnRegisteredName');
-
-            if (!bankOwner) {
-                statusEl.innerHTML = '';
-                warnEl.classList.add('hidden');
-                return true;
-            }
-
-            const cleanFull = removeVietnameseTones(fullName);
-            const cleanOwner = removeVietnameseTones(bankOwner);
-
-            if (cleanFull && cleanOwner && cleanFull === cleanOwner) {
-                statusEl.innerHTML = '<span class="text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i>Khớp tên chính chủ</span>';
-                warnEl.classList.add('hidden');
-                return true;
-            } else {
-                statusEl.innerHTML = '<span class="text-red-500 font-bold"><i class="fas fa-exclamation-circle mr-1"></i>Không khớp tên</span>';
-                warnName.innerText = fullName || 'Chưa nhập';
-                warnEl.classList.remove('hidden');
-                return false;
-            }
-        }
-
-        async function loadProfile() {
-            console.log('[HT Work] Tải profile của User ID:', currentUser.id);
+        async function loadBanks() {
             try {
-                const res = await fetch(`${API_URL}/api/users/${currentUser.id}`);
+                const res = await fetch(`${API_URL}/api/banks`);
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Lỗi tải hồ sơ');
-                profileData = data;
-                renderUI(data);
-            } catch (error) {
-                console.error('[HT Work] Lỗi load profile:', error);
-                alert('Không thể tải thông tin hồ sơ: ' + error.message);
+                if (data.success && data.banks) {
+                    availableBanks = data.banks;
+                    const select = document.getElementById('bank_name');
+                    select.innerHTML = '<option value="">-- Chọn ngân hàng nhận tiền (VietQR) --</option>' + 
+                        availableBanks.map(b => `<option value="${b.shortName}" data-code="${b.code}" data-bin="${b.bin}" data-logo="${b.logo}">${b.shortName} (${b.code}) - ${b.name}</option>`).join('');
+
+                    if (profileData && profileData.bank_name) {
+                        select.value = profileData.bank_name;
+                        updateModalBankPreview();
+                    }
+                }
+            } catch (e) {
+                console.error('Lỗi tải danh sách ngân hàng:', e);
             }
         }
 
-        function renderUI(data) {
-            const name = data.full_name || data.email;
-            document.getElementById('displayName').innerText = name;
-            document.getElementById('displayNickname').innerText = data.nickname ? `@${data.nickname}` : '@client';
-            document.getElementById('displayLocation').innerHTML = `<i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i>${data.location || 'TP. Hồ Chí Minh'}, VN`;
-            
-            if (data.created_at) {
-                const joinDate = new Date(data.created_at);
-                document.getElementById('displayJoinDate').innerHTML = `<i class="far fa-calendar-alt mr-1.5"></i>Thành viên từ T${joinDate.getMonth() + 1}/${joinDate.getFullYear()}`;
+        function updateModalBankPreview() {
+            const bankSelect = document.getElementById('bank_name');
+            const selectedBankName = bankSelect.value;
+            const accountNum = document.getElementById('bank_account').value.trim();
+            const ownerName = document.getElementById('bank_owner').value.trim();
+
+            const selectedOption = bankSelect.options[bankSelect.selectedIndex];
+            const logoUrl = selectedOption ? selectedOption.getAttribute('data-logo') : '';
+
+            const prevBank = document.getElementById('previewBankName');
+            const prevAcc = document.getElementById('previewBankAccount');
+            const prevOwner = document.getElementById('previewBankOwner');
+            const prevLogo = document.getElementById('previewBankLogo');
+
+            if (prevBank) prevBank.innerText = selectedBankName || 'CHƯA CHỌN NGÂN HÀNG';
+            if (prevLogo) {
+                if (logoUrl) {
+                    prevLogo.innerHTML = `<img src="${logoUrl}" alt="${selectedBankName}" class="w-full h-full object-contain" onerror="this.innerHTML='🏦'">`;
+                } else {
+                    prevLogo.innerHTML = `<i class="fas fa-university text-gray-800 text-sm"></i>`;
+                }
             }
 
-            const avatarUrl = data.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff`;
-            document.getElementById('avatarContainer').src = avatarUrl;
-            document.getElementById('previewAvatar').src = avatarUrl;
-            document.getElementById('avatar_url').value = data.avatar_url || '';
-
-            if (data.cover_url) {
-                document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
-                document.getElementById('previewCover').src = data.cover_url;
-                document.getElementById('cover_url').value = data.cover_url;
-            }
-
-            document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu. Bạn có thể bấm "Chỉnh sửa trang cá nhân" để giới thiệu thêm!';
-
-            document.getElementById('displayEmail').innerText = data.email || 'N/A';
-            document.getElementById('modalEmailText').innerText = data.email || 'N/A';
-            
-            if (data.is_email_verified) {
-                document.getElementById('emailBadgeContainer').innerHTML = '<span class="bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full"><i class="fas fa-check-circle mr-1"></i>Đã xác thực</span>';
-                document.getElementById('emailActionContainer').classList.add('hidden');
-            } else {
-                document.getElementById('emailBadgeContainer').innerHTML = '<span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>';
-                document.getElementById('emailActionContainer').classList.remove('hidden');
-            }
-
-            document.getElementById('displayPhone').innerText = data.phone_number || 'Chưa cập nhật';
-            document.getElementById('otpPhoneNumber').value = data.phone_number || '';
-            
-            if (data.is_phone_verified && data.phone_number) {
-                document.getElementById('phoneBadgeContainer').innerHTML = '<span class="bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full"><i class="fas fa-check-circle mr-1"></i>Đã xác thực OTP</span>';
-                document.getElementById('phoneActionContainer').classList.add('hidden');
-            } else {
-                document.getElementById('phoneBadgeContainer').innerHTML = '<span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>';
-                document.getElementById('phoneActionContainer').classList.remove('hidden');
-            }
-
-            if (data.stats) {
-                const spentStr = (parseInt(data.stats.total_spent) || 0).toLocaleString() + ' Token';
-                const hireRateStr = (data.stats.hire_rate || 0) + '%';
-                const jobsStr = data.stats.jobs_posted || 0;
-
-                document.getElementById('statSpent').innerText = spentStr;
-                document.getElementById('statHireRate').innerText = hireRateStr;
-                document.getElementById('statJobs').innerText = jobsStr;
-
-                // Cập nhật thẻ Điểm Tín Dụng Hybrid Web2-Web3
-                const creditSpentEl = document.getElementById('creditSpent');
-                const creditSuccessEl = document.getElementById('creditSuccessRate');
-                const creditRatingEl = document.getElementById('creditRating');
-                if (creditSpentEl) creditSpentEl.innerText = spentStr;
-                if (creditSuccessEl) creditSuccessEl.innerText = `${hireRateStr} (${data.stats.jobs_posted || 0} dự án)`;
-                if (creditRatingEl) creditRatingEl.innerText = `5.0 / 5.0 ⭐`;
-            }
-
-            document.getElementById('cardBankName').innerText = (data.bank_name || 'CHƯA CẬP NHẬT NGÂN HÀNG').toUpperCase();
-            document.getElementById('cardBankAccount').innerText = data.bank_account ? (data.bank_account.slice(0, -4).replace(/./g, '*') + data.bank_account.slice(-4)) : '**** **** ****';
-            document.getElementById('cardBankOwner').innerText = data.bank_owner ? data.bank_owner.toUpperCase() : (name ? removeVietnameseTones(name) : 'CHƯA CÓ THÔNG TIN');
-
-            document.getElementById('full_name').value = data.full_name || '';
-            document.getElementById('nickname').value = data.nickname || '';
-            document.getElementById('phone_number').value = data.phone_number || '';
-            document.getElementById('bio').value = data.bio || '';
-            document.getElementById('bank_name').value = data.bank_name || 'Vietcombank (VCB)';
-            document.getElementById('bank_account').value = data.bank_account || '';
-            document.getElementById('bank_owner').value = data.bank_owner || (data.full_name ? removeVietnameseTones(data.full_name) : '');
-
-            loadVietnamProvinces(data.location || 'TP. Hồ Chí Minh');
-            validateBankOwnerMatch();
+            if (prevAcc) prevAcc.innerText = accountNum ? `STK: ${accountNum}` : 'STK: **** ****';
+            if (prevOwner) prevOwner.innerText = ownerName ? ownerName.toUpperCase() : 'CHƯA CẬP NHẬT';
         }
 
+        // Modal Controls
         function openEditModal() { document.getElementById('editModal').classList.remove('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
-        function openEmailModal() { document.getElementById('emailModal').classList.remove('hidden'); }
+        function openEmailModal() { 
+            document.getElementById('modalEmailText').innerText = profileData.email || (currentUser && currentUser.email) || '';
+            document.getElementById('emailModal').classList.remove('hidden'); 
+        }
         function closeEmailModal() { document.getElementById('emailModal').classList.add('hidden'); }
 
-        function openPhoneModal() { document.getElementById('phoneModal').classList.remove('hidden'); }
+        function openPhoneModal() { 
+            document.getElementById('phoneModal').classList.remove('hidden'); 
+            const curPhone = (document.getElementById('phone_number') ? document.getElementById('phone_number').value : '') || profileData.phone_number || '';
+            if (curPhone) {
+                document.getElementById('otpPhoneNumber').value = curPhone;
+            }
+        }
         function closePhoneModal() { document.getElementById('phoneModal').classList.add('hidden'); }
 
+        function resetPhoneStep() {
+            document.getElementById('otpInputSection').classList.add('hidden');
+            document.getElementById('phoneStepInput').classList.remove('hidden');
+        }
+
+        // 1. Upload Helper
         async function uploadImageFile(file) {
             const formData = new FormData();
             formData.append('file', file);
             const res = await fetch(`${API_URL}/api/upload/image`, { method: 'POST', body: formData });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Upload ảnh thất bại');
+            if (!res.ok) throw new Error(data.error || 'Lỗi tải ảnh');
             return data.url;
         }
 
-        document.getElementById('avatarUpload')?.addEventListener('change', async (e) => {
+        document.getElementById('avatarUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const preview = document.getElementById('previewAvatar');
-            const oldSrc = preview.src;
-            preview.src = 'https://i.gifer.com/ZKZg.gif';
+            const img = document.getElementById('previewAvatar');
+            const oldSrc = img.src;
+            img.src = 'https://i.gifer.com/ZKZg.gif';
             try {
                 const url = await uploadImageFile(file);
+                img.src = url;
                 document.getElementById('avatar_url').value = url;
-                preview.src = url;
-                alert('✅ Tải ảnh đại diện thành công!');
+                document.getElementById('avatarContainer').src = url;
+                await fetch(`${API_URL}/api/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ avatar_url: url })
+                });
+                currentUser.avatar_url = url;
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                alert('✅ Đổi ảnh đại diện thành công!');
             } catch (err) {
-                preview.src = oldSrc;
-                alert('❌ Lỗi tải ảnh: ' + err.message);
+                img.src = oldSrc;
+                alert('❌ ' + err.message);
             }
         });
 
-        document.getElementById('coverUpload')?.addEventListener('change', async (e) => {
+        document.getElementById('coverUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const preview = document.getElementById('previewCover');
-            const oldSrc = preview.src;
-            preview.src = 'https://i.gifer.com/ZKZg.gif';
             try {
                 const url = await uploadImageFile(file);
                 document.getElementById('cover_url').value = url;
-                preview.src = url;
-                alert('✅ Tải ảnh bìa thành công!');
+                document.getElementById('previewCover').src = url;
+                document.getElementById('coverContainer').style.backgroundImage = `url('${url}')`;
+                await fetch(`${API_URL}/api/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cover_url: url })
+                });
+                alert('✅ Đổi ảnh bìa thành công!');
             } catch (err) {
-                preview.src = oldSrc;
-                alert('❌ Lỗi tải ảnh: ' + err.message);
+                alert('❌ ' + err.message);
             }
         });
 
-        document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const isNameValid = validateBankOwnerMatch();
-            if (!isNameValid && document.getElementById('bank_owner').value.trim()) {
-                if (!confirm('CẢNH BÁO: Tên chủ tài khoản ngân hàng chưa khớp hoàn toàn với Họ tên đăng ký.\nBạn có chắc chắn vẫn muốn lưu thông tin này? (Lưu ý: Lệnh rút tiền có thể bị từ chối nếu không trùng tên chính chủ).')) {
-                    return;
-                }
-            }
-
-            const submitBtn = document.querySelector('button[form="profileForm"]');
-            const btnText = document.getElementById('saveBtnText');
-            const spinner = document.getElementById('saveSpinner');
-            
-            if (submitBtn) submitBtn.disabled = true;
-            btnText.innerText = 'Đang lưu...';
-            spinner.classList.remove('hidden');
-
-            const payload = {
-                full_name: document.getElementById('full_name').value.trim(),
-                nickname: document.getElementById('nickname').value.trim(),
-                location: document.getElementById('locationSelect').value,
-                phone_number: document.getElementById('phone_number').value.trim(),
-                avatar_url: document.getElementById('avatar_url').value,
-                cover_url: document.getElementById('cover_url').value,
-                bio: document.getElementById('bio').value.trim(),
-                bank_name: document.getElementById('bank_name').value,
-                bank_account: document.getElementById('bank_account').value.trim(),
-                bank_owner: document.getElementById('bank_owner').value.trim().toUpperCase()
-            };
-
+        // 2. Email Verification Trigger
+        async function performEmailVerification() {
+            const btn = document.getElementById('btnVerifyEmail');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xác thực...';
             try {
                 const res = await fetch(`${API_URL}/api/users/${currentUser.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ is_email_verified: true })
                 });
-                
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Cập nhật thất bại');
-
-                const updatedUser = { ...currentUser, full_name: data.user.full_name, avatar_url: data.user.avatar_url };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-                
-                alert('✅ Cập nhật hồ sơ thành công!');
-                closeEditModal();
-                loadProfile();
-            } catch (error) {
-                alert('❌ Lỗi: ' + error.message);
-            } finally {
-                if (submitBtn) submitBtn.disabled = false;
-                btnText.innerText = 'Lưu thay đổi';
-                spinner.classList.add('hidden');
-            }
-        });
-
-        async function performEmailVerification() {
-            const btn = document.getElementById('btnVerifyEmail');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang kích hoạt...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(`${API_URL}/api/auth/verify-email`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: currentUser.id })
-                });
-                const data = await res.json();
                 if (res.ok) {
-                    alert('🎉 Chúc mừng! Địa chỉ Email của bạn đã được xác thực thành công!');
+                    alert('🎉 Email của bạn đã được xác thực thành công!');
                     closeEmailModal();
                     loadProfile();
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    alert('Lỗi khi kích hoạt xác thực email.');
                 }
-            } catch (err) {
-                alert('Lỗi kết nối Server!');
+            } catch (e) {
+                alert('Lỗi kết nối máy chủ!');
             } finally {
-                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Kích Hoạt Xác Thực Email Ngay';
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Kích Hoạt Xác Thực Email Ngay';
             }
         }
 
+        // 3. Phone OTP WhatsApp
         async function sendPhoneOtp() {
             const phone = document.getElementById('otpPhoneNumber').value.trim();
             if (!phone || phone.length < 9) {
-                alert('Vui lòng nhập số điện thoại hợp lệ!');
+                alert('Vui lòng nhập số điện thoại hợp lệ (9-10 chữ số)!');
                 return;
             }
 
             const btn = document.getElementById('btnSendOtp');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang gửi...';
 
             try {
                 const res = await fetch(`${API_URL}/api/auth/send-phone-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone_number: phone })
+                    body: JSON.stringify({ phone_number: phone, user_id: currentUser.id })
                 });
                 const data = await res.json();
+
                 if (res.ok) {
-                    alert('📲 ' + data.message);
+                    document.getElementById('dispTargetPhone').innerText = phone;
+                    document.getElementById('phoneStepInput').classList.add('hidden');
                     document.getElementById('otpInputSection').classList.remove('hidden');
-                    document.getElementById('btnConfirmOtp').classList.remove('hidden');
+                    document.getElementById('otpCode').focus();
+
+                    startPhoneTimer(300);
+                    startPhoneCooldown(60);
+
+                    alert(`✅ ${data.message}`);
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể gửi mã OTP WhatsApp'));
                 }
             } catch (err) {
-                alert('Lỗi kết nối Server!');
+                alert('Lỗi kết nối máy chủ!');
             } finally {
-                btn.innerHTML = 'Gửi lại OTP';
                 btn.disabled = false;
+                btn.innerHTML = '<span>Gửi mã OTP</span>';
             }
+        }
+
+        function startPhoneTimer(sec) {
+            clearInterval(phoneOtpCountdown);
+            let rem = sec;
+            const disp = document.getElementById('phoneOtpTimer');
+            phoneOtpCountdown = setInterval(() => {
+                rem--;
+                const m = Math.floor(rem / 60).toString().padStart(2, '0');
+                const s = (rem % 60).toString().padStart(2, '0');
+                disp.innerText = `${m}:${s}`;
+                if (rem <= 0) clearInterval(phoneOtpCountdown);
+            }, 1000);
+        }
+
+        function startPhoneCooldown(sec) {
+            clearInterval(phoneCooldownInterval);
+            let rem = sec;
+            const btn = document.getElementById('btnResendPhoneOtp');
+            btn.disabled = true;
+            btn.className = 'text-xs font-bold text-gray-400 cursor-not-allowed';
+            phoneCooldownInterval = setInterval(() => {
+                rem--;
+                btn.innerText = `Gửi lại (${rem}s)`;
+                if (rem <= 0) {
+                    clearInterval(phoneCooldownInterval);
+                    btn.disabled = false;
+                    btn.innerText = 'Gửi lại mã OTP';
+                    btn.className = 'text-xs font-bold text-emerald-600 hover:underline cursor-pointer';
+                }
+            }, 1000);
         }
 
         async function confirmPhoneOtp() {
@@ -694,8 +712,8 @@
             }
 
             const btn = document.getElementById('btnConfirmOtp');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xác nhận...';
             btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang xác thực...';
 
             try {
                 const res = await fetch(`${API_URL}/api/auth/verify-phone-otp`, {
@@ -708,21 +726,192 @@
                     })
                 });
                 const data = await res.json();
+
                 if (res.ok) {
-                    alert('🎉 Chúc mừng! Số điện thoại của bạn đã được xác thực thành công!');
+                    alert(`🎉 XÁC THỰC THÀNH CÔNG!\n\nSố điện thoại WhatsApp [${phone}] đã được liên kết chính chủ.`);
                     closePhoneModal();
                     loadProfile();
                 } else {
-                    alert('❌ ' + data.error);
+                    alert('❌ ' + (data.error || 'Mã OTP không đúng!'));
                 }
             } catch (err) {
-                alert('Lỗi kết nối Server!');
+                alert('Lỗi kết nối máy chủ!');
             } finally {
-                btn.innerHTML = '<i class="fas fa-shield-check mr-2"></i> Xác Nhận Mã OTP';
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-shield-check mr-2"></i> Xác Nhận & Kích Hoạt SĐT';
             }
         }
 
+        // 4. Render Profile Data
+        function renderUI(data) {
+            profileData = data;
+            const name = data.full_name || currentUser.full_name || 'Khách hàng';
+            document.getElementById('displayName').innerText = name;
+            document.getElementById('displayNickname').innerText = data.nickname ? `@${data.nickname}` : '@client';
+            document.getElementById('displayLocation').innerHTML = `<i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i>${data.location || 'TP. Hồ Chí Minh'}, VN`;
+            document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu.';
+            document.getElementById('displayEmail').innerText = data.email || currentUser.email;
+            document.getElementById('displayPhone').innerText = data.phone_number || 'Chưa cập nhật';
+
+            if (data.avatar_url) {
+                document.getElementById('avatarContainer').src = data.avatar_url;
+                document.getElementById('previewAvatar').src = data.avatar_url;
+            }
+            if (data.cover_url) {
+                document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
+                document.getElementById('previewCover').src = data.cover_url;
+            }
+
+            // Email verification badge
+            const emailBadge = document.getElementById('emailBadgeContainer');
+            const emailAction = document.getElementById('emailActionContainer');
+            if (data.is_email_verified) {
+                emailBadge.innerHTML = `<span class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-full"><i class="fas fa-check-circle mr-1"></i>Đã xác thực</span>`;
+                emailAction.innerHTML = `<span class="text-xs text-emerald-600 font-bold">✓ Email chính chủ</span>`;
+            } else {
+                emailBadge.innerHTML = `<span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>`;
+                emailAction.innerHTML = `<button onclick="openEmailModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline"><i class="fas fa-check-circle mr-1"></i> Xác thực Email ngay</button>`;
+            }
+
+            // Phone verification badge
+            const phoneBadge = document.getElementById('phoneBadgeContainer');
+            const phoneAction = document.getElementById('phoneActionContainer');
+            if (data.is_phone_verified && data.phone_number) {
+                phoneBadge.innerHTML = `<span class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-full"><i class="fab fa-whatsapp mr-1"></i>Đã xác thực</span>`;
+                phoneAction.innerHTML = `<span class="text-xs text-emerald-600 font-bold">✓ WhatsApp đã kết nối</span>`;
+            } else {
+                phoneBadge.innerHTML = `<span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>`;
+                phoneAction.innerHTML = `<button onclick="openPhoneModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline"><i class="fas fa-shield-alt mr-1"></i> Xác thực OTP SĐT</button>`;
+            }
+
+            // Bank card summary
+            document.getElementById('cardBankName').innerText = data.bank_name || 'CHƯA CẬP NHẬT NGÂN HÀNG';
+            document.getElementById('cardBankAccount').innerText = data.bank_account ? `STK: ${data.bank_account}` : '**** **** ****';
+            document.getElementById('cardBankOwner').innerText = data.bank_owner || 'CHƯA CÓ THÔNG TIN';
+
+            // Real Stats Bar (Chi tiêu, Tỉ lệ thuê, Dự án đã đăng, Đánh giá, Điểm tín dụng)
+            const stats = data.stats || {};
+            const statSpent = document.getElementById('statSpent');
+            const statHireRate = document.getElementById('statHireRate');
+            const statJobs = document.getElementById('statJobs');
+            const statRating = document.getElementById('statRating');
+
+            const creditSpent = document.getElementById('creditSpent');
+            const creditSuccessRate = document.getElementById('creditSuccessRate');
+            const creditRating = document.getElementById('creditRating');
+            const creditTierBadge = document.getElementById('creditTierBadge');
+
+            if (statSpent) {
+                statSpent.innerText = stats.total_spent ? `${stats.total_spent.toLocaleString()} Token` : '0 Token';
+            }
+            if (statHireRate) {
+                if (stats.jobs_posted > 0) {
+                    statHireRate.innerText = `${stats.hire_rate || 0}%`;
+                } else {
+                    statHireRate.innerText = 'Chưa có';
+                }
+            }
+            if (statJobs) {
+                statJobs.innerText = stats.jobs_posted || 0;
+            }
+            if (statRating) {
+                if (stats.rating_display && stats.rating_display !== 'Chưa có') {
+                    statRating.innerHTML = `${stats.rating_display} <i class="fas fa-star text-yellow-400 ml-1 text-sm"></i>`;
+                } else {
+                    statRating.innerText = 'Chưa có';
+                }
+            }
+
+            if (creditSpent) {
+                creditSpent.innerText = stats.total_spent ? `${stats.total_spent.toLocaleString()} Token` : '0 Token';
+            }
+            if (creditSuccessRate) {
+                creditSuccessRate.innerText = stats.completion_rate || 'Chưa có';
+            }
+            if (creditRating) {
+                if (stats.rating_display && stats.rating_display !== 'Chưa có') {
+                    creditRating.innerText = `${stats.rating_display} ⭐`;
+                } else {
+                    creditRating.innerText = 'Chưa có';
+                }
+            }
+            if (creditTierBadge) {
+                const tierName = stats.credit_tier || 'Khách mới';
+                creditTierBadge.innerHTML = `<i class="fas fa-certificate mr-1.5 text-emerald-400"></i> ${tierName}`;
+            }
+
+            // Form inputs
+            document.getElementById('full_name').value = data.full_name || '';
+            document.getElementById('nickname').value = data.nickname || '';
+            document.getElementById('phone_number').value = data.phone_number || '';
+            document.getElementById('bio').value = data.bio || '';
+            document.getElementById('bank_name').value = data.bank_name || '';
+            document.getElementById('bank_account').value = data.bank_account || '';
+            document.getElementById('bank_owner').value = data.bank_owner || '';
+
+            loadVietnamProvinces(data.location || 'TP. Hồ Chí Minh');
+            validateBankOwnerMatch();
+            updateModalBankPreview();
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_URL}/api/users/${currentUser.id}`);
+                const data = await res.json();
+                if (res.ok) {
+                    renderUI(data);
+                }
+            } catch (e) {
+                console.error('Lỗi nạp hồ sơ:', e);
+            }
+        }
+
+        // 5. Submit Form Profile
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btnText = document.getElementById('saveBtnText');
+            const spinner = document.getElementById('saveSpinner');
+            btnText.innerText = 'Đang lưu...';
+            spinner.classList.remove('hidden');
+
+            const payload = {
+                full_name: document.getElementById('full_name').value.trim(),
+                nickname: document.getElementById('nickname').value.trim(),
+                location: document.getElementById('locationSelect').value,
+                phone_number: document.getElementById('phone_number').value.trim(),
+                bio: document.getElementById('bio').value.trim(),
+                bank_name: document.getElementById('bank_name').value,
+                bank_account: document.getElementById('bank_account').value.trim(),
+                bank_owner: document.getElementById('bank_owner').value.trim().toUpperCase(),
+                avatar_url: document.getElementById('avatar_url').value,
+                cover_url: document.getElementById('cover_url').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    currentUser.full_name = data.user.full_name;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    closeEditModal();
+                    loadProfile();
+                    alert('✅ Cập nhật hồ sơ thành công!');
+                } else {
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể lưu hồ sơ'));
+                }
+            } catch (err) {
+                alert('Lỗi kết nối máy chủ!');
+            } finally {
+                btnText.innerText = 'Lưu thay đổi';
+                spinner.classList.add('hidden');
+            }
+        });
+
+        loadBanks();
         loadProfile();
     </script>
     <script src="ui.js"></script>

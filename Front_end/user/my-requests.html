@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         tailwind.config = {
@@ -245,6 +246,277 @@
                     { id: 5, name: 'Video & Âm thanh' },
                     { id: 6, name: 'Hành chính & Trợ lý ảo' }
                 ];
+            }
+        }
+
+        // Tải danh sách yêu cầu (Jobs) và các ứng viên ứng tuyển
+        async function loadMyRequests() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('Bạn chưa đăng nhập!');
+                window.location.replace('../sharedFolder/login.html');
+                return;
+            }
+            currentUser = JSON.parse(userStr);
+
+            const listDiv = document.getElementById('requestsList');
+            if (!listDiv) return;
+            listDiv.innerHTML = `
+                <div class="text-center py-16 text-gray-400">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-3 text-indigo-500"></i>
+                    <p class="text-sm font-semibold">Đang tải danh sách yêu cầu và ứng viên...</p>
+                </div>
+            `;
+
+            try {
+                const [jobsRes, appsRes] = await Promise.all([
+                    fetch(`${API_URL}/api/client/${currentUser.id}/my-jobs`),
+                    fetch(`${API_URL}/api/client/${currentUser.id}/applications`)
+                ]);
+
+                const jobsData = await jobsRes.json();
+                const appsData = await appsRes.json();
+
+                myJobsList = (jobsData && jobsData.jobs) ? jobsData.jobs : [];
+                allApplications = (appsData && appsData.applications) ? appsData.applications : [];
+
+                const appsByJob = {};
+                allApplications.forEach(app => {
+                    const jId = String(app.job_id);
+                    if (!appsByJob[jId]) appsByJob[jId] = [];
+                    appsByJob[jId].push(app);
+                });
+
+                if (myJobsList.length === 0) {
+                    listDiv.innerHTML = `
+                        <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
+                            <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-950 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">Chưa có dự án nào đang mở</h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-xs mb-6">Bạn chưa đăng tải yêu cầu tuyển dụng nào. Hãy đăng yêu cầu ngay để nhận báo giá từ Freelancer chất lượng!</p>
+                            <a href="post-job.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition inline-flex items-center">
+                                <i class="fas fa-plus-circle mr-2"></i> Đăng Yêu Cầu Mới
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listDiv.innerHTML = myJobsList.map(job => {
+                    const parsed = parseJobMetadata(job);
+                    const jobApps = appsByJob[String(job.id)] || [];
+                    const createdDate = new Date(job.created_at).toLocaleDateString('vi-VN');
+
+                    const isPlanning = ['planning', 'pending_plan_approval'].includes(job.status);
+                    const isProgress = job.status === 'in_progress';
+                    const isCompleted = job.status === 'completed';
+                    const isOpen = job.status === 'open';
+                    const isCancelled = job.status === 'cancelled';
+
+                    let statusLabel = 'Đang tuyển ứng viên';
+                    let statusClass = 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800';
+                    if (isPlanning) {
+                        statusLabel = 'Đang lập kế hoạch (Planning)';
+                        statusClass = 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800';
+                    } else if (isProgress) {
+                        statusLabel = 'Đang thực hiện (In Progress)';
+                        statusClass = 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800';
+                    } else if (isCompleted) {
+                        statusLabel = 'Đã hoàn thành';
+                        statusClass = 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800';
+                    } else if (isCancelled) {
+                        statusLabel = 'Đã hủy / Thu hồi';
+                        statusClass = 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-750 dark:text-gray-400 dark:border-gray-700';
+                    }
+
+                    return `
+                        <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-700">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${statusClass}">
+                                            ${statusLabel}
+                                        </span>
+                                        ${parsed.categoryName ? `<span class="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">${escapeHtml(parsed.categoryName)}</span>` : ''}
+                                        <span class="text-xs text-gray-400"><i class="far fa-calendar-alt mr-1"></i> ${createdDate}</span>
+                                    </div>
+                                    <h2 class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">
+                                        ${escapeHtml(job.title)}
+                                    </h2>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center">
+                                        <i class="fas fa-coins mr-1.5"></i> ${(job.budget || 0).toLocaleString()} Token
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="py-4 space-y-3">
+                                <div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line line-clamp-3 transition-all">
+                                        ${escapeHtml(parsed.cleanDesc || job.description || 'Không có mô tả chi tiết.')}
+                                    </div>
+                                    ${(parsed.cleanDesc || job.description || '').length > 200 ? `
+                                    <button type="button" onclick="this.previousElementSibling.classList.toggle('line-clamp-3'); this.innerText = this.previousElementSibling.classList.contains('line-clamp-3') ? 'Xem thêm' : 'Ẩn bớt'" class="text-xs text-indigo-600 hover:text-indigo-800 font-bold mt-1 transition">Xem thêm</button>
+                                    ` : ''}
+                                </div>
+
+                                <div class="flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400 pt-2">
+                                    ${parsed.deadline ? `<div><i class="far fa-clock text-indigo-500 mr-1"></i> Hạn chót: <b>${escapeHtml(parsed.deadline)}</b></div>` : ''}
+                                    ${parsed.freelancerType ? `<div><i class="fas fa-users text-indigo-500 mr-1"></i> Đối tượng: <b>${escapeHtml(parsed.freelancerType)}</b></div>` : ''}
+                                </div>
+
+                                ${parsed.tags && parsed.tags.length > 0 ? `
+                                    <div class="flex flex-wrap gap-1.5 pt-1">
+                                        ${parsed.tags.map(t => `<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[11px] px-2.5 py-1 rounded-lg font-medium">#${escapeHtml(t)}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+
+                                ${parsed.files && parsed.files.length > 0 ? `
+                                    <div class="flex flex-wrap gap-2 pt-2">
+                                        ${parsed.files.map(f => `
+                                            <a href="${f.url}" target="_blank" class="inline-flex items-center text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:underline">
+                                                <i class="fas fa-paperclip mr-1.5"></i> ${escapeHtml(f.name)}
+                                            </a>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center space-x-2">
+                                    ${isOpen ? `
+                                        <button onclick="openEditJobModal('${job.id}')" class="text-xs bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 font-bold px-3 py-1.5 rounded-xl transition flex items-center">
+                                            <i class="fas fa-edit mr-1.5"></i> Chỉnh sửa
+                                        </button>
+                                        <button onclick="deleteJob('${job.id}', '${escapeHtml(job.title)}')" class="text-xs bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 hover:bg-red-100 font-bold px-3 py-1.5 rounded-xl transition flex items-center">
+                                            <i class="fas fa-trash-alt mr-1.5"></i> Xóa
+                                        </button>
+                                    ` : ''}
+                                    ${isPlanning ? `
+                                        <button onclick="cancelPlanningJob('${job.id}', '${escapeHtml(job.title)}', '${job.budget}')" class="text-xs bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 hover:bg-amber-100 font-bold px-3 py-1.5 rounded-xl transition flex items-center">
+                                            <i class="fas fa-undo mr-1.5"></i> Thu hồi Escrow
+                                        </button>
+                                        <button onclick="handleViewPlan('${job.id}', '${job.status}')" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-1.5 rounded-xl transition flex items-center shadow-sm">
+                                            <i class="fas fa-tasks mr-1.5"></i> Xem Kế Hoạch & Tiến độ
+                                        </button>
+                                    ` : ''}
+                                    ${isProgress ? `
+                                        <a href="review-work.html" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl transition flex items-center shadow-sm">
+                                            <i class="fas fa-chart-line mr-1.5"></i> Quản lý Tiến độ
+                                        </a>
+                                    ` : ''}
+                                    ${isCompleted ? `
+                                        <a href="review-work.html" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold px-3.5 py-1.5 rounded-xl transition flex items-center shadow-sm">
+                                            <i class="fas fa-file-contract mr-1.5"></i> Lịch Sử Dự Án
+                                        </a>
+                                    ` : ''}
+                                </div>
+
+                                <div class="text-xs font-bold text-gray-500">
+                                    <i class="fas fa-users text-indigo-500 mr-1"></i> ${jobApps.length} Ứng viên báo giá
+                                </div>
+                            </div>
+                            
+                            ${job.review ? `
+                            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 shadow-sm">
+                                    <h4 class="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center mb-2">
+                                        <i class="fas fa-star text-amber-500 mr-1.5"></i> Đánh giá của bạn dành cho Freelancer
+                                    </h4>
+                                    <div class="flex items-center mb-1">
+                                        <div class="flex mr-2 text-yellow-500 text-xs">
+                                            ${Array(5).fill(0).map((_, i) => `<i class="${i < job.review.rating ? 'fas' : 'far text-gray-300'} fa-star"></i>`).join('')}
+                                        </div>
+                                        <span class="text-[10px] font-bold text-amber-800 bg-amber-200 px-1.5 py-0.5 rounded">${job.review.rating}/5</span>
+                                    </div>
+                                    <p class="text-xs text-gray-700 dark:text-gray-300 italic mt-1 mb-2">${job.review.comment || 'Không có bình luận'}</p>
+                                    ${job.review.tags && job.review.tags.length > 0 ? `
+                                        <div class="flex flex-wrap gap-1.5 mt-2">
+                                            ${job.review.tags.map(t => `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-white/60 dark:bg-gray-900/40 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800">${t}</span>`).join('')}
+                                        </div>
+                                    ` : ''}
+                                    <div class="mt-3 text-right">
+                                        <a href="review-work.html?edit_review=true&job_id=${job.id}" class="inline-flex items-center justify-center bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-800 text-amber-700 dark:text-amber-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300/50 shadow-sm transition">
+                                            <i class="fas fa-edit mr-1.5"></i> Sửa đánh giá
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            ` : ''}
+                            
+                            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 flex items-center">
+                                    <i class="fas fa-user-check text-indigo-500 mr-1.5"></i> Danh sách Ứng viên (${jobApps.length})
+                                </h4>
+
+                                ${jobApps.length === 0 ? `
+                                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-2xl text-center text-xs text-gray-400">
+                                        Chưa có Freelancer nào nộp báo giá cho dự án này.
+                                    </div>
+                                ` : `
+                                    <div class="space-y-3">
+                                        ${jobApps.map(app => {
+                                            const fName = app.users?.full_name || 'Freelancer';
+                                            const fEmail = app.users?.email || '';
+                                            const bidVal = (app.bid_amount || job.budget || 0).toLocaleString();
+
+                                            return `
+                                                    <div class="bg-gray-50 dark:bg-gray-750 p-4 rounded-2xl border border-gray-200 dark:border-gray-650 flex flex-col sm:flex-row justify-between items-start gap-3 hover:border-indigo-300 dark:hover:border-indigo-700 transition">
+                                                        <div class="space-y-1">
+                                                            <div class="flex items-center space-x-2 cursor-pointer group" onclick="viewFreelancer('${app.freelancer_id}')" title="Xem hồ sơ ứng viên">
+                                                                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs group-hover:bg-indigo-700 transition">
+                                                                    ${fName.charAt(0).toUpperCase()}
+                                                                </div>
+                                                                <div>
+                                                                    <h5 class="text-sm font-bold text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">${escapeHtml(fName)}</h5>
+                                                                    <p class="text-[11px] text-gray-400">${escapeHtml(fEmail)}</p>
+                                                                </div>
+                                                            </div>
+                                                            ${app.cover_letter ? `
+                                                                <div class="pt-1 pl-10">
+                                                                    <div class="text-xs text-gray-600 dark:text-gray-300 italic line-clamp-3 whitespace-pre-line transition-all">"${escapeHtml(app.cover_letter)}"</div>
+                                                                    ${app.cover_letter.length > 150 ? `
+                                                                    <button type="button" onclick="this.previousElementSibling.classList.toggle('line-clamp-3'); this.innerText = this.previousElementSibling.classList.contains('line-clamp-3') ? 'Xem thêm' : 'Ẩn bớt'" class="text-[10px] text-indigo-500 hover:text-indigo-700 font-bold mt-1 transition">Xem thêm</button>
+                                                                    ` : ''}
+                                                                </div>
+                                                            ` : ''}
+                                                    </div>
+
+                                                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end shrink-0">
+                                                        <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-800">
+                                                            Báo giá: ${bidVal} Token
+                                                        </span>
+                                                        ${isOpen ? `
+                                                            <button onclick="acceptFreelancer('${app.id}', '${job.id}', '${bidVal}', '${escapeHtml(fName)}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow transition flex items-center">
+                                                                <i class="fas fa-lock mr-1.5"></i> Chọn & Khóa Escrow
+                                                            </button>
+                                                        ` : ''}
+                                                        <a href="direct-chat.html?freelancer_id=${app.freelancer_id}" class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center">
+                                                            <i class="fas fa-comments text-indigo-500 mr-1"></i> Chat
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Lỗi tải danh sách yêu cầu:', err);
+                listDiv.innerHTML = `
+                    <div class="text-center py-16 bg-red-50 dark:bg-red-950/50 rounded-3xl border border-red-200 text-red-600 p-8">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                        <h4 class="font-bold text-sm">Không thể kết nối đến máy chủ để tải dự án</h4>
+                        <p class="text-xs mt-1 text-red-500">${escapeHtml(err.message)}</p>
+                        <button onclick="loadMyRequests()" class="mt-4 bg-red-600 text-white font-bold text-xs px-4 py-2 rounded-xl">Thử lại</button>
+                    </div>
+                `;
             }
         }
 
@@ -651,6 +923,16 @@
                 alert('Lỗi kết nối: ' + err.message);
             }
         }
+        // Xử lý nút Xem kế hoạch & Tiến độ
+        function handleViewPlan(jobId, status) {
+            if (status === 'planning') {
+                alert('Freelancer đang soạn bảng kế hoạch cho dự án này. Vui lòng chờ đến khi họ gửi kế hoạch nhé!');
+            } else if (status === 'pending_plan_approval') {
+                window.location.href = 'review-work.html';
+            } else {
+                window.location.href = 'review-work.html';
+            }
+        }
 
         // Thu hồi dự án & Hoàn Token Escrow về ví Client
         async function cancelPlanningJob(jobId, jobTitle, budget) {
@@ -679,6 +961,10 @@
             } catch (err) {
                 alert('Lỗi kết nối Server: ' + err.message);
             }
+        }
+
+        function viewFreelancer(freelancerId) {
+            window.location.href = `freelancer-profile.html?id=${freelancerId}`;
         }
 
         // Khởi động trang

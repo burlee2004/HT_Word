@@ -48,9 +48,15 @@
                                 <i class="fas fa-hand-holding-usd"></i>
                             </div>
                             <div>
-                                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                                    Duyệt Nạp Token & Cài Đặt Cổng Thanh Toán
-                                </h1>
+                                <div class="flex items-center gap-2.5 flex-wrap">
+                                    <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                                        Duyệt Nạp Token & Cài Đặt Cổng Thanh Toán
+                                    </h1>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 shadow-xs">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Live Sync (2.5s)
+                                    </span>
+                                </div>
                                 <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                                     Quản lý đối soát lệnh nạp thủ công VietQR và tự động PayOS
                                 </p>
@@ -68,12 +74,13 @@
                             </select>
                         </div>
 
-                        <button onclick="approveBatch()" id="btnBatchApprove" class="hidden px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-sm transition flex items-center gap-2">
+                        <button onclick="approveBatch()" id="btnBatchApprove" class="hidden px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-sm transition flex items-center gap-2 cursor-pointer">
                             <i class="fas fa-check-double"></i> Duyệt Hàng Loạt (<span id="batchCount">0</span>)
                         </button>
 
-                        <button onclick="loadDeposits()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Làm mới">
+                        <button onclick="loadDeposits(true)" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer flex items-center gap-1.5 text-xs font-bold" title="Làm mới tức thì">
                             <i class="fas fa-sync-alt" id="refresh-icon"></i>
+                            <span class="hidden sm:inline">Làm Mới</span>
                         </button>
                     </div>
                 </div>
@@ -110,6 +117,9 @@
         </div>
     </div>
 
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     <!-- UI Core Script -->
     <script src="admin-ui.js"></script>
 
@@ -118,6 +128,33 @@
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://htwork-backend.onrender.com';
+
+        let cachedDeposits = [];
+        let isFetching = false;
+        let autoPollInterval = null;
+
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const isSuccess = type === 'success';
+            const isError = type === 'error';
+            const bgClass = isSuccess ? 'bg-emerald-600 text-white shadow-emerald-500/20' : (isError ? 'bg-rose-600 text-white shadow-rose-500/20' : 'bg-slate-900 text-white dark:bg-slate-800 shadow-black/20');
+            const icon = isSuccess ? 'fa-check-circle text-emerald-200' : (isError ? 'fa-exclamation-circle text-rose-200' : 'fa-bell text-indigo-300');
+            
+            toast.className = `${bgClass} pointer-events-auto px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs sm:text-sm font-bold transform transition-all duration-300 translate-y-4 opacity-0 border border-white/10 max-w-md`;
+            toast.innerHTML = `<i class="fas ${icon} text-base shrink-0"></i><span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            });
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
 
         async function loadSettings() {
             try {
@@ -138,37 +175,68 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ autoApprovePayOS: isAuto })
                 });
-                alert(`✅ Đã đổi sang chế độ nạp: ${isAuto ? 'Tự Động (PayOS)' : 'Thủ Công (VietQR)'}`);
+                showToast('success', `Đã đổi sang chế độ nạp: ${isAuto ? 'Tự Động (PayOS)' : 'Thủ Công (VietQR)'}`);
             } catch (e) {
-                alert('❌ Lỗi cập nhật cài đặt');
+                showToast('error', 'Lỗi cập nhật cài đặt');
                 document.getElementById('autoApproveToggle').value = isAuto ? 'false' : 'true';
             }
         }
 
-        async function loadDeposits() {
+        async function loadDeposits(isManual = false) {
+            if (isFetching) return;
+            isFetching = true;
+
             const tbody = document.getElementById('depositsTableBody');
             const refreshIcon = document.getElementById('refresh-icon');
-            if (refreshIcon) refreshIcon.classList.add('fa-spin');
-            
-            document.getElementById('selectAllCheckbox').checked = false;
-            updateBatchButton();
+            if (isManual && refreshIcon) refreshIcon.classList.add('fa-spin');
 
             try {
                 const response = await fetch(`${API_URL}/api/admin/deposits`);
                 const data = await response.json();
+                const newDeposits = data.deposits || [];
 
-                if (data.deposits && data.deposits.length > 0) {
-                    tbody.innerHTML = data.deposits.map(d => {
+                // Kiểm tra xem dữ liệu có thay đổi so với cache không
+                const oldIds = cachedDeposits.map(d => d.id).join(',');
+                const newIds = newDeposits.map(d => d.id).join(',');
+
+                if (oldIds === newIds && !isManual && cachedDeposits.length > 0) {
+                    // Dữ liệu không đổi -> không cần render lại
+                    return;
+                }
+
+                // Phát hiện xem có lệnh nạp tiền mới xuất hiện không
+                if (cachedDeposits.length > 0) {
+                    const prevIdsSet = new Set(cachedDeposits.map(d => d.id));
+                    const freshItems = newDeposits.filter(d => !prevIdsSet.has(d.id));
+                    if (freshItems.length > 0) {
+                        const first = freshItems[0];
+                        const name = first.users ? first.users.full_name : 'Khách hàng';
+                        showToast('info', `🔔 Có ${freshItems.length} yêu cầu nạp tiền mới từ ${name}!`);
+                    }
+                }
+
+                // Lưu lại các checkbox đang được chọn
+                const currentlyCheckedIds = new Set(
+                    Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value)
+                );
+
+                if (newDeposits.length > 0) {
+                    const prevIdsSet = new Set(cachedDeposits.map(d => d.id));
+
+                    tbody.innerHTML = newDeposits.map(d => {
+                        const isNew = cachedDeposits.length > 0 && !prevIdsSet.has(d.id);
+                        const isChecked = currentlyCheckedIds.has(d.id) ? 'checked' : '';
                         const date = new Date(d.created_at).toLocaleString('vi-VN');
                         const userName = d.users ? d.users.full_name : 'Không rõ';
                         const userEmail = d.users ? d.users.email : '';
                         const transferCode = 'HTword ' + d.id.substring(0, 6).toUpperCase();
                         const amount = parseInt(d.amount).toLocaleString('vi-VN');
-                        
+                        const highlightClass = isNew ? 'bg-emerald-50/90 dark:bg-emerald-950/60 animate-pulse' : '';
+
                         return `
-                            <tr class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition">
+                            <tr id="deposit-row-${d.id}" class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition-all duration-300 ${highlightClass}">
                                 <td class="py-3.5 px-4 text-center">
-                                    <input type="checkbox" class="row-checkbox w-4 h-4 text-indigo-600 rounded cursor-pointer" value="${d.id}" onchange="updateBatchButton()">
+                                    <input type="checkbox" class="row-checkbox w-4 h-4 text-indigo-600 rounded cursor-pointer" value="${d.id}" ${isChecked} onchange="updateBatchButton()">
                                 </td>
                                 <td class="py-3.5 px-4 text-xs text-slate-500 dark:text-slate-400 font-mono">${date}</td>
                                 <td class="py-3.5 px-4">
@@ -184,11 +252,11 @@
                                     <span class="font-black text-emerald-600 dark:text-emerald-400 text-sm">+${amount} Token</span>
                                 </td>
                                 <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                                    <div class="flex items-center justify-center gap-1.5">
-                                        <button onclick="approveDeposit('${d.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
+                                    <div class="flex items-center justify-center gap-1.5" id="actions-${d.id}">
+                                        <button onclick="approveDeposit('${d.id}')" id="btn-approve-${d.id}" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition flex items-center justify-center cursor-pointer">
                                             <i class="fas fa-check mr-1"></i> Phê Duyệt
                                         </button>
-                                        <button onclick="rejectDeposit('${d.id}')" class="p-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 transition text-xs font-bold" title="Từ chối">
+                                        <button onclick="rejectDeposit('${d.id}')" id="btn-reject-${d.id}" class="p-1.5 px-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 transition text-xs font-bold cursor-pointer" title="Từ chối">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
@@ -199,10 +267,28 @@
                 } else {
                     tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-slate-400 text-xs italic">Không có lệnh nạp tiền nào đang chờ duyệt.</td></tr>';
                 }
+
+                cachedDeposits = newDeposits;
+                updateBatchButton();
+
+                if (isManual) {
+                    showToast('info', `Đã đồng bộ (${newDeposits.length} lệnh chờ duyệt)`);
+                }
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-rose-500 text-xs">Lỗi kết nối Backend.</td></tr>';
+                console.error('Lỗi load deposits:', error);
+                if (isManual) showToast('error', 'Lỗi kết nối Backend');
             } finally {
+                isFetching = false;
                 if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 400);
+            }
+        }
+
+        function checkEmptyTable() {
+            const rows = document.querySelectorAll('#depositsTableBody tr[id^="deposit-row-"]');
+            if (rows.length === 0) {
+                document.getElementById('depositsTableBody').innerHTML = '<tr><td colspan="6" class="py-12 text-center text-slate-400 text-xs italic">Không có lệnh nạp tiền nào đang chờ duyệt.</td></tr>';
+                document.getElementById('selectAllCheckbox').checked = false;
+                updateBatchButton();
             }
         }
 
@@ -217,12 +303,124 @@
             const btnBatch = document.getElementById('btnBatchApprove');
             const batchCount = document.getElementById('batchCount');
             
-            batchCount.textContent = checkedBoxes.length;
-            if (checkedBoxes.length > 0) {
-                btnBatch.classList.remove('hidden');
-            } else {
-                btnBatch.classList.add('hidden');
-                document.getElementById('selectAllCheckbox').checked = false;
+            if (batchCount) batchCount.textContent = checkedBoxes.length;
+            if (btnBatch) {
+                if (checkedBoxes.length > 0) {
+                    btnBatch.classList.remove('hidden');
+                } else {
+                    btnBatch.classList.add('hidden');
+                    const selectAll = document.getElementById('selectAllCheckbox');
+                    if (selectAll) selectAll.checked = false;
+                }
+            }
+        }
+
+        async function approveDeposit(requestId) {
+            const userStr = localStorage.getItem('user');
+            const adminId = userStr ? JSON.parse(userStr).id : '11111111-1111-1111-1111-111111111111';
+
+            const row = document.getElementById(`deposit-row-${requestId}`);
+            const btnApprove = document.getElementById(`btn-approve-${requestId}`);
+            const btnReject = document.getElementById(`btn-reject-${requestId}`);
+
+            const depositInfo = cachedDeposits.find(d => d.id === requestId);
+            const amountText = depositInfo ? parseInt(depositInfo.amount).toLocaleString() + ' Token' : '';
+
+            // Phản hồi giao diện tức thời (Optimistic UI)
+            if (btnApprove) {
+                btnApprove.disabled = true;
+                btnApprove.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang duyệt...';
+            }
+            if (btnReject) btnReject.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/deposits/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: requestId, admin_id: adminId })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showToast('success', `✅ Đã duyệt nạp thành công ${amountText}!`);
+                    
+                    // Trượt mượt và xóa dòng ngay lập tức
+                    if (row) {
+                        row.classList.add('opacity-0', 'translate-x-12');
+                        setTimeout(() => {
+                            row.remove();
+                            cachedDeposits = cachedDeposits.filter(d => d.id !== requestId);
+                            checkEmptyTable();
+                            updateBatchButton();
+                            if (window.loadAdminAlerts) window.loadAdminAlerts();
+                        }, 250);
+                    }
+                } else {
+                    showToast('error', '❌ Lỗi: ' + data.error);
+                    if (btnApprove) {
+                        btnApprove.disabled = false;
+                        btnApprove.innerHTML = '<i class="fas fa-check mr-1"></i> Phê Duyệt';
+                    }
+                    if (btnReject) btnReject.disabled = false;
+                }
+            } catch (err) {
+                showToast('error', '❌ Không thể kết nối đến Backend');
+                if (btnApprove) {
+                    btnApprove.disabled = false;
+                    btnApprove.innerHTML = '<i class="fas fa-check mr-1"></i> Phê Duyệt';
+                }
+                if (btnReject) btnReject.disabled = false;
+            }
+        }
+
+        async function rejectDeposit(requestId) {
+            if (!confirm('Bạn có chắc chắn muốn TỪ CHỐI lệnh nạp tiền này?')) return;
+
+            const row = document.getElementById(`deposit-row-${requestId}`);
+            const btnApprove = document.getElementById(`btn-approve-${requestId}`);
+            const btnReject = document.getElementById(`btn-reject-${requestId}`);
+
+            if (btnReject) {
+                btnReject.disabled = true;
+                btnReject.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+            if (btnApprove) btnApprove.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/deposits/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: requestId })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showToast('success', '✅ Đã từ chối lệnh nạp tiền.');
+                    if (row) {
+                        row.classList.add('opacity-0', '-translate-x-12');
+                        setTimeout(() => {
+                            row.remove();
+                            cachedDeposits = cachedDeposits.filter(d => d.id !== requestId);
+                            checkEmptyTable();
+                            updateBatchButton();
+                            if (window.loadAdminAlerts) window.loadAdminAlerts();
+                        }, 250);
+                    }
+                } else {
+                    showToast('error', '❌ Lỗi: ' + data.error);
+                    if (btnReject) {
+                        btnReject.disabled = false;
+                        btnReject.innerHTML = '<i class="fas fa-times"></i>';
+                    }
+                    if (btnApprove) btnApprove.disabled = false;
+                }
+            } catch (err) {
+                showToast('error', '❌ Không thể kết nối đến Backend');
+                if (btnReject) {
+                    btnReject.disabled = false;
+                    btnReject.innerHTML = '<i class="fas fa-times"></i>';
+                }
+                if (btnApprove) btnApprove.disabled = false;
             }
         }
 
@@ -232,6 +430,11 @@
             
             const ids = Array.from(checkedBoxes).map(cb => cb.value);
             if (!confirm(`XÁC NHẬN:\nDuyệt hàng loạt ${ids.length} giao dịch nạp tiền này?`)) return;
+
+            const btnBatch = document.getElementById('btnBatchApprove');
+            const originalText = btnBatch.innerHTML;
+            btnBatch.disabled = true;
+            btnBatch.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang duyệt hàng loạt...';
 
             const userStr = localStorage.getItem('user');
             const adminId = userStr ? JSON.parse(userStr).id : '11111111-1111-1111-1111-111111111111';
@@ -245,61 +448,40 @@
                 
                 const data = await response.json();
                 if (response.ok) {
-                    alert('✅ Đã duyệt hàng loạt thành công!');
-                    loadDeposits();
+                    showToast('success', '✅ ' + data.message);
+                    // Xóa các dòng đã duyệt
+                    ids.forEach(id => {
+                        const row = document.getElementById(`deposit-row-${id}`);
+                        if (row) {
+                            row.classList.add('opacity-0', 'translate-x-12');
+                            setTimeout(() => row.remove(), 250);
+                        }
+                    });
+                    setTimeout(() => {
+                        cachedDeposits = cachedDeposits.filter(d => !ids.includes(d.id));
+                        checkEmptyTable();
+                        updateBatchButton();
+                        if (window.loadAdminAlerts) window.loadAdminAlerts();
+                    }, 300);
                 } else {
-                    alert('❌ Lỗi: ' + data.error);
+                    showToast('error', '❌ Lỗi: ' + data.error);
                 }
             } catch (err) {
-                alert('❌ Không thể kết nối đến Backend');
+                showToast('error', '❌ Không thể kết nối đến Backend');
+            } finally {
+                btnBatch.disabled = false;
+                btnBatch.innerHTML = originalText;
             }
         }
 
-        async function approveDeposit(requestId) {
-            const userStr = localStorage.getItem('user');
-            const adminId = userStr ? JSON.parse(userStr).id : '11111111-1111-1111-1111-111111111111';
-
-            if (!confirm('Xác nhận duyệt nạp tiền cho giao dịch này?')) return;
-
-            try {
-                const response = await fetch(`${API_URL}/api/admin/deposits/approve`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ request_id: requestId, admin_id: adminId })
-                });
-                
-                const data = await response.json();
-                if (response.ok) {
-                    alert('✅ ' + data.message);
-                    loadDeposits();
-                } else {
-                    alert('❌ Lỗi: ' + data.error);
+        function startLivePolling() {
+            if (autoPollInterval) clearInterval(autoPollInterval);
+            // Tự động quét mỗi 2.5 giây
+            autoPollInterval = setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    loadDeposits(false);
                 }
-            } catch (err) {
-                alert('❌ Không thể kết nối đến Backend');
-            }
-        }
-
-        async function rejectDeposit(requestId) {
-            if (!confirm('Bạn có chắc chắn muốn TỪ CHỐI lệnh nạp tiền này?')) return;
-
-            try {
-                const response = await fetch(`${API_URL}/api/admin/deposits/reject`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ request_id: requestId })
-                });
-                
-                const data = await response.json();
-                if (response.ok) {
-                    alert('✅ Đã từ chối lệnh nạp tiền.');
-                    loadDeposits();
-                } else {
-                    alert('❌ Lỗi: ' + data.error);
-                }
-            } catch (err) {
-                alert('❌ Không thể kết nối đến Backend');
-            }
+            }, 2500);
         }
 
         function escapeHtml(str) {
@@ -312,9 +494,16 @@
                 .replace(/'/g, '&#039;');
         }
 
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                loadDeposits(false);
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             loadSettings();
-            loadDeposits();
+            loadDeposits(false);
+            startLivePolling();
         });
     </script>
 </body>

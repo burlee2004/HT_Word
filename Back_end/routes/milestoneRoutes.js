@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 const blockchain = require('../blockchain');
+const { logEvent } = require('../services/auditLogger');
 
 // 4.1. API: Freelancer tạo Kế hoạch (Tạo nhiều Milestones)
 router.post('/api/milestones/create-plan', async (req, res) => {
@@ -20,6 +21,18 @@ router.post('/api/milestones/create-plan', async (req, res) => {
 
         // Đổi trạng thái job để báo hiệu Khách hàng cần duyệt Plan
         await supabase.from('jobs').update({ status: 'pending_plan_approval' }).eq('id', job_id);
+
+        const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', job_id).eq('status', 'accepted').single();
+        const freelancer_id = appData?.freelancer_id;
+
+        logEvent({
+            module: 'MILESTONE',
+            action: 'CREATE_PLAN',
+            level: 'INFO',
+            user_id: freelancer_id,
+            user_role: 'freelancer',
+            details: `Freelancer tạo kế hoạch cho dự án #${job_id} gồm ${milestones.length} giai đoạn.`
+        });
 
         // Gửi thông báo cho Client
         const { data: jobData } = await supabase.from('jobs').select('client_id').eq('id', job_id).single();
@@ -98,7 +111,7 @@ router.get('/api/client/:client_id/pending-actions', async (req, res) => {
     try {
         const { data: jobs, error: jobsError } = await supabase
             .from('jobs')
-            .select('id, title, status, budget, deadline, created_at')
+            .select('id, title, status, budget, created_at')
             .eq('client_id', client_id)
             .in('status', ['planning', 'pending_plan_approval', 'in_progress', 'completed'])
             .order('created_at', { ascending: false });
@@ -125,6 +138,29 @@ router.get('/api/client/:client_id/pending-actions', async (req, res) => {
             job.freelancer_id = appData?.freelancer_id || null;
         }
             
+        // Lấy đánh giá của khách hàng từ reviews.json
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const reviewFilePath = path.join(__dirname, '..', 'data', 'reviews.json');
+            if (fs.existsSync(reviewFilePath)) {
+                const allRev = JSON.parse(fs.readFileSync(reviewFilePath, 'utf8') || '[]');
+                for (let job of jobs) {
+                    if (job.status === 'completed') {
+                        const r = allRev.find(rev => rev.job_id === job.id && rev.client_id === client_id);
+                        if (r) {
+                            job.review = r;
+                            if (!job.freelancer_id && r.freelancer_id) {
+                                job.freelancer_id = r.freelancer_id;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Lỗi đọc reviews.json trong pending-actions:', e);
+        }
+
         console.log(`✅ [API GET /api/client/pending-actions] Trả về ${jobs ? jobs.length : 0} dự án đang xử lý/tiến độ/hoàn thành`);
         res.status(200).json({ jobs });
     } catch (error) {
@@ -170,12 +206,13 @@ router.post('/api/escrow/release', async (req, res) => {
         // Cập nhật milestone thành approved
         await supabase.from('milestones').update({ status: 'approved' }).eq('id', milestone_id);
 
-        // Ghi transaction
-        await supabase.from('transactions').insert([{
-            user_id: freelancer_id,
+        // Ghi transaction vào Sổ cái (wallet_ledger)
+        await supabase.from('wallet_ledger').insert([{
+            sender_id: client_id,
+            receiver_id: freelancer_id,
             amount: amount,
             type: 'escrow_release',
-            status: 'success'
+            note: `Thanh toán nghiệm thu (Milestone)`
         }]);
 
         // Gửi thông báo cho Freelancer
@@ -184,6 +221,15 @@ router.post('/api/escrow/release', async (req, res) => {
             title: 'Đã nhận thanh toán!',
             content: `Khách hàng đã nghiệm thu công việc và giải ngân ${amount} Token vào ví của bạn.`
         }]);
+
+        logEvent({
+            module: 'MILESTONE',
+            action: 'APPROVE_MILESTONE',
+            level: 'INFO',
+            user_id: client_id,
+            user_role: 'client',
+            details: `Khách hàng nghiệm thu giai đoạn #${milestone_id} và giải ngân ${amount} Token.`
+        });
 
         res.status(200).json({ message: 'Giải ngân thành công! Tiền đã được chuyển cho Freelancer.' });
     } catch (error) {
@@ -215,6 +261,17 @@ router.post('/api/milestones/advanced/submit', async (req, res) => {
                 content: 'Freelancer vừa nộp báo cáo (minh chứng) cho dự án. Hãy vào kiểm tra và nghiệm thu.'
             }]);
         }
+
+        const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', data[0].job_id).eq('status', 'accepted').single();
+        logEvent({
+            module: 'MILESTONE',
+            action: 'SUBMIT_MILESTONE',
+            level: 'INFO',
+            user_id: appData?.freelancer_id,
+            user_role: 'freelancer',
+            details: `Freelancer nộp minh chứng công việc cho giai đoạn #${milestone_id}.`
+        });
+
         res.status(200).json({ message: 'Nộp bằng chứng thành công!', milestone: data[0] });
     } catch (error) {
         res.status(400).json({ error: error.message });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sàn Việc Làm IT - KGS Work Freelancer</title>
+    <title>Sàn Việc Làm IT - HT Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -477,7 +477,7 @@
                     credit_tier: 'Hạng A (Uy tín cao)',
                     tier_badge: 'bg-emerald-100 text-emerald-800 border-emerald-300'
                 };
-                const clientName = job.users ? job.users.full_name : 'Khách hàng KGS Work';
+                const clientName = job.users ? job.users.full_name : 'Khách hàng HT Work';
                 const categoryName = job.category_name || 'Phát triển Phần mềm';
                 
                 const tagsBadges = (job.tags || []).map(t => 
@@ -576,7 +576,7 @@
             const job = allJobsData.find(j => j.id === jobId);
             if (!job) return;
 
-            const clientName = job.users ? job.users.full_name : 'Khách hàng KGS Work';
+            const clientName = job.users ? job.users.full_name : 'Khách hàng HT Work';
             const trust = job.client_trust || { credit_tier: 'Hạng A', rating_score: 5.0 };
 
             document.getElementById('detailModalBody').innerHTML = `

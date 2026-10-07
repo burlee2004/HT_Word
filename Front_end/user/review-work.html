@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - KGS Work</title>
+    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -407,7 +407,7 @@
                 updateTabCounts();
                 renderFilteredJobs();
             } catch (err) {
-                console.error('[KGS Work] Lỗi load pending actions:', err);
+                console.error('[HT Work] Lỗi load pending actions:', err);
                 listDiv.innerHTML = '<div class="bg-red-50 text-red-600 p-6 rounded-2xl text-center text-sm font-bold">Không thể kết nối đến máy chủ Backend!</div>';
             }
         }
@@ -594,7 +594,7 @@
                                 </div>
                                 <div>
                                     <p class="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Dự án đã hoàn tất nghiệm thu & thanh toán!</p>
-                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên KGS Work.</p>
+                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên HT Work.</p>
                                 </div>
                             </div>
                             <button onclick="openReviewModal('${job.id}', '${job.freelancer_id || job.review?.freelancer_id || ''}', '${encodeURIComponent(freelancerName)}', '${encodeURIComponent(freelancerAvatar)}', '${encodeURIComponent(job.title)}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">

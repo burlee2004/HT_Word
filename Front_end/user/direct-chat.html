@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tin Nhắn 1-1 & Mạng Lưới Mối Ruột - KGS Work</title>
+    <title>Tin Nhắn 1-1 & Mạng Lưới Mối Ruột - HT Work</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1633,19 +1633,19 @@
                     <p class="font-bold flex items-center gap-1.5 text-red-800 dark:text-red-200 mb-1">
                         <i class="fas fa-triangle-exclamation text-red-600"></i> Vi Phạm Chính Sách 5 Lần Liên Tiếp!
                     </p>
-                    <p>${escapeHtml(errorMsg || 'Bạn đã liên tục gửi tin nhắn hoặc tệp tin vi phạm chính sách kiểm duyệt của sàn KGS Work.')}</p>
+                    <p>${escapeHtml(errorMsg || 'Bạn đã liên tục gửi tin nhắn hoặc tệp tin vi phạm chính sách kiểm duyệt của sàn HT Work.')}</p>
                     <p class="mt-2 text-[11px] font-bold text-red-900 dark:text-red-100">
                         ⏳ Thời hạn mở khóa dự kiến: <span class="underline">${unlockText}</span>
                     </p>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">
-                    Trong thời gian bị tạm khóa, tính năng nhắn tin và gửi yêu cầu sẽ bị vô hiệu hóa để bảo vệ an toàn cho cộng đồng KGS Work.
+                    Trong thời gian bị tạm khóa, tính năng nhắn tin và gửi yêu cầu sẽ bị vô hiệu hóa để bảo vệ an toàn cho cộng đồng HT Work.
                 </p>
                 <div class="flex items-center gap-2 justify-center">
                     <button onclick="document.getElementById('${modalId}').remove()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-xl text-xs font-bold transition">
                         Đã Hiểu
                     </button>
-                    <a href="mailto:support@kgs work.vn" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition inline-flex items-center gap-1.5">
+                    <a href="mailto:support@htwork.vn" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition inline-flex items-center gap-1.5">
                         <i class="fas fa-headset"></i> Khiếu Nại / Hỗ Trợ
                     </a>
                 </div>
@@ -3845,7 +3845,7 @@
             if (finalUrl.startsWith('/uploads/')) {
                 finalUrl = `${API_URL}${finalUrl}`;
             }
-            if (finalUrl.includes('amazonaws.com') || finalUrl.includes('kgs work_files/')) {
+            if (finalUrl.includes('amazonaws.com') || finalUrl.includes('htwork_files/') || finalUrl.includes('htwork_files/')) {
                 return `${API_URL}/api/download-file?url=${encodeURIComponent(finalUrl)}&action=${action}`;
             }
             return finalUrl;

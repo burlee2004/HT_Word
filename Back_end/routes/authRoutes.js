@@ -1022,7 +1022,7 @@ router.get('/api/freelancers', async (req, res) => {
                 full_name: f.full_name || 'Freelancer Ẩn Danh',
                 email: f.email,
                 avatar_url: f.avatar_url,
-                bio: f.bio || 'Chuyên viên lập trình và phát triển phần mềm trên sàn KGS Work.',
+                bio: f.bio || 'Chuyên viên lập trình và phát triển phần mềm trên sàn HT Work.',
                 location,
                 nickname,
                 primary_category,

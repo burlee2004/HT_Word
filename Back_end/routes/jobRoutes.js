@@ -891,7 +891,7 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
 
         let rawSkills = [];
         let location = 'Việt Nam';
-        let bio = 'Chuyên gia uy tín trên sàn KGS Work.';
+        let bio = 'Chuyên gia uy tín trên sàn HT Work.';
         let portfolios = [];
         
         if (user.skills) {
@@ -910,7 +910,7 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
         }
         
         if (!user.bio && rawSkills.length > 0) {
-            bio = `Chuyên gia ${rawSkills.slice(0, 3).join(', ')} với ${completedJobs.length} dự án đã hoàn thành trên sàn KGS Work.`;
+            bio = `Chuyên gia ${rawSkills.slice(0, 3).join(', ')} với ${completedJobs.length} dự án đã hoàn thành trên sàn HT Work.`;
         } else if (user.bio) {
             bio = user.bio;
         }

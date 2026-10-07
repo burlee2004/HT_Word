@@ -3,6 +3,9 @@
     "uploads/*",
     "upload_debug.log",
     "node_modules/*",
+    "data/*",
+    "disputes.json",
+    ".wwebjs_auth/*",
     "*.log"
   ]
 }

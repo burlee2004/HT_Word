@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-xl text-gray-800 dark:text-white tracking-wide block leading-tight">KGS Work</span>
+                <span class="font-black text-xl text-gray-800 dark:text-white tracking-wide block leading-tight">HT Work</span>
                 <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Freelancer Hub</span>
             </div>
         </div>
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <span class="font-black text-lg text-gray-900 dark:text-white block">KGS Work</span>
+                        <span class="font-black text-lg text-gray-900 dark:text-white block">HT Work</span>
                         <span class="text-[10px] font-bold text-indigo-500 uppercase">Freelancer Hub</span>
                     </div>
                 </div>
@@ -457,14 +457,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 5000);
 
     // 10. Global Modern Typography & Sleek Scrollbar Style
-    if (!document.getElementById('kgs work-global-style')) {
+    if (!document.getElementById('htwork-global-style')) {
         const fontLink = document.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap';
         document.head.appendChild(fontLink);
 
         const style = document.createElement('style');
-        style.id = 'kgs work-global-style';
+        style.id = 'htwork-global-style';
         style.innerHTML = `
             * {
                 font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

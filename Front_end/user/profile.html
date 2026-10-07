@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ của tôi - Khách hàng | KGS Work</title>
+    <title>Hồ sơ của tôi - Khách hàng | HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script>
@@ -342,7 +342,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4"><h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center"><i class="fas fa-envelope-open-text text-indigo-600 mr-2"></i> Xác thực địa chỉ Email</h3><button onclick="closeEmailModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button></div>
             <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
                 <p class="font-semibold text-gray-800 dark:text-gray-200">Tại sao cần xác thực Email?</p>
-                <ul class="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400"><li>Nhận thông báo quan trọng khi Freelancer nộp bài / yêu cầu giải ngân.</li><li>Bảo vệ tài khoản và khôi phục mật khẩu khi có sự cố.</li><li>Tăng huy hiệu uy tín trên sàn giao dịch KGS Work.</li></ul>
+                <ul class="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400"><li>Nhận thông báo quan trọng khi Freelancer nộp bài / yêu cầu giải ngân.</li><li>Bảo vệ tài khoản và khôi phục mật khẩu khi có sự cố.</li><li>Tăng huy hiệu uy tín trên sàn giao dịch HT Work.</li></ul>
                 <div class="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800 mt-2"><p class="text-xs text-blue-800 dark:text-blue-300"><b>Email đăng ký của bạn:</b> <span id="modalEmailText" class="font-bold">...</span></p></div>
             </div>
             <div class="mt-6 flex flex-col gap-2">
@@ -453,7 +453,7 @@
                     return;
                 }
             } catch (e) {
-                console.warn('[KGS Work] Dùng fallback tỉnh thành:', e);
+                console.warn('[HT Work] Dùng fallback tỉnh thành:', e);
             }
             selectEl.innerHTML = fallbackProvinces.map(p => `
                 <option value="${p}" ${p === selectedProvince ? 'selected' : ''}>${p}</option>

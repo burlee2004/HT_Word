@@ -121,7 +121,7 @@ router.get('/api/admin/audit/users', async (req, res) => {
 });
 
 // API DEV / TESTER (DỌN DẸP VÍ)
-const ALLOWED_TESTERS = ['admin@kgs work.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+const ALLOWED_TESTERS = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
 
 router.post('/api/test/reset-wallet', async (req, res) => {
     const { user_id, email } = req.body;

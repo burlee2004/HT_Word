@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ví Token & Ngân Sách - KGS Work</title>
+    <title>Ví Token & Ngân Sách - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
@@ -401,7 +401,7 @@
     <!-- KHU VỰC IN BIÊN LAI (Ẩn trên Web, chỉ hiện khi in PDF) -->
     <div id="printReceiptArea" class="hidden bg-white p-10 text-gray-800 w-full max-w-3xl mx-auto border-2 border-gray-200">
         <div class="text-center mb-8 border-b-2 border-indigo-600 pb-4">
-            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">KGS WORK</h1>
+            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">HT WORK</h1>
             <p class="text-gray-500 font-bold mt-1">NỀN TẢNG FREELANCE IT VIỆT NAM</p>
         </div>
         
@@ -427,13 +427,13 @@
             </div>
             <div class="text-left text-sm text-gray-500">
                 <p class="font-bold text-gray-700 uppercase tracking-widest text-xs mb-1">Web3 Secured Transaction</p>
-                <p class="italic">Dữ liệu giao dịch được đồng bộ và xác thực trên sổ cái kế toán bảo mật KGS Work.</p>
+                <p class="italic">Dữ liệu giao dịch được đồng bộ và xác thực trên sổ cái kế toán bảo mật HT Work.</p>
             </div>
         </div>
 
         <div class="text-center text-gray-500 text-sm border-t pt-4">
-            <p>Chứng từ này được tạo tự động bởi hệ thống KGS Work. Có giá trị đối soát trên toàn hệ thống.</p>
-            <p>Trang web: https://kgs-work.vn | Email hỗ trợ: support@kgs-work.com</p>
+            <p>Chứng từ này được tạo tự động bởi hệ thống HT Work. Có giá trị đối soát trên toàn hệ thống.</p>
+            <p>Trang web: https://htwork.vn | Email hỗ trợ: support@htwork.com</p>
         </div>
     </div>
 
@@ -490,7 +490,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'QR_Thanh_Toan_KGS_Work.png';
+                a.download = 'QR_Thanh_Toan_HT_Work.png';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -956,7 +956,7 @@
                     const transferCode = 'HTword ' + req.id.substring(0, 6).toUpperCase();
                     
                     const bankId = 'vietinbank';
-                    const accountNo = 'KGS WORKPAY';
+                    const accountNo = 'HT WORKPAY';
                     const accountName = 'TRINH HUY HOANG_107882187291';
                     const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferCode)}&accountName=${encodeURIComponent(accountName)}`;
                     
@@ -1208,7 +1208,7 @@
 
         // DEV Mode Reset
         function checkDevMode() {
-            const allowedEmails = ['admin@kgs-work.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+            const allowedEmails = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
             if (currentUser && allowedEmails.includes(currentUser.email)) {
                 document.getElementById('btnDevReset').classList.remove('hidden');
             }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tin Nhắn 1-1 & Mạng Lưới Mối Ruột - HT Work</title>
+    <title>Tin Nhắn 1-1 & Mạng Lưới Mối Ruột - KGS Work</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -34,6 +34,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; }
     </style>
+    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
     
@@ -93,11 +94,11 @@
             </div>
 
             <!-- CỘT PHẢI: KHUNG TRÒ CHUYỆN 1-1 THỜI GIAN THỰC -->
-            <div class="flex-1 bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col overflow-hidden min-w-0" id="chatArea">
+            <div class="hidden md:flex flex-1 bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex-col overflow-hidden min-w-0" id="chatArea">
                 
                 <!-- Chat Window Header -->
                 <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between shrink-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-10" id="chatHeader">
-                    <div class="flex items-center space-x-3 min-w-0">
+                    <div class="flex items-center space-x-3 min-w-0 flex-1">
                         <button onclick="toggleMobileInbox()" class="md:hidden p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 mr-1">
                             <i class="fas fa-arrow-left"></i>
                         </button>
@@ -288,7 +289,7 @@
                     <input type="file" id="realChatImageInput" accept="image/*" class="hidden" onchange="handleRealImageChange(event)">
                     <input type="file" id="realChatFileInput" class="hidden" onchange="handleRealFileChange(event)">
 
-                    <div id="chatForm" class="flex items-center gap-1 sm:gap-1.5">
+                    <form id="chatForm" onsubmit="event.preventDefault(); handleSendMessage(event); return false;" class="flex items-center gap-1 sm:gap-1.5">
                         <button type="button" onclick="toggleEmojiPicker()" id="btnEmojiPicker" disabled class="p-2 sm:p-2.5 rounded-xl text-gray-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-gray-700 transition disabled:opacity-40 disabled:cursor-not-allowed text-base cursor-pointer shrink-0" title="Biểu tượng cảm xúc (Emoji)">
                             <i class="far fa-face-smile"></i>
                         </button>
@@ -302,10 +303,10 @@
                             <i class="fas fa-paperclip text-indigo-500"></i>
                         </button>
                         <input type="text" id="messageInput" disabled placeholder="Nhập tin nhắn trao đổi (nhấn Enter để gửi)..." autocomplete="off" onkeydown="if(event.key === 'Enter' && !event.shiftKey && !event.isComposing){ event.preventDefault(); event.stopPropagation(); handleSendMessage(event); return false; }" class="flex-1 min-w-0 px-4 py-2.5 text-xs sm:text-sm bg-gray-100 dark:bg-gray-750 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:cursor-not-allowed text-gray-800 dark:text-gray-100">
-                        <button type="button" onclick="event.preventDefault(); event.stopPropagation(); handleSendMessage(event); return false;" id="btnSendMessage" disabled class="px-4 sm:px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                        <button type="submit" id="btnSendMessage" type="submit" disabled class="px-4 sm:px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
                             <span>Gửi</span> <i class="fas fa-paper-plane text-xs"></i>
                         </button>
-                    </div>
+                    </form>
                 </div>
 
             </div>
@@ -417,11 +418,11 @@
                     </div>
                 </div>
 
-                <!-- Note / Lời nhắn phong cách Zalo -->
+                <!-- Note / Lời nhắn Phong cách HTWORK -->
                 <div>
                     <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                         <span>Lời Nhắn Gửi Kèm:</span>
-                        <span class="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">Phong cách Zalo</span>
+                        <span class="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">Phong cách HTWORK</span>
                     </label>
                     <textarea id="frNote" rows="3" class="w-full p-3 text-xs sm:text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-800 dark:text-white leading-relaxed" placeholder="Nhập lời chào gửi đến chuyên gia..."></textarea>
                     <div class="flex flex-wrap gap-1.5 mt-2">
@@ -766,13 +767,13 @@
     </div>
 
     <!-- UI Core Script for Client -->
-    <script src="ui.js"></script>
+    <script src="ui.js?v=1791344398"></script>
 
     <!-- Chat Logic -->
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         let currentUser = null;
         let activePartnerId = null;
@@ -1265,7 +1266,21 @@
         // 3. Chọn cuộc trò chuyện với Đối tác
         async function selectPartner(partnerId) {
             if (!partnerId) return;
-            activePartnerId = partnerId;
+ 
+            // Mobile Responsive: Ẩn sidebar, hiện chat area khi chọn người dùng
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('inboxSidebar');
+                const chatArea = document.getElementById('chatArea');
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+                chatArea.classList.remove('hidden', 'md:flex');
+                chatArea.classList.add('flex');
+                
+                // Hide bottom nav on mobile to show chat input
+                const bottomNav = document.querySelector('nav.fixed.bottom-0');
+                if(bottomNav) bottomNav.style.display = 'none';
+            }
+           activePartnerId = partnerId;
 
             // Xóa ngay lập tức số thông báo chưa đọc trên UI
             const activeConv = conversations.find(c => c.partner_id === partnerId);
@@ -1492,8 +1507,16 @@
         });
 
         function toggleMobileInbox() {
-            document.getElementById('inboxSidebar').classList.remove('hidden');
-            document.getElementById('chatArea').classList.add('hidden');
+            const sidebar = document.getElementById('inboxSidebar');
+            const chatArea = document.getElementById('chatArea');
+            sidebar.classList.remove('hidden');
+            sidebar.classList.add('flex');
+            chatArea.classList.remove('flex');
+            chatArea.classList.add('hidden', 'md:flex');
+            
+            // Show bottom nav again
+            const bottomNav = document.querySelector('nav.fixed.bottom-0');
+            if(bottomNav) bottomNav.style.display = '';
         }
 
         // 4. Tải và Render danh sách tin nhắn 1-1
@@ -1610,19 +1633,19 @@
                     <p class="font-bold flex items-center gap-1.5 text-red-800 dark:text-red-200 mb-1">
                         <i class="fas fa-triangle-exclamation text-red-600"></i> Vi Phạm Chính Sách 5 Lần Liên Tiếp!
                     </p>
-                    <p>${escapeHtml(errorMsg || 'Bạn đã liên tục gửi tin nhắn hoặc tệp tin vi phạm chính sách kiểm duyệt của sàn HT Work.')}</p>
+                    <p>${escapeHtml(errorMsg || 'Bạn đã liên tục gửi tin nhắn hoặc tệp tin vi phạm chính sách kiểm duyệt của sàn KGS Work.')}</p>
                     <p class="mt-2 text-[11px] font-bold text-red-900 dark:text-red-100">
                         ⏳ Thời hạn mở khóa dự kiến: <span class="underline">${unlockText}</span>
                     </p>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">
-                    Trong thời gian bị tạm khóa, tính năng nhắn tin và gửi yêu cầu sẽ bị vô hiệu hóa để bảo vệ an toàn cho cộng đồng HT Work.
+                    Trong thời gian bị tạm khóa, tính năng nhắn tin và gửi yêu cầu sẽ bị vô hiệu hóa để bảo vệ an toàn cho cộng đồng KGS Work.
                 </p>
                 <div class="flex items-center gap-2 justify-center">
                     <button onclick="document.getElementById('${modalId}').remove()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-xl text-xs font-bold transition">
                         Đã Hiểu
                     </button>
-                    <a href="mailto:support@htwork.vn" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition inline-flex items-center gap-1.5">
+                    <a href="mailto:support@kgs work.vn" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition inline-flex items-center gap-1.5">
                         <i class="fas fa-headset"></i> Khiếu Nại / Hỗ Trợ
                     </a>
                 </div>
@@ -1693,7 +1716,7 @@
                     </div>`;
                 }
 
-                // === BANNER / THIỆP MỜI KẾT BẠN PHONG CÁCH ZALO ===
+                // === BANNER / THIỆP MỜI KẾT BẠN Phong cách HTWORK ===
                 if (activePartnerConnection) {
                     const connStatus = activePartnerConnection.status;
                     const isSender = activePartnerConnection.isSender;
@@ -2943,7 +2966,7 @@
                     // Tự động gửi tin nhắn Đề Xuất Hợp Đồng vào khung chat 1-1
                     const jobId = data.job ? data.job.id : '';
                     const typeLabel = jobType === 'hourly' ? 'Remote Theo Giờ' : 'Dự Án Theo Mốc';
-                    const msgNotice = `💼 [ĐỀ XUẤT HỢP ĐỒNG] (Mã dự án: #${jobId})\nKhách hàng đã gửi đề xuất dự án "${title}" [${typeLabel}] với ngân sách thảo luận ${budget.toLocaleString()} Token (Thời hạn dự kiến: ~${deadlineDays} ngày).\n👉 Hai bên hãy cùng trao đổi và thống nhất giá trước khi Khách Hàng bấm [Chốt Giá & Khóa Escrow] để bắt đầu lập Kế hoạch Milestones!`;
+                    const msgNotice = `💼 [ĐỀ XUẤT HỢP ĐỒNG] (Mã dự án: #${jobId}\nKhách hàng đã gửi đề xuất dự án "${title}" [${typeLabel}] với ngân sách thảo luận ${formatTokenHTML(budget)} (Thời hạn dự kiến: ~${deadlineDays} ngày).\n👉 Hai bên hãy cùng trao đổi và thống nhất giá trước khi Khách Hàng bấm [Chốt Giá & Khóa Escrow] để bắt đầu lập Kế hoạch Milestones!`;
                     
                     try {
                         await fetch(`${API_URL}/api/messages/direct`, {
@@ -2957,7 +2980,7 @@
                         });
                     } catch (e) {}
 
-                    alert(`🎉 ĐÃ GỬI ĐỀ XUẤT HỢP ĐỒNG THÀNH CÔNG!\n\nĐề xuất dự án "${title}" (${budget.toLocaleString()} Token) đã được gửi vào khung chat.\nVí của bạn CHƯA bị trừ tiền lúc này. Hãy trao đổi với Freelancer và bấm "Chốt Giá & Khóa Escrow" khi đã thống nhất.`);
+                    alert(`🎉 ĐÃ GỬI ĐỀ XUẤT HỢP ĐỒNG THÀNH CÔNG!\n\nĐề xuất dự án "${title}" (${formatTokenHTML(budget, false)}) đã được gửi vào khung chat.\nVí của bạn CHƯA bị trừ tiền lúc này. Hãy trao đổi với Freelancer và bấm "Chốt Giá & Khóa Escrow" khi đã thống nhất.`);
 
                     await loadAllNetworkAndChats();
                     if (activePartnerId === freelancerId) {
@@ -2979,7 +3002,7 @@
 
         // 14. Khách Hàng Chốt Giá & Khóa Escrow
         async function handleConfirmDirectHire(jobId, budget) {
-            if (!confirm(`Bạn có chắc chắn muốn CHỐT GIÁ ${budget.toLocaleString()} Token và KHÓA TIỀN KÝ QUỸ (Escrow) cho hợp đồng #${jobId}?\n\nSố tiền ${budget.toLocaleString()} Token sẽ được chuyển vào số dư khóa an toàn để Freelancer bắt đầu lên Kế hoạch Milestones.`)) {
+            if (!confirm(`Bạn có chắc chắn muốn CHỐT GIÁ ${formatTokenHTML(budget)} và KHÓA TIỀN KÝ QUỸ (Escrow) cho hợp đồng #${jobId}\n\nSố tiền ${formatTokenHTML(budget)} sẽ được chuyển vào số dư khóa an toàn để Freelancer bắt đầu lên Kế hoạch Milestones.`)) {
                 return;
             }
 
@@ -3031,7 +3054,7 @@
                 const data = await res.json();
                 if (res.ok && data.success) {
                     if (activePartnerId) {
-                        const updateNotice = `💬 [CẬP NHẬT GIÁ] (Mã dự án: #${jobId})\n${currentUser.full_name || 'Khách Hàng'} đã đề xuất mức giá thỏa thuận mới: ${newBudget.toLocaleString()} Token.\n👉 Hai bên hãy xem xét và thống nhất nhé!`;
+                        const updateNotice = `💬 [CẬP NHẬT GIÁ] (Mã dự án: #${jobId}\n${currentUser.full_name || 'Khách Hàng'} đã đề xuất mức giá thỏa thuận mới: ${formatTokenHTML(newBudget)}.\n👉 Hai bên hãy xem xét và thống nhất nhé!`;
                         await fetch(`${API_URL}/api/messages/direct`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -3256,7 +3279,7 @@
                     // Gửi tin nhắn thông báo cập nhật dự án vào khung chat
                     if (activePartnerId) {
                         const typeLabel = jobType === 'hourly' ? 'Remote Theo Giờ' : 'Dự Án Theo Mốc';
-                        const updateNotice = `📝 [CẬP NHẬT DỰ ÁN] (Mã dự án: #${jobId})\nKhách hàng đã cập nhật thông tin dự án "${title}" [${typeLabel}] với ngân sách ${budget.toLocaleString()} Token (Thời hạn dự kiến: ~${deadlineDays} ngày).\n👉 Hai bên hãy cùng xem xét và thỏa thuận tiếp trước khi bấm Chốt Giá & Khóa Escrow!`;
+                        const updateNotice = `📝 [CẬP NHẬT DỰ ÁN] (Mã dự án: #${jobId}\nKhách hàng đã cập nhật thông tin dự án "${title}" [${typeLabel}] với ngân sách ${formatTokenHTML(budget)} (Thời hạn dự kiến: ~${deadlineDays} ngày).\n👉 Hai bên hãy cùng xem xét và thỏa thuận tiếp trước khi bấm Chốt Giá & Khóa Escrow!`;
                         await fetch(`${API_URL}/api/messages/direct`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -3822,7 +3845,7 @@
             if (finalUrl.startsWith('/uploads/')) {
                 finalUrl = `${API_URL}${finalUrl}`;
             }
-            if (finalUrl.includes('amazonaws.com') || finalUrl.includes('htwork_files/')) {
+            if (finalUrl.includes('amazonaws.com') || finalUrl.includes('kgs work_files/')) {
                 return `${API_URL}/api/download-file?url=${encodeURIComponent(finalUrl)}&action=${action}`;
             }
             return finalUrl;
@@ -4800,5 +4823,16 @@
             initDirectChatPage();
         }
     </script>
+
+    <script>
+        // Global Drag and Drop protection
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        }, false);
+    </script>
 </body>
+
 </html>

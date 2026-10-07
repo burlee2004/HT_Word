@@ -1,5 +1,5 @@
 ﻿-- ============================================================
--- HTWORK - CORE BANKING ESCROW SCHEMA MIGRATION
+-- KGS WORK - CORE BANKING ESCROW SCHEMA MIGRATION
 -- Chay toan bo script nay trong Supabase SQL Editor
 -- ============================================================
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dự Án Của Tôi - HT Work Freelancer</title>
+    <title>Dự Án Của Tôi - KGS Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -20,6 +20,7 @@
             }
         }
     </script>
+    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
     <!-- Sidebar Placeholder -->
@@ -37,7 +38,7 @@
                 <i class="fas fa-shield-alt text-amber-500 text-lg mt-0.5 shrink-0"></i>
                 <div class="leading-relaxed">
                     <strong class="font-bold block mb-0.5">QUY CHẾ BẢO VỆ FREELANCER (ESCROW PROTECTION)</strong>
-                    <span>Mọi báo cáo tiến độ, nộp tệp tin minh chứng và nhận thù lao phải thực hiện trực tiếp trên HT Work. Hệ thống ký quỹ Escrow bảo đảm 100% quyền lợi thanh toán khi bạn hoàn thành đúng cam kết.</span>
+                    <span>Mọi báo cáo tiến độ, nộp tệp tin minh chứng và nhận thù lao phải thực hiện trực tiếp trên KGS Work. Hệ thống ký quỹ Escrow bảo đảm 100% quyền lợi thanh toán khi bạn hoàn thành đúng cam kết.</span>
                 </div>
             </div>
 
@@ -116,9 +117,14 @@
                     <!-- Milestone Items Render Here -->
                 </div>
                 
-                <button type="button" onclick="addMilestoneForm()" class="bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center">
-                    <i class="fas fa-plus mr-1.5"></i> Thêm Giai Đoạn Mới
-                </button>
+                <div class="flex items-center space-x-3">
+                    <button type="button" onclick="addMilestoneForm()" class="bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center">
+                        <i class="fas fa-plus mr-1.5"></i> Thêm Giai Đoạn Mới
+                    </button>
+                    <button type="button" onclick="openAiPlanModal()" id="btnGenerateAI" class="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-md shadow-purple-500/30 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center">
+                        <i class="fas fa-magic mr-1.5"></i> Trợ lý AI Phân bổ Kế hoạch
+                    </button>
+                </div>
 
                 <!-- Bảng Tổng Hợp Ngân Sách Phân Bổ -->
                 <div class="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-750 p-4 rounded-2xl border border-indigo-100 dark:border-gray-700 text-xs">
@@ -213,7 +219,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-black text-red-600 dark:text-red-400">Khiếu Nại & Tranh Chấp</h2>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Admin HT Work sẽ can thiệp để bảo vệ quyền lợi của bạn.</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Admin KGS Work sẽ can thiệp để bảo vệ quyền lợi của bạn.</p>
                     </div>
                 </div>
                 
@@ -241,16 +247,79 @@
     </div>
 
     <!-- Load UI Framework -->
-    <script src="freelancer-ui.js"></script>
+    <script src="freelancer-ui.js?v=1791344398"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
+
+        
+        function escapeHtml(unsafe) {
+            return (unsafe||'').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
 
         let currentUser = JSON.parse(localStorage.getItem('user'));
         let allJobs = [];
         let currentTab = 'all';
+        let currentViewedJobId = null;
+
+        
+        let isPolling = false;
+        async function pollJobs() {
+            if (isPolling) return;
+            isPolling = true;
+            try {
+                const response = await fetch(`${API_URL}/api/freelancer/${currentUser.id}/active-jobs`);
+                const data = await response.json();
+                
+                if (data.jobs && data.jobs.length > 0) {
+                    const newJobs = data.jobs.sort((a, b) => {
+                        const timeA = new Date(a.created_at || a.app_created_at || 0).getTime();
+                        const timeB = new Date(b.created_at || b.app_created_at || 0).getTime();
+                        if (timeB !== timeA) return timeB - timeA;
+                        return String(b.id).localeCompare(String(a.id));
+                    });
+
+                    // Compare old and new
+                    const oldJobsStr = JSON.stringify(allJobs);
+                    const newJobsStr = JSON.stringify(newJobs);
+                    
+                    if (oldJobsStr !== newJobsStr) {
+                        allJobs = newJobs;
+                        updateTabCounts();
+                        renderJobsList();
+
+                        const detailView = document.getElementById('detailView');
+                        if (!detailView.classList.contains('hidden') && currentViewedJobId) {
+                            // Only re-render if user is NOT actively typing
+                            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+                            if (activeTag !== 'INPUT' && activeTag !== 'TEXTAREA') {
+                                const job = allJobs.find(j => j.id === currentViewedJobId);
+                                if (job) {
+                                    // Remember scroll position before re-render to avoid jumping
+                                    // But actually, we don't want to re-render the WHOLE detail if they are uploading.
+                                    // Wait, if they are uploading, the UI has btn.disabled = true.
+                                    // A safer way: Only update if the job status or milestone statuses changed.
+                                    // Since we already check oldJobsStr !== newJobsStr, it will re-render.
+                                    // To avoid breaking upload, we can check if any submit button is disabled.
+                                    const anyBtnDisabled = Array.from(document.querySelectorAll('button')).some(b => b.disabled);
+                                    if (!anyBtnDisabled) {
+                                        document.getElementById('jobDetailContainer').innerHTML = renderJobDetail(job);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+            isPolling = false;
+        }
+
+        // Start polling every 3 seconds
+        setInterval(pollJobs, 3000);
 
         async function loadJobs() {
             try {
@@ -360,7 +429,7 @@
                             <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm line-clamp-2 mb-3 leading-relaxed">${job.description}</p>
                             
                             <div class="flex items-center justify-between mb-3">
-                                <span class="text-emerald-600 dark:text-emerald-400 font-black text-sm"><i class="fas fa-coins mr-1"></i> ${parseInt(job.budget).toLocaleString()} Token</span>
+                                <span class="text-emerald-600 dark:text-emerald-400 font-black text-sm"><i class="fas fa-coins mr-1"></i> ${formatTokenHTML(parseInt(job.budget))}</span>
                                 ${totalM > 0 ? `<span class="text-[11px] font-bold text-gray-400">${completedM}/${totalM} Giai đoạn (${pct}%)</span>` : ''}
                             </div>
 
@@ -387,6 +456,7 @@
 
         function showDetail(jobId) {
             const job = allJobs.find(j => j.id === jobId);
+            currentViewedJobId = jobId;
             if (!job) return;
 
             document.getElementById('listView').classList.add('hidden');
@@ -406,7 +476,8 @@
                         <h4 class="font-black text-red-800 dark:text-red-300 mb-1">Khách hàng đã thu hồi thỏa thuận</h4>
                         <p class="text-red-700 dark:text-red-400 mb-3">Dự án đã được mở lại trên sàn. Bạn có thể gửi lại đề xuất nếu muốn tiếp tục ứng tuyển.</p>
                         <div class="flex justify-end space-x-2">
-                            <button onclick="removeRevokedJob('${job.id}')" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-xs">Xóa</button>
+                            <button onclick="openReapplyModal('${job.id}', ${job.budget})" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md shadow-indigo-500/30 transition"><i class="fas fa-paper-plane mr-1"></i> Ứng tuyển lại</button>
+                            <button onclick="removeRevokedJob('${job.id}')" class="px-4 py-2 bg-gray-200 hover:bg-red-500 hover:text-white dark:bg-gray-700 dark:hover:bg-red-500 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-xs transition">Xóa ẩn</button>
                         </div>
                     </div>
                 `;
@@ -428,9 +499,14 @@
                 contentHtml = `
                     <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-2xl p-5 mt-4 text-xs sm:text-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <p class="text-amber-800 dark:text-amber-300 font-semibold">Kế hoạch đã được gửi. Chờ khách hàng duyệt và khóa Escrow để bắt đầu thực hiện...</p>
-                        <button onclick="revokePlan('${job.id}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition shrink-0">
-                            <i class="fas fa-undo mr-1"></i> Thu hồi & Làm lại
-                        </button>
+                        <div class="flex flex-wrap space-x-2 shrink-0">
+                            <button onclick="editPlan('${job.id}', ${job.budget || 0})" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition mb-2 sm:mb-0">
+                                <i class="fas fa-edit mr-1"></i> Xem & Sửa Lại
+                            </button>
+                            <button onclick="revokePlan('${job.id}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition mb-2 sm:mb-0">
+                                <i class="fas fa-undo mr-1"></i> Thu hồi
+                            </button>
+                        </div>
                     </div>
                 `;
             } else if (job.status === 'in_progress') {
@@ -508,7 +584,7 @@
                     
                     <div class="flex items-center text-sm font-bold">
                         <span class="text-gray-500 mr-2">Tổng giá trị hợp đồng:</span>
-                        <span class="text-emerald-600 dark:text-emerald-400 font-black text-base">💎 ${parseInt(job.budget).toLocaleString()} Token</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 font-black text-base">💎 ${formatTokenHTML(parseInt(job.budget))}</span>
                     </div>
 
                     ${contentHtml}
@@ -539,16 +615,21 @@
                 actionHtml = `
                     ${revisionInfo}
                     <div class="mt-3 bg-gray-100 dark:bg-gray-700/60 p-4 rounded-2xl">
-                        <label class="block text-xs font-bold mb-1.5 text-gray-700 dark:text-gray-300">Nộp minh chứng (Nhập link URL hoặc tải tệp lên):</label>
+                        <label class="block text-xs font-bold mb-1.5 text-gray-700 dark:text-gray-300">Nộp minh chứng (Thêm link hoặc tải tệp lên):</label>
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-2">
-                            <input type="text" id="evidence_${m.id}" class="flex-1 border border-gray-200 dark:border-gray-600 p-2 text-xs rounded-xl bg-white dark:bg-gray-800 text-gray-800 dark:text-white" placeholder="Nhập link Google Drive, Github, Figma, Demo...">
-                            <label class="cursor-pointer bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-xs font-bold px-3 py-2 rounded-xl flex items-center justify-center hover:bg-gray-50">
+                            <input type="text" id="link_name_${m.id}" class="w-full sm:w-1/3 border border-gray-200 dark:border-gray-600 p-2 text-xs rounded-xl bg-white dark:bg-gray-800 text-gray-800 dark:text-white" placeholder="Tên Link (VD: Video Demo)">
+                            <input type="text" id="link_url_${m.id}" class="flex-1 border border-gray-200 dark:border-gray-600 p-2 text-xs rounded-xl bg-white dark:bg-gray-800 text-gray-800 dark:text-white" placeholder="https://...">
+                            <button onclick="addEvidenceLink('${m.id}')" class="bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-3 py-2 rounded-xl text-xs font-bold hover:bg-indigo-200 transition shrink-0 flex items-center justify-center">
+                                <i class="fas fa-plus mr-1"></i> Thêm Link
+                            </button>
+                            <label class="cursor-pointer bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-xs font-bold px-3 py-2 rounded-xl flex items-center justify-center hover:bg-gray-50 shrink-0">
                                 <i class="fas fa-cloud-upload-alt mr-1.5 text-indigo-500"></i> Chọn tệp
                                 <input type="file" id="evidence_file_${m.id}" class="hidden" multiple onchange="handleEvidenceFileSelect(event, '${m.id}')">
                             </label>
                         </div>
-                        <div id="preview_${m.id}" class="mb-2 grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-                        <button onclick="submitEvidenceWithFile('${m.id}')" id="btn_submit_${m.id}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-xs font-black shadow transition flex items-center">
+                        <div id="link_preview_${m.id}" class="mb-2 grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                        <div id="preview_${m.id}" class="mb-3 grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                        <button onclick="submitEvidenceWithFile('${m.id}')" id="btn_submit_${m.id}" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow transition flex items-center justify-center">
                             <i class="fas fa-paper-plane mr-1.5"></i> Gửi Báo Cáo Nghiệm Thu
                         </button>
                     </div>
@@ -577,6 +658,7 @@
                     </div>
                     <p class="text-xs text-gray-600 dark:text-gray-300 mb-1"><strong>Mô tả:</strong> ${m.description || 'Không có'}</p>
                     <p class="text-xs text-gray-600 dark:text-gray-300 mb-2"><strong>Kết quả bàn giao:</strong> ${m.expected_deliverables || 'Mã nguồn & Demo'}</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-300 mb-2"><strong>Thanh toán:</strong> ${m.payment_mode === 'PAY_PER_MILESTONE' ? 'Trả ngay khi xong mốc này' : 'Gom lại trả 1 lần ở cuối dự án'}</p>
                     <div class="text-xs border-t border-gray-200 dark:border-gray-700 pt-2 flex items-center justify-between">
                         <span>Trạng thái: ${statusHtml}</span>
                         <span class="text-[11px] text-gray-400 font-semibold">${m.payment_mode === 'PAY_PER_MILESTONE' ? 'Trả ngay khi xong' : 'Gộp cuối dự án'}</span>
@@ -617,17 +699,46 @@
                 elRemaining.textContent = '✅ Đã khớp 100%';
             } else if (remaining < 0) {
                 elRemaining.className = 'font-black text-sm text-red-600';
-                elRemaining.textContent = `Vượt ${Math.abs(remaining).toLocaleString()} Token`;
+                elRemaining.innerHTML = `Vượt ${formatTokenHTML(Math.abs(remaining))}`;
             } else {
                 elRemaining.className = 'font-black text-sm text-amber-600';
-                elRemaining.textContent = `Còn thiếu ${remaining.toLocaleString()} Token`;
+                elRemaining.innerHTML = `Còn thiếu ${formatTokenHTML(remaining)}`;
             }
 
             document.getElementById('summary_pay_per_milestone').textContent = payPerMilestone.toLocaleString() + ' Token';
             document.getElementById('summary_pay_at_end').textContent = payAtEnd.toLocaleString() + ' Token';
         }
 
-        function openPlanModal(jobId, jobBudget) {
+        
+        function editPlan(jobId, jobBudget) {
+            const job = allJobs.find(j => String(j.id) === String(jobId));
+            if(!job) return;
+            
+            document.getElementById('modal_job_id').value = jobId;
+            document.getElementById('modal_job_budget').value = jobBudget;
+            document.getElementById('milestonesContainer').innerHTML = '';
+            milestoneCount = 0;
+            
+            if(job.milestones && job.milestones.length > 0) {
+                job.milestones.forEach(m => {
+                    addMilestoneForm();
+                    const forms = document.querySelectorAll('.milestone-item');
+                    const lastForm = forms[forms.length - 1];
+                    if(lastForm.querySelector('.m-title')) lastForm.querySelector('.m-title').value = m.title || '';
+                    if(lastForm.querySelector('.m-amount')) lastForm.querySelector('.m-amount').value = m.amount || '';
+                    if(lastForm.querySelector('.m-desc')) lastForm.querySelector('.m-desc').value = m.description || '';
+                    if(lastForm.querySelector('.m-payment')) lastForm.querySelector('.m-payment').value = m.payment_mode || 'PAY_PER_MILESTONE';
+                    if(lastForm.querySelector('.m-deliver')) lastForm.querySelector('.m-deliver').value = m.expected_deliverables || '';
+                });
+            } else {
+                addMilestoneForm();
+            }
+            
+            if(typeof updatePlanSummary === 'function') updatePlanSummary();
+            document.getElementById('planModal').classList.remove('hidden');
+        }
+
+function openPlanModal(jobId, jobBudget) {
             document.getElementById('modal_job_id').value = jobId;
             document.getElementById('modal_job_budget').value = jobBudget;
             document.getElementById('milestonesContainer').innerHTML = '';
@@ -721,7 +832,7 @@
             }
 
             if (totalAmount !== jobBudget) {
-                alert(`LỖI: Tổng trị giá các giai đoạn (${totalAmount.toLocaleString()} Token) phải bằng ĐÚNG VỚI giá trị đã chốt của dự án (${jobBudget.toLocaleString()} Token)!`);
+                alert(`LỖI: Tổng trị giá các giai đoạn (${formatTokenHTML(totalAmount, false)}) phải bằng ĐÚNG VỚI giá trị đã chốt của dự án (${formatTokenHTML(jobBudget)})!`);
                 return;
             }
 
@@ -770,10 +881,82 @@
         // ---------- EVIDENCE FILE SELECT & SUBMIT ----------
         let pendingFiles = {};
 
+        
+        let pendingLinks = {};
+
+        function addEvidenceLink(mId) {
+            if (!pendingLinks[mId]) pendingLinks[mId] = [];
+            if (pendingLinks[mId].length >= 5) {
+                alert('Bạn chỉ được thêm tối đa 5 đường link!');
+                return;
+            }
+            const nameInput = document.getElementById(`link_name_${mId}`);
+            const urlInput = document.getElementById(`link_url_${mId}`);
+            
+            const name = nameInput.value.trim() || 'Tài liệu minh chứng';
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Vui lòng nhập đường dẫn URL!');
+                return;
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                alert('Đường link phải bắt đầu bằng http:// hoặc https://');
+                return;
+            }
+            
+            pendingLinks[mId].push({ name, url });
+            nameInput.value = '';
+            urlInput.value = '';
+            renderLinkPreview(mId);
+        }
+
+        function removeEvidenceLink(mId, idx) {
+            if (pendingLinks[mId]) {
+                pendingLinks[mId].splice(idx, 1);
+                renderLinkPreview(mId);
+            }
+        }
+
+        function renderLinkPreview(mId) {
+            const container = document.getElementById(`link_preview_${mId}`);
+            if (!container) return;
+            const links = pendingLinks[mId] || [];
+            if (links.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = links.map((l, idx) => `
+                <div class="flex items-center p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 justify-between text-xs">
+                    <div class="flex items-center space-x-2 truncate">
+                        <i class="fas fa-link text-blue-500 shrink-0"></i>
+                        <a href="${l.url}" target="_blank" class="truncate font-medium text-blue-700 dark:text-blue-300 hover:underline">${l.name}</a>
+                    </div>
+                    <button onclick="removeEvidenceLink('${mId}', ${idx})" class="text-red-500 font-bold ml-2 hover:underline shrink-0">Xóa</button>
+                </div>
+            `).join('');
+        }
+
         function handleEvidenceFileSelect(e, mId) {
             if (!pendingFiles[mId]) pendingFiles[mId] = [];
             const newFiles = Array.from(e.target.files);
-            pendingFiles[mId] = pendingFiles[mId].concat(newFiles);
+            
+            const MAX_SIZE_MB = 250;
+            const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+            let currentTotalSize = pendingFiles[mId].reduce((acc, f) => acc + f.size, 0);
+            let addedFiles = [];
+            
+            for (let f of newFiles) {
+                if (currentTotalSize + f.size > MAX_SIZE_BYTES) {
+                    alert(`Tổng dung lượng các tệp đính kèm không được vượt quá ${MAX_SIZE_MB}MB. Tệp "${f.name}" (${(f.size/1024/1024).toFixed(2)} MB) đã bị bỏ qua để đảm bảo giới hạn.`);
+                    continue;
+                }
+                currentTotalSize += f.size;
+                addedFiles.push(f);
+            }
+            
+            pendingFiles[mId] = pendingFiles[mId].concat(addedFiles);
             e.target.value = '';
             renderEvidencePreview(mId);
         }
@@ -807,17 +990,16 @@
         }
 
         async function submitEvidenceWithFile(milestoneId) {
-            const evidenceInput = document.getElementById(`evidence_${milestoneId}`).value.trim();
             const btn = document.getElementById(`btn_submit_${milestoneId}`);
             const files = pendingFiles[milestoneId] || [];
+            const links = pendingLinks[milestoneId] || [];
 
-            if (!evidenceInput && files.length === 0) {
-                alert('Vui lòng nhập link URL hoặc tải tệp minh chứng lên!');
+            if (links.length === 0 && files.length === 0) {
+                alert('Vui lòng thêm link URL hoặc tải tệp minh chứng lên!');
                 return;
             }
 
-            let finalUrls = [];
-            if (evidenceInput) finalUrls.push(evidenceInput);
+            let finalUrls = [...links];
 
             btn.disabled = true;
 
@@ -834,7 +1016,7 @@
                     const res = await fetch(`${API_URL}${endpoint}`, { method: 'POST', body: formData });
                     const data = await res.json();
                     if (!res.ok) throw new Error(data.error || 'Upload tệp thất bại');
-                    finalUrls.push(data.url);
+                    finalUrls.push({ name: file.name, url: data.url });
                 }
 
                 btn.textContent = 'Đang nộp báo cáo...';
@@ -844,7 +1026,7 @@
                     body: JSON.stringify({
                         milestone_id: milestoneId,
                         proof_urls: finalUrls,
-                        report_text: finalUrls.join('\n')
+                        report_text: finalUrls.map(u => typeof u === 'string' ? u : `${u.name}: ${u.url}`).join('\n')
                     })
                 });
 
@@ -1036,5 +1218,405 @@
 
         loadJobs();
     </script>
+
+    <script>
+        // Global Drag and Drop protection
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        }, false);
+    
+        // --- Reapply Logic ---
+        function openReapplyModal(jobId, currentBudget) {
+            document.getElementById('reapplyJobId').value = jobId;
+            document.getElementById('reapplyBid').value = currentBudget || '';
+            document.getElementById('reapplyCover').value = 'Chào anh/chị, em xin gửi lại báo giá phù hợp hơn cho dự án này ạ.';
+            
+            const modal = document.getElementById('reapplyModal');
+            const content = document.getElementById('reapplyModalContent');
+            
+            modal.classList.remove('hidden');
+            // Trigger reflow
+            void modal.offsetWidth;
+            
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }
+
+        function closeReapplyModal() {
+            const modal = document.getElementById('reapplyModal');
+            const content = document.getElementById('reapplyModalContent');
+            
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        async function submitReapply() {
+            const jobId = document.getElementById('reapplyJobId').value;
+            const bidAmount = document.getElementById('reapplyBid').value;
+            const coverLetter = document.getElementById('reapplyCover').value;
+            const btn = document.getElementById('reapplyBtn');
+
+            if (!bidAmount || bidAmount <= 0) {
+                alert('Vui lòng nhập báo giá hợp lệ!');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi...';
+
+                const res = await fetch(`${API_URL}/api/jobs/reapply`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        freelancer_id: currentUser.id,
+                        bid_amount: bidAmount,
+                        cover_letter: coverLetter
+                    })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Lỗi ứng tuyển lại');
+
+                alert('Đã gửi lại đề xuất thành công! Vui lòng chờ khách hàng duyệt.');
+                closeReapplyModal();
+                loadJobs(); // Tải lại danh sách
+                
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Gửi đề xuất</span>';
+            }
+        }
+        // ---------------------
+
+
+        // --- AI Auto Generate Milestones ---
+        
+        // --- AI PLAN CHAT ---
+        let currentGeneratedMilestones = [];
+
+        function openAiPlanModal() {
+            const modal = document.getElementById('aiPlanModal');
+            const content = document.getElementById('aiPlanModalContent');
+            if (modal) {
+                modal.classList.remove('hidden');
+                void modal.offsetWidth;
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+                setTimeout(() => document.getElementById('aiPlanInput')?.focus(), 300);
+            }
+        }
+
+        function closeAiPlanModal() {
+            const modal = document.getElementById('aiPlanModal');
+            const content = document.getElementById('aiPlanModalContent');
+            if (modal) {
+                modal.classList.add('opacity-0');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        function sendAiPlanPrompt(txt) {
+            const input = document.getElementById('aiPlanInput');
+            if(input) {
+                input.value = txt;
+                submitAiPlanChat(new Event('submit'));
+            }
+        }
+
+        async function submitAiPlanChat(e) {
+            if(e) e.preventDefault();
+            const input = document.getElementById('aiPlanInput');
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            const jobId = document.getElementById('modal_job_id').value;
+            const jobBudget = parseFloat(document.getElementById('modal_job_budget').value);
+            const job = allJobs.find(j => String(j.id) === String(jobId));
+            if (!job) return;
+
+            const history = document.getElementById('aiPlanHistory');
+            const sendBtn = document.getElementById('aiPlanSendBtn');
+
+            // User Message
+            history.insertAdjacentHTML('beforeend', `
+                <div class="flex items-start justify-end space-x-3">
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3.5 rounded-2xl rounded-tr-sm shadow-sm max-w-[85%] text-sm">
+                        ${escapeHtml(txt)}
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 flex items-center justify-center text-sm shrink-0 font-bold shadow">U</div>
+                </div>
+            `);
+            
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
+            sendBtn.disabled = true;
+
+            // Loading state
+            const loadingId = 'ai-loading-' + Date.now();
+            history.insertAdjacentHTML('beforeend', `
+                <div id="${loadingId}" class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse shrink-0"></div>
+                    <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm w-48 h-12 animate-pulse"></div>
+                </div>
+            `);
+            history.scrollTop = history.scrollHeight;
+
+            try {
+                const res = await fetch(`${API_URL}/api/ai/suggest-milestones`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_title: job.title,
+                        job_description: job.description,
+                        budget: jobBudget,
+                        custom_prompt: txt
+                    })
+                });
+                
+                const data = await res.json();
+                document.getElementById(loadingId)?.remove();
+
+                if (!res.ok) throw new Error(data.error || 'Lỗi gọi AI');
+                
+                const ms = data.data?.milestones;
+                if (!ms || ms.length === 0) throw new Error('AI không tạo được kế hoạch.');
+                
+                currentGeneratedMilestones = ms; // Lưu lại để apply
+
+                let msHtml = `<ul class="mt-3 space-y-2 text-xs">`;
+                ms.forEach((m, idx) => {
+                    msHtml += `
+                        <li class="bg-gray-50 dark:bg-gray-750 p-2.5 rounded-lg border border-gray-200 dark:border-gray-650">
+                            <div class="font-bold text-gray-800 dark:text-white">GĐ ${idx+1}: ${escapeHtml(m.title)}</div>
+                            <div class="text-indigo-600 font-bold my-0.5">${formatTokenHTML(m.amount)}</div>
+                            <div class="text-gray-500">Bàn giao: ${escapeHtml(m.deliverables)}</div>
+                        </li>
+                    `;
+                });
+                msHtml += `</ul>`;
+
+                const aiMessage = data.data?.ai_message || `Đã chia dự án thành ${ms.length} giai đoạn với tổng ngân sách ${formatTokenHTML(jobBudget)}!`;
+
+                history.insertAdjacentHTML('beforeend', `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-sm shrink-0 shadow">🤖</div>
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 dark:border-gray-700 max-w-[92%] text-sm text-gray-800 dark:text-gray-200">
+                            <p class="font-medium">${escapeHtml(aiMessage)}</p>
+                            ${msHtml}
+                            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                                <button onclick="applyAiMilestones()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center">
+                                    <i class="fas fa-check-circle mr-1.5"></i> Áp Dụng Kế Hoạch Này
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+            } catch (err) {
+                document.getElementById(loadingId)?.remove();
+                history.insertAdjacentHTML('beforeend', `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-sm shrink-0 shadow">⚠️</div>
+                        <div class="bg-red-50 text-red-700 p-3.5 rounded-2xl rounded-tl-sm text-sm border border-red-200 max-w-[85%]">
+                            ${escapeHtml(err.message)}
+                        </div>
+                    </div>
+                `);
+            } finally {
+                sendBtn.disabled = false;
+                history.scrollTop = history.scrollHeight;
+            }
+        }
+
+        function applyAiMilestones() {
+            if(!currentGeneratedMilestones || currentGeneratedMilestones.length === 0) return;
+            
+            // Xóa form cũ
+            document.getElementById('milestonesContainer').innerHTML = '';
+            milestoneCount = 0;
+            
+            currentGeneratedMilestones.forEach(m => {
+                addMilestoneForm();
+                const forms = document.querySelectorAll('.milestone-item');
+                const lastForm = forms[forms.length - 1];
+                
+                if(lastForm.querySelector('.m-title')) lastForm.querySelector('.m-title').value = m.title || '';
+                if(lastForm.querySelector('.m-amount')) lastForm.querySelector('.m-amount').value = m.amount || '';
+                if(lastForm.querySelector('.m-desc')) lastForm.querySelector('.m-desc').value = m.expected_deliverables || '';
+                if(lastForm.querySelector('.m-deliver')) lastForm.querySelector('.m-deliver').value = m.expected_deliverables || '';
+            });
+            
+            if(typeof updatePlanSummary === 'function') updatePlanSummary();
+            closeAiPlanModal();
+            
+            if(typeof Swal !== 'undefined') {
+                Swal.fire({ title: 'Đã áp dụng', text: 'Kế hoạch đã được điền vào Form!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+            }
+        }
+
+        async function old_autoGenerateMilestonesAI() {
+            const jobId = document.getElementById('modal_job_id').value;
+            const jobBudget = parseFloat(document.getElementById('modal_job_budget').value);
+            const job = allJobs.find(j => String(j.id) === String(jobId));
+            if (!job) return;
+
+            const btn = document.getElementById('btnGenerateAI');
+            const originalHtml = btn.innerHTML;
+            
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> AI Đang phân bổ...';
+                
+                const res = await fetch(`${API_URL}/api/ai/suggest-milestones`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_title: job.title,
+                        job_description: job.description,
+                        budget: jobBudget
+                    })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Lỗi AI');
+                
+                const milestones = data.data?.milestones;
+                if (!milestones || milestones.length === 0) throw new Error('AI không trả về kết quả hợp lệ.');
+                
+                // Clear existing forms and add the ones from AI
+                document.getElementById('milestonesContainer').innerHTML = '';
+                milestoneCount = 0;
+                
+                milestones.forEach(m => {
+                    addMilestoneForm();
+                    // Lấy ra form vừa được append (là form cuối cùng)
+                    const forms = document.querySelectorAll('.milestone-item');
+                    const lastForm = forms[forms.length - 1];
+                    
+                    lastForm.querySelector('.m-title').value = m.title || '';
+                    lastForm.querySelector('.m-amount').value = m.amount || '';
+                    lastForm.querySelector('.m-desc').value = m.expected_deliverables || '';
+                });
+                
+                if(typeof updatePlanSummary === 'function') updatePlanSummary(); // Cập nhật lại số dư phân bổ
+                
+                // Báo thành công (nếu có SweetAlert thì dùng, không thì alert)
+                if(typeof Swal !== 'undefined') {
+                    Swal.fire({ title: 'Thành công', text: 'AI đã phân bổ kế hoạch dựa trên ngân sách dự án!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                } else {
+                    alert('Trợ lý AI đã tự động phân bổ ngân sách kế hoạch thành công!');
+                }
+                
+            } catch (err) {
+                console.error(err);
+                if(typeof Swal !== 'undefined') Swal.fire('Lỗi', err.message, 'error');
+                else alert(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+        // -----------------------------------
+
+</script>
+
+    <!-- Reapply Modal -->
+    <div id="reapplyModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[100] flex items-center justify-center transition-opacity duration-300 opacity-0">
+        <div id="reapplyModalContent" class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md p-6 mx-4 transform transition-all duration-300 scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-black text-gray-900 dark:text-white">Ứng tuyển lại dự án</h3>
+                <button onclick="closeReapplyModal()" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-5">Vui lòng nhập báo giá mới và thư ứng tuyển để thuyết phục khách hàng chọn bạn lần này.</p>
+            
+            <input type="hidden" id="reapplyJobId" />
+            
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Báo giá mới (Token)</label>
+                <input type="number" id="reapplyBid" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 font-bold transition-all" placeholder="VD: 5000000" />
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Thư ứng tuyển / Lời nhắn</label>
+                <textarea id="reapplyCover" rows="4" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none" placeholder="Kính gửi Quý khách hàng, tôi xin điều chỉnh lại mức giá phù hợp hơn..."></textarea>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="closeReapplyModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold rounded-xl transition-colors">Hủy</button>
+                <button onclick="submitReapply()" id="reapplyBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center">
+                    <span>Gửi đề xuất</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL TRỢ LÝ AI CHIA MILESTONES (CHAT INTERFACE) -->
+    <div id="aiPlanModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-3 md:p-6 transition-opacity opacity-0">
+        <div id="aiPlanModalContent" class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col my-auto border border-gray-100 overflow-hidden transform transition-all scale-95">
+            <!-- Header -->
+            <div class="p-4 md:p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 text-white shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl shadow-inner border border-white/30">
+                        🤖
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h2 class="text-base md:text-lg font-bold">Trợ Lý AI Phân Bổ Kế Hoạch</h2>
+                            <span class="text-[10px] bg-yellow-400/20 text-yellow-200 border border-yellow-300/30 px-2 py-0.5 rounded-full font-bold">KGS Work</span>
+                        </div>
+                        <p class="text-xs text-purple-100 mt-0.5">Yêu cầu AI tự động chia giai đoạn theo ý muốn</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAiPlanModal()" class="text-white/80 hover:text-white text-2xl font-bold w-8 h-8 flex items-center justify-center">&times;</button>
+            </div>
+
+            <!-- Chat Message History -->
+            <div id="aiPlanHistory" class="p-4 md:p-6 overflow-y-auto flex-grow space-y-4 bg-gray-50/50 dark:bg-gray-900/50 min-h-[300px] max-h-[55vh]">
+                <!-- Tin nhắn mở đầu -->
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-sm shrink-0 shadow">🤖</div>
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 dark:border-gray-700 max-w-[92%] text-sm text-gray-800 dark:text-gray-200 space-y-2">
+                        <p class="font-medium">👋 Xin chào! Tôi là Trợ Lý AI.</p>
+                        <p>Bạn muốn tôi chia dự án này thành mấy giai đoạn? Có yêu cầu gì đặc biệt về số tiền hay tiến độ không?</p>
+                        <p class="text-xs text-gray-500 italic">Ví dụ: "Chia dự án này thành 4 giai đoạn, ưu tiên thanh toán nhiều ở giai đoạn 1"</p>
+                        
+                        <div class="flex flex-wrap gap-2 pt-2">
+                            <button onclick="sendAiPlanPrompt('Chia đều làm 3 giai đoạn cơ bản')" class="text-[11px] bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-bold transition">Chia 3 giai đoạn</button>
+                            <button onclick="sendAiPlanPrompt('Chia làm 4 giai đoạn, dồn trọng tâm vào code')" class="text-[11px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full font-bold transition">Chia 4 giai đoạn</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input form -->
+            <div class="bg-white dark:bg-gray-800 p-4 border-t border-gray-100 dark:border-gray-700 shrink-0">
+                <form onsubmit="submitAiPlanChat(event)" class="relative flex items-center">
+                    <input type="text" id="aiPlanInput" placeholder="Nhập yêu cầu chia kế hoạch..." class="w-full pl-4 pr-24 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-650 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-gray-800 dark:text-white" autocomplete="off" />
+                    <button type="submit" id="aiPlanSendBtn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md transition flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        Gửi <i class="fas fa-paper-plane ml-1.5 text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>

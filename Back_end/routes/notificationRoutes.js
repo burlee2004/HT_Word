@@ -42,4 +42,30 @@ router.put('/api/notifications/:id/read', async (req, res) => {
     }
 });
 
+
+// 17. API: Đánh dấu TẤT CẢ thông báo đã đọc
+router.put('/api/notifications/user/:user_id/read-all', async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const { error } = await supabase.from('notifications').update({ is_read: true }).eq('user_id', user_id);
+        if (error) throw error;
+        res.status(200).json({ message: 'Đã đánh dấu tất cả đã đọc' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// 18. API: Xóa TẤT CẢ thông báo
+router.delete('/api/notifications/user/:user_id/delete-all', async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const { error } = await supabase.from('notifications').delete().eq('user_id', user_id);
+        if (error) throw error;
+        res.status(200).json({ message: 'Đã xóa tất cả thông báo' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 module.exports = router;
+

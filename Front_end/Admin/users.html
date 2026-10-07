@@ -72,7 +72,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-xs text-left">
-                        <thead class="bg-gray-50 dark:bg-gray-750 text-gray-500 dark:text-gray-400 uppercase font-black">
+                        <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 uppercase font-black">
                             <tr>
                                 <th class="py-3.5 px-4">Người dùng</th>
                                 <th class="py-3.5 px-3">Vai trò</th>
@@ -95,7 +95,7 @@
     <!-- MODAL ĐIỀU CHỈNH TOKEN (CREDIT / DEBIT) -->
     <div id="tokenModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700">
                 <h3 class="text-sm font-black text-gray-900 dark:text-white flex items-center">
                     <i class="fas fa-coins text-amber-500 mr-2"></i> Điều Chỉnh Token Ví Người Dùng
                 </h3>
@@ -111,7 +111,7 @@
                     <span id="token_user_email" class="text-gray-500 text-xs block"></span>
                 </div>
 
-                <div class="p-3 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl border border-gray-200 dark:border-gray-700 flex justify-between items-center">
                     <span class="text-xs text-gray-500">Số dư hiện tại:</span>
                     <span id="token_current_balance" class="font-black text-emerald-600 text-sm">0 Token</span>
                 </div>
@@ -151,7 +151,7 @@
     <!-- MODAL ĐỔI VAI TRÒ (CHANGE ROLE) -->
     <div id="roleModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700">
                 <h3 class="text-sm font-black text-gray-900 dark:text-white flex items-center">
                     <i class="fas fa-user-tag text-purple-500 mr-2"></i> Phân Quyền Vai Trò
                 </h3>
@@ -184,7 +184,7 @@
     </div>
 
     <!-- Load Admin UI Framework -->
-    <script src="admin-ui.js"></script>
+    <script src="admin-ui.js?v=1791344398"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
@@ -254,7 +254,7 @@
                     : '<span class="text-gray-400 italic text-[11px]">Chưa liên kết</span>';
 
                 return `
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                         <td class="py-3 px-4">
                             <div class="flex items-center space-x-2.5">
                                 <img src="${u.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.full_name)}&background=random`}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0">

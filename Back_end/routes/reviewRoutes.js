@@ -53,7 +53,7 @@ router.post('/api/reviews/submit', async (req, res) => {
         const reviewObj = {
             id: 'rev_' + Date.now().toString(36),
             job_id,
-            job_title: job?.title || 'Dự án HT Work',
+            job_title: job?.title || 'Dự án KGS Work',
             client_id,
             client_name: client?.full_name || 'Khách hàng',
             client_avatar: client?.avatar_url || '',

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(__dirname, '..', 'node_modules', '.cache', 'htwork_data');
+const DATA_DIR = path.join(__dirname, '..', 'node_modules', '.cache', 'kgs work_data');
 const RULES_FILE = path.join(DATA_DIR, 'chat_moderation_rules.json');
 const LEGACY_RULES_FILE = path.join(__dirname, '..', 'data', 'chat_moderation_rules.json');
 
@@ -36,7 +36,7 @@ function getDefaultRules() {
                 description: 'Ngăn chặn lôi kéo giao dịch ra ngoài sàn qua Zalo, Facebook, Telegram, WhatsApp...',
                 severity: 'CRITICAL',
                 action: 'BLOCK',
-                warning_message: 'Vui lòng chỉ trao đổi và giao dịch trên nền tảng HT Work để được bảo vệ quyền lợi và bảo hiểm Escrow!',
+                warning_message: 'Vui lòng chỉ trao đổi và giao dịch trên nền tảng KGS Work để được bảo vệ quyền lợi và bảo hiểm Escrow!',
                 keywords: [
                     'zalo', 'zl', 'z.a.l.o', 'za lo', 'zal0', 'za_lo',
                     'facebook', 'fb', 'face book', 'f.a.c.e.b.o.o.k', 'f.b', 'fbook', 'fb.com',
@@ -144,7 +144,7 @@ function getDefaultRules() {
             }
         },
         whitelist: [
-            'htwork', 'ht work', 'escrow', 'token', 'milestone', 'hợp đồng', 'dự án',
+            'kgs work', 'kgs work', 'escrow', 'token', 'milestone', 'hợp đồng', 'dự án',
             'github.com', 'gitlab.com', 'figma.com', 'drive.google.com', 'notion.so'
         ],
         stats: {
@@ -293,7 +293,7 @@ function parseWrittenPhone(rawText) {
 }
 
 // Nhận diện email ngoài
-const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@(?!htwork\.com)[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/i;
+const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@(?!kgs work\.com)[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/i;
 
 // Nhận diện link ngoài (trừ domain whitelist)
 const URL_REGEX = /(?:https?:\/\/|www\.)[^\s/$.?#].[^\s]*/i;

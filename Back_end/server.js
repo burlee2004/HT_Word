@@ -20,7 +20,7 @@ app.use('/uploads', express.static(uploadsDir));
 
 // 2. Route kiểm tra trạng thái Server
 app.get('/', (req, res) => {
-    res.send('HT Work Backend is running in Modular Architecture!');
+    res.send('KGS Work Backend is running in Modular Architecture!');
 });
 
 // 3. Đăng ký (Mount) các Route Module theo từng cụm chức năng

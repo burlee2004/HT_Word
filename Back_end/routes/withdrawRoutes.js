@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 const blockchain = require('../blockchain');
+const settingsStore = require('../services/settingsStore');
 const { logEvent } = require('../services/auditLogger');
 
 // 1. Tạo lệnh rút tiền (Web2.5)
@@ -12,8 +13,9 @@ router.post('/api/withdraw', async (req, res) => {
 
         // Kiểm tra thông tin ngân hàng
         const { data: user } = await supabase.from('users').select('bank_name, bank_account, bank_owner').eq('id', user_id).single();
-        if (!user || !user.bank_account) {
-            return res.status(400).json({ error: 'Vui lòng cập nhật tài khoản ngân hàng trong Profile trước khi rút tiền.' });
+        if (!user || !user.bank_account || !user.bank_name || !user.bank_owner || 
+            !user.bank_account.trim() || !user.bank_name.trim() || !user.bank_owner.trim()) {
+            return res.status(400).json({ error: 'Bạn chưa liên kết tài khoản ngân hàng! Vui lòng cập nhật đầy đủ Tên ngân hàng, Số tài khoản và Chủ tài khoản trong Hồ sơ cá nhân trước khi rút tiền.' });
         }
 
         // Kiểm tra ví DB
@@ -33,29 +35,79 @@ router.post('/api/withdraw', async (req, res) => {
             }
         }
 
-        // Xử lý logic DB: Trừ balance, cộng locked_balance, tạo lệnh
-        await supabase.from('wallets').update({ 
-            balance: wallet.balance - amount,
-            locked_balance: wallet.locked_balance + amount 
-        }).eq('user_id', user_id);
+                // Xử lý logic DB: Trừ balance, cộng locked_balance, tạo lệnh
+        
+        const isAutoApprove = settingsStore.getAutoApproveWithdraw();
+        
+        if (isAutoApprove) {
+            // TỰ ĐỘNG DUYỆT RÚT TIỀN NGAY LẬP TỨC
+            // 1. Trừ tiền thẳng từ balance (không qua locked_balance)
+            await supabase.from('wallets').update({ 
+                balance: wallet.balance - amount 
+            }).eq('user_id', user_id);
+            
+            // 2. Tạo lệnh trạng thái đã duyệt
+            const { data: request, error: reqErr } = await supabase.from('withdraw_requests').insert([{
+                user_id, amount, status: 'approved'
+            }]).select().single();
+            if (reqErr) throw reqErr;
+            
+            // 3. Đồng bộ blockchain
+            if (blockchain.isConfigured()) {
+                blockchain.deductBalance(user_id, amount).catch(console.error);
+            }
+            
+            // 4. Ghi ledger
+            await supabase.from('wallet_ledger').insert([{
+                sender_id: user_id, 
+                receiver_id: '11111111-1111-1111-1111-111111111111', 
+                amount: amount, 
+                type: 'WITHDRAW', 
+                idempotency_key: `WITHDRAW_${request.id}`,
+                note: 'Giải ngân rút tiền'
+            }]);
+            
+            // 5. Gửi thông báo
+            await supabase.from('notifications').insert([{
+                user_id: user_id, title: 'Tiền đã về ví!', content: `Lệnh rút ${amount.toLocaleString()} Token của bạn đã được duyệt TỰ ĐỘNG thành công.`
+            }]);
+            
+            logEvent({
+                module: 'WALLET',
+                action: 'WITHDRAW_AUTO_APPROVE',
+                actor_id: 'SYSTEM',
+                actor_email: 'system',
+                level: 'INFO',
+                details: `Hệ thống tự động duyệt lệnh rút tiền #${request.id} số tiền ${amount.toLocaleString()} Token cho ${user.bank_owner || 'User'}`,
+                metadata: { request_id: request.id, user_id, amount }
+            });
+            
+            return res.status(200).json({ message: 'Tạo và duyệt lệnh rút tiền TỰ ĐỘNG thành công. Tiền đang về tài khoản của bạn.', request });
+        } else {
+            // CHẾ ĐỘ THỦ CÔNG NHƯ CŨ
+            await supabase.from('wallets').update({ 
+                balance: wallet.balance - amount,
+                locked_balance: wallet.locked_balance + amount 
+            }).eq('user_id', user_id);
 
-        const { data: request, error: reqErr } = await supabase.from('withdraw_requests').insert([{
-            user_id, amount, status: 'pending'
-        }]).select().single();
+            const { data: request, error: reqErr } = await supabase.from('withdraw_requests').insert([{
+                user_id, amount, status: 'pending'
+            }]).select().single();
 
-        if (reqErr) throw reqErr;
+            if (reqErr) throw reqErr;
 
-        logEvent({
-            module: 'WALLET',
-            action: 'WITHDRAW_CREATE',
-            actor_id: user_id,
-            actor_email: user.bank_owner || 'User',
-            level: 'INFO',
-            details: `Yêu cầu rút ${amount.toLocaleString()} Token về ngân hàng ${user.bank_name || ''} - STK ${user.bank_account || ''}`,
-            metadata: { request_id: request.id, amount, bank: user.bank_name, account: user.bank_account }
-        });
+            logEvent({
+                module: 'WALLET',
+                action: 'WITHDRAW_CREATE',
+                actor_id: user_id,
+                actor_email: user.bank_owner || 'User',
+                level: 'INFO',
+                details: `Yêu cầu rút ${amount.toLocaleString()} Token về ngân hàng ${user.bank_name || ''} - STK ${user.bank_account || ''}`,
+                metadata: { request_id: request.id, amount, bank: user.bank_name, account: user.bank_account }
+            });
 
-        res.status(200).json({ message: 'Tạo lệnh rút tiền thành công. Vui lòng chờ Admin duyệt.', request });
+            return res.status(200).json({ message: 'Tạo lệnh rút tiền thành công. Vui lòng chờ Admin duyệt.', request });
+        }
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -96,7 +148,7 @@ router.post('/api/admin/withdrawals/bulk-approve', async (req, res) => {
                 
                 // Đồng bộ trừ Blockchain
                 if (blockchain.isConfigured()) {
-                    await blockchain.deductBalance(user_id, amount);
+                    blockchain.deductBalance(user_id, amount).catch(console.error);
                 }
 
                 // Đổi trạng thái lệnh
@@ -109,7 +161,7 @@ router.post('/api/admin/withdrawals/bulk-approve', async (req, res) => {
                     amount: amount, 
                     type: 'WITHDRAW', 
                     idempotency_key: `WITHDRAW_${reqData.id}`,
-                    note: 'Giải ngân rút tiền (Chuyển khoản lô)'
+                    note: 'Giải ngân rút tiền'
                 }]);
 
                 // Báo notification
@@ -121,7 +173,7 @@ router.post('/api/admin/withdrawals/bulk-approve', async (req, res) => {
                     module: 'WALLET',
                     action: 'WITHDRAW_APPROVE',
                     actor_id: 'ADMIN',
-                    actor_email: 'admin@htwork.vn',
+                    actor_email: 'admin@kgs work.vn',
                     target_id: user_id,
                     level: 'INFO',
                     details: `Admin đã phê duyệt lệnh rút tiền #${reqData.id} số tiền ${amount.toLocaleString()} Token (Napas/Chi Hộ/Completed)`,
@@ -148,9 +200,10 @@ router.post('/api/admin/withdrawals/reject', async (req, res) => {
         const { data: wallet } = await supabase.from('wallets').select('balance, locked_balance').eq('user_id', user_id).single();
         if (wallet) {
             // Hoàn lại tiền tạm giữ về khả dụng
+            const newLocked = Math.max(0, (parseFloat(wallet.locked_balance) || 0) - amount);
             await supabase.from('wallets').update({ 
-                locked_balance: wallet.locked_balance - amount,
-                balance: wallet.balance + amount 
+                locked_balance: newLocked,
+                balance: (parseFloat(wallet.balance) || 0) + amount 
             }).eq('user_id', user_id);
 
             await supabase.from('withdraw_requests').update({ status: 'rejected' }).eq('id', request_id);
@@ -163,7 +216,7 @@ router.post('/api/admin/withdrawals/reject', async (req, res) => {
                 module: 'WALLET',
                 action: 'WITHDRAW_REJECT',
                 actor_id: 'ADMIN',
-                actor_email: 'admin@htwork.vn',
+                actor_email: 'admin@kgs work.vn',
                 target_id: user_id,
                 level: 'WARN',
                 details: `Admin đã từ chối lệnh rút tiền #${request_id} số tiền ${amount.toLocaleString()} Token và hoàn tiền về ví người dùng`,
@@ -183,12 +236,14 @@ router.post('/api/withdraw/cancel', async (req, res) => {
     try {
         if (!user_id || !request_id) throw new Error('Thiếu thông tin người dùng hoặc mã lệnh rút');
 
+        // Đổi trạng thái lệnh rút thành 'rejected' (hủy/từ chối theo DB check constraint)
         const { data: reqData, error: reqErr } = await supabase
             .from('withdraw_requests')
-            .select('*')
+            .update({ status: 'rejected' })
             .eq('id', request_id)
             .eq('user_id', user_id)
             .eq('status', 'pending')
+            .select('*')
             .single();
 
         if (reqErr || !reqData) throw new Error('Lệnh rút tiền không tồn tại hoặc đã được xử lý trước đó');
@@ -206,9 +261,6 @@ router.post('/api/withdraw/cancel', async (req, res) => {
             locked_balance: newLocked,
             balance: newBalance
         }).eq('user_id', user_id);
-
-        // Đổi trạng thái lệnh rút thành 'cancelled'
-        await supabase.from('withdraw_requests').update({ status: 'cancelled' }).eq('id', request_id);
 
         // Ghi log ví
         await supabase.from('wallet_ledger').insert([{
@@ -235,7 +287,7 @@ router.post('/api/withdraw/cancel', async (req, res) => {
     }
 });
 
-// 6. User lấy danh sách lịch sử lệnh rút tiền của chính mình
+// 6. User lấy danh sách lịch sử lệnh rút tiền của chính mình (Kèm thông tin ngân hàng)
 router.get('/api/withdraw/my-requests/:user_id', async (req, res) => {
     const { user_id } = req.params;
     try {
@@ -246,7 +298,22 @@ router.get('/api/withdraw/my-requests/:user_id', async (req, res) => {
             .order('created_at', { ascending: false });
             
         if (error) throw error;
-        res.status(200).json({ requests: data || [] });
+
+        // Lấy thông tin ngân hàng của user để hiển thị đúng trên thẻ lệnh rút
+        const { data: user } = await supabase
+            .from('users')
+            .select('bank_name, bank_account, bank_owner')
+            .eq('id', user_id)
+            .single();
+
+        const enrichedRequests = (data || []).map(r => ({
+            ...r,
+            bank_name: user?.bank_name || null,
+            bank_account: user?.bank_account || null,
+            bank_owner: user?.bank_owner || null
+        }));
+
+        res.status(200).json({ requests: enrichedRequests });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

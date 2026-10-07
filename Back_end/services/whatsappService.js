@@ -130,11 +130,11 @@ function formatPhoneNumberToWhatsAppId(phone) {
 async function sendWhatsAppOtp(phone, otpCode) {
     const waChatId = formatPhoneNumberToWhatsAppId(phone);
 
-    const messageText = `🔒 *[HT WORK - XÁC THỰC SỐ ĐIỆN THOẠI]*\n\n` +
+    const messageText = `🔒 *[KGS WORK - XÁC THỰC SỐ ĐIỆN THOẠI]*\n\n` +
         `Mã OTP xác thực tài khoản của bạn là: *${otpCode}*\n\n` +
         `⏱️ Mã có hiệu lực trong vòng *5 phút*.\n` +
         `⚠️ Tuyệt đối không chia sẻ mã này cho bất kỳ ai để bảo vệ an toàn thông tin tài khoản!\n\n` +
-        `_© 2026 HT Work Platform - Sàn IT & Freelancer Hub_`;
+        `_© 2026 KGS Work Platform - Sàn IT & Freelancer Hub_`;
 
     // 1. Chế độ Gửi Thật nếu WhatsApp Bot đang online
     if (waClient && isWaReady && waChatId) {
@@ -162,7 +162,7 @@ async function sendWhatsAppOtp(phone, otpCode) {
 
     // 2. Chế độ Fallback / Sandbox Mode (In OTP ra Terminal & log Event)
     console.log(`\n===============================================================`);
-    console.log(`📱 [HT WORK PHONE OTP SERVICE - WHATSAPP SANDBOX / DEV MODE]`);
+    console.log(`📱 [KGS WORK PHONE OTP SERVICE - WHATSAPP SANDBOX / DEV MODE]`);
     console.log(`👉 Số điện thoại nhận: ${phone} (WhatsApp ID: ${waChatId || 'N/A'})`);
     console.log(`👉 MÃ XÁC THỰC OTP SĐT: [ ${otpCode} ]`);
     console.log(`👉 Trạng thái Bot: ${isWaReady ? 'Đã kết nối' : 'Đang chờ quét QR Code'}`);

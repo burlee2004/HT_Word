@@ -3,11 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Yêu Cầu - HT Work</title>
+    <title>Quản lý Yêu Cầu - KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
 
     <script>
+
+        // Auto-format currency inputs
+        function formatNumberInput(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val !== '') {
+                input.value = parseInt(val, 10).toLocaleString('vi-VN').replace(/,/g, '.');
+            } else {
+                input.value = '';
+            }
+        }
+        
+        // Helper to parse formatted string back to integer
+        function parseFormattedNumber(val) {
+            if(!val) return 0;
+            return parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
+        }
+
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -38,6 +55,7 @@
             background: rgba(99, 102, 241, 0.6);
         }
     </style>
+    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 dark:text-gray-100 h-screen flex overflow-hidden">
     <!-- Sidebar Placeholder -->
@@ -123,7 +141,7 @@
                                 </div>
                                 <div>
                                     <h4 class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 flex items-center">
-                                        Trợ Lý AI HT Work <span class="ml-2 text-[10px] bg-yellow-400/20 text-yellow-600 dark:text-yellow-300 px-1.5 py-0.5 rounded font-bold border border-yellow-300/40">Groq AI</span>
+                                        Trợ Lý AI KGS Work <span class="ml-2 text-[10px] bg-yellow-400/20 text-yellow-600 dark:text-yellow-300 px-1.5 py-0.5 rounded font-bold border border-yellow-300/40">Groq AI</span>
                                     </h4>
                                     <p class="text-[11px] text-gray-500 dark:text-gray-400">Bạn chỉ cần mô tả ý tưởng, AI sẽ lập đặc tả & tự động điền form trọn gói.</p>
                                 </div>
@@ -251,7 +269,7 @@
                             </label>
                             <div class="relative">
                                 <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-lg">💎</span>
-                                <input type="number" id="budget" min="10000" step="1000" class="w-full pl-11 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 text-lg font-bold text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-700" placeholder="VD: 500000">
+                                <input type="text" inputmode="numeric" id="budget" oninput="formatNumberInput(this)" min="10000" step="1000" class="w-full pl-11 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 text-lg font-bold text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-700" placeholder="VD: 500000">
                             </div>
                             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2 flex items-start">
                                 <i class="fas fa-shield-alt text-emerald-500 mt-0.5 mr-1.5 text-sm shrink-0"></i>
@@ -326,7 +344,7 @@
                         <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
                             Ngân sách Ký quỹ (Token) <span class="text-red-500">*</span>
                         </label>
-                        <input type="number" id="edit_budget" min="10000" step="1000" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                        <input type="text" inputmode="numeric" id="edit_budget" oninput="formatNumberInput(this)" min="10000" step="1000" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-sm font-bold text-emerald-600 dark:text-emerald-400">
                     </div>
                 </div>
 
@@ -405,7 +423,7 @@
                         <i class="fas fa-paperclip mr-1 text-indigo-500"></i> Tài liệu đính kèm
                     </label>
                     <div id="editUploadedFilesList" class="flex flex-wrap gap-2 mb-2"></div>
-                    <div onclick="document.getElementById('editFileUploadInput').click()" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-3 text-center hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20 transition cursor-pointer bg-gray-50/50 dark:bg-gray-800 flex items-center justify-center space-x-2">
+                    <div id="editDropZone" onclick="document.getElementById('editFileUploadInput').click()" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-3 text-center hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20 transition cursor-pointer bg-gray-50/50 dark:bg-gray-800 flex items-center justify-center space-x-2">
                         <input type="file" id="editFileUploadInput" class="hidden" onchange="handleEditFileUpload(this)">
                         <i class="fas fa-plus text-indigo-600 text-xs"></i>
                         <span class="text-xs text-indigo-600 font-bold">Thêm tài liệu mới</span>
@@ -507,7 +525,7 @@
                     </div>
                     <div>
                         <div class="flex items-center space-x-2">
-                            <h2 class="text-base md:text-lg font-bold">Trợ Lý AI HT Work</h2>
+                            <h2 class="text-base md:text-lg font-bold">Trợ Lý AI KGS Work</h2>
                             <span class="text-[10px] bg-yellow-400/20 text-yellow-200 border border-yellow-300/30 px-2 py-0.5 rounded-full font-bold">⚡ Groq Ultra-Fast</span>
                         </div>
                         <p class="text-xs text-purple-100 mt-0.5">Tự động chuẩn hóa yêu cầu & Điền bài đăng chỉ với 1 cú click</p>
@@ -524,7 +542,7 @@
                         🤖
                     </div>
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 dark:border-gray-700 max-w-[92%] text-sm text-gray-800 dark:text-gray-200 space-y-2">
-                        <p class="font-medium">👋 Xin chào! Tôi là <b>Trợ Lý AI</b> của sàn HT Work.</p>
+                        <p class="font-medium">👋 Xin chào! Tôi là <b>Trợ Lý AI</b> của sàn KGS Work.</p>
                         <p class="text-gray-600 dark:text-gray-300 text-xs leading-relaxed">
                             Hãy mô tả ý tưởng dự án của bạn (văn nói/văn viết). Tôi sẽ giúp bạn phân tích, soạn thảo đặc tả 4 phần chuyên nghiệp và <b>tự động điền đầy đủ vào Form đăng bài</b>.
                         </p>
@@ -566,11 +584,40 @@
 
     <!-- Main Page Script -->
     <script>
+
+        // Auto-format currency inputs
+        function formatNumberInput(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val !== '') {
+                input.value = parseInt(val, 10).toLocaleString('vi-VN').replace(/,/g, '.');
+            } else {
+                input.value = '';
+            }
+        }
+        
+        // Helper to parse formatted string back to integer
+        function parseFormattedNumber(val) {
+            if(!val) return 0;
+            return parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
+        }
+
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         let currentUser = null;
+
+        async function checkBalance() { 
+            try { 
+                const r = await fetch(`${API_URL}/api/wallet/${currentUser?.id}`); 
+                const d = await r.json(); 
+                if(r.ok && d.success) { 
+                    const balEls = document.querySelectorAll('.wallet-balance, .user-balance');
+                    balEls.forEach(el => el.textContent = parseInt(d.wallet.balance).toLocaleString('vi-VN').replace(/,/g, '.') + ' Token');
+                } 
+            } catch(e) {} 
+        }
+
         let allJobs = [];
         let categories = [];
         let selectedCategory = null;
@@ -1088,7 +1135,7 @@
             }
         }
 
-        function nextStep(direction) {
+        async function nextStep(direction) {
             if (direction === 1) {
                 if (currentStep === 1) {
                     if (!selectedCategory) {
@@ -1098,7 +1145,7 @@
                 } else if (currentStep === 2) {
                     const title = document.getElementById('title')?.value?.trim();
                     const desc = document.getElementById('description')?.value?.trim();
-                    const budget = document.getElementById('budget')?.value;
+                    const budgetStr = document.getElementById('budget')?.value; const budget = parseFormattedNumber(budgetStr);
                     if (!title) {
                         alert('Vui lòng nhập tiêu đề dự án!');
                         document.getElementById('title')?.focus();
@@ -1109,11 +1156,41 @@
                         document.getElementById('description')?.focus();
                         return;
                     }
+                    
                     if (!budget || isNaN(budget) || parseInt(budget) < 10000) {
                         alert('Vui lòng nhập ngân sách hợp lệ (tối thiểu 10,000 Token)!');
                         document.getElementById('budget')?.focus();
                         return;
                     }
+
+                    // --- CHECK BALANCE LÊN BACKEND TRƯỚC KHI TỚI BƯỚC 3 ---
+                    try {
+                        const nextBtn = document.getElementById('nextBtn');
+                        const oldHtml = nextBtn.innerHTML;
+                        nextBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang kiểm tra...';
+                        nextBtn.disabled = true;
+
+                        const res = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
+                        const data = await res.json();
+                        
+                        nextBtn.innerHTML = oldHtml;
+                        nextBtn.disabled = false;
+
+                        if (res.ok && data.success) {
+                            const availableBalance = data.wallet.balance || 0;
+                            if (budget > availableBalance) {
+                                document.getElementById('warningAvailableBalance').textContent = parseInt(availableBalance).toLocaleString('vi-VN').replace(/,/g, '.') + ' Token';
+                                document.getElementById('warningRequiredBudget').textContent = parseInt(budget).toLocaleString('vi-VN').replace(/,/g, '.') + ' Token';
+                                document.getElementById('budgetWarningModal').classList.remove('hidden');
+                                return; // BLOCK CHUYỂN BƯỚC
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Lỗi check số dư', e);
+                        document.getElementById('nextBtn').disabled = false;
+                    }
+                    // ----------------------------------------------------
+
                 }
             }
             
@@ -1133,7 +1210,7 @@
             const fType = document.querySelector('input[name="freelancer_type"]:checked')?.value || "Cá nhân";
             const tagsCount = selectedTags.length;
             const filesCount = uploadedFiles.length;
-            const budgetVal = document.getElementById('budget')?.value || 0;
+            const budgetVal = parseFormattedNumber(document.getElementById('budget')?.value) || 0;
             const formattedBudget = new Intl.NumberFormat('en-US').format(budgetVal) + ' Token';
             
             summaryList.innerHTML = `
@@ -1197,7 +1274,7 @@
                             <div class="flex justify-between items-start gap-2 mb-3">
                                 <span class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${j.status === 'open' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-gray-100 text-gray-800 border-gray-200'}">${j.status}</span>
                                 <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-100 dark:border-emerald-900">
-                                    <i class="fas fa-coins mr-1"></i> ${(j.budget || 0).toLocaleString()} Token
+                                    <i class="fas fa-coins mr-1"></i> ${formatTokenHTML((j.budget || 0))}
                                 </span>
                             </div>
                             <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base mb-2 line-clamp-2 hover:text-indigo-600 transition cursor-pointer" onclick="openDetailModal('${j.id}')">
@@ -1425,7 +1502,7 @@
             const catSel = document.getElementById('edit_category');
             const categoryId = catSel ? catSel.value : null;
             const categoryName = catSel && catSel.selectedIndex >= 0 ? catSel.options[catSel.selectedIndex].text : '';
-            const budget = parseFloat(document.getElementById('edit_budget')?.value);
+            const budget = parseFormattedNumber(document.getElementById('edit_budget')?.value);
             const deadline = document.getElementById('edit_deadlineDate')?.value;
             const freelancerType = document.querySelector('input[name="edit_freelancer_type"]:checked')?.value || 'Cá nhân';
             const description = document.getElementById('edit_description')?.value?.trim();
@@ -1662,7 +1739,7 @@
 
         function renderAiResponseCard(job, source) {
             const history = document.getElementById('aiChatHistory');
-            const jobJsonString = encodeURIComponent(JSON.stringify(job));
+            const jobJsonString = encodeURIComponent(JSON.stringify(job)).replace(/'/g, "%27");
 
             const tagsHtml = (job.tags || []).map(t => `<span class="bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[11px] px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800 font-semibold">#${escapeHtml(t)}</span>`).join(' ');
 
@@ -1696,7 +1773,7 @@
                                     👥 ${escapeHtml(job.freelancer_type || 'Cá nhân')}
                                 </span>
                                 <span class="text-[11px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800 ml-auto">
-                                    💰 ${(job.estimated_budget || 0).toLocaleString()} Token
+                                    💰 ${formatTokenHTML((job.estimated_budget || 0))}
                                 </span>
                             </div>
 
@@ -1786,7 +1863,7 @@
 
                 // 7. Fill Budget
                 if (job.estimated_budget) {
-                    document.getElementById('budget').value = job.estimated_budget;
+                    document.getElementById('budget').value = parseInt(job.estimated_budget).toLocaleString('vi-VN').replace(/,/g, '.');
                 }
 
                 // 8. Close AI Assistant Modal & Open Post Modal at Step 2
@@ -1814,8 +1891,7 @@
 
             const title = document.getElementById('title').value.trim();
             let description = document.getElementById('description').value.trim();
-            const budgetVal = document.getElementById('budget').value;
-            const budget = parseFloat(budgetVal);
+            const budget = parseFormattedNumber(document.getElementById('budget').value);
 
             const fType = document.querySelector('input[name="freelancer_type"]:checked')?.value || "Cá nhân";
             const deadlineVal = document.getElementById('deadlineDate').value;
@@ -1954,8 +2030,102 @@
     </div>
     
     <!-- Shared UI Script -->
-    <script src="ui.js"></script>
-        </body>
+    <script src="ui.js?v=1791344398">
+        // Bổ sung: Chặn trình duyệt văng ra ngoài khi kéo thả file và xử lý Drag & Drop
+        function setupDragAndDrop(zoneId, inputId, handlerFunction) {
+            const zone = document.getElementById(zoneId);
+            const input = document.getElementById(inputId);
+            if (!zone || !input) return;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                window.addEventListener(eventName, preventDefaults, false);
+                zone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                zone.addEventListener(eventName, () => zone.classList.add('bg-indigo-100', 'dark:bg-indigo-900/40'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                zone.addEventListener(eventName, () => zone.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/40'), false);
+            });
+
+            zone.addEventListener('drop', (e) => {
+                let dt = e.dataTransfer;
+                let files = dt.files;
+                if (files && files.length > 0) {
+                    input.files = files;
+                    handlerFunction(input);
+                }
+            }, false);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupDragAndDrop('dropZone', 'fileUploadInput', handleFileUpload);
+            setupDragAndDrop('editDropZone', 'editFileUploadInput', handleEditFileUpload);
+        });
+
+</script>
+        
+    <script>
+
+        // Auto-format currency inputs
+        function formatNumberInput(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val !== '') {
+                input.value = parseInt(val, 10).toLocaleString('vi-VN').replace(/,/g, '.');
+            } else {
+                input.value = '';
+            }
+        }
+        
+        // Helper to parse formatted string back to integer
+        function parseFormattedNumber(val) {
+            if(!val) return 0;
+            return parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
+        }
+
+        // Global Drag and Drop protection
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        }, false);
+    </script>
+
+    <!-- Budget Warning Modal -->
+    <div id="budgetWarningModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border-t-8 border-red-500">
+            <div class="w-20 h-20 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-exclamation-triangle text-4xl text-red-500"></i>
+            </div>
+            <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2">Vượt Quá Ngân Sách!</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Số dư khả dụng của bạn hiện tại là <strong id="warningAvailableBalance" class="text-indigo-600 dark:text-indigo-400">0 Token</strong>.<br>
+                Bạn không đủ số dư để ký quỹ <strong id="warningRequiredBudget" class="text-red-500">0 Token</strong> cho dự án này.
+            </p>
+            <div class="flex flex-col space-y-3">
+                <button onclick="document.getElementById('budgetWarningModal').classList.add('hidden'); document.getElementById('budget').focus();" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold py-3 rounded-xl transition">
+                    <i class="fas fa-edit mr-2"></i>Sửa lại giá
+                </button>
+                <a href="wallet.html" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-500/30">
+                    <i class="fas fa-wallet mr-2"></i>Tới trang Nạp Tiền
+                </a>
+                <a href="dashboard.html" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-semibold mt-2 underline">
+                    Quay về Trang chủ
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+
 </html>
 
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VÃ­ Token Cá»§a TÃ´i - HT Work</title>
+    <title>VÃ­ Token Cá»§a TÃ´i - KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
     <style>
@@ -278,7 +278,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'QR_Thanh_Toan_HTWork.png';
+                a.download = 'QR_Thanh_Toan_KGS Work.png';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -290,7 +290,7 @@
         }
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://kgs work-backend.onrender.com';
 
         let currentUser = null;
         let countdownInterval = null;
@@ -484,7 +484,7 @@
                     const transferCode = 'HTword ' + req.id.substring(0, 6).toUpperCase();
                     
                     const bankId = 'vietinbank';
-                    const accountNo = 'HTWORKPAY';
+                    const accountNo = 'KGS WORKPAY';
                     const accountName = 'TRINH HUY HOANG_107882187291';
                     const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferCode)}&accountName=${encodeURIComponent(accountName)}`;
                     
@@ -633,7 +633,7 @@
         // [DEV] CÆ  CHáº¾ RESET VÃ
         // ==========================
         function checkDevMode() {
-            const allowedEmails = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+            const allowedEmails = ['admin@kgs work.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
             if (currentUser && allowedEmails.includes(currentUser.email)) {
                 document.getElementById('btnDevReset').classList.remove('hidden');
             }
@@ -691,7 +691,7 @@
     <!-- KHU Vá»°C IN BIÃŠN LAI (áº¨n trÃªn Web, chá»‰ hiá»‡n khi in PDF) -->
     <div id="printReceiptArea" class="hidden bg-white dark:bg-gray-800 dark:border-gray-700 p-10 text-gray-800 dark:text-gray-100 w-full max-w-3xl mx-auto border-2 border-gray-200">
         <div class="text-center mb-8 border-b-2 border-indigo-600 pb-4">
-            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">HT WORK</h1>
+            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">KGS WORK</h1>
             <p class="text-gray-500 dark:text-gray-400 font-bold mt-1">Ná»€N Táº¢NG FREELANCE IT HÃ€NG Äáº¦U VIá»†T NAM</p>
         </div>
         
@@ -722,8 +722,8 @@
         </div>
 
         <div class="text-center text-gray-500 dark:text-gray-400 text-sm border-t pt-4">
-            <p>Chá»©ng tá»« nÃ y Ä‘Æ°á»£c táº¡o tá»± Ä‘á»™ng bá»Ÿi há»‡ thá»‘ng HT Work. CÃ³ giÃ¡ trá»‹ Ä‘á»‘i soÃ¡t trÃªn toÃ n há»‡ thá»‘ng.</p>
-            <p>Trang web: https://htwork.vn | Email há»— trá»£: support@htwork.com</p>
+            <p>Chá»©ng tá»« nÃ y Ä‘Æ°á»£c táº¡o tá»± Ä‘á»™ng bá»Ÿi há»‡ thá»‘ng KGS Work. CÃ³ giÃ¡ trá»‹ Ä‘á»‘i soÃ¡t trÃªn toÃ n há»‡ thá»‘ng.</p>
+            <p>Trang web: https://kgs work.vn | Email há»— trá»£: support@kgs work.com</p>
         </div>
     </div>
 

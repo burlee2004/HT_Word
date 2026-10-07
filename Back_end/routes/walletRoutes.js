@@ -25,8 +25,8 @@ router.get('/api/wallet/:user_id', async (req, res) => {
         const { data, error } = await supabase.from('wallets').select('*').eq('user_id', user_id).single();
         if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
         
-        let dbBalance = data ? data.balance : 0;
-        let dbLocked = data ? data.locked_balance : 0;
+        let dbBalance = data ? (parseFloat(data.balance) || 0) : 0;
+        let dbLocked = data ? Math.max(0, parseFloat(data.locked_balance) || 0) : 0;
 
         // BẢO MẬT WEB2.5: ĐỐI CHIẾU BLOCKCHAIN (SOURCE OF TRUTH)
         if (blockchain.isConfigured() && data) {
@@ -121,7 +121,7 @@ router.get('/api/admin/audit/users', async (req, res) => {
 });
 
 // API DEV / TESTER (DỌN DẸP VÍ)
-const ALLOWED_TESTERS = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+const ALLOWED_TESTERS = ['admin@kgs work.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
 
 router.post('/api/test/reset-wallet', async (req, res) => {
     const { user_id, email } = req.body;

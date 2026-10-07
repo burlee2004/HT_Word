@@ -20,18 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:5000' 
-        : 'https://htwork-backend.onrender.com';
+        : 'https://project-internship-8z76.onrender.com';
 
     // 1. Khởi tạo Sidebar (Desktop Sidebar + Mobile Drawer Slide-over)
     const sidebarHtml = 
     `<!-- Desktop Sidebar -->
     <aside class="w-64 bg-white dark:bg-gray-800 shadow-xl h-full flex flex-col transition-colors border-r border-gray-200 dark:border-gray-700 hidden md:flex z-40 shrink-0">
-        <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center space-x-3">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="window.location.href='home.html'">
             <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-md overflow-hidden bg-indigo-600 border border-indigo-400 shrink-0 text-white font-bold">
                 <img src="../assets/logo.png" onerror="this.src='logo.png'" alt="HT" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-xl text-gray-800 dark:text-white tracking-wide block leading-tight">HT Work</span>
+                <span class="font-black text-xl text-gray-800 dark:text-white tracking-wide block leading-tight">KGS Work</span>
                 <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Client Hub</span>
             </div>
         </div>
@@ -74,12 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
     <div id="mobileDrawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity duration-300 md:hidden">
         <div id="mobileDrawerContent" class="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-gray-800 shadow-2xl flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out border-r border-gray-200 dark:border-gray-700">
             <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="window.location.href='home.html'">
                     <div class="w-9 h-9 rounded-full flex items-center justify-center shadow overflow-hidden bg-indigo-600 shrink-0 text-white font-bold">
                         <img src="../assets/logo.png" onerror="this.src='logo.png'" alt="HT" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <span class="font-black text-lg text-gray-900 dark:text-white block leading-tight">HT Work</span>
+                        <span class="font-black text-lg text-gray-900 dark:text-white block leading-tight">KGS Work</span>
                         <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider">Client Hub</span>
                     </div>
                 </div>
@@ -152,14 +152,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- Notification Bell -->
             <div class="relative shrink-0">
-                <button id="uiBellBtn" onclick="document.getElementById('notiDropdown').classList.toggle('hidden')" class="text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                <button id="uiBellBtn" onclick="window.toggleNotifications()" class="text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <i class="fas fa-bell text-xs sm:text-sm md:text-base"></i>
                     <span id="notiBadge" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center hidden border border-white dark:border-gray-800 font-bold">!</span>
                 </button>
                 <div id="notiDropdown" class="hidden absolute right-0 mt-3 w-72 sm:w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden">
                     <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b dark:border-gray-600 flex justify-between items-center text-gray-800 dark:text-gray-200">
                         <span class="font-bold text-sm"><i class="fas fa-bell text-indigo-500 mr-2"></i>Thông báo</span>
-                        <button onclick="loadUserNotifications()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"><i class="fas fa-sync-alt"></i></button>
+                        <div class="flex space-x-3 items-center">
+                            <button onclick="window.deleteAllNotifications()" class="text-xs font-semibold text-red-500 hover:text-red-700 dark:hover:text-red-400" title="Xóa tất cả"><i class="fas fa-trash-alt"></i> Xóa tất cả</button>
+                            <button onclick="loadUserNotifications()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline" title="Làm mới"><i class="fas fa-sync-alt"></i></button>
+                        </div>
                     </div>
                     <div id="notificationsList" class="max-h-80 overflow-y-auto bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 divide-y divide-gray-100 dark:divide-gray-700">
                         <p class="text-gray-500 dark:text-gray-400 text-xs text-center py-6">Đang tải...</p>
@@ -169,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             <!-- User Avatar -->
             <a href="profile.html" class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full border-2 border-indigo-300 dark:border-indigo-500 overflow-hidden shadow-sm hover:border-indigo-500 transition-colors shrink-0 flex items-center justify-center bg-indigo-50" title="Hồ sơ cá nhân">
-                <img id="uiAvatar" src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || user.name || 'Client')}&background=4f46e5&color=fff" alt="Avatar" class="w-full h-full object-cover">
+                <img id="uiAvatar" referrerpolicy="no-referrer" src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || user.name || 'Client')}&background=4f46e5&color=fff" alt="Avatar" class="w-full h-full object-cover">
             </a>
         </div>
     </header>`;
@@ -327,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 if (balanceElement) {
-                    balanceElement.innerText = (data.balance || 0).toLocaleString() + ' Token';
+                    balanceElement.innerHTML = typeof window.formatTokenHTML === "function" ? window.formatTokenHTML((data.balance || 0)) : ((data.balance || 0)).toLocaleString() + " Token";
                 }
             } else {
                 if (balanceElement) balanceElement.innerText = '0 Token';
@@ -338,6 +341,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 9. Fetch Notifications
+    let lastNotificationId = null;
+    let isInitialLoad = true;
+
+    function getNotificationLink(title) {
+        const t = (title || '').toLowerCase();
+        
+        // 1. Chat & Mối ruột
+        if (t.includes('kết bạn') || t.includes('mối ruột') || t.includes('tin nhắn') || t.includes('nhắn') || t.includes('chat')) return 'direct-chat.html';
+        
+        // 2. Quản lý Ví
+        if (t.includes('nạp') || t.includes('rút') || t.includes('token') || t.includes('thanh toán') || t.includes('escrow') || t.includes('ví')) return 'wallet.html';
+        
+        // 3. Đánh giá
+        if (t.includes('đánh giá')) return 'my-reviews.html';
+
+        // 4. Dự án & Công việc
+        if (t.includes('ứng tuyển') || t.includes('công việc') || t.includes('dự án') || t.includes('chấp nhận') || t.includes('từ chối') || t.includes('yêu cầu') || t.includes('hợp đồng') || t.includes('giao việc') || t.includes('thỏa thuận') || t.includes('milestone')) {
+            return window.location.pathname.includes('/user/') ? 'my-requests.html' : (window.location.pathname.includes('freelancer') ? 'my-jobs.html' : '#');
+        }
+        
+        return '#';
+    }
+
+    window.markNotiReadAndGo = async function(id, link) {
+        try {
+            await fetch(`${API_URL}/api/notifications/${id}/read`, { method: 'PUT' });
+        } catch(e) {}
+        if (link && link !== '#') window.location.href = link;
+        else loadUserNotifications();
+    };
+
+    function showNotificationToast(noti) {
+        const link = getNotificationLink(noti.title);
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-white dark:bg-gray-800 border-l-4 border-indigo-500 shadow-2xl rounded-lg p-4 w-80 z-50 transform transition-all duration-500 translate-y-full opacity-0 cursor-pointer hover:bg-gray-50';
+        toast.innerHTML = `
+            <div class="flex items-start">
+                <div class="flex-shrink-0 text-indigo-500"><i class="fas fa-bell text-xl"></i></div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">${noti.title}</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-300 line-clamp-2">${noti.content}</p>
+                </div>
+            </div>
+        `;
+        toast.onclick = () => window.markNotiReadAndGo(noti.id, link);
+        document.body.appendChild(toast);
+        
+        // Play sound
+        try {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.volume = 0.5;
+            audio.play();
+        } catch(e) {}
+
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-y-full', 'opacity-0');
+        });
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
+
     async function loadUserNotifications() {
         const notiList = document.getElementById('notificationsList');
         const notiBadge = document.getElementById('notiBadge');
@@ -347,32 +416,73 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`${API_URL}/api/notifications/${user.id}`);
             const data = await res.json();
             if (data.notifications && data.notifications.length > 0) {
-                if (notiBadge) notiBadge.classList.remove('hidden');
-                notiList.innerHTML = data.notifications.map(n => `
-                    <div class="p-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition">
-                        <strong class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100">${n.title || 'Thông báo'}</strong>
-                        <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">${n.content || ''}</p>
+                // Check unread count
+                const unreadCount = data.notifications.filter(n => !n.is_read).length;
+                if (notiBadge) {
+                    if (unreadCount > 0) {
+                        notiBadge.classList.remove('hidden');
+                        // Show count if badge is a span with text support, else just show the dot
+                        notiBadge.innerHTML = unreadCount > 9 ? '9+' : unreadCount;
+                        notiBadge.className = 'absolute top-0 right-0 block h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center transform translate-x-1 -translate-y-1';
+                    } else {
+                        notiBadge.classList.add('hidden');
+                    }
+                }
+
+                // Check for new notification for toast
+                if (!isInitialLoad && data.notifications[0].id !== lastNotificationId) {
+                    showNotificationToast(data.notifications[0]);
+                }
+                lastNotificationId = data.notifications[0].id;
+                isInitialLoad = false;
+
+                notiList.innerHTML = data.notifications.map(n => {
+                    const link = getNotificationLink(n.title);
+                    const bgClass = n.is_read ? '' : 'bg-blue-50/50 dark:bg-blue-900/20';
+                    const dot = n.is_read ? '' : '<span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2 shrink-0"></span>';
+                    return `
+                    <div class="relative group p-3.5 hover:bg-gray-100 dark:hover:bg-gray-700/80 transition cursor-pointer border-b border-gray-50 dark:border-gray-700/50 ${bgClass}">
+                        <div onclick="window.markNotiReadAndGo('${n.id}', '${link}')" class="pr-6">
+                        <div class="flex items-center">
+                            ${dot}
+                            <strong class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 truncate">${n.title || 'Thông báo'}</strong>
+                        </div>
+                        <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">${n.content || ''}</p>
                         <span class="text-[10px] text-gray-400 mt-1.5 block">${n.created_at ? new Date(n.created_at).toLocaleString('vi-VN') : ''}</span>
+                        </div>
+                        <button onclick="window.deleteNotification('${n.id}', event)" class="absolute right-3 top-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Xóa thông báo">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                `).join('');
+                `}).join('');
             } else {
                 if (notiBadge) notiBadge.classList.add('hidden');
                 notiList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-xs text-center py-6">Không có thông báo mới.</p>';
             }
         } catch (e) {
-            notiList.innerHTML = '<p class="text-red-500 text-xs text-center py-4">Lỗi tải thông báo.</p>';
+            // Ignore background polling errors so UI doesn't flicker
+            if(isInitialLoad) notiList.innerHTML = '<p class="text-red-500 text-xs text-center py-4">Lỗi tải thông báo.</p>';
         }
     }
+    
+    // Realtime polling setup
+    setInterval(() => {
+        loadUserNotifications();
+        loadGlobalBalance();
+        setInterval(() => {
+            if(user && user.id) loadGlobalBalance();
+        }, 5000);
+    }, 5000);
 
     // 10. Global Modern Typography & Sleek Scrollbar Style
-    if (!document.getElementById('htwork-global-style')) {
+    if (!document.getElementById('kgs work-global-style')) {
         const fontLink = document.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap';
         document.head.appendChild(fontLink);
 
         const style = document.createElement('style');
-        style.id = 'htwork-global-style';
+        style.id = 'kgs work-global-style';
         style.innerHTML = `
             * {
                 font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -385,9 +495,50 @@ document.addEventListener('DOMContentLoaded', () => {
         document.head.appendChild(style);
     }
 
+    
+    window.toggleNotifications = function() {
+        const dropdown = document.getElementById('notiDropdown');
+        if (!dropdown) return;
+        const isHidden = dropdown.classList.contains('hidden');
+        dropdown.classList.toggle('hidden');
+        
+        if (isHidden && user && user.id) {
+            // It was hidden, now opening -> mark all as read
+            fetch(`${API_URL}/api/notifications/user/${user.id}/read-all`, { method: 'PUT' })
+                .then(() => {
+                    const notiBadge = document.getElementById('notiBadge');
+                    if (notiBadge) notiBadge.classList.add('hidden');
+                    // Optionally refresh list slightly later to clear blue dots
+                    setTimeout(loadUserNotifications, 500);
+                })
+                .catch(e => console.error(e));
+        }
+    };
+
+    window.deleteAllNotifications = function() {
+        if(!confirm('Bạn có chắc chắn muốn xóa tất cả thông báo?')) return;
+        fetch(`${API_URL}/api/notifications/user/${user.id}/delete-all`, { method: 'DELETE' })
+            .then(() => {
+                loadUserNotifications();
+            })
+            .catch(e => alert('Lỗi xóa thông báo'));
+    };
+
+    window.deleteNotification = function(id, e) {
+        e.stopPropagation(); // prevent triggering the markAndGo
+        fetch(`${API_URL}/api/notifications/${id}`, { method: 'DELETE' })
+            .then(() => {
+                loadUserNotifications();
+            })
+            .catch(e => alert('Lỗi xóa thông báo'));
+    };
+
     // Khởi chạy ban đầu
     loadGlobalBalance();
-    listenRealtimeBalance();
+        setInterval(() => {
+            if(user && user.id) loadGlobalBalance();
+        }, 5000);
+    
     loadUserNotifications();
     window.loadUserNotifications = loadUserNotifications;
 

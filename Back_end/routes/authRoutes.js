@@ -366,215 +366,123 @@ function getMimeType(fileName) {
 }
 
 // Route Upload Ảnh (Cloudinary + Local Fallback)
-router.post('/upload-image', (req, res) => {
-    uploadImage.single('image')(req, res, function (err) {
-        if (err && err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ error: 'File đã vượt quá 50MB' });
-        }
-        if (!err && req.file && (req.file.path || req.file.secure_url)) {
-            return res.status(200).json({
-                message: 'Upload ảnh thành công!',
-                imageUrl: req.file.path || req.file.secure_url
-            });
-        }
-        // Fallback sang local disk nếu Cloudinary bị lỗi mạng/cấu hình
-        uploadLocal.single('image')(req, res, function (localErr) {
-            if (localErr) {
-                if (localErr.code === 'LIMIT_FILE_SIZE') {
-                    return res.status(400).json({ error: 'File đã vượt quá 50MB' });
-                }
-                return res.status(400).json({ error: 'Không thể upload ảnh: ' + localErr.message });
-            }
-            if (!req.file) {
-                return res.status(400).json({ error: 'Thiếu file ảnh' });
-            }
-            const host = req.get('host') || 'localhost:5000';
-            const protocol = req.protocol || 'http';
-            const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
-            return res.status(200).json({
-                message: 'Upload ảnh thành công (Local Storage)!',
-                imageUrl: localUrl
-            });
-        });
-    });
-});
 
-// Route Upload File/Video (Local Storage trực tiếp + S3 Fallback)
-router.post('/upload-file', (req, res) => {
-    uploadLocal.single('file')(req, res, function (localErr) {
-        if (localErr) {
-            if (localErr.code === 'LIMIT_FILE_SIZE') {
-                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
-            }
-            return res.status(400).json({ error: 'Không thể upload file: ' + localErr.message });
-        }
-        if (req.file) {
-            const host = req.get('host') || 'localhost:5000';
-            const protocol = req.protocol || 'http';
-            const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
-            return res.status(200).json({
-                message: 'Upload file thành công!',
-                fileUrl: localUrl,
-                url: localUrl
-            });
-        }
-        
-        // Dự phòng nếu local không nhận được file
-        uploadFile.single('file')(req, res, function (err) {
-            if (err) {
-                if (err.code === 'LIMIT_FILE_SIZE') {
-                    return res.status(400).json({ error: 'File đã vượt quá 50MB' });
-                }
-                return res.status(400).json({ error: 'Lỗi tải tệp: ' + err.message });
-            }
-            if (!req.file) return res.status(400).json({ error: 'Thiếu file tải lên' });
-            return res.status(200).json({
-                message: 'Upload file thành công!',
-                fileUrl: req.file.location || req.file.path,
-                url: req.file.location || req.file.path
-            });
-        });
-    });
-});
-
-// Upload Ảnh API mới (Cloudinary + Local)
-router.post('/api/upload/image', (req, res) => {
-    uploadImage.single('file')(req, res, function (err) {
-        if (err && err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ error: 'File đã vượt quá 50MB' });
-        }
-        if (!err && req.file && (req.file.path || req.file.secure_url)) {
-            return res.status(200).json({ url: req.file.path || req.file.secure_url, type: 'image' });
-        }
-        uploadLocal.single('file')(req, res, function (localErr) {
-            if (localErr) {
-                if (localErr.code === 'LIMIT_FILE_SIZE') {
-                    return res.status(400).json({ error: 'File đã vượt quá 50MB' });
-                }
-                return res.status(400).json({ error: 'Không thể upload ảnh: ' + localErr.message });
-            }
-            if (!req.file) return res.status(400).json({ error: 'Không thể upload ảnh' });
-            const host = req.get('host') || 'localhost:5000';
-            const protocol = req.protocol || 'http';
-            const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
-            res.status(200).json({ url: localUrl, imageUrl: localUrl, type: 'image' });
-        });
-    });
-});
-
-// Upload File nặng/Video API mới (Local Disk Storage trực tiếp + S3)
-router.post('/api/upload/file', (req, res) => {
-    uploadLocal.single('file')(req, res, function (localErr) {
-        if (localErr) {
-            if (localErr.code === 'LIMIT_FILE_SIZE') {
-                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
-            }
-            return res.status(400).json({ error: 'Không thể upload file: ' + localErr.message });
-        }
-        if (req.file) {
-            const host = req.get('host') || 'localhost:5000';
-            const protocol = req.protocol || 'http';
-            const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
-            let type = 'document';
-            if (req.file.mimetype && req.file.mimetype.startsWith('video/')) type = 'video';
-            else if (req.file.mimetype && req.file.mimetype.startsWith('audio/')) type = 'audio';
-            return res.status(200).json({ url: localUrl, fileUrl: localUrl, type: type });
-        }
-
-        // Dự phòng sang S3
-        uploadFile.single('file')(req, res, function (err) {
-            if (err) {
-                if (err.code === 'LIMIT_FILE_SIZE') {
-                    return res.status(400).json({ error: 'File đã vượt quá 50MB' });
-                }
-                return res.status(400).json({ error: 'Không thể upload file: ' + err.message });
-            }
-            if (!req.file) return res.status(400).json({ error: 'Thiếu file' });
-            let type = 'document';
-            if (req.file.mimetype && req.file.mimetype.startsWith('video/')) type = 'video';
-            else if (req.file.mimetype && req.file.mimetype.startsWith('audio/')) type = 'audio';
-            return res.status(200).json({ url: req.file.location || req.file.path, fileUrl: req.file.location || req.file.path, type: type });
-        });
-    });
-});
-
-// Route Tải xuống & Xem tệp tin (Khắc phục triệt để lỗi S3 AccessDenied và hỗ trợ mọi định dạng)
-router.get(['/api/download-file', '/api/view-file'], async (req, res) => {
+// LOGGER UPLOAD YÊU CẦU
+function writeUploadLog(req, type, status, detail) {
     try {
-        const targetUrl = req.query.url || req.query.file_url || '';
-        const customName = req.query.name || req.query.filename || '';
-        const isView = (req.path === '/api/view-file' || req.query.action === 'view');
-
-        if (!targetUrl) {
-            return res.status(400).json({ error: 'Thiếu đường dẫn tệp tin (url)' });
+        const fs = require('fs');
+        const path = require('path');
+        const logFile = path.join(__dirname, '../upload_debug.log');
+        const time = new Date().toISOString();
+        const ip = req.ip || req.connection.remoteAddress;
+        let fileInfo = 'No file info';
+        if (req.file) {
+            fileInfo = `Name: ${req.file.originalname}, Size: ${req.file.size} bytes, Mime: ${req.file.mimetype}`;
         }
+        const logLine = `[${time}] IP: ${ip} | Type: ${type} | Status: ${status} | Detail: ${detail} | File: ${fileInfo}\n`;
+        fs.appendFileSync(logFile, logLine);
+        console.log(logLine.trim());
+    } catch(e) {}
+}
 
-        // 1. Trường hợp file cục bộ trong thư mục /uploads
-        if (targetUrl.includes('/uploads/')) {
-            const parts = targetUrl.split('/uploads/');
-            const filename = decodeURIComponent(parts[1].split('?')[0]);
-            const filePath = path.join(__dirname, '../uploads', filename);
-
-            if (fs.existsSync(filePath)) {
-                const displayName = customName || filename;
-                const mimeType = getMimeType(displayName);
-                res.setHeader('Content-Type', mimeType);
-                if (isView) {
-                    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(displayName)}"`);
-                } else {
-                    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(displayName)}"`);
-                }
-                return res.sendFile(filePath);
+router.post('/upload-image', (req, res) => {
+    writeUploadLog(req, '/upload-image', 'START', 'Bắt đầu nhận request');
+    uploadLocal.single('image')(req, res, function (localErr) {
+        if (localErr) {
+            writeUploadLog(req, '/upload-image', 'ERROR', localErr.message);
+            if (localErr.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
             }
+            return res.status(400).json({ error: 'Không thể upload ảnh: ' + localErr.message });
         }
-
-        // 2. Trường hợp file nằm trên AWS S3
-        if (targetUrl.includes('amazonaws.com') || targetUrl.includes('htwork_files/')) {
-            let s3Key = '';
-            if (targetUrl.includes('amazonaws.com/')) {
-                const parts = targetUrl.split('amazonaws.com/');
-                s3Key = decodeURIComponent(parts[1].split('?')[0]);
-            } else if (targetUrl.includes('htwork_files/')) {
-                s3Key = 'htwork_files/' + targetUrl.split('htwork_files/')[1].split('?')[0];
-            } else {
-                s3Key = targetUrl;
-            }
-
-            const command = new GetObjectCommand({
-                Bucket: process.env.AWS_S3_BUCKET_NAME || 'htwork-app-storage',
-                Key: s3Key
-            });
-
-            try {
-                const s3Res = await s3Client.send(command);
-                const originalFilename = customName || path.basename(s3Key);
-                const mimeType = getMimeType(originalFilename) || s3Res.ContentType || 'application/octet-stream';
-
-                res.setHeader('Content-Type', mimeType);
-                if (isView) {
-                    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(originalFilename)}"`);
-                } else {
-                    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(originalFilename)}"`);
-                }
-                if (s3Res.ContentLength) {
-                    res.setHeader('Content-Length', s3Res.ContentLength);
-                }
-                return s3Res.Body.pipe(res);
-            } catch (s3Err) {
-                console.error('S3 GetObject Error:', s3Err.message);
-                return res.status(404).json({ error: 'Không thể truy xuất tệp từ máy chủ lưu trữ: ' + s3Err.message });
-            }
+        if (!req.file) {
+            writeUploadLog(req, '/upload-image', 'ERROR', 'Thiếu file ảnh');
+            return res.status(400).json({ error: 'Thiếu file ảnh' });
         }
-
-        // 3. Fallback cho URL khác (Cloudinary, external link)
-        return res.redirect(targetUrl);
-    } catch (err) {
-        console.error('Lỗi khi tải hoặc xem tệp:', err);
-        res.status(500).json({ error: 'Lỗi khi tải hoặc mở tệp: ' + err.message });
-    }
+        const host = req.get('host') || 'localhost:5000';
+        const protocol = req.protocol || 'http';
+        const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        writeUploadLog(req, '/upload-image', 'SUCCESS', `Đã lưu file: ${localUrl}`);
+        return res.status(200).json({
+            message: 'Upload ảnh thành công!',
+            imageUrl: localUrl,
+            url: localUrl
+        });
+    });
 });
 
-// Route Upload Base64 (Hỗ trợ Dán ảnh trực tiếp từ Clipboard / Ctrl+V)
+router.post('/upload-file', (req, res) => {
+    writeUploadLog(req, '/upload-file', 'START', 'Bắt đầu nhận request');
+    uploadLocal.single('file')(req, res, function (localErr) {
+        if (localErr) {
+            writeUploadLog(req, '/upload-file', 'ERROR', localErr.message);
+            if (localErr.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+            }
+            return res.status(400).json({ error: 'Không thể upload file: ' + localErr.message });
+        }
+        if (!req.file) {
+            writeUploadLog(req, '/upload-file', 'ERROR', 'Thiếu file tải lên');
+            return res.status(400).json({ error: 'Thiếu file tải lên' });
+        }
+        const host = req.get('host') || 'localhost:5000';
+        const protocol = req.protocol || 'http';
+        const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        writeUploadLog(req, '/upload-file', 'SUCCESS', `Đã lưu file: ${localUrl}`);
+        return res.status(200).json({
+            message: 'Upload file thành công!',
+            fileUrl: localUrl,
+            url: localUrl
+        });
+    });
+});
+
+router.post('/api/upload/image', (req, res) => {
+    writeUploadLog(req, '/api/upload/image', 'START', 'Bắt đầu nhận request');
+    uploadLocal.single('file')(req, res, function (localErr) {
+        if (localErr) {
+            writeUploadLog(req, '/api/upload/image', 'ERROR', localErr.message);
+            if (localErr.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+            }
+            return res.status(400).json({ error: 'Không thể upload ảnh: ' + localErr.message });
+        }
+        if (!req.file) {
+            writeUploadLog(req, '/api/upload/image', 'ERROR', 'Không thể upload ảnh (thiếu file)');
+            return res.status(400).json({ error: 'Không thể upload ảnh' });
+        }
+        const host = req.get('host') || 'localhost:5000';
+        const protocol = req.protocol || 'http';
+        const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        writeUploadLog(req, '/api/upload/image', 'SUCCESS', `Đã lưu file: ${localUrl}`);
+        res.status(200).json({ url: localUrl, imageUrl: localUrl, type: 'image' });
+    });
+});
+
+router.post('/api/upload/file', (req, res) => {
+    writeUploadLog(req, '/api/upload/file', 'START', 'Bắt đầu nhận request');
+    uploadLocal.single('file')(req, res, function (localErr) {
+        if (localErr) {
+            writeUploadLog(req, '/api/upload/file', 'ERROR', localErr.message);
+            if (localErr.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+            }
+            return res.status(400).json({ error: 'Không thể upload file: ' + localErr.message });
+        }
+        if (!req.file) {
+            writeUploadLog(req, '/api/upload/file', 'ERROR', 'Thiếu file tải lên');
+            return res.status(400).json({ error: 'Thiếu file tải lên' });
+        }
+        const host = req.get('host') || 'localhost:5000';
+        const protocol = req.protocol || 'http';
+        const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        let type = 'document';
+        if (req.file.mimetype && req.file.mimetype.startsWith('video/')) type = 'video';
+        else if (req.file.mimetype && req.file.mimetype.startsWith('audio/')) type = 'audio';
+        writeUploadLog(req, '/api/upload/file', 'SUCCESS', `Đã lưu file: ${localUrl}`);
+        return res.status(200).json({ url: localUrl, fileUrl: localUrl, type: type });
+    });
+});
 router.post('/api/upload/base64', (req, res) => {
     try {
         const { base64, filename, file_type } = req.body;
@@ -1114,7 +1022,7 @@ router.get('/api/freelancers', async (req, res) => {
                 full_name: f.full_name || 'Freelancer Ẩn Danh',
                 email: f.email,
                 avatar_url: f.avatar_url,
-                bio: f.bio || 'Chuyên viên lập trình và phát triển phần mềm trên sàn HT Work.',
+                bio: f.bio || 'Chuyên viên lập trình và phát triển phần mềm trên sàn KGS Work.',
                 location,
                 nickname,
                 primary_category,
@@ -1336,6 +1244,115 @@ router.post(['/reset-password', '/api/auth/reset-password'], async (req, res) =>
     } catch (err) {
         console.error('Lỗi reset-password:', err);
         return res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
+    }
+});
+
+
+// ==========================================
+// 🔴 GOOGLE LOGIN & REGISTRATION
+// ==========================================
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
+    const { credential, role } = req.body;
+    
+    try {
+        if (!credential) {
+            return res.status(400).json({ error: 'Missing Google credential' });
+        }
+
+        // Verify Google token
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const { email, name, picture } = payload;
+
+        // Check if user exists
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
+
+        if (user) {
+            // LOGIN SUCCESSFUL
+            await logEvent({
+                module: 'AUTH',
+                action: 'GOOGLE_LOGIN_SUCCESS',
+                level: 'INFO',
+                details: `Người dùng ${email} (${user.role.toUpperCase()}) đăng nhập bằng Google thành công.`,
+                user_id: user.id,
+                user_email: email,
+                user_role: user.role
+            });
+            return res.status(200).json({ success: true, user });
+        } else {
+            // USER DOES NOT EXIST -> REGISTRATION REQUIRED
+            if (!role) {
+                // Tell frontend to ask for a role
+                return res.status(200).json({ 
+                    requires_registration: true, 
+                    message: 'Vui lòng chọn vai trò để hoàn tất đăng ký.',
+                    email, 
+                    name, 
+                    picture 
+                });
+            }
+
+            // PROCEED TO REGISTER
+            // Validate role
+            if (!['freelancer', 'client'].includes(role)) {
+                return res.status(400).json({ error: 'Vai trò không hợp lệ!' });
+            }
+
+            // Create a random secure password for Google users
+            const crypto = require('crypto');
+            const randomPassword = crypto.randomBytes(16).toString('hex');
+            const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+            // Insert into Database
+            const { data: newUser, error: insertError } = await supabase
+                .from('users')
+                .insert([
+                    {
+                        full_name: name,
+                        email: email,
+                        password: hashedPassword,
+                        role: role,
+                        phone: '', 
+                        is_verified: true, // Google email is already verified
+                        avatar_url: picture,
+                        created_at: new Date().toISOString()
+                    }
+                ])
+                .select('*')
+                .single();
+
+            if (insertError) {
+                console.error('Lỗi khi insert user Google:', insertError);
+                throw new Error('Không thể tạo tài khoản từ Google!');
+            }
+
+            await logEvent({
+                module: 'AUTH',
+                action: 'GOOGLE_REGISTER_SUCCESS',
+                level: 'INFO',
+                details: `Tạo tài khoản thành công qua Google cho ${email} (${role.toUpperCase()})`,
+                user_id: newUser.id,
+                user_email: email,
+                user_role: role
+            });
+
+            // LOGIN AFTER REGISTRATION
+            return res.status(200).json({ success: true, user: newUser, message: 'Tạo tài khoản và đăng nhập thành công!' });
+        }
+
+    } catch (err) {
+        console.error('Lỗi Google Auth:', err);
+        return res.status(401).json({ error: 'Xác thực Google thất bại hoặc có lỗi xảy ra.' });
     }
 });
 

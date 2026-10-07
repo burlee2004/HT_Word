@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ Sơ Năng Lực - HT Work Freelancer</title>
+    <title>Hồ Sơ Năng Lực - KGS Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -20,6 +20,7 @@
             }
         }
     </script>
+    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
     <!-- Sidebar Placeholder -->
@@ -46,7 +47,7 @@
                 <div class="px-4 sm:px-8 pb-6 flex flex-col md:flex-row justify-between items-center md:items-end -mt-16 sm:-mt-20 relative z-10 gap-4">
                     <div class="flex flex-col sm:flex-row items-center sm:items-end text-center sm:text-left gap-4">
                         <div class="relative group">
-                            <img id="avatarContainer" src="https://ui-avatars.com/api/?name=Freelancer&background=4f46e5&color=fff" alt="Avatar" class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-700">
+                            <img id="avatarContainer" referrerpolicy="no-referrer" src="https://ui-avatars.com/api/?name=Freelancer&background=4f46e5&color=fff" alt="Avatar" class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-700">
                             <label for="avatarUpload" class="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 cursor-pointer transition">
                                 <i class="fas fa-camera text-xl"></i>
                             </label>
@@ -456,12 +457,12 @@
     </div>
 
     <!-- Load UI Framework -->
-    <script src="freelancer-ui.js"></script>
+    <script src="freelancer-ui.js?v=1791344398"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         let user = JSON.parse(localStorage.getItem('user'));
         let currentSkillTags = [];
@@ -738,35 +739,54 @@
         function renderPortfolios() {
             const grid = document.getElementById('portfolioGrid');
             if (currentPortfolios.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center text-xs text-gray-400 py-6 italic">Chưa có dự án nào trong Portfolio.</div>';
+                grid.innerHTML = '<div class="col-span-full text-center text-xs text-gray-400 py-10 italic border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center"><i class="fas fa-folder-open text-3xl mb-3 opacity-20"></i><br>Chưa có dự án nào trong Portfolio.</div>';
                 return;
             }
             grid.innerHTML = currentPortfolios.map((p, idx) => `
-                <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 bg-gray-50 dark:bg-gray-750 hover:shadow-md transition flex flex-col relative group">
-                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition flex space-x-1">
-                        <button onclick="openPortfolioModal(${idx})" class="w-7 h-7 rounded-full bg-white dark:bg-gray-800 text-indigo-500 shadow hover:bg-indigo-50 dark:hover:bg-gray-700 flex items-center justify-center transition">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col relative group cursor-pointer">
+                    <div class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
+                        <button onclick="openPortfolioModal(${idx})" class="w-8 h-8 rounded-full bg-white text-indigo-600 shadow-md hover:scale-110 flex items-center justify-center transition-transform" title="Sửa">
                             <i class="fas fa-edit text-xs"></i>
                         </button>
-                        <button onclick="deletePortfolio(${idx})" class="w-7 h-7 rounded-full bg-white dark:bg-gray-800 text-red-500 shadow hover:bg-red-50 dark:hover:bg-gray-700 flex items-center justify-center transition">
+                        <button onclick="deletePortfolio(${idx})" class="w-8 h-8 rounded-full bg-white text-rose-500 shadow-md hover:scale-110 flex items-center justify-center transition-transform" title="Xóa">
                             <i class="fas fa-trash text-xs"></i>
                         </button>
                     </div>
-                    <div class="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden flex items-center justify-center text-3xl mb-3 relative group/vid">
+                    <div class="h-40 sm:h-48 bg-slate-100 dark:bg-slate-900 overflow-hidden relative group/vid">
                         ${p.video ? `
                             <iframe class="w-full h-full object-cover" src="${p.video.includes('youtube.com') || p.video.includes('youtu.be') ? getYouTubeEmbedUrl(p.video) : p.video}" frameborder="0" allowfullscreen></iframe>
+                        ` : p.link ? `
+                            <div class="w-full h-full relative group/img overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                <img src="https://image.thum.io/get/width/600/crop/800/${p.link.startsWith('http') ? p.link : 'https://'+p.link}" 
+                                     class="w-full h-full object-cover object-top transition-transform duration-700 group-hover/img:scale-110" 
+                                     alt="Website Preview" 
+                                     onerror="this.onerror=null; this.src='https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(p.title)}'">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end justify-center pb-3">
+                                    <span class="text-white text-[10px] font-bold px-2 py-1 bg-black/40 backdrop-blur-sm rounded-lg"><i class="fas fa-camera"></i> Website Snapshot</span>
+                                </div>
+                            </div>
                         ` : `
-                            <i class="fas fa-image text-gray-400"></i>
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 relative">
+                                <img src="https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(p.title)}" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-overlay opacity-60" alt="Placeholder">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                    <i class="fas fa-magic text-2xl text-indigo-400 mb-1 drop-shadow-md"></i>
+                                    <span class="text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 drop-shadow-md">KGS Portfolio</span>
+                                </div>
+                            </div>
                         `}
                     </div>
-                    <h3 class="font-bold text-sm text-gray-800 dark:text-white line-clamp-1">${escapeHtml(p.title)}</h3>
-                    <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 flex-1">${escapeHtml(p.desc || 'Không có mô tả')}</p>
-                    ${p.link ? `
-                    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <a href="${p.link.startsWith('http') ? p.link : 'https://'+p.link}" target="_blank" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 flex items-center">
-                            <i class="fas fa-external-link-alt mr-1"></i> Xem thực tế
-                        </a>
+                    <div class="p-4 flex-1 flex flex-col">
+                        <h3 class="font-black text-base text-slate-800 dark:text-white line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">${escapeHtml(p.title)}</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 flex-1">${escapeHtml(p.desc || 'Không có mô tả')}</p>
+                        
+                        ${p.link ? `
+                        <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                            <a href="${p.link.startsWith('http') ? p.link : 'https://'+p.link}" target="_blank" class="w-full py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                                <i class="fas fa-external-link-alt"></i> Xem dự án thực tế
+                            </a>
+                        </div>
+                        ` : ''}
                     </div>
-                    ` : ''}
                 </div>
             `).join('');
         }
@@ -1120,5 +1140,16 @@
         loadBanks();
         loadProfile();
     </script>
+
+    <script>
+        // Global Drag and Drop protection
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        }, false);
+    </script>
 </body>
+
 </html>

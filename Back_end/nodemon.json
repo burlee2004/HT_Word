@@ -1,9 +1,8 @@
 {
   "ignore": [
-    "data/*",
-    "*.json",
-    "disputes.json",
-    "node_modules/*"
-  ],
-  "ext": "js,mjs,cjs"
+    "uploads/*",
+    "upload_debug.log",
+    "node_modules/*",
+    "*.log"
+  ]
 }

@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
@@ -22,6 +24,12 @@ router.get('/api/admin/stats', async (req, res) => {
         const completedJobs = jobs ? jobs.filter(j => j.status === 'completed').length : 0;
 
         // Wallets & Escrow stats
+        const { data: ledgers } = await supabase.from('wallet_ledger').select('amount, type');
+        let totalDeposits = 0;
+        if (ledgers) {
+            totalDeposits = ledgers.filter(l => l.type === 'DEPOSIT' || l.type === 'ADMIN_CREDIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
+        }
+
         const { data: wallets } = await supabase.from('wallets').select('balance, locked_balance');
         let totalBalance = 0;
         let totalLockedEscrow = 0;
@@ -50,6 +58,7 @@ router.get('/api/admin/stats', async (req, res) => {
                 completed_jobs: completedJobs,
                 total_balance: totalBalance,
                 total_escrow_locked: totalLockedEscrow,
+                total_deposits: totalDeposits,
                 pending_withdraw_count: pendingWithdrawCount,
                 pending_withdraw_amount: pendingWithdrawAmount
             }
@@ -293,4 +302,144 @@ router.get('/api/admin/projects/:id/chat-logs', async (req, res) => {
     }
 });
 
+
+// --- CHART APIs ---
+
+router.get('/api/admin/charts/cashflow', async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('wallet_ledger').select('amount, type, created_at');
+        if (error) throw error;
+        
+        let dateRange = [];
+        if (req.query.startDate && req.query.endDate) {
+            let curr = new Date(req.query.startDate);
+            let end = new Date(req.query.endDate);
+            while (curr <= end) {
+                dateRange.push(curr.toISOString().split('T')[0]);
+                curr.setDate(curr.getDate() + 1);
+            }
+        } else {
+            const days = parseInt(req.query.days || 7);
+            dateRange = [...Array(days)].map((_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                return d.toISOString().split('T')[0];
+            }).reverse();
+        }
+
+        const result = dateRange.map(date => {
+            const dayData = data.filter(r => r.created_at.startsWith(date));
+            const deposit = dayData.filter(r => r.type === 'DEPOSIT' || r.type === 'ADMIN_CREDIT').reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
+            const withdraw = dayData.filter(r => r.type === 'WITHDRAW' || r.type === 'ADMIN_DEBIT').reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
+            const escrow = dayData.filter(r => r.type === 'ESCROW_LOCK').reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
+            return { date, deposit, withdraw, escrow };
+        });
+
+        res.json({ success: true, data: result });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+router.get('/api/admin/charts/jobs', async (req, res) => {
+    try {
+        let cutoffDate = new Date();
+        let endDate = new Date();
+        if (req.query.startDate && req.query.endDate) {
+            cutoffDate = new Date(req.query.startDate);
+            endDate = new Date(req.query.endDate);
+            endDate.setHours(23, 59, 59, 999);
+        } else {
+            const days = parseInt(req.query.days || 7);
+            cutoffDate.setDate(cutoffDate.getDate() - days);
+        }
+        
+        // Fetch jobs and filter
+        const { data, error } = await supabase.from('jobs').select('status, created_at');
+        if (error) throw error;
+        
+        const filteredData = data.filter(job => {
+            const d = new Date(job.created_at);
+            return d >= cutoffDate && d <= endDate;
+        });
+        
+        const stats = {
+            'planning': 0, 'in_progress': 0, 'completed': 0, 'disputed': 0, 'cancelled': 0
+        };
+        filteredData.forEach(job => {
+            if (stats[job.status] !== undefined) stats[job.status]++;
+            else stats['planning']++;
+        });
+        
+        res.json({ success: true, data: stats });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+router.get('/api/admin/charts/users', async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('users').select('role, created_at');
+        if (error) throw error;
+        
+        let dateRange = [];
+        if (req.query.startDate && req.query.endDate) {
+            let curr = new Date(req.query.startDate);
+            let end = new Date(req.query.endDate);
+            while (curr <= end) {
+                dateRange.push(curr.toISOString().split('T')[0]);
+                curr.setDate(curr.getDate() + 1);
+            }
+        } else {
+            const days = parseInt(req.query.days || 7);
+            dateRange = [...Array(days)].map((_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                return d.toISOString().split('T')[0];
+            }).reverse();
+        }
+
+        const result = dateRange.map(date => {
+            const dayData = data.filter(r => r.created_at && r.created_at.startsWith(date));
+            const clients = dayData.filter(r => r.role === 'client').length;
+            const freelancers = dayData.filter(r => r.role === 'freelancer').length;
+            return { date, clients, freelancers };
+        });
+
+        res.json({ success: true, data: result });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// --- END CHART APIs ---
 module.exports = router;
+
+
+
+router.get('/api/admin/supabase-config', (req, res) => { res.json({ url: process.env.SUPABASE_URL, key: process.env.SUPABASE_KEY }); });
+
+// API: Đọc cấu hình Dashboard
+router.get('/api/admin/dashboard-config', (req, res) => {
+    try {
+        const configPath = path.join(__dirname, '../dashboard_config.json');
+        if (fs.existsSync(configPath)) {
+            const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            return res.json(config);
+        }
+        res.json({ widgets: [] });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// API: Lưu cấu hình Dashboard
+router.post('/api/admin/dashboard-config', (req, res) => {
+    try {
+        const configPath = path.join(__dirname, '../dashboard_config.json');
+        fs.writeFileSync(configPath, JSON.stringify(req.body, null, 4), 'utf8');
+        res.json({ message: 'Saved successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});

@@ -17,7 +17,7 @@ if (!process.env.CLOUDINARY_URL) {
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'htwork_images', // Tên thư mục trên Cloudinary
+    folder: 'kgs work_images', // Tên thư mục trên Cloudinary
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
     transformation: [{ width: 800, height: 800, crop: 'limit' }] // Tự động resize
   }

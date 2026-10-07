@@ -77,7 +77,7 @@ function generateOfflineHeuristicJob(promptText, currentCat) {
         category_id: matchedCat.id,
         category_name: matchedCat.name,
         description: `🎯 [MỤC TIÊU DỰ ÁN]
-Triển khai xây dựng sản phẩm: ${cleanTitle}. Yêu cầu chất lượng cao, chuẩn quy trình chuyên nghiệp trên nền tảng HT Work.
+Triển khai xây dựng sản phẩm: ${cleanTitle}. Yêu cầu chất lượng cao, chuẩn quy trình chuyên nghiệp trên nền tảng KGS Work.
 
 ⚙️ [YÊU CẦU CHỨC NĂNG CHÍNH]
 1. Xây dựng giao diện hiện đại, chuẩn UI/UX, hỗ trợ Responsive đầy đủ trên Mobile & Desktop.
@@ -112,7 +112,7 @@ router.post('/api/ai/suggest-job', async (req, res) => {
     const categories = getCategories();
     const catListText = categories.map(c => `- id: "${c.id}", name: "${c.name}", mô tả: "${c.description || ''}"`).join('\n');
 
-    const systemPrompt = `Bạn là Trợ lý AI Quản lý Dự án Công nghệ Cấp cao của sàn Freelance IT "HT Work".
+    const systemPrompt = `Bạn là Trợ lý AI Quản lý Dự án Công nghệ Cấp cao của sàn Freelance IT "KGS Work".
 Nhiệm vụ của bạn: Đọc mô tả hoặc yêu cầu của khách hàng (bằng văn nói hoặc văn viết) và chuẩn hóa thành một ĐẶC TẢ DỰ ÁN HOÀN CHỈNH, CHUYÊN NGHIỆP để đăng tuyển Freelancer.
 
 Danh mục dự án hợp lệ trên sàn:
@@ -276,7 +276,7 @@ router.post('/api/ai/suggest-proposal', async (req, res) => {
     const budgetVal = parseFloat(job_budget) || 300000;
     const suggestedBid = Math.round(budgetVal * 0.95); // Chào thầu hợp lý ~95% ngân sách
 
-    const systemPrompt = `Bạn là Trợ lý AI Cố vấn Đấu thầu & Soạn thảo Đề xuất chuyên nghiệp của sàn Freelance IT "HT Work".
+    const systemPrompt = `Bạn là Trợ lý AI Cố vấn Đấu thầu & Soạn thảo Đề xuất chuyên nghiệp của sàn Freelance IT "KGS Work".
 Nhiệm vụ của bạn: Giúp Freelancer tên "${flName}" soạn một BỨC THƯ ỨNG TUYỂN (COVER LETTER / PROPOSAL) CỰC KỲ CHUYÊN NGHIỆP, THUYẾT PHỤC VÀ TẬP TRUNG ĐÚNG VÀO YÊU CẦU DỰ ÁN CỦA KHÁCH HÀNG.
 
 Cấu trúc Cover Letter tiêu chuẩn:
@@ -407,7 +407,7 @@ Tôi là ${flName}, một Freelancer chuyên sâu trong lĩnh vực ${category_n
 3. Giai đoạn 3: Kiểm thử toàn diện (Function, Responsive, Performance) và bàn giao mã nguồn.
 
 🤝 Cam kết từ tôi:
-- Báo cáo tiến độ đầy đủ theo từng phân kỳ Milestones trên HT Work.
+- Báo cáo tiến độ đầy đủ theo từng phân kỳ Milestones trên KGS Work.
 - Hỗ trợ bảo hành, sửa lỗi nhanh chóng và hướng dẫn triển khai chu đáo.
 
 Rất mong có cơ hội được đồng hành và hợp tác cùng Quý Khách hàng.
@@ -427,6 +427,109 @@ ${flName}`;
                 'Cam kết chuẩn tiến độ & chất lượng',
                 'Hỗ trợ bảo hành chu đáo sau bàn giao'
             ]
+        }
+    });
+});
+
+
+// 3. API: Trợ Lý AI Lập Kế Hoạch (Milestones Breakdown) (Groq AI + Fallback)
+// 3. API: Trợ Lý AI Lập Kế Hoạch (Milestones Breakdown) (Groq AI + Fallback)
+router.post('/api/ai/suggest-milestones', async (req, res) => {
+    const { job_title, job_description, budget, custom_prompt } = req.body;
+
+    if (!job_title || !budget) {
+        return res.status(400).json({ error: 'Thiếu thông tin dự án để AI lập kế hoạch!' });
+    }
+
+    const budgetVal = parseFloat(budget);
+
+    const systemPrompt = `Bạn là Trợ lý AI Quản lý Dự án cấp cao của sàn Freelance IT "KGS Work".
+Nhiệm vụ của bạn: Chia nhỏ một dự án thành các giai đoạn (milestones) hợp lý, dựa trên mô tả và tổng ngân sách (Token) mà người dùng cung cấp. ĐẶC BIỆT chú ý đến các yêu cầu tùy chỉnh của người dùng (nếu có) như số lượng giai đoạn cụ thể.
+
+Quy tắc phân bổ ngân sách:
+- Phân bổ theo số giai đoạn người dùng yêu cầu. Nếu không yêu cầu, chia thành 3 đến 5 giai đoạn hợp lý tùy theo độ phức tạp.
+- Tổng thuộc tính "amount" của tất cả các giai đoạn PHẢI BẰNG CHÍNH XÁC TỔNG NGÂN SÁCH (budget). KHÔNG ĐƯỢC LỆCH 1 TOKEN NÀO.
+
+BẠN PHẢI TRẢ VỀ DUY NHẤT MỘT ĐỐI TƯỢNG JSON HỢP LỆ THEO CẤU TRÚC SAU:
+{
+  "milestones": [
+    {
+      "title": "Tên giai đoạn ngắn gọn",
+      "amount": 1500000,
+      "deliverables": "Kết quả bàn giao cụ thể (VD: File thiết kế Figma, Source code Github...)"
+    }
+  ],
+  "ai_message": "Lời nhắn hoặc nhận xét ngắn gọn của AI gửi tới người dùng về kế hoạch này."
+}`;
+
+    const userPrompt = `Dự án cần lập kế hoạch:
+- Tiêu đề: "${job_title}"
+- Ngân sách tổng: ${budgetVal} Token
+- Yêu cầu gốc: ${(job_description || '').substring(0, 1000)}
+- Hướng dẫn thêm từ người dùng (Quan trọng): "${custom_prompt || 'Phân bổ hợp lý nhất có thể.'}"`;
+
+    console.log(`\n🔮 [API POST /api/ai/suggest-milestones] Gọi AI lập kế hoạch - Budget: ${budgetVal}`);
+
+    const groqKey = process.env.GROQ_API_KEY ? process.env.GROQ_API_KEY.trim() : '';
+
+    if (groqKey && !groqKey.includes('YOUR_GROQ_KEY')) {
+        try {
+            const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${groqKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'qwen/qwen3.8-27b',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userPrompt }
+                    ],
+                    response_format: { type: 'json_object' },
+                    temperature: 0.2,
+                    max_tokens: 1500
+                })
+            });
+
+            if (groqRes.ok) {
+                const data = await groqRes.json();
+                const contentStr = data.choices?.[0]?.message?.content;
+                if (contentStr) {
+                    const parsed = JSON.parse(contentStr);
+                    let total = 0;
+                    if(parsed.milestones && Array.isArray(parsed.milestones)) {
+                        parsed.milestones.forEach(m => total += parseFloat(m.amount) || 0);
+                        if(total !== budgetVal && parsed.milestones.length > 0) {
+                            const diff = budgetVal - total;
+                            parsed.milestones[parsed.milestones.length - 1].amount += diff;
+                        }
+                    }
+                    return res.status(200).json({ success: true, source: 'groq', data: parsed });
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ Lỗi kết nối Groq:', e.message);
+        }
+    }
+
+    // TẦNG FALLBACK (Offline Heuristic)
+    const p1 = Math.round(budgetVal * 0.3);
+    const p2 = Math.round(budgetVal * 0.5);
+    const p3 = budgetVal - p1 - p2;
+
+    const fallbackMilestones = [
+        { title: "Giai đoạn 1: Phân tích yêu cầu & Thiết kế", amount: p1, deliverables: "Tài liệu đặc tả (SRS)" },
+        { title: "Giai đoạn 2: Lập trình tính năng cốt lõi", amount: p2, deliverables: "Bản Demo chạy được (Beta)" },
+        { title: "Giai đoạn 3: Kiểm thử, Tối ưu & Bàn giao", amount: p3, deliverables: "Source code hoàn chỉnh" }
+    ];
+
+    return res.status(200).json({
+        success: true,
+        source: 'heuristic',
+        data: { 
+            milestones: fallbackMilestones,
+            ai_message: "Do không kết nối được AI, hệ thống tự động chia thành 3 giai đoạn cơ bản. Bạn có thể tự chỉnh sửa thêm."
         }
     });
 });

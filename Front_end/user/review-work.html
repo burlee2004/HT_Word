@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - HT Work</title>
+    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -21,6 +21,7 @@
             }
         }
     </script>
+    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
     <!-- Sidebar Placeholder -->
@@ -317,7 +318,7 @@
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         let currentUser = null;
         let allJobsData = [];
@@ -359,6 +360,34 @@
         }
 
         // --- Khởi tạo và Tải dữ liệu ---
+        
+        let isPolling = false;
+        async function pollPendingActions() {
+            if (isPolling) return;
+            isPolling = true;
+            try {
+                const response = await fetch(`${API_URL}/api/clients/${currentUser.id}/pending-actions`);
+                const data = await response.json();
+                
+                if (data.jobs) {
+                    const newJobsStr = JSON.stringify(data.jobs);
+                    const oldJobsStr = JSON.stringify(allJobs);
+                    
+                    if (oldJobsStr !== newJobsStr) {
+                        allJobs = data.jobs;
+                        updateTabCounts();
+                        renderJobsList();
+                    }
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+            isPolling = false;
+        }
+
+        // Auto refresh jobs data every 3 seconds
+        setInterval(pollPendingActions, 3000);
+
         async function loadPendingActions() {
             const userStr = localStorage.getItem('user');
             if (!userStr) {
@@ -378,7 +407,7 @@
                 updateTabCounts();
                 renderFilteredJobs();
             } catch (err) {
-                console.error('[HT Work] Lỗi load pending actions:', err);
+                console.error('[KGS Work] Lỗi load pending actions:', err);
                 listDiv.innerHTML = '<div class="bg-red-50 text-red-600 p-6 rounded-2xl text-center text-sm font-bold">Không thể kết nối đến máy chủ Backend!</div>';
             }
         }
@@ -565,7 +594,7 @@
                                 </div>
                                 <div>
                                     <p class="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Dự án đã hoàn tất nghiệm thu & thanh toán!</p>
-                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên HT Work.</p>
+                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên KGS Work.</p>
                                 </div>
                             </div>
                             <button onclick="openReviewModal('${job.id}', '${job.freelancer_id || job.review?.freelancer_id || ''}', '${encodeURIComponent(freelancerName)}', '${encodeURIComponent(freelancerAvatar)}', '${encodeURIComponent(job.title)}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
@@ -584,7 +613,7 @@
                             <div class="flex items-center gap-2 mb-1.5 flex-wrap">
                                 ${statusBadge}
                                 <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-0.5 rounded-lg">
-                                    💰 ${parseInt(job.budget || 0).toLocaleString()} Token
+                                    💰 ${formatTokenHTML(parseInt(job.budget || 0))}
                                 </span>
                             </div>
                             <h2 class="text-lg md:text-xl font-extrabold text-gray-900 dark:text-gray-100 leading-snug">${job.title}</h2>
@@ -646,11 +675,15 @@
             if (m.proof_urls && m.proof_urls.length > 0) {
                 evidenceHtml = `
                     <div class="mt-2.5 flex flex-wrap gap-2">
-                        ${m.proof_urls.map((u, i) => `
-                            <a href="${u}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 transition">
-                                <i class="fas fa-external-link-alt mr-1.5"></i> Tệp Báo Cáo #${i+1}
+                        ${m.proof_urls.map((u, i) => {
+                            let linkUrl = typeof u === 'string' ? u : u.url;
+                            let linkName = typeof u === 'string' ? `Tệp Báo Cáo #${i+1}` : (u.name || `Tệp Báo Cáo #${i+1}`);
+                            return `
+                            <a href="${linkUrl}" target="_blank" title="${linkUrl}" class="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 transition truncate max-w-[200px] sm:max-w-xs">
+                                <i class="fas fa-external-link-alt mr-1.5 shrink-0"></i> <span class="truncate">${linkName}</span>
                             </a>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                 `;
             } else if (m.evidence_url) {
@@ -669,7 +702,7 @@
                 actionBtns = `
                     <div class="mt-3.5 flex flex-wrap items-center gap-2 border-t border-amber-200 dark:border-amber-800 pt-3">
                         <button onclick="approveMilestone('${m.id}', '${job.id}', '${job.freelancer_id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center">
-                            <i class="fas fa-check-circle mr-1.5"></i> Nghiệm Thu & Giải Ngân (${parseInt(m.amount).toLocaleString()} Token)
+                            <i class="fas fa-check-circle mr-1.5"></i> Nghiệm Thu & Giải Ngân (${formatTokenHTML(parseInt(m.amount))})
                         </button>
                         <button onclick="openRevisionModal('${m.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition flex items-center">
                             <i class="fas fa-edit mr-1.5"></i> Yêu Cầu Sửa Mốc Này
@@ -689,13 +722,16 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-black text-gray-700 dark:text-gray-300">
-                                ${parseInt(m.amount || 0).toLocaleString()} Token
+                                ${formatTokenHTML(parseInt(m.amount || 0))}
                             </span>
                             ${stateBadge}
                         </div>
                     </div>
 
-                    ${m.description ? `<p class="text-xs text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">${m.description}</p>` : ''}
+                    ${m.description ? `<p class="text-xs text-gray-600 dark:text-gray-400 mt-2 leading-relaxed"><strong>Mô tả:</strong> ${m.description}</p>` : ''}
+                    ${m.expected_deliverables ? `<p class="text-xs text-gray-600 dark:text-gray-400 mt-2 leading-relaxed"><strong class="text-indigo-600 dark:text-indigo-400">Kết quả bàn giao:</strong> ${m.expected_deliverables}</p>` : ''}
+                    ${m.payment_mode ? `<p class="text-xs text-gray-600 dark:text-gray-400 mt-2 leading-relaxed"><strong class="text-emerald-600 dark:text-emerald-400">Thanh toán:</strong> ${m.payment_mode === 'PAY_PER_MILESTONE' ? 'Trả ngay khi xong mốc này' : 'Gom lại trả 1 lần ở cuối dự án'}</p>` : ''}
+
                     ${evidenceHtml}
                     ${actionBtns}
                 </div>
@@ -1304,8 +1340,19 @@
     </script>
 
     <!-- Shared UI Script -->
-    <script src="ui.js"></script>
+    <script src="ui.js?v=1791344398"></script>
+
+    <script>
+        // Global Drag and Drop protection
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        }, false);
+    </script>
 </body>
+
 </html>
 
 

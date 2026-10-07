@@ -26,7 +26,7 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-dark-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-gray-900 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200">
 
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar Navigation -->
@@ -41,7 +41,7 @@
             <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 space-y-6">
                 
                 <!-- Page Title Bar -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-gray-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div>
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
@@ -66,9 +66,9 @@
 
                     <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
                         <!-- Chế độ Cài Đặt Nạp Tiền -->
-                        <div class="flex items-center gap-2 bg-slate-100 dark:bg-dark-800 p-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center gap-2 bg-slate-100 dark:bg-gray-800 p-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700">
                             <span class="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">Chế độ nạp:</span>
-                            <select id="autoApproveToggle" onchange="toggleAutoApprove()" class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg p-1.5 font-bold focus:ring-2 focus:ring-indigo-500">
+                            <select id="autoApproveToggle" onchange="toggleAutoApprove()" class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg p-1.5 font-bold focus:ring-2 focus:ring-indigo-500">
                                 <option value="true">Tự Động (Cổng PayOS)</option>
                                 <option value="false">Thủ Công (Quét VietQR)</option>
                             </select>
@@ -86,10 +86,10 @@
                 </div>
 
                 <!-- Table Card -->
-                <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm" id="depositsTable">
-                            <thead class="bg-slate-50 dark:bg-dark-800 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-bold border-b border-slate-200 dark:border-slate-800">
+                            <thead class="bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-bold border-b border-slate-200 dark:border-slate-800">
                                 <tr>
                                     <th class="py-3.5 px-4 text-center w-10">
                                         <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
@@ -121,7 +121,7 @@
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- UI Core Script -->
-    <script src="admin-ui.js"></script>
+    <script src="admin-ui.js?v=1791344398"></script>
 
     <!-- Page Logic Script -->
     <script>
@@ -234,7 +234,7 @@
                         const highlightClass = isNew ? 'bg-emerald-50/90 dark:bg-emerald-950/60 animate-pulse' : '';
 
                         return `
-                            <tr id="deposit-row-${d.id}" class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition-all duration-300 ${highlightClass}">
+                            <tr id="deposit-row-${d.id}" class="hover:bg-slate-50/80 dark:hover:bg-gray-800/50 transition-all duration-300 ${highlightClass}">
                                 <td class="py-3.5 px-4 text-center">
                                     <input type="checkbox" class="row-checkbox w-4 h-4 text-indigo-600 rounded cursor-pointer" value="${d.id}" ${isChecked} onchange="updateBatchButton()">
                                 </td>

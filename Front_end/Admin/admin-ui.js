@@ -15,18 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:5000' 
-        : 'https://htwork-backend.onrender.com';
+        : 'https://project-internship-8z76.onrender.com';
 
     // 1. Khởi tạo Desktop Sidebar & Mobile Drawer
     const sidebarHtml = 
     `<!-- Desktop Sidebar -->
     <aside class="w-64 bg-gray-900 text-white shadow-2xl h-full flex flex-col transition-colors border-r border-gray-800 hidden md:flex z-40 shrink-0">
-        <div class="p-5 border-b border-gray-800 flex items-center space-x-3">
+        <div class="p-5 border-b border-gray-800 flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="window.location.href='dashboard.html'">
             <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg overflow-hidden bg-red-600 border border-red-400 shrink-0 text-white font-black text-sm">
                 <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="Admin" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-lg text-white tracking-wide block leading-tight">HT Work ADMIN</span>
+                <span class="font-black text-lg text-white tracking-wide block leading-tight">KGS Work ADMIN</span>
                 <span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Supreme Overseer</span>
             </div>
         </div>
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fas fa-users-cog w-5 text-blue-400"></i> <span>Quản lý Người dùng</span>
             </a>
             <a href="withdrawals.html" class="nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="window.location.href='dashboard.html'">
                     <i class="fas fa-qrcode w-5 text-emerald-400"></i> <span>Rút tiền VietQR</span>
                 </div>
                 <span id="navWithdrawBadge" class="hidden bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black">0</span>
@@ -62,12 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="chat-rules.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
                 <i class="fas fa-shield-halved w-5 text-rose-400"></i> <span>Kiểm duyệt & Quy tắc Chat</span>
             </a>
-            <a href="blockchain-audit.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
+            
+                
+<a href="blockchain-audit.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
                 <i class="fas fa-shield-alt w-5 text-cyan-400"></i> <span>Kiểm toán Blockchain</span>
             </a>
-            <a href="escrow-security-test.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
-                <i class="fas fa-vial w-5 text-pink-400"></i> <span>Test Bảo Mật Escrow</span>
-            </a>
+            
         </nav>
         
         <div class="p-4 border-t border-gray-800">
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         HT
                     </div>
                     <div>
-                        <span class="font-black text-base text-white block">HT Work ADMIN</span>
+                        <span class="font-black text-base text-white block">KGS Work ADMIN</span>
                         <span class="text-[9px] font-bold text-red-400 uppercase">Supreme Overseer</span>
                     </div>
                 </div>
@@ -120,12 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="chat-rules.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
                     <i class="fas fa-shield-halved w-5 text-rose-400"></i> <span>Kiểm duyệt & Quy tắc Chat</span>
                 </a>
-                <a href="blockchain-audit.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
+                
+                
+
+                        <a href="blockchain-audit.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
                     <i class="fas fa-shield-alt w-5 text-cyan-400"></i> <span>Kiểm toán Blockchain</span>
                 </a>
-                <a href="escrow-security-test.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
-                    <i class="fas fa-vial w-5 text-pink-400"></i> <span>Test Bảo Mật Escrow</span>
-                </a>
+                
             </nav>
             
             <div class="p-4 border-t border-gray-800">
@@ -307,14 +308,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 8. Global Modern Typography & Sleek Scrollbar Style
-    if (!document.getElementById('htwork-global-style')) {
+    if (!document.getElementById('kgs work-global-style')) {
         const fontLink = document.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap';
         document.head.appendChild(fontLink);
 
         const style = document.createElement('style');
-        style.id = 'htwork-global-style';
+        style.id = 'kgs work-global-style';
         style.innerHTML = `
             * {
                 font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -329,4 +330,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadAdminAlerts();
     window.loadAdminAlerts = loadAdminAlerts;
+});
+
+
+// QUẢN LÝ CHẾ ĐỘ RÚT TIỀN TỰ ĐỘNG
+async function loadAutoWithdrawSetting() {
+    try {
+        const response = await fetch(`${API_URL}/api/admin/settings`);
+        if (response.ok) {
+            const data = await response.json();
+            const toggle = document.getElementById('autoWithdrawToggle');
+            if (toggle && data.autoApproveWithdraw !== undefined) {
+                toggle.value = data.autoApproveWithdraw.toString();
+            }
+        }
+    } catch(e) {
+        console.error('Lỗi lấy cài đặt rút tự động:', e);
+    }
+}
+
+window.toggleAutoWithdraw = async function() {
+    const toggle = document.getElementById('autoWithdrawToggle');
+    if (!toggle) return;
+    const isAuto = toggle.value === 'true';
+    
+    try {
+        const response = await fetch(`${API_URL}/api/admin/settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ autoApproveWithdraw: isAuto })
+        });
+        if (response.ok) {
+            alert(`Đã chuyển sang chế độ Rút Tiền: ${isAuto ? 'Tự Động' : 'Thủ Công'}`);
+        } else {
+            alert('Lỗi cập nhật cài đặt');
+        }
+    } catch(e) {
+        alert('Lỗi kết nối máy chủ');
+    }
+};
+
+// Gọi khi DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    loadAutoWithdrawSetting();
 });

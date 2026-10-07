@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chợ Nhân Sự IT & Săn Freelancer - HT Work</title>
+    <title>Chợ Nhân Sự IT & Săn Freelancer - KGS Work</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -34,6 +34,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; }
     </style>
+    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
     <!-- Sidebar Placeholder -->
@@ -379,11 +380,11 @@
                     </div>
                 </div>
 
-                <!-- Note / Lời nhắn phong cách Zalo -->
+                <!-- Note / Lời nhắn Phong cách HTWORK -->
                 <div>
                     <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                         <span>Lời Nhắn Gửi Kèm:</span>
-                        <span class="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">Phong cách Zalo</span>
+                        <span class="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">Phong cách HTWORK</span>
                     </label>
                     <textarea id="frNote" rows="3" class="w-full p-3 text-xs sm:text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-800 dark:text-white leading-relaxed" placeholder="Nhập lời chào gửi đến chuyên gia..."></textarea>
                     <div class="flex flex-wrap gap-1.5 mt-2">
@@ -404,12 +405,12 @@
     </div>
 
     <!-- Shared UI Script (Drawer, Header, Bottom Nav) -->
-    <script src="ui.js"></script>
+    <script src="ui.js?v=1791344398"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         let currentUser = null;
         let allFreelancers = [];
@@ -637,7 +638,7 @@
                         </div>
 
                         <!-- Bio -->
-                        <p class="text-xs text-gray-600 dark:text-gray-300 mb-3.5 line-clamp-2 leading-relaxed cursor-pointer" onclick="openProfileModal('${f.id}')">${escapeHtml(f.bio || 'Chuyên gia lập trình và phát triển phần mềm trên sàn HT Work.')}</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-300 mb-3.5 line-clamp-2 leading-relaxed cursor-pointer" onclick="openProfileModal('${f.id}')">${escapeHtml(f.bio || 'Chuyên gia lập trình và phát triển phần mềm trên sàn KGS Work.')}</p>
 
                         <!-- Skills -->
                         <div class="flex flex-wrap mb-2">
@@ -721,7 +722,7 @@
                             <div class="bg-gray-50 dark:bg-gray-700/40 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-1.5">
                                 <div class="flex justify-between items-start">
                                     <span class="font-bold text-gray-900 dark:text-white text-xs sm:text-sm">${escapeHtml(j.title)}</span>
-                                    <span class="text-indigo-600 dark:text-indigo-400 font-black text-xs">${j.budget.toLocaleString()} Token</span>
+                                    <span class="text-indigo-600 dark:text-indigo-400 font-black text-xs">${formatTokenHTML(j.budget)}</span>
                                 </div>
                                 <div class="flex items-center gap-2 text-[11px] text-gray-400">
                                     <span>Khách hàng: <strong class="text-gray-700 dark:text-gray-300">${escapeHtml(j.client.full_name)}</strong></span>
@@ -1029,7 +1030,7 @@
                     // Tự động gửi tin nhắn Đề Xuất Hợp Đồng vào khung chat 1-1
                     const jobId = data.job ? data.job.id : '';
                     const typeLabel = jobType === 'hourly' ? 'Remote Theo Giờ' : 'Dự Án Theo Mốc';
-                    const msgNotice = `💼 [ĐỀ XUẤT HỢP ĐỒNG] (Mã dự án: #${jobId})\nKhách hàng đã gửi đề xuất dự án "${title}" [${typeLabel}] với ngân sách thảo luận ${budget.toLocaleString()} Token (Thời hạn dự kiến: ~${deadlineDays} ngày).\n👉 Hai bên hãy cùng trao đổi và thống nhất giá trước khi Khách Hàng bấm [Chốt Giá & Khóa Escrow] để bắt đầu lập Kế hoạch Milestones!`;
+                    const msgNotice = `💼 [ĐỀ XUẤT HỢP ĐỒNG] (Mã dự án: #${jobId}\nKhách hàng đã gửi đề xuất dự án "${title}" [${typeLabel}] với ngân sách thảo luận ${formatTokenHTML(budget)} (Thời hạn dự kiến: ~${deadlineDays} ngày).\n👉 Hai bên hãy cùng trao đổi và thống nhất giá trước khi Khách Hàng bấm [Chốt Giá & Khóa Escrow] để bắt đầu lập Kế hoạch Milestones!`;
                     
                     try {
                         await fetch(`${API_URL}/api/messages/direct`, {
@@ -1043,7 +1044,7 @@
                         });
                     } catch (e) {}
 
-                    alert(`🎉 ĐÃ GỬI ĐỀ XUẤT HỢP ĐỒNG THÀNH CÔNG!\n\nĐề xuất dự án "${title}" (${budget.toLocaleString()} Token) đã được gửi đến Freelancer trong khung chat.\nVí của bạn CHƯA bị trừ tiền lúc này.`);
+                    alert(`🎉 ĐÃ GỬI ĐỀ XUẤT HỢP ĐỒNG THÀNH CÔNG!\n\nĐề xuất dự án "${title}" (${formatTokenHTML(budget, false)}) đã được gửi đến Freelancer trong khung chat.\nVí của bạn CHƯA bị trừ tiền lúc này.`);
                     window.location.href = `direct-chat.html?partner=${freelancerId}`;
                 } else {
                     alert('❌ Lỗi: ' + (data.error || 'Không thể giao việc'));
@@ -1072,5 +1073,16 @@
             loadFreelancers();
         });
     </script>
+
+    <script>
+        // Global Drag and Drop protection
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        }, false);
+    </script>
 </body>
+
 </html>

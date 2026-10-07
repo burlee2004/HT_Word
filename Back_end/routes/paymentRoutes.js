@@ -48,13 +48,11 @@ router.post('/api/payment/create-deposit', async (req, res) => {
         const usePayOS = method === 'payos' || (method !== 'manual' && settingsStore.getAutoApprovePayOS());
 
         if (usePayOS) {
-            let origin = 'http://127.0.0.1:5500';
+            let returnBaseUrl = 'http://127.0.0.1:8080/user/wallet.html';
             if (req.headers.referer) {
-                try {
-                    origin = new URL(req.headers.referer).origin;
-                } catch (e) {}
+                // Sử dụng chính xác URL hiện tại của người dùng (bỏ các tham số query phía sau nếu có)
+                returnBaseUrl = req.headers.referer.split('?')[0];
             }
-            const returnBaseUrl = `${origin}/Front_end/user/wallet.html`;
 
             // Tạo body cho PayOS
             const requestData = {
@@ -73,6 +71,9 @@ router.post('/api/payment/create-deposit', async (req, res) => {
                 checkoutUrl: paymentLink.checkoutUrl, 
                 orderCode: orderCode,
                 qrCode: paymentLink.qrCode,
+                bin: paymentLink.bin,
+                accountNumber: paymentLink.accountNumber,
+                accountName: paymentLink.accountName,
                 request_id: data.id
             });
         } else {
@@ -135,13 +136,22 @@ router.post('/api/payment/payos-webhook', async (req, res) => {
                 await supabase.from('wallets').insert([{ user_id: request.user_id, balance: newBalance, locked_balance: 0 }]);
             }
             
-            // 3. Ghi log transactions
+            // 3. Ghi log transactions & wallet_ledger (Lịch sử GD)
             await supabase.from('transactions').insert([{
                 user_id: request.user_id,
                 amount: amount,
                 type: 'deposit',
                 status: 'success',
                 note: 'Nạp tiền tự động qua PayOS'
+            }]);
+            
+            await supabase.from('wallet_ledger').insert([{
+                sender_id: '11111111-1111-1111-1111-111111111111',
+                receiver_id: request.user_id,
+                amount: amount,
+                type: 'DEPOSIT',
+                idempotency_key: `PAYOS_${orderCode}`,
+                note: 'Nạp Token (Tự động PayOS)'
             }]);
 
             if (blockchain.isConfigured()) {

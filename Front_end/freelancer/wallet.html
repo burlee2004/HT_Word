@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ví & Doanh Thu - HT Work Freelancer</title>
+    <title>Ví & Doanh Thu - KGS Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -33,6 +33,7 @@
             }
         }
     </style>
+    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
     <!-- Sidebar Placeholder -->
@@ -78,7 +79,7 @@
                         <span class="text-xs text-indigo-100 font-bold mt-1 inline-block">Token (Có thể dùng & rút ngay)</span>
                     </div>
                     <div class="mt-4 pt-3 border-t border-white/20 flex justify-between items-center text-[11px] text-indigo-100">
-                        <span>Quy đổi: <b id="balanceVND">~0 VNĐ</b></span>
+                        <span>Quy đổi: <b id="balanceVND">0 VNĐ</b></span>
                         <span class="bg-white/20 px-2 py-0.5 rounded-md font-bold">1 Token = 1 VNĐ</span>
                     </div>
                 </div>
@@ -244,7 +245,7 @@
                                     <span class="text-[10px] text-gray-400 font-semibold">Tối thiểu: 10,000 Token</span>
                                 </div>
                                 <div class="relative">
-                                    <input type="number" id="withdrawAmount" required min="10000" step="1000" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-base font-black text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập số Token muốn rút...">
+                                    <input type="text" inputmode="numeric" id="withdrawAmount" oninput="formatNumberInput(this)" required min="10000" step="1000" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-base font-black text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập số Token muốn rút...">
                                     <span class="absolute left-4 top-3.5 text-base">💎</span>
                                 </div>
                                 <p id="withdrawErrorMsg" class="text-red-500 text-xs mt-1.5 hidden font-bold"></p>
@@ -325,8 +326,8 @@
     <!-- KHU VỰC IN BIÊN LAI (Ẩn trên Web, chỉ hiện khi in PDF) -->
     <div id="printReceiptArea" class="hidden bg-white p-10 text-gray-800 w-full max-w-3xl mx-auto border-2 border-gray-200">
         <div class="text-center mb-8 border-b-2 border-indigo-600 pb-4">
-            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">HT WORK</h1>
-            <p class="text-gray-500 font-bold mt-1">NỀN TẢNG FREELANCE IT & ESCROW HÀNG ĐẦU VIỆT NAM</p>
+            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">KGS WORK</h1>
+            <p class="text-gray-500 font-bold mt-1">NỀN TẢNG FREELANCE IT & ESCROW VIỆT NAM</p>
         </div>
         
         <div class="text-center mb-10">
@@ -346,18 +347,18 @@
         </div>
 
         <div class="text-center text-gray-500 text-sm border-t pt-4">
-            <p>Chứng từ này được tạo tự động bởi hệ thống HT Work. Có giá trị đối soát toàn hệ thống.</p>
-            <p>Hỗ trợ: support@htwork.com | Website: https://htwork.vn</p>
+            <p>Chứng từ này được tạo tự động bởi hệ thống KGS Work. Có giá trị đối soát toàn hệ thống.</p>
+            <p>Hỗ trợ: support@kgs work.com | Website: https://kgs work.vn</p>
         </div>
     </div>
 
     <!-- Load UI Framework -->
-    <script src="freelancer-ui.js"></script>
+    <script src="freelancer-ui.js?v=1791344398"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         let currentUser = JSON.parse(localStorage.getItem('user'));
         let currentWalletBalance = 0;
@@ -386,16 +387,35 @@
         function openQrModal() { document.getElementById('qrModal').classList.remove('hidden'); }
         function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
 
+        function formatNumberInput(input) {
+            if (!input) return;
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val !== '') {
+                input.value = parseInt(val, 10).toLocaleString('vi-VN').replace(/,/g, '.');
+            } else {
+                input.value = '';
+            }
+        }
+
+        function parseFormattedNumber(val) {
+            if (!val) return 0;
+            return parseInt(val.toString().replace(/[^0-9]/g, ''), 10) || 0;
+        }
+
         function setQuickDepositAmount(amt) {
             document.getElementById('depositAmountInput').value = amt;
         }
 
         function setWithdrawAmount(amt) {
-            document.getElementById('withdrawAmount').value = amt;
+            const input = document.getElementById('withdrawAmount');
+            input.value = amt;
+            formatNumberInput(input);
         }
 
         function withdrawAll() {
-            document.getElementById('withdrawAmount').value = currentWalletBalance;
+            const input = document.getElementById('withdrawAmount');
+            input.value = currentWalletBalance;
+            formatNumberInput(input);
         }
 
         function startCountdown(initialTimeSeconds = 300) {
@@ -469,76 +489,11 @@
                 if (response.ok) {
                     isDepositSessionActive = true;
                     if (data.type === 'payos') {
-                        // LUỒNG TỰ ĐỘNG PAYOS
-                        const transferDesc = `Nap Token ${data.orderCode}`;
-                        const fallbackUrl = `https://img.vietqr.io/image/MB-0347793976-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferDesc)}&accountName=${encodeURIComponent('TRINH HUY HOANG')}`;
-                        const qrUrl = data.qrCode 
-                            ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode)}`
-                            : fallbackUrl;
-                        
-                        const qrImg = document.getElementById('qrImage');
-                        const qrModalImg = document.getElementById('qrModalImage');
-                        qrImg.onerror = () => { qrImg.src = fallbackUrl; };
-                        qrModalImg.onerror = () => { qrModalImg.src = fallbackUrl; };
-                        qrImg.src = qrUrl;
-                        qrModalImg.src = qrUrl; 
-                        
-                        document.getElementById('qrAmount').textContent = parseInt(amount).toLocaleString();
-                        document.getElementById('qrModalAmount').textContent = parseInt(amount).toLocaleString();
-                        
-                        document.getElementById('transferContentDisplay').textContent = transferDesc;
-                        document.getElementById('modalTransferContent').textContent = transferDesc;
-                        
-                        const linkDirect = document.getElementById('linkPayosDirect');
-                        if (linkDirect && data.checkoutUrl) {
-                            linkDirect.href = data.checkoutUrl;
-                            linkDirect.classList.remove('hidden');
+                        // CHUYỂN HƯỚNG TRỰC TIẾP TỚI TRANG THANH TOÁN PAYOS
+                        if (data.checkoutUrl) {
+                            window.location.href = data.checkoutUrl;
+                            return;
                         }
-
-                        const statusBtn = document.getElementById('btnCheckStatus');
-                        if (statusBtn) {
-                            statusBtn.className = "bg-indigo-600 text-white px-4 py-2.5 rounded-2xl font-bold transition w-full shadow flex justify-center items-center text-xs";
-                            statusBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang chờ chuyển khoản (Tự duyệt 100%)...';
-                        }
-
-                        document.getElementById('qrNoticeText').innerHTML = '⚡ <b>Tự động 100%:</b> Quét mã xong tiền sẽ tự động cộng ngay trong 3 giây!';
-                        document.getElementById('qrSection').classList.remove('hidden');
-                        disableDepositForm(true);
-                        startCountdown(300);
-
-                        // Auto-polling kiểm tra thanh toán
-                        const currentOrderCode = data.orderCode;
-                        payosPollingInterval = setInterval(async () => {
-                            try {
-                                const vRes = await fetch(`${API_URL}/api/payment/verify-deposit`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ orderCode: currentOrderCode })
-                                });
-                                const vData = await vRes.json();
-                                if (vData.success) {
-                                    clearInterval(payosPollingInterval);
-                                    if (countdownInterval) clearInterval(countdownInterval);
-                                    isDepositSessionActive = false;
-                                    if (statusBtn) {
-                                        statusBtn.className = "bg-emerald-600 text-white px-4 py-2.5 rounded-2xl font-bold transition w-full shadow flex justify-center items-center text-xs";
-                                        statusBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Nạp Thành Công! Đã cộng tiền vào ví.';
-                                    }
-
-                                    alert(`🎉 Chúc mừng! Bạn vừa nạp thành công ${parseInt(amount).toLocaleString()} Token vào ví!`);
-                                    loadWalletData();
-                                    if (window.loadGlobalBalance) window.loadGlobalBalance();
-
-                                    setTimeout(() => {
-                                        document.getElementById('qrSection').classList.add('hidden');
-                                        disableDepositForm(false);
-                                    }, 2500);
-                                }
-                            } catch (err) {
-                                console.warn('Lỗi polling payos verify:', err);
-                            }
-                        }, 2500);
-
                     } else if (data.type === 'manual') {
                         // LUỒNG THỦ CÔNG
                         const bankId = 'MB';
@@ -690,9 +645,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     currentWalletBalance = data.balance || 0;
-                    document.getElementById('balance').textContent = parseInt(data.balance).toLocaleString();
-                    document.getElementById('balanceVND').textContent = `~${parseInt(data.balance).toLocaleString()} VNĐ`;
-                    document.getElementById('locked_balance').textContent = parseInt(data.locked_balance || 0).toLocaleString();
+                    document.getElementById('balance').innerHTML = formatTokenHTML(data.balance);
+                    document.getElementById('balanceVND').textContent = `${parseInt(data.balance).toLocaleString()} VNĐ`;
+                    document.getElementById('locked_balance').innerHTML = formatTokenHTML(data.locked_balance || 0);
                 }
             } catch (e) {
                 console.error('Lỗi tải ví:', e);
@@ -746,14 +701,15 @@
                             <div class="p-3.5 bg-amber-50/60 dark:bg-gray-750 rounded-2xl border border-amber-200 dark:border-gray-700 flex justify-between items-center">
                                 <div>
                                     <div class="flex items-center space-x-2">
-                                        <span class="font-black text-sm text-emerald-600 dark:text-emerald-400">💎 ${parseInt(r.amount).toLocaleString()} Token</span>
+                                        <span class="font-black text-sm text-emerald-600 dark:text-emerald-400">💎 ${formatTokenHTML(parseInt(r.amount))}</span>
                                         <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md">Đang chờ Admin duyệt</span>
                                     </div>
                                     <span class="text-[10px] text-gray-400 mt-1 block">${new Date(r.created_at).toLocaleString('vi-VN')}</span>
                                 </div>
-                                <button onclick="cancelWithdrawal('${r.id}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl text-xs transition cursor-pointer">
-                                    <i class="fas fa-times mr-1"></i> Hủy lệnh
-                                </button>
+                                <div class="flex items-center space-x-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-100/80 dark:bg-amber-950/60 px-3 py-1.5 rounded-xl border border-amber-200 dark:border-amber-800/60">
+                                    <i class="fas fa-hourglass-half text-[11px]"></i>
+                                    <span>Đang xử lý</span>
+                                </div>
                             </div>
                         `).join('');
                     }
@@ -793,7 +749,7 @@
                                         <span class="text-[10px] text-gray-400">${dateStr}</span>
                                     </div>
                                     <div class="text-right">
-                                        <span class="font-black text-sm ${amountColor} block">${amountSign}${parseInt(tx.amount).toLocaleString()}</span>
+                                        <span class="font-black text-sm ${amountColor} block">${amountSign}${formatTokenHTML(tx.amount)}</span>
                                         <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${tx.note || ''}')" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline cursor-pointer">
                                             Xuất PDF
                                         </button>
@@ -838,11 +794,17 @@
         // Submit Withdraw
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            const amount = parseFormattedNumber(document.getElementById('withdrawAmount').value);
             const errorMsg = document.getElementById('withdrawErrorMsg');
             const btn = document.getElementById('btnSubmitWithdraw');
             
             errorMsg.classList.add('hidden');
+
+            if (!amount || amount < 10000) {
+                errorMsg.textContent = 'Số lượng Token rút tối thiểu là 10,000 Token.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
 
             if (amount > currentWalletBalance) {
                 errorMsg.textContent = 'Số dư khả dụng không đủ để rút số Token này.';
@@ -882,12 +844,23 @@
             document.getElementById('pr_date').innerText = date;
             document.getElementById('pr_name').innerText = currentUser.full_name || currentUser.email;
             document.getElementById('pr_type').innerText = type;
-            document.getElementById('pr_amount').innerText = parseInt(amount).toLocaleString() + ' Token (VNĐ)';
-            document.getElementById('pr_note').innerText = note || 'Thanh toán HT Work';
+            document.getElementById('pr_amount').innerHTML = formatTokenHTML(parseInt(amount)) + ' Token (VNĐ)';
+            document.getElementById('pr_note').innerText = note || 'Thanh toán KGS Work';
             window.print();
         }
 
         loadWalletData();
     </script>
+
+    <script>
+        // Global Drag and Drop protection
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        }, false);
+    </script>
 </body>
+
 </html>

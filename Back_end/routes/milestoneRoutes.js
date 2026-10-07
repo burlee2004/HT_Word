@@ -9,6 +9,16 @@ router.post('/api/milestones/create-plan', async (req, res) => {
     const { job_id, milestones } = req.body; 
     // milestones là mảng: [{ title, description, expected_deliverables, amount, payment_mode }]
     try {
+        const { data: job, error: jobErr } = await supabase.from('jobs').select('status').eq('id', job_id).single();
+        if (jobErr) throw jobErr;
+        
+        if (job.status !== 'planning' && job.status !== 'pending_plan_approval') {
+            return res.status(400).json({ error: 'Không thể tạo hoặc sửa kế hoạch cho dự án đã được bắt đầu!' });
+        }
+
+        // XÓA TẤT CẢ milestones cũ đang PENDING của job này (nếu có) để tránh lặp lại dữ liệu khi sửa/submit nhiều lần
+        await supabase.from('milestones').delete().match({ job_id: job_id, status: 'PENDING' });
+
         // Gắn job_id và status mặc định vào từng milestone
         const inserts = milestones.map(m => ({
             ...m,
@@ -196,11 +206,8 @@ router.post('/api/escrow/release', async (req, res) => {
 
         // Đồng bộ lên Blockchain (Chuyển tiền thực tế trên Sổ cái)
         if (blockchain.isConfigured()) {
-            try {
-                await blockchain.transferBalance(client_id, freelancer_id, amount);
-            } catch (err) {
-                console.error('Lỗi khi gọi smart contract transfer:', err);
-            }
+            blockchain.transferBalance(client_id, freelancer_id, amount)
+                .catch(err => console.error('Lỗi khi gọi smart contract transfer:', err));
         }
 
         // Cập nhật milestone thành approved
@@ -369,7 +376,10 @@ router.post('/api/milestones/advanced/approve', async (req, res) => {
 
         // ĐỒNG BỘ LÊN BLOCKCHAIN (WEB2.5)
         if (blockchain.isConfigured()) {
-            await blockchain.transferBalance(client_id, freelancer_id, mData.amount);
+            // Chạy bất đồng bộ (không await) để phản hồi API ngay lập tức cho Client (Realtime UI)
+            blockchain.transferBalance(client_id, freelancer_id, mData.amount)
+                .then(() => console.log(`[Blockchain] Đã đồng bộ giải ngân thành công`))
+                .catch(err => console.error(`[Blockchain] Lỗi đồng bộ giải ngân:`, err));
         }
 
         // Gửi thông báo cho Freelancer sau khi giải ngân thành công

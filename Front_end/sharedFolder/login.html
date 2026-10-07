@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - HT Work</title>
+    <title>Đăng nhập - KGS Work</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -27,6 +27,8 @@
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
     </style>
+    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="bg-slate-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col justify-between transition-colors duration-200">
 
@@ -37,7 +39,7 @@
                 <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-xl text-gray-900 dark:text-white tracking-tight">HT Work</span>
+                <span class="font-black text-xl text-gray-900 dark:text-white tracking-tight">KGS Work</span>
                 <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 block -mt-1 tracking-wider uppercase">Sàn IT & Freelancer Hub</span>
             </div>
         </a>
@@ -65,7 +67,7 @@
                         <i class="fas fa-lock-open"></i>
                     </div>
                     <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                        Đăng nhập HT Work
+                        Đăng nhập KGS Work
                     </h1>
                     <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Chào mừng bạn quay trở lại! Vui lòng nhập thông tin đăng nhập.
@@ -115,10 +117,35 @@
                         </button>
                     </div>
                 </form>
+                <div class="mt-5 flex items-center justify-center space-x-2">
+                    <div class="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
+                    <span class="text-xs text-gray-500 font-semibold px-2 uppercase">Hoặc đăng nhập bằng</span>
+                    <div class="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
+                </div>
+
+                <div class="mt-4 flex justify-center w-full">
+                    <div id="g_id_onload"
+                        data-client_id="761267588437-mruiob3ob59sb2k34pim306d09vquj8s.apps.googleusercontent.com"
+                        data-context="signin"
+                        data-ux_mode="popup"
+                        data-callback="handleGoogleLogin"
+                        data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                        data-type="standard"
+                        data-shape="rectangular"
+                        data-theme="outline"
+                        data-text="signin_with"
+                        data-size="large"
+                        
+                        data-logo_alignment="center">
+                    </div>
+                </div>
+
 
                 <div class="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800 text-center">
                     <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                        Chưa có tài khoản HT Work? 
+                        Chưa có tài khoản KGS Work? 
                         <a href="register.html" class="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Đăng ký tài khoản</a>
                     </p>
                 </div>
@@ -128,13 +155,13 @@
 
     <!-- Footer -->
     <footer class="w-full py-4 text-center text-xs text-gray-400 border-t border-gray-200/60 dark:border-gray-800/60 bg-white/40 dark:bg-gray-900/40">
-        <p>© 2026 HT Work Platform. Nền tảng kết nối nhân sự IT & Freelancer hàng đầu.</p>
+        <p>© 2026 KGS Work Platform. Nền tảng kết nối nhân sự IT & Freelancer hàng đầu.</p>
     </footer>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         // 1. Dark Mode Logic
         const themeToggle = document.getElementById('themeToggle');
@@ -230,5 +257,114 @@
             }
         });
     </script>
+
+    <script>
+        // Global Drag and Drop protection
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        }, false);
+    </script>
+
+    <!-- Google Role Selection Modal -->
+    <div id="googleRoleModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-user-tag text-3xl text-indigo-600 dark:text-indigo-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Chọn Vai Trò Của Bạn</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Tuyệt vời, bạn đã xác thực thành công bằng Google! Hãy cho chúng tôi biết bạn muốn tham gia KGS Work với vai trò gì?</p>
+                </div>
+                
+                <div class="space-y-3">
+                    <button onclick="submitGoogleRole('client')" class="w-full flex items-center p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-600 dark:border-gray-700 dark:hover:border-indigo-500 transition group bg-white dark:bg-gray-800">
+                        <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/40 rounded-full flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/60 mr-4 transition">
+                            <i class="fas fa-briefcase text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <div class="text-left flex-1">
+                            <h4 class="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">Tôi là Khách hàng</h4>
+                            <p class="text-xs text-gray-500">Tôi muốn đăng dự án và thuê người làm.</p>
+                        </div>
+                    </button>
+
+                    <button onclick="submitGoogleRole('freelancer')" class="w-full flex items-center p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-600 dark:border-gray-700 dark:hover:border-indigo-500 transition group bg-white dark:bg-gray-800">
+                        <div class="w-12 h-12 bg-green-50 dark:bg-green-900/40 rounded-full flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/60 mr-4 transition">
+                            <i class="fas fa-laptop-code text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <div class="text-left flex-1">
+                            <h4 class="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">Tôi là Freelancer</h4>
+                            <p class="text-xs text-gray-500">Tôi muốn tìm việc và nhận dự án.</p>
+                        </div>
+                    </button>
+                </div>
+                
+                <p id="googleRoleError" class="text-red-500 text-sm text-center mt-4 hidden"></p>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+        let pendingGoogleCredential = null;
+
+        window.handleGoogleLogin = async function(response) {
+            const credential = response.credential;
+            
+            try {
+                const res = await fetch(`${API_URL}/google-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    const role = data.user.role;
+                    if (role === 'admin') window.location.href = '../Admin/home.html';
+                    else if (role === 'freelancer') window.location.href = '../freelancer/home.html';
+                    else window.location.href = '../user/home.html';
+                } else if (data.requires_registration) {
+                    pendingGoogleCredential = credential;
+                    document.getElementById('googleRoleModal').classList.remove('hidden');
+                } else {
+                    alert(data.error || 'Lỗi đăng nhập Google');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Chưa thể kết nối tới máy chủ, vui lòng đợi thêm chút nữa và thử lại!');
+            }
+        }
+
+        window.submitGoogleRole = async function(role) {
+            try {
+                const res = await fetch(`${API_URL}/google-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: pendingGoogleCredential, role })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    if (role === 'freelancer') window.location.href = '../freelancer/home.html';
+                    else window.location.href = '../user/home.html';
+                } else {
+                    alert(data.error || 'Có lỗi xảy ra khi tạo tài khoản.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Lỗi kết nối máy chủ.');
+            }
+        }
+</script>
+
 </body>
-</html>
+
+</html>

@@ -12,7 +12,7 @@ router.post('/api/jobs', async (req, res) => {
     try {
         // KIỂM TRA SỐ DƯ VÍ TRƯỚC KHI CHO ĐĂNG DỰ ÁN
         const { data: wallet, error: walletErr } = await supabase.from('wallets').select('balance').eq('user_id', client_id).single();
-        if (walletErr || !wallet) throw new Error('Không tìm thấy ví của bạn.');
+        if (walletErr || !wallet) { const { data: newW } = await supabase.from('wallets').insert([{ user_id: client_id, balance: 0, locked_balance: 0 }]).select().single(); wallet = newW || { balance: 0 }; }
         if (wallet.balance < budget) throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${budget} Token, nhưng ví bạn chỉ có ${wallet.balance} Token. Vui lòng nạp thêm.`);
 
         // Đóng gói Danh mục & Tags vào nội dung mô tả một cách chuyên nghiệp
@@ -891,7 +891,7 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
 
         let rawSkills = [];
         let location = 'Việt Nam';
-        let bio = 'Chuyên gia uy tín trên sàn HT Work.';
+        let bio = 'Chuyên gia uy tín trên sàn KGS Work.';
         let portfolios = [];
         
         if (user.skills) {
@@ -910,7 +910,7 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
         }
         
         if (!user.bio && rawSkills.length > 0) {
-            bio = `Chuyên gia ${rawSkills.slice(0, 3).join(', ')} với ${completedJobs.length} dự án đã hoàn thành trên sàn HT Work.`;
+            bio = `Chuyên gia ${rawSkills.slice(0, 3).join(', ')} với ${completedJobs.length} dự án đã hoàn thành trên sàn KGS Work.`;
         } else if (user.bio) {
             bio = user.bio;
         }

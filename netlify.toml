@@ -1,0 +1,31 @@
+[build]
+  publish = "Front_end"
+
+# 1. Chuyen huong ten mien goc vao thang trang dang nhap
+[[redirects]]
+  from = "/"
+  to = "/sharedFolder/login.html"
+  status = 301
+  force = true
+
+# 2. Ho tro cac duong dan dang nhap rut gon
+[[redirects]]
+  from = "/login"
+  to = "/sharedFolder/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/login.html"
+  to = "/sharedFolder/login.html"
+  status = 200
+
+# 3. Ho tro duong dan dang ky
+[[redirects]]
+  from = "/register"
+  to = "/sharedFolder/register.html"
+  status = 200
+
+[[redirects]]
+  from = "/register.html"
+  to = "/sharedFolder/register.html"
+  status = 200

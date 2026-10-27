@@ -1,7 +1,7 @@
 """
 Module: export_report_pdf.py
 Dự án: Phát triển Tool tự động trích xuất dữ liệu từ PDF sang Excel
-Tác giả: HoangfreeLancer (KGS Work Platform)
+Tác giả: HoangfreeLancer (HT Work Platform)
 Mô tả: Tự động phân tích các bảng và văn bản trong hóa đơn/báo cáo PDF, 
        chuyển đổi và xuất sang định dạng Excel (.xlsx) với định dạng chuẩn hóa.
 """
@@ -70,7 +70,7 @@ def export_to_excel(dataframes, output_excel_path):
         return False
 
 def main():
-    print("=== TOOL TỰ ĐỘNG TRÍCH XUẤT DỮ LIỆU PDF SANG EXCEL - KGS WORK ===")
+    print("=== TOOL TỰ ĐỘNG TRÍCH XUẤT DỮ LIỆU PDF SANG EXCEL - HT WORK ===")
     pdf_input = sys.argv[1] if len(sys.argv) > 1 else "sample_report.pdf"
     excel_output = sys.argv[2] if len(sys.argv) > 2 else "report_extracted_output.xlsx"
     

@@ -1,5 +1,5 @@
 -- =================================================================================
--- KGS Work - Nâng Cấp Schema (Quản lý Milestone Nâng Cao & ACID Transaction)
+-- HT Work - Nâng Cấp Schema (Quản lý Milestone Nâng Cao & ACID Transaction)
 -- Chạy đoạn mã này trong mục "SQL Editor" của Supabase.
 -- =================================================================================
 

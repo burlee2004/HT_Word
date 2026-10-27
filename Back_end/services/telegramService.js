@@ -170,7 +170,7 @@ async function handleTelegramUpdate(update) {
         if (!session) {
             await sendTelegramMessage(chatId, 
                 `⚠️ *Mã xác thực không hợp lệ hoặc đã hết hạn.*\n\n` +
-                `Vui lòng quay lại website [KGS Work](https://trinhhuyhoang.id.vn) và bấm *"Gửi mã OTP"* để nhận liên kết mới nhé!`
+                `Vui lòng quay lại website [HT Work](https://trinhhuyhoang.id.vn) và bấm *"Gửi mã OTP"* để nhận liên kết mới nhé!`
             );
             return;
         }
@@ -179,7 +179,7 @@ async function handleTelegramUpdate(update) {
             telegramOtpSessions.delete(token);
             await sendTelegramMessage(chatId, 
                 `⏱️ *Mã OTP đã hết hiệu lực (quá 5 phút).*\n\n` +
-                `Vui lòng bấm *"Gửi lại mã OTP"* trên trang Hồ sơ website KGS Work để nhận mã mới.`
+                `Vui lòng bấm *"Gửi lại mã OTP"* trên trang Hồ sơ website HT Work để nhận mã mới.`
             );
             return;
         }
@@ -187,14 +187,14 @@ async function handleTelegramUpdate(update) {
         // Gửi ngay mã OTP 6 số cho người dùng
         session.sent = true;
         const otpText = 
-            `🔒 *[KGS WORK - MÃ XÁC THỰC SỐ ĐIỆN THOẠI]*\n\n` +
+            `🔒 *[HT WORK - MÃ XÁC THỰC SỐ ĐIỆN THOẠI]*\n\n` +
             `Xin chào *${senderName || 'bạn'}*!\n` +
-            `Mã OTP xác thực số điện thoại *${session.phone}* của bạn trên hệ thống KGS Work là:\n\n` +
+            `Mã OTP xác thực số điện thoại *${session.phone}* của bạn trên hệ thống HT Work là:\n\n` +
             `👉 \`${session.otpCode}\` 👈\n\n` +
             `*(Chạm vào số ở trên để tự động sao chép)*\n\n` +
             `⏱️ Mã có hiệu lực trong vòng *5 phút*.\n` +
             `⚠️ Tuyệt đối không chia sẻ mã này cho bất kỳ ai để bảo mật tài khoản!\n\n` +
-            `_🌐 KGS Work - Nền tảng Freelancer IT Việt Nam_`;
+            `_🌐 HT Work - Nền tảng Freelancer IT Việt Nam_`;
 
         await sendTelegramMessage(chatId, otpText);
 
@@ -215,15 +215,15 @@ async function handleTelegramUpdate(update) {
     if (text === '/start' || text.toLowerCase() === 'start') {
         const welcomeText = 
             `👋 Xin chào *${senderName}*!\n\n` +
-            `Chào mừng bạn đến với *KGS Work OTP Bot* 🤖\n\n` +
+            `Chào mừng bạn đến với *HT Work OTP Bot* 🤖\n\n` +
             `Đây là hệ thống cấp mã OTP xác thực số điện thoại tức thì và hoàn toàn miễn phí cho nền tảng:\n` +
-            `🌐 *KGS Work - Freelancer IT Platform*\n` +
+            `🌐 *HT Work - Freelancer IT Platform*\n` +
             `🔗 https://trinhhuyhoang.id.vn\n\n` +
             `👉 *Cách nhận mã OTP xác thực SĐT:*\n` +
-            `1. Vào trang Hồ sơ của bạn trên website KGS Work.\n` +
+            `1. Vào trang Hồ sơ của bạn trên website HT Work.\n` +
             `2. Nhập số điện thoại và bấm nút *"Gửi mã OTP"*.\n` +
             `3. Bấm vào liên kết mở Telegram, bot sẽ tự động gửi mã 6 số về đây ngay lập tức!\n\n` +
-            `Chúc bạn có trải nghiệm tuyệt vời cùng KGS Work! ✨`;
+            `Chúc bạn có trải nghiệm tuyệt vời cùng HT Work! ✨`;
 
         await sendTelegramMessage(chatId, welcomeText);
         return;
@@ -231,7 +231,7 @@ async function handleTelegramUpdate(update) {
 
     // 3. Tin nhắn khác / Help
     const helpText = 
-        `💡 *HƯỚNG DẪN XÁC THỰC SỐ ĐIỆN THOẠI KGS WORK*\n\n` +
+        `💡 *HƯỚNG DẪN XÁC THỰC SỐ ĐIỆN THOẠI HT WORK*\n\n` +
         `Để nhận mã OTP cho tài khoản của bạn, vui lòng truy cập website và bấm nút *"Xác thực số điện thoại"*, sau đó chọn nhận mã qua Telegram.\n\n` +
         `🌐 Website: https://trinhhuyhoang.id.vn`;
 

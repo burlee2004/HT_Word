@@ -164,7 +164,7 @@ router.put('/api/admin/support/tickets/:id', async (req, res) => {
         if (admin_reply !== undefined) {
             updateFields.admin_reply = admin_reply;
             updateFields.admin_replied_at = new Date().toISOString();
-            updateFields.admin_name = admin_name || 'Quản Trị Viên KGS Work';
+            updateFields.admin_name = admin_name || 'Quản Trị Viên HT Work';
         }
 
         const updated = supportStore.updateTicket(id, updateFields);

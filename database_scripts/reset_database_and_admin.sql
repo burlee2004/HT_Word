@@ -20,14 +20,14 @@ TRUNCATE TABLE
 RESTART IDENTITY CASCADE;
 
 -- 2. Tạo tài khoản Admin mới
--- Email: admin@kgs work.com
+-- Email: admin@htwork.com
 -- Mật khẩu: admin123 (Mã băm bcrypt chuẩn của hệ thống)
 INSERT INTO users (id, email, password, full_name, role, is_email_verified, kyc_status)
 VALUES (
     '11111111-1111-1111-1111-111111111111', 
-    'admin@kgs work.com', 
+    'admin@htwork.com', 
     '$2b$10$QlS.v61DN6e6tSQjWt1WveVPvHy9aGFQPazPYSU4qpnsCwyvmn.pa', 
-    'Quản Trị Viên KGS Work', 
+    'Quản Trị Viên HT Work', 
     'admin',
     true,
     'verified'
@@ -42,7 +42,7 @@ CREATE OR REPLACE FUNCTION prevent_admin_deletion()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Nếu cố tình xóa user có role là 'admin' hoặc email là admin, sẽ bị chặn lại ngay lập tức
-    IF OLD.role = 'admin' OR OLD.email = 'admin@kgs work.com' THEN
+    IF OLD.role = 'admin' OR OLD.email = 'admin@htwork.com' THEN
         RAISE EXCEPTION 'BẢO MẬT: Không được phép xóa tài khoản Admin hệ thống!';
     END IF;
     RETURN OLD;

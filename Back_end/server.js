@@ -27,7 +27,7 @@ app.get('/uploads/:filename', (req, res) => {
 
 // 2. Route kiểm tra trạng thái Server
 app.get('/', (req, res) => {
-    res.send('KGS Work Backend is running in Modular Architecture!');
+    res.send('HT Work Backend is running in Modular Architecture!');
 });
 
 // 3. Đăng ký (Mount) các Route Module theo từng cụm chức năng

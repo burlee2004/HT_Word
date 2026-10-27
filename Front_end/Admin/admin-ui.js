@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="Admin" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-lg text-white tracking-wide block leading-tight">KGS Work ADMIN</span>
+                <span class="font-black text-lg text-white tracking-wide block leading-tight">HT Work ADMIN</span>
                 <span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Supreme Overseer</span>
             </div>
         </div>
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         HT
                     </div>
                     <div>
-                        <span class="font-black text-base text-white block">KGS Work ADMIN</span>
+                        <span class="font-black text-base text-white block">HT Work ADMIN</span>
                         <span class="text-[9px] font-bold text-red-400 uppercase">Supreme Overseer</span>
                     </div>
                 </div>
@@ -323,14 +323,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 8. Global Modern Typography & Sleek Scrollbar Style
-    if (!document.getElementById('kgs work-global-style')) {
+    if (!document.getElementById('htwork-global-style')) {
         const fontLink = document.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap';
         document.head.appendChild(fontLink);
 
         const style = document.createElement('style');
-        style.id = 'kgs work-global-style';
+        style.id = 'htwork-global-style';
         style.innerHTML = `
             * {
                 font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -397,7 +397,7 @@ function sendAdminHeartbeat() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 admin_id: adminUser.id || '11111111-1111-1111-1111-111111111111', 
-                admin_name: adminUser.full_name || 'Quản Trị Viên KGS Work' 
+                admin_name: adminUser.full_name || 'Quản Trị Viên HT Work' 
             })
         }).catch(() => {});
     } catch(e) {}

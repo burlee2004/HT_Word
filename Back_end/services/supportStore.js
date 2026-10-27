@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
-const CACHE_DIR = path.join(__dirname, '..', 'node_modules', '.cache', 'kgs work_data');
+const CACHE_DIR = path.join(__dirname, '..', 'node_modules', '.cache', 'htwork_data');
 const TICKETS_FILE = path.join(DATA_DIR, 'support_tickets.json');
 const CACHE_TICKETS_FILE = path.join(CACHE_DIR, 'support_tickets.json');
 
@@ -133,14 +133,14 @@ function getCategoryLabel(catKey) {
 // ==========================================
 let lastAdminHeartbeat = {
     admin_id: '11111111-1111-1111-1111-111111111111',
-    admin_name: 'Quản Trị Viên KGS Work',
+    admin_name: 'Quản Trị Viên HT Work',
     timestamp: 0 // epoch ms
 };
 
 function recordAdminHeartbeat(adminInfo = {}) {
     lastAdminHeartbeat = {
         admin_id: adminInfo.admin_id || '11111111-1111-1111-1111-111111111111',
-        admin_name: adminInfo.admin_name || 'Quản Trị Viên KGS Work',
+        admin_name: adminInfo.admin_name || 'Quản Trị Viên HT Work',
         timestamp: Date.now()
     };
     return lastAdminHeartbeat;

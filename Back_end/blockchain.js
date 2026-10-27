@@ -14,7 +14,7 @@ if (PRIVATE_KEY) {
 // Địa chỉ Smart Contract
 const CONTRACT_ADDRESS = process.env.BLOCKCHAIN_CONTRACT_ADDRESS;
 
-// ABI của KGS WorkLedger Smart Contract
+// ABI của HT WorkLedger Smart Contract
 const ABI = [
     "function addBalance(string memory userId, uint256 amount) public",
     "function deductBalance(string memory userId, uint256 amount) public",

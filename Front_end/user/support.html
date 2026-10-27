@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trung Tâm Hỗ Trợ - KGS Work Khách Hàng</title>
+    <title>Trung Tâm Hỗ Trợ - HT Work Khách Hàng</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -636,7 +636,7 @@
 
             const replyBox = document.getElementById('mAdminReplyBox');
             if (t.admin_reply) {
-                document.getElementById('mAdminName').innerText = t.admin_name || 'Phản Hồi Từ Ban Quản Trị KGS Work';
+                document.getElementById('mAdminName').innerText = t.admin_name || 'Phản Hồi Từ Ban Quản Trị HT Work';
                 document.getElementById('mAdminRepliedAt').innerText = t.admin_replied_at ? new Date(t.admin_replied_at).toLocaleString('vi-VN') : '';
                 document.getElementById('mAdminReplyContent').innerText = t.admin_reply;
                 replyBox.classList.remove('hidden');

@@ -1,5 +1,5 @@
 -- =================================================================================
--- KGS Work - Database Schema (Phase 1 MVP)
+-- HT Work - Database Schema (Phase 1 MVP)
 -- Chạy đoạn mã này trong mục "SQL Editor" của Supabase.
 -- =================================================================================
 

@@ -10,7 +10,7 @@
       "description": "Ngăn chặn lôi kéo giao dịch ra ngoài sàn qua Zalo, Facebook, Telegram, WhatsApp...",
       "severity": "CRITICAL",
       "action": "BLOCK",
-      "warning_message": "Vui lòng chỉ trao đổi và giao dịch trên nền tảng KGS Work để được bảo vệ quyền lợi và bảo hiểm Escrow!",
+      "warning_message": "Vui lòng chỉ trao đổi và giao dịch trên nền tảng HT Work để được bảo vệ quyền lợi và bảo hiểm Escrow!",
       "keywords": [
         "loz",
         "lozz",
@@ -328,8 +328,8 @@
     }
   },
   "whitelist": [
-    "kgs work",
-    "kgs work",
+    "ht work",
+    "ht work",
     "escrow",
     "token",
     "milestone",

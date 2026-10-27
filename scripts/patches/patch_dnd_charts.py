@@ -6,7 +6,7 @@ builder_html = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KGS Work Admin - Quản Lý Biểu Đồ (Charts Builder)</title>
+    <title>HT Work Admin - Quản Lý Biểu Đồ (Charts Builder)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

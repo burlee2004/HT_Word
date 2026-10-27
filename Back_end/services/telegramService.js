@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const { logEvent } = require('./auditLogger');
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8963688224:AAH0UHy82q_Rynxr9bvsSRG-y4F4EtyvDk4';
-const TELEGRAM_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'kgswork_hoang_otp_bot';
+const TELEGRAM_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'htwork_hoang_otp_bot';
 
 /**
  * Lưu trữ phiên OTP Telegram trong Memory

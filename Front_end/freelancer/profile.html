@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ Sơ Năng Lực - HT Work Freelancer</title>
+    <title>Hồ Sơ Năng Lực - KGS Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -36,53 +36,65 @@
             <!-- Cover & Avatar Banner -->
             <div class="bg-white dark:bg-gray-800 shadow-sm rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 relative">
                 <!-- Cover Photo -->
-                <div id="coverContainer" class="h-44 sm:h-64 md:h-72 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 w-full bg-cover bg-center relative">
-                    <button onclick="document.getElementById('coverUpload').click()" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/50 hover:bg-black/70 text-white text-xs font-bold px-3 py-1.5 rounded-xl backdrop-blur-sm transition flex items-center shadow">
+                <div id="coverContainer" class="h-48 sm:h-60 md:h-64 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 w-full bg-cover bg-center relative">
+                    <!-- Gradient nhẹ làm dịu phần đáy ảnh bìa -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
+                    <button onclick="document.getElementById('coverUpload').click()" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-xl backdrop-blur-md transition flex items-center shadow-lg border border-white/20">
                         <i class="fas fa-camera mr-1.5"></i> Đổi ảnh bìa
                     </button>
-                    <input type="file" id="coverUpload" class="hidden" accept="image/*">
+                    <input type="file" id="coverUpload" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp, image/gif, image/svg+xml">
                 </div>
                 
                 <!-- Profile Header Details -->
-                <div class="px-4 sm:px-8 pb-6 flex flex-col md:flex-row justify-between items-center md:items-end -mt-16 sm:-mt-20 relative z-10 gap-4">
-                    <div class="flex flex-col sm:flex-row items-center sm:items-end text-center sm:text-left gap-4">
-                        <div class="relative group">
-                            <img id="avatarContainer" referrerpolicy="no-referrer" src="https://ui-avatars.com/api/?name=Freelancer&background=4f46e5&color=fff" alt="Avatar" class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-700">
-                            <label for="avatarUpload" class="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 cursor-pointer transition">
-                                <i class="fas fa-camera text-xl"></i>
-                            </label>
-                            <input type="file" id="avatarUpload" class="hidden" accept="image/*">
-                            <span class="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full" title="Đang online"></span>
-                        </div>
-                        <div class="mb-1">
-                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                                <h1 id="displayName" class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">Đang tải...</h1>
-                                
-                                <!-- Email Verified Badge -->
-                                <span id="emailVerifiedBadge" class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm">
-                                    <i class="fas fa-check-circle mr-1.5 text-emerald-600"></i> Email đã xác thực
-                                </span>
-
-                                <!-- Phone Verified / WhatsApp Badge -->
-                                <span id="phoneVerifiedBadge"></span>
+                <div class="px-5 sm:px-8 pb-6 pt-3">
+                    <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end gap-4">
+                        <!-- Left: Avatar + Details Block (Nằm ngang hàng, đầy đặn, không có ô trắng thừa, cực kỳ sang trọng) -->
+                        <div class="flex flex-col sm:flex-row items-center sm:items-end text-center sm:text-left gap-4 sm:gap-5 flex-1 min-w-0 w-full sm:w-auto">
+                            <!-- Avatar (Chỉ riêng avatar vươn lên ảnh bìa 50%) -->
+                            <div class="relative group shrink-0 -mt-16 sm:-mt-20">
+                                <img id="avatarContainer" referrerpolicy="no-referrer" src="https://ui-avatars.com/api/?name=Freelancer&background=4f46e5&color=fff" alt="Avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent(document.getElementById('displayName')?.innerText || 'Freelancer') + '&background=4f46e5&color=fff';" class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-700">
+                                <label for="avatarUpload" class="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 cursor-pointer transition">
+                                    <i class="fas fa-camera text-xl"></i>
+                                </label>
+                                <input type="file" id="avatarUpload" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp, image/gif, image/svg+xml">
+                                <span class="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full shadow" title="Đang online"></span>
                             </div>
-                            <p id="displayHeadline" class="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-1">Chuyên gia Lập trình & Phát triển Phần mềm</p>
-                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
-                                <span id="displayCategoryBadge"></span>
-                                <span class="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Sẵn sàng nhận việc
-                                </span>
+
+                            <!-- Name, Badges, Headline (Nằm tự nhiên cạnh Avatar trên nền thẻ chuẩn, không cần ô trắng rời rạc) -->
+                            <div class="space-y-1 pb-1 min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                    <h1 id="displayName" class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Đang tải...</h1>
+                                    
+                                    <!-- Email Verified Badge -->
+                                    <span id="emailVerifiedBadge" class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-black px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm">
+                                        <i class="fas fa-check-circle mr-1.5 text-emerald-600"></i> Email đã xác thực
+                                    </span>
+
+                                    <!-- Phone Verified Badge -->
+                                    <span id="phoneVerifiedBadge"></span>
+                                </div>
+
+                                <p id="displayHeadline" class="text-sm font-semibold text-gray-600 dark:text-gray-300">Chuyên gia Lập trình & Phát triển Phần mềm</p>
+
+                                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-0.5">
+                                    <span id="displayCategoryBadge"></span>
+                                    <span id="displayFreelancerTypeBadge"></span>
+                                    <span class="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Sẵn sàng nhận việc
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="flex flex-wrap gap-2.5 mb-2 w-full sm:w-auto justify-center">
-                        <button onclick="openPhoneVerifyModal()" id="btnQuickVerifyPhone" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow-md transition flex items-center text-xs sm:text-sm">
-                            <i class="fab fa-whatsapp mr-1.5 text-base"></i> Xác thực WhatsApp
-                        </button>
-                        <button onclick="openEditModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-5 rounded-2xl shadow-md transition flex items-center text-xs sm:text-sm">
-                            <i class="fas fa-edit mr-2"></i> Chỉnh sửa Hồ sơ
-                        </button>
+                        <!-- Right: Action Buttons (Luôn nằm ngang hàng cạnh nhau) -->
+                        <div class="flex flex-row items-center justify-center lg:justify-end gap-2.5 shrink-0 flex-nowrap w-full sm:w-auto pb-1">
+                            <button onclick="openPhoneVerifyModal()" id="btnQuickVerifyPhone" class="hidden bg-sky-500 hover:bg-sky-600 text-white font-bold py-2.5 px-3.5 sm:px-4 rounded-xl shadow-sm transition flex items-center text-xs sm:text-sm whitespace-nowrap">
+                                <i class="fab fa-telegram mr-1.5 text-base"></i> Xác thực SĐT qua Telegram
+                            </button>
+                            <button onclick="openEditModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 sm:px-5 rounded-xl shadow-sm transition flex items-center text-xs sm:text-sm whitespace-nowrap">
+                                <i class="fas fa-edit mr-1.5"></i> Chỉnh sửa Hồ sơ
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,7 +192,9 @@
                             <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
                                 <i class="fas fa-tools mr-2 text-indigo-500"></i> Kỹ năng chuyên môn (Tech Stack)
                             </h2>
-                            <button onclick="openEditModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">+ Thêm kỹ năng</button>
+                            <button onclick="openSkillsModal()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold transition flex items-center gap-1">
+                                <i class="fas fa-plus"></i> Thêm kỹ năng
+                            </button>
                         </div>
                         <div id="displaySkills" class="flex flex-wrap gap-2">
                             <!-- Skill Badges Render Here -->
@@ -253,6 +267,27 @@
                         <div id="customAiFeedback" class="hidden text-xs p-2.5 rounded-xl"></div>
                     </div>
 
+                                        <!-- Mô hình hoạt động Freelancer -->
+                    <div>
+                        <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">🏢 Mô hình hoạt động Freelancer</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="cursor-pointer border-2 border-gray-200 dark:border-gray-600 rounded-xl p-3 flex items-center space-x-3 hover:border-indigo-500 transition has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/70 dark:has-[:checked]:bg-indigo-950/40">
+                                <input type="radio" name="freelancer_type" value="Cá nhân" checked class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <p class="font-bold text-sm text-gray-800 dark:text-white flex items-center"><i class="fas fa-user mr-1.5 text-indigo-600"></i> Cá nhân</p>
+                                    <p class="text-[11px] text-gray-500 dark:text-gray-400">Làm việc độc lập, tự chủ dự án</p>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer border-2 border-gray-200 dark:border-gray-600 rounded-xl p-3 flex items-center space-x-3 hover:border-purple-500 transition has-[:checked]:border-purple-600 has-[:checked]:bg-purple-50/70 dark:has-[:checked]:bg-purple-950/40">
+                                <input type="radio" name="freelancer_type" value="Đội nhóm / Agency" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                                <div>
+                                    <p class="font-bold text-sm text-gray-800 dark:text-white flex items-center"><i class="fas fa-users mr-1.5 text-purple-600"></i> Đội nhóm / Agency</p>
+                                    <p class="text-[11px] text-gray-500 dark:text-gray-400">Nhóm lập trình viên / Studio nhiều thành viên</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Tiểu sử / Bio -->
                     <div>
                         <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">Tiểu sử & Kinh nghiệm (Bio)</label>
@@ -279,20 +314,37 @@
                         </div>
                     </div>
 
-                    <!-- Số Điện Thoại & Xác Thực WhatsApp -->
+                    <!-- Số Điện Thoại & Xác Thực Telegram -->
                     <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
                         <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5 flex items-center justify-between">
-                            <span><i class="fab fa-whatsapp text-emerald-500 mr-1.5"></i> Số điện thoại liên hệ</span>
-                            <span id="formPhoneVerifiedNotice" class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hidden">
-                                <i class="fas fa-check-circle"></i> Đã xác thực WhatsApp
+                            <span><i class="fab fa-telegram text-sky-500 mr-1.5"></i> Số điện thoại liên hệ</span>
+                            <span id="formPhoneVerifiedNotice" class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hidden flex items-center gap-1">
+                                <i class="fas fa-check-circle"></i> SĐT đã xác thực chính chủ
                             </span>
                         </label>
-                        <div class="flex space-x-2">
-                            <input type="text" id="phone_number" placeholder="VD: 0834779397" class="flex-1 border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono">
-                            <button type="button" onclick="openPhoneVerifyModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center flex-shrink-0">
-                                <i class="fab fa-whatsapp mr-1"></i> <span>Xác thực WhatsApp</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="relative flex-1">
+                                <input type="text" id="phone_number" placeholder="VD: 0834779397" class="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <span id="phoneLockedIcon" class="hidden absolute right-3 top-2.5 text-emerald-500 text-xs font-bold" title="Số điện thoại đã bảo mật xác minh">
+                                    <i class="fas fa-check-circle"></i>
+                                </span>
+                            </div>
+                            <!-- Nút Xác thực SĐT qua Telegram (Hiện khi chưa xác thực hoặc khi đang đổi SĐT) -->
+                            <button type="button" id="btnFormVerifyPhone" onclick="openPhoneVerifyModal()" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold transition flex items-center flex-shrink-0 shadow-sm">
+                                <i class="fab fa-telegram mr-1"></i> <span>Xác thực SĐT qua Telegram</span>
+                            </button>
+                            <!-- Nút Đổi SĐT (Chỉ hiện khi SĐT đã xác thực) -->
+                            <button type="button" id="btnFormChangePhone" onclick="enableChangePhone()" class="hidden px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-gray-600 rounded-xl text-xs font-bold transition flex items-center flex-shrink-0">
+                                <i class="fas fa-exchange-alt mr-1 text-slate-500"></i> <span>Đổi SĐT</span>
+                            </button>
+                            <!-- Nút Hủy đổi SĐT (Hiện khi đang bấm đổi SĐT) -->
+                            <button type="button" id="btnFormCancelChangePhone" onclick="cancelChangePhone()" class="hidden px-3 py-2 text-xs font-bold text-gray-500 hover:text-red-500 transition">
+                                Hủy
                             </button>
                         </div>
+                        <p id="phoneChangeHint" class="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 hidden flex items-center gap-1">
+                            <i class="fas fa-info-circle"></i> Bạn đang đổi số điện thoại mới. Vui lòng bấm <b>"Xác thực SĐT qua Telegram"</b> để nhận mã OTP cho số mới.
+                        </p>
                     </div>
 
                     <!-- Ngân hàng nhận tiền (VietQR Direct) -->
@@ -367,11 +419,12 @@
     </div>
 
     <!-- MODAL XÁC THỰC SỐ ĐIỆN THOẠI QUA WHATSAPP -->
+    <!-- Modal Xác thực Số điện thoại Telegram -->
     <div id="phoneVerifyModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-700">
             <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                 <h3 class="text-base font-black text-gray-900 dark:text-white flex items-center">
-                    <i class="fab fa-whatsapp text-emerald-500 text-lg mr-2"></i> Xác Thực SĐT Qua WhatsApp
+                    <i class="fab fa-telegram text-sky-500 text-xl mr-2"></i> Xác Thực SĐT Qua Telegram Bot
                 </h3>
                 <button onclick="closePhoneVerifyModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                     &times;
@@ -380,38 +433,134 @@
 
             <div class="p-6 space-y-4">
                 <!-- Step 1: Nhập SĐT & Gửi OTP -->
-                <div id="phoneStepInput">
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Số điện thoại WhatsApp của bạn:</label>
-                    <div class="flex space-x-2 mb-3">
-                        <input type="text" id="targetPhoneInput" placeholder="VD: 0834779397" class="flex-1 border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <button type="button" id="btnSendPhoneOtp" onclick="requestPhoneOtp()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-md transition flex items-center flex-shrink-0">
-                            <span>Gửi mã OTP</span>
-                        </button>
-                    </div>
-                    <p class="text-[11px] text-gray-400">
-                        ⚡ Hệ thống sẽ tự động gửi mã OTP 6 số trực tiếp vào tài khoản WhatsApp của bạn (hoàn toàn miễn phí).
-                    </p>
-                </div>
-
-                <!-- Step 2: Nhập OTP WhatsApp (Ẩn mặc định) -->
-                <div id="phoneStepOtp" class="hidden space-y-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
-                        <span>Đã gửi mã OTP tới: <strong id="dispTargetPhone" class="font-mono">...</strong></span>
-                        <button type="button" onclick="resetPhoneStep()" class="text-[11px] text-emerald-600 font-bold hover:underline">Đổi SĐT</button>
+                <div id="phoneStepInput" class="space-y-3">
+                    <!-- Hướng dẫn 3 bước nhanh gọn -->
+                    <div class="bg-sky-50/80 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/60 rounded-2xl p-3 text-xs space-y-2">
+                        <div class="font-bold flex items-center text-sky-700 dark:text-sky-300">
+                            <i class="fas fa-info-circle mr-1.5 text-sky-500"></i> Hướng dẫn 3 bước nhận OTP qua Telegram:
+                        </div>
+                        <div class="space-y-1.5 text-[12px] text-gray-600 dark:text-gray-300">
+                            <div class="flex items-start">
+                                <span class="w-4 h-4 rounded-full bg-sky-200 dark:bg-sky-800 text-sky-800 dark:text-sky-200 text-[10px] font-black inline-flex items-center justify-center mr-2 shrink-0 mt-0.5">1</span>
+                                <span>Nhập số điện thoại của bạn rồi bấm <b>"Lấy mã OTP"</b>.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="w-4 h-4 rounded-full bg-sky-200 dark:bg-sky-800 text-sky-800 dark:text-sky-200 text-[10px] font-black inline-flex items-center justify-center mr-2 shrink-0 mt-0.5">2</span>
+                                <span>Bấm nút <b>"Mở Telegram"</b> 👉 Trong chat với bot, bấm <b>START (Bắt đầu)</b>.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="w-4 h-4 rounded-full bg-sky-200 dark:bg-sky-800 text-sky-800 dark:text-sky-200 text-[10px] font-black inline-flex items-center justify-center mr-2 shrink-0 mt-0.5">3</span>
+                                <span>Bot gửi ngay mã 6 chữ số, bạn nhập mã vào đây và bấm <b>Xác nhận</b> là xong!</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Nhập mã OTP 6 chữ số:</label>
-                        <input type="text" id="inputPhoneOtp" maxlength="6" placeholder="123456" class="w-full text-center text-2xl font-mono font-black tracking-widest border-2 border-emerald-300 dark:border-emerald-700 rounded-xl py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Số điện thoại của bạn:</label>
+                        <div class="flex space-x-2 mb-2">
+                            <input type="text" id="targetPhoneInput" placeholder="VD: 0834779397" class="flex-1 border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white font-mono font-bold focus:ring-2 focus:ring-sky-500 outline-none">
+                            <button type="button" id="btnSendPhoneOtp" onclick="requestPhoneOtp()" class="px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-black shadow-md transition flex items-center flex-shrink-0">
+                                <span>Lấy mã OTP</span>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-gray-400">
+                            ⚡ Nhận mã OTP 6 số tức thì qua Telegram Bot (<b>@kgswork_hoang_otp_bot</b>) hoàn toàn miễn phí & bảo mật 100%.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 2: Nhập OTP Telegram (Ẩn mặc định) -->
+                <div id="phoneStepOtp" class="hidden space-y-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <div class="p-3 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 rounded-xl text-xs text-sky-900 dark:text-sky-200 flex items-center justify-between">
+                        <span>Đang xác thực SĐT: <strong id="dispTargetPhone" class="font-mono text-sky-600 dark:text-sky-400 font-bold">...</strong></span>
+                        <button type="button" onclick="resetPhoneStep()" class="text-[11px] text-sky-600 dark:text-sky-400 font-bold hover:underline">Đổi SĐT</button>
+                    </div>
+
+                    <!-- Direct Open Telegram Button -->
+                    <a id="btnOpenTelegramFreelancer" href="#" target="_blank" class="w-full py-3 px-4 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg shadow-sky-500/25 transition text-xs flex items-center justify-center space-x-2 text-center decoration-none">
+                        <i class="fab fa-telegram-plane text-base"></i>
+                        <span>👉 BẤM ĐÂY ĐỂ MỞ TELEGRAM NHẬN MÃ OTP 👈</span>
+                    </a>
+
+                    <!-- Tip bấm START rõ ràng -->
+                    <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-xl p-2.5 text-xs text-amber-800 dark:text-amber-200 flex items-start space-x-2">
+                        <i class="fas fa-hand-pointer text-amber-500 text-sm mt-0.5 shrink-0"></i>
+                        <span class="leading-relaxed">
+                            <b>Lưu ý quan trọng:</b> Khi màn hình Telegram mở lên, bạn chỉ cần bấm nút <b>START</b> (hoặc <b>BẮT ĐẦU</b>) ở cạnh dưới cuộc trò chuyện, Bot sẽ lập tức gửi mã OTP 6 số cho bạn!
+                        </span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Nhập mã OTP 6 chữ số từ Telegram:</label>
+                        <input type="text" id="inputPhoneOtp" maxlength="6" placeholder="123456" class="w-full text-center text-2xl font-mono font-black tracking-widest border-2 border-sky-300 dark:border-sky-700 rounded-xl py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-500 outline-none">
                     </div>
 
                     <div class="flex items-center justify-between text-xs text-gray-400">
-                        <span>⏱️ Hết hạn sau: <strong id="phoneOtpTimer" class="font-mono text-emerald-600 font-bold">05:00</strong></span>
+                        <span>⏱️ Hết hạn sau: <strong id="phoneOtpTimer" class="font-mono text-sky-600 dark:text-sky-400 font-bold">05:00</strong></span>
                         <button type="button" id="btnResendPhoneOtp" onclick="requestPhoneOtp()" disabled class="text-xs font-bold text-gray-400 cursor-not-allowed">Gửi lại (60s)</button>
                     </div>
 
                     <button type="button" id="btnConfirmPhoneOtp" onclick="submitPhoneOtpVerification()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-black shadow-lg shadow-emerald-600/30 transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-check-circle mr-2"></i>
                         <span>Xác nhận & Kích hoạt SĐT</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Quản Lý Kỹ Năng Riêng Biệt (Tech Stack Direct Form) -->
+    <div id="skillsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-gray-700 animate-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-slate-50/70 dark:bg-gray-800/60">
+                <h3 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-tools mr-2 text-indigo-500"></i> Quản Lý Kỹ Năng Chuyên Môn
+                </h3>
+                <button onclick="closeSkillsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    &times;
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    Thêm các công nghệ, kỹ năng mà bạn thành thạo để hệ thống ghép nối việc làm và làm nổi bật hồ sơ của bạn với khách hàng.
+                </p>
+
+                <!-- Input & Tags -->
+                <div>
+                    <label class="font-bold text-xs text-gray-700 dark:text-gray-300 block mb-1.5">
+                        🏷️ Kỹ năng của bạn (Nhấn Enter hoặc Dấu phẩy để thêm thẻ):
+                    </label>
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-2xl p-2.5 bg-gray-50 dark:bg-gray-700/60 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition flex flex-wrap items-center gap-1.5 min-h-[52px]">
+                        <div id="skillsModalTagContainer" class="flex flex-wrap gap-1.5"></div>
+                        <input type="text" id="skillsModalTagInput" placeholder="Nhập kỹ năng (VD: React, Docker, Python...)" class="flex-1 bg-transparent border-none text-sm text-gray-800 dark:text-white focus:outline-none min-w-[160px] p-1 font-medium">
+                    </div>
+                </div>
+
+                <!-- Gợi ý nhanh dạng nút click thêm -->
+                <div>
+                    <span class="text-[11px] text-gray-400 dark:text-gray-400 font-bold block mb-1.5">💡 Gợi ý công nghệ phổ biến (bấm để thêm):</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" onclick="addSkillsModalTag('ReactJS')" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-xl font-semibold border border-indigo-200 dark:border-indigo-800 transition">+ ReactJS</button>
+                        <button type="button" onclick="addSkillsModalTag('NodeJS')" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-xl font-semibold border border-indigo-200 dark:border-indigo-800 transition">+ NodeJS</button>
+                        <button type="button" onclick="addSkillsModalTag('Python / AI')" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-xl font-semibold border border-indigo-200 dark:border-indigo-800 transition">+ Python / AI</button>
+                        <button type="button" onclick="addSkillsModalTag('Next.js')" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-xl font-semibold border border-indigo-200 dark:border-indigo-800 transition">+ Next.js</button>
+                        <button type="button" onclick="addSkillsModalTag('Flutter')" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-xl font-semibold border border-indigo-200 dark:border-indigo-800 transition">+ Flutter</button>
+                        <button type="button" onclick="addSkillsModalTag('Docker')" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-xl font-semibold border border-indigo-200 dark:border-indigo-800 transition">+ Docker</button>
+                        <button type="button" onclick="addSkillsModalTag('Figma UI/UX')" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-xl font-semibold border border-indigo-200 dark:border-indigo-800 transition">+ Figma UI/UX</button>
+                        <button type="button" onclick="addSkillsModalTag('ESP32 / IoT')" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-xl font-semibold border border-indigo-200 dark:border-indigo-800 transition">+ ESP32 / IoT</button>
+                    </div>
+                </div>
+
+                <!-- Footer buttons -->
+                <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end space-x-2.5">
+                    <button type="button" onclick="closeSkillsModal()" class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition">
+                        Đóng
+                    </button>
+                    <button type="button" id="btnSaveDirectSkills" onclick="saveSkillsOnly()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md shadow-indigo-600/30 transition flex items-center gap-1.5">
+                        <i class="fas fa-save"></i> <span>Lưu Kỹ Năng</span>
                     </button>
                 </div>
             </div>
@@ -464,14 +613,182 @@
             ? 'http://localhost:5000' 
             : 'https://project-internship-8z76.onrender.com';
 
-        let user = JSON.parse(localStorage.getItem('user'));
+        let user = null;
+        try {
+            user = JSON.parse(localStorage.getItem('user'));
+        } catch(e) {
+            user = null;
+        }
+
+        if (!user || !user.id) {
+            window.location.href = '../login.html';
+        }
+
         let currentSkillTags = [];
+        let modalSkillTags = [];
         let validatedCustomCategory = null;
         let phoneOtpCountdown = null;
         let phoneCooldownInterval = null;
 
+        let originalVerifiedPhone = '';
+        let isPhoneVerified = false;
+        let isChangingPhone = false;
+
         function openEditModal() { document.getElementById('editModal').classList.remove('hidden'); }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
+
+        // Modal Kỹ Năng Riêng Biệt (Direct Tech Stack Management)
+        function openSkillsModal() {
+            modalSkillTags = [...currentSkillTags];
+            renderSkillsModalTags();
+            document.getElementById('skillsModal').classList.remove('hidden');
+            setTimeout(() => {
+                const inp = document.getElementById('skillsModalTagInput');
+                if (inp) {
+                    inp.value = '';
+                    inp.focus();
+                }
+            }, 100);
+        }
+
+        function closeSkillsModal() {
+            document.getElementById('skillsModal').classList.add('hidden');
+        }
+
+        function renderSkillsModalTags() {
+            const container = document.getElementById('skillsModalTagContainer');
+            if (!container) return;
+            if (modalSkillTags.length === 0) {
+                container.innerHTML = '<span class="text-xs text-gray-400 italic">Chưa có kỹ năng nào. Hãy nhập vào ô hoặc bấm gợi ý bên dưới!</span>';
+                return;
+            }
+            container.innerHTML = modalSkillTags.map((tag, idx) => `
+                <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shadow-sm animate-in fade-in duration-100">
+                    ${escapeHtml(tag)}
+                    <button type="button" onclick="removeSkillsModalTag(${idx})" class="ml-1.5 text-indigo-400 hover:text-red-500 font-bold focus:outline-none">&times;</button>
+                </span>
+            `).join('');
+        }
+
+        function addSkillsModalTag(tagText) {
+            const clean = (tagText || '').trim();
+            if (clean && !modalSkillTags.includes(clean)) {
+                modalSkillTags.push(clean);
+                renderSkillsModalTags();
+            }
+        }
+
+        function removeSkillsModalTag(idx) {
+            modalSkillTags.splice(idx, 1);
+            renderSkillsModalTags();
+        }
+
+        async function saveSkillsOnly() {
+            const btn = document.getElementById('btnSaveDirectSkills');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Đang lưu...';
+
+            const skillsString = modalSkillTags.join(', ');
+
+            try {
+                const res = await fetch(`${API_URL}/api/users/${user.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ skills: skillsString })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    currentSkillTags = [...modalSkillTags];
+                    renderSkillTagBadges();
+
+                    // Cập nhật lại displaySkills trên giao diện chính
+                    const skillsDiv = document.getElementById('displaySkills');
+                    if (skillsDiv) {
+                        skillsDiv.innerHTML = '';
+                        if (currentSkillTags.length > 0) {
+                            currentSkillTags.forEach(sk => {
+                                const span = document.createElement('span');
+                                span.className = 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center';
+                                span.innerHTML = `<i class="fas fa-check text-[10px] mr-1.5 text-indigo-500"></i>${escapeHtml(sk)}`;
+                                skillsDiv.appendChild(span);
+                            });
+                        } else {
+                            skillsDiv.innerHTML = '<span class="text-gray-400 italic text-xs">Chưa cập nhật kỹ năng.</span>';
+                        }
+                    }
+
+                    closeSkillsModal();
+                    alert('✅ Đã cập nhật danh sách kỹ năng thành công!');
+                } else {
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể lưu kỹ năng'));
+                }
+            } catch (err) {
+                console.error('Lỗi lưu kỹ năng:', err);
+                alert('❌ Lỗi kết nối máy chủ: ' + (err.message || 'Vui lòng thử lại sau giây lát!'));
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save mr-1.5"></i> Lưu Kỹ Năng';
+            }
+        }
+
+        // Listener Enter / Comma cho skillsModal
+        const skillsModalInput = document.getElementById('skillsModalTagInput');
+        if (skillsModalInput) {
+            skillsModalInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addSkillsModalTag(skillsModalInput.value);
+                    skillsModalInput.value = '';
+                }
+            });
+        }
+
+        // Xử lý Thay đổi Số điện thoại (Phone Change State)
+        function enableChangePhone() {
+            isChangingPhone = true;
+            const phoneInput = document.getElementById('phone_number');
+            const btnFormVerify = document.getElementById('btnFormVerifyPhone');
+            const btnFormChange = document.getElementById('btnFormChangePhone');
+            const btnFormCancel = document.getElementById('btnFormCancelChangePhone');
+            const formPhoneNotice = document.getElementById('formPhoneVerifiedNotice');
+            const phoneLockedIcon = document.getElementById('phoneLockedIcon');
+            const phoneChangeHint = document.getElementById('phoneChangeHint');
+
+            phoneInput.readOnly = false;
+            phoneInput.classList.remove('bg-gray-100', 'dark:bg-gray-700/60', 'cursor-not-allowed', 'text-gray-700', 'dark:text-gray-300');
+            phoneInput.value = '';
+            phoneInput.placeholder = 'Nhập SĐT mới (VD: 0987654321)...';
+            phoneInput.focus();
+
+            if (btnFormVerify) btnFormVerify.classList.remove('hidden');
+            if (btnFormChange) btnFormChange.classList.add('hidden');
+            if (btnFormCancel) btnFormCancel.classList.remove('hidden');
+            if (formPhoneNotice) formPhoneNotice.classList.add('hidden');
+            if (phoneLockedIcon) phoneLockedIcon.classList.add('hidden');
+            if (phoneChangeHint) phoneChangeHint.classList.remove('hidden');
+        }
+
+        function cancelChangePhone() {
+            isChangingPhone = false;
+            const phoneInput = document.getElementById('phone_number');
+            const btnFormVerify = document.getElementById('btnFormVerifyPhone');
+            const btnFormChange = document.getElementById('btnFormChangePhone');
+            const btnFormCancel = document.getElementById('btnFormCancelChangePhone');
+            const formPhoneNotice = document.getElementById('formPhoneVerifiedNotice');
+            const phoneLockedIcon = document.getElementById('phoneLockedIcon');
+            const phoneChangeHint = document.getElementById('phoneChangeHint');
+
+            phoneInput.value = originalVerifiedPhone;
+            phoneInput.readOnly = true;
+            phoneInput.classList.add('bg-gray-100', 'dark:bg-gray-700/60', 'cursor-not-allowed', 'text-gray-700', 'dark:text-gray-300');
+
+            if (btnFormVerify) btnFormVerify.classList.add('hidden');
+            if (btnFormChange) btnFormChange.classList.remove('hidden');
+            if (btnFormCancel) btnFormCancel.classList.add('hidden');
+            if (formPhoneNotice) formPhoneNotice.classList.remove('hidden');
+            if (phoneLockedIcon) phoneLockedIcon.classList.remove('hidden');
+            if (phoneChangeHint) phoneChangeHint.classList.add('hidden');
+        }
 
         function openPhoneVerifyModal() {
             document.getElementById('phoneVerifyModal').classList.remove('hidden');
@@ -484,12 +801,13 @@
             document.getElementById('phoneVerifyModal').classList.add('hidden');
         }
 
-        // Tag Handling
+        // Tag Handling in EditModal
         function renderSkillTagBadges() {
             const container = document.getElementById('modalTagBadgesContainer');
+            if (!container) return;
             container.innerHTML = currentSkillTags.map((tag, idx) => `
                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                    ${tag}
+                    ${escapeHtml(tag)}
                     <button type="button" onclick="removeSkillTag(${idx})" class="ml-1.5 text-indigo-500 hover:text-indigo-800 dark:hover:text-white">&times;</button>
                 </span>
             `).join('');
@@ -510,16 +828,37 @@
         }
 
         const tagInput = document.getElementById('tagInput');
-        tagInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ',') {
-                e.preventDefault();
-                addSkillTag(tagInput.value);
-                tagInput.value = '';
-            }
-        });
+        if (tagInput) {
+            tagInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addSkillTag(tagInput.value);
+                    tagInput.value = '';
+                }
+            });
+        }
 
-        // 1. Upload Helper
+        // 1. Image Validation & Upload Helper
+        function isValidImageFile(file) {
+            if (!file) return false;
+            const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const fileName = (file.name || '').toLowerCase();
+            const hasValidExt = validExtensions.some(ext => fileName.endsWith(ext));
+            const hasValidMime = file.type && file.type.startsWith('image/');
+
+            // Chặn rõ ràng các định dạng tài liệu phổ biến (docx, csv, xlsx, pdf...)
+            const invalidDocExts = ['.docx', '.doc', '.csv', '.xlsx', '.xls', '.pdf', '.zip', '.rar', '.txt', '.json'];
+            if (invalidDocExts.some(ext => fileName.endsWith(ext))) {
+                return false;
+            }
+
+            return hasValidExt && (hasValidMime || !file.type);
+        }
+
         async function uploadImageFile(file) {
+            if (!isValidImageFile(file)) {
+                throw new Error('File không hợp lệ! Ảnh chỉ chấp nhận các định dạng hình ảnh (JPG, PNG, GIF, WEBP...). Không hỗ trợ các định dạng tài liệu như DOCX, CSV, PDF...');
+            }
             const formData = new FormData();
             formData.append('file', file);
             const res = await fetch(`${API_URL}/api/upload/image`, { method: 'POST', body: formData });
@@ -531,6 +870,14 @@
         document.getElementById('avatarUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
+            // Kiểm tra định dạng ảnh
+            if (!isValidImageFile(file)) {
+                alert(`❌ File không hợp lệ!\nẢnh đại diện chỉ chấp nhận các tệp định dạng hình ảnh (JPG, PNG, GIF, WEBP...).\nFile "${file.name}" không phải là định dạng ảnh.`);
+                e.target.value = '';
+                return;
+            }
+
             const img = document.getElementById('avatarContainer');
             const oldSrc = img.src;
             img.src = 'https://i.gifer.com/ZKZg.gif';
@@ -550,12 +897,22 @@
             } catch (err) {
                 img.src = oldSrc;
                 alert('❌ ' + err.message);
+            } finally {
+                e.target.value = '';
             }
         });
 
         document.getElementById('coverUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
+            // Kiểm tra định dạng ảnh
+            if (!isValidImageFile(file)) {
+                alert(`❌ File không hợp lệ!\nẢnh bìa chỉ chấp nhận các tệp định dạng hình ảnh (JPG, PNG, GIF, WEBP...).\nFile "${file.name}" không phải là định dạng ảnh.`);
+                e.target.value = '';
+                return;
+            }
+
             const container = document.getElementById('coverContainer');
             try {
                 const url = await uploadImageFile(file);
@@ -568,6 +925,8 @@
                 alert('✅ Đổi ảnh bìa thành công!');
             } catch (err) {
                 alert('❌ ' + err.message);
+            } finally {
+                e.target.value = '';
             }
         });
 
@@ -654,22 +1013,103 @@
             document.getElementById('bio').value = data.bio || '';
             document.getElementById('displayBio').innerText = data.bio || 'Chưa có thông tin giới thiệu. Hãy bấm "Chỉnh sửa Hồ sơ" để cập nhật!';
 
-            if (data.avatar_url) document.getElementById('avatarContainer').src = data.avatar_url;
-            if (data.cover_url) document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
+            const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff`;
+            const avtEl = document.getElementById('avatarContainer');
+            if (avtEl) {
+                avtEl.onerror = function() {
+                    this.onerror = null;
+                    this.src = fallbackAvatar;
+                };
+                avtEl.src = data.avatar_url || fallbackAvatar;
+            }
+            const uiAvt = document.getElementById('uiAvatar');
+            if (uiAvt) {
+                uiAvt.onerror = function() {
+                    this.onerror = null;
+                    this.src = fallbackAvatar;
+                };
+                uiAvt.src = data.avatar_url || fallbackAvatar;
+            }
 
-            // Phone Verified Badge
+            if (data.cover_url) {
+                document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
+            } else {
+                document.getElementById('coverContainer').style.backgroundImage = 'none';
+            }
+
+            // Đồng bộ lại user vào localStorage để luôn cập nhật ảnh mới nhất
+            try {
+                if (user && data) {
+                    if (data.avatar_url) user.avatar_url = data.avatar_url;
+                    if (data.cover_url) user.cover_url = data.cover_url;
+                    if (data.full_name) user.full_name = data.full_name;
+                    localStorage.setItem('user', JSON.stringify(user));
+                }
+            } catch(e) {}
+
+            // Phone Verified Badge & Form State
             const phoneBadge = document.getElementById('phoneVerifiedBadge');
             const btnQuickVerify = document.getElementById('btnQuickVerifyPhone');
             const formPhoneNotice = document.getElementById('formPhoneVerifiedNotice');
+            const phoneInput = document.getElementById('phone_number');
+            const btnFormVerify = document.getElementById('btnFormVerifyPhone');
+            const btnFormChange = document.getElementById('btnFormChangePhone');
+            const btnFormCancel = document.getElementById('btnFormCancelChangePhone');
+            const phoneLockedIcon = document.getElementById('phoneLockedIcon');
+            const phoneChangeHint = document.getElementById('phoneChangeHint');
 
-            if (data.is_phone_verified && data.phone_number) {
-                phoneBadge.innerHTML = `<span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm"><i class="fab fa-whatsapp mr-1.5 text-emerald-600"></i> ${data.phone_number} (Đã xác minh)</span>`;
+            originalVerifiedPhone = data.phone_number || '';
+            isPhoneVerified = !!(data.is_phone_verified && data.phone_number);
+            isChangingPhone = false;
+
+            if (phoneInput) {
+                phoneInput.value = originalVerifiedPhone;
+            }
+
+            if (isPhoneVerified) {
+                phoneBadge.innerHTML = `<span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm"><i class="fas fa-check-circle mr-1.5 text-emerald-600"></i> ${data.phone_number} (Đã xác minh)</span>`;
                 btnQuickVerify.classList.add('hidden');
-                formPhoneNotice.classList.remove('hidden');
+
+                // Trong Form: Khóa ô nhập, ẩn nút xác thực tele, hiện nút "Đổi SĐT"
+                if (phoneInput) {
+                    phoneInput.readOnly = true;
+                    phoneInput.classList.add('bg-gray-100', 'dark:bg-gray-700/60', 'cursor-not-allowed', 'text-gray-700', 'dark:text-gray-300');
+                }
+                if (formPhoneNotice) formPhoneNotice.classList.remove('hidden');
+                if (phoneLockedIcon) phoneLockedIcon.classList.remove('hidden');
+                if (btnFormVerify) btnFormVerify.classList.add('hidden');
+                if (btnFormChange) btnFormChange.classList.remove('hidden');
+                if (btnFormCancel) btnFormCancel.classList.add('hidden');
+                if (phoneChangeHint) phoneChangeHint.classList.add('hidden');
             } else {
                 phoneBadge.innerHTML = `<span class="bg-gray-100 dark:bg-gray-800 text-gray-500 text-xs font-bold px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700 flex items-center"><i class="fas fa-phone mr-1.5 text-gray-400"></i> Chưa xác thực SĐT</span>`;
                 btnQuickVerify.classList.remove('hidden');
-                formPhoneNotice.classList.add('hidden');
+
+                // Trong Form: Cho phép nhập, hiện nút gửi OTP tele, ẩn nút "Đổi SĐT"
+                if (phoneInput) {
+                    phoneInput.readOnly = false;
+                    phoneInput.classList.remove('bg-gray-100', 'dark:bg-gray-700/60', 'cursor-not-allowed', 'text-gray-700', 'dark:text-gray-300');
+                }
+                if (formPhoneNotice) formPhoneNotice.classList.add('hidden');
+                if (phoneLockedIcon) phoneLockedIcon.classList.add('hidden');
+                if (btnFormVerify) btnFormVerify.classList.remove('hidden');
+                if (btnFormChange) btnFormChange.classList.add('hidden');
+                if (btnFormCancel) btnFormCancel.classList.add('hidden');
+                if (phoneChangeHint) phoneChangeHint.classList.add('hidden');
+            }
+
+                        // Freelancer Type Badge & Form Radio
+            const fType = data.freelancer_type || 'Cá nhân';
+            const typeRadio = document.querySelector(`input[name="freelancer_type"][value="${fType}"]`);
+            if (typeRadio) typeRadio.checked = true;
+
+            const typeBadge = document.getElementById('displayFreelancerTypeBadge');
+            if (typeBadge) {
+                if (fType === 'Đội nhóm / Agency') {
+                    typeBadge.innerHTML = `<span class="bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 text-xs font-black px-3 py-1 rounded-full border border-purple-300 dark:border-purple-800 flex items-center shadow-sm"><i class="fas fa-users mr-1.5 text-purple-600"></i> Đội nhóm / Agency</span>`;
+                } else {
+                    typeBadge.innerHTML = `<span class="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-bold px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 flex items-center"><i class="fas fa-user mr-1.5 text-blue-600"></i> Freelancer Cá nhân</span>`;
+                }
             }
 
             // Category badge
@@ -770,7 +1210,7 @@
                                 <img src="https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(p.title)}" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-overlay opacity-60" alt="Placeholder">
                                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <i class="fas fa-magic text-2xl text-indigo-400 mb-1 drop-shadow-md"></i>
-                                    <span class="text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 drop-shadow-md">HT Portfolio</span>
+                                    <span class="text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 drop-shadow-md">KGS Portfolio</span>
                                 </div>
                             </div>
                         `}
@@ -910,7 +1350,18 @@
                 selectedCat = validatedCustomCategory;
             }
 
+            const inputPhone = document.getElementById('phone_number').value.trim();
+            if (isPhoneVerified && isChangingPhone && inputPhone !== originalVerifiedPhone) {
+                alert('⚠️ Bạn đang đổi sang số điện thoại mới!\n\nVui lòng bấm nút "Xác thực SĐT qua Telegram" để nhận mã OTP và hoàn tất xác minh số mới trước khi lưu hồ sơ.');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Lưu Thay Đổi</span>';
+                return;
+            }
+
+            const selectedType = document.querySelector('input[name="freelancer_type"]:checked')?.value || 'Cá nhân';
+
             const payload = {
+                freelancer_type: selectedType,
                 full_name: document.getElementById('full_name').value,
                 bio: document.getElementById('bio').value,
                 primary_category: selectedCat,
@@ -945,7 +1396,7 @@
             }
         });
 
-        // 6. Xử lý Gửi & Xác thực OTP WhatsApp
+        // 6. Xử lý Gửi & Xác thực OTP Telegram
         async function requestPhoneOtp() {
             const phone = document.getElementById('targetPhoneInput').value.trim();
             if (!phone || phone.length < 9) {
@@ -955,7 +1406,7 @@
 
             const btn = document.getElementById('btnSendPhoneOtp');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang gửi...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang kết nối...';
 
             try {
                 const res = await fetch(`${API_URL}/api/auth/send-phone-otp`, {
@@ -969,21 +1420,29 @@
                     document.getElementById('dispTargetPhone').innerText = phone;
                     document.getElementById('phoneStepInput').classList.add('hidden');
                     document.getElementById('phoneStepOtp').classList.remove('hidden');
+
+                    if (data.deepLink) {
+                        const tgBtn = document.getElementById('btnOpenTelegramFreelancer');
+                        if (tgBtn) tgBtn.href = data.deepLink;
+                        // Tự động mở link Telegram nhận mã
+                        window.open(data.deepLink, '_blank');
+                    }
+
                     document.getElementById('inputPhoneOtp').focus();
 
                     // Khởi động đếm ngược 5 phút
                     startPhoneTimer(300);
                     startPhoneCooldown(60);
 
-                    alert(`✅ ${data.message}`);
+                    alert('✅ Đã tạo liên kết OTP thành công!\n\n👉 Khi màn hình Telegram mở lên, bạn chỉ cần bấm nút START (hoặc BẮT ĐẦU) ở góc dưới để Bot gửi ngay mã 6 số về nhé!');
                 } else {
-                    alert('❌ Lỗi: ' + (data.error || 'Không thể gửi mã OTP WhatsApp'));
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể tạo mã OTP Telegram'));
                 }
             } catch (err) {
                 alert('Lỗi kết nối máy chủ!');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<span>Gửi mã OTP</span>';
+                btn.innerHTML = '<span>Lấy mã OTP</span>';
             }
         }
 
@@ -1049,7 +1508,7 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    alert(`🎉 XÁC THỰC THÀNH CÔNG!\n\nSố điện thoại WhatsApp [${phone}] của bạn đã được xác minh chính chủ.`);
+                    alert(`🎉 XÁC THỰC THÀNH CÔNG!\n\nSố điện thoại [${phone}] của bạn đã được xác minh chính chủ.`);
                     closePhoneVerifyModal();
                     loadProfile();
                 } else {

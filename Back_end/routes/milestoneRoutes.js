@@ -115,7 +115,7 @@ router.post('/api/milestones/submit', async (req, res) => {
 });
 
 // 9. API: Khách hàng xem danh sách Job cần quản lý (Duyệt kế hoạch HOẶC duyệt bài)
-router.get('/api/client/:client_id/pending-actions', async (req, res) => {
+router.get(['/api/client/:client_id/pending-actions', '/api/clients/:client_id/pending-actions'], async (req, res) => {
     const { client_id } = req.params;
     console.log(`\n📋 [API GET /api/client/pending-actions] Lấy danh sách tiến độ cho Client ID: ${client_id}`);
     try {
@@ -138,14 +138,27 @@ router.get('/api/client/:client_id/pending-actions', async (req, res) => {
             job.milestones = milestones || [];
 
             // Lấy thông tin freelancer đã trúng thầu
-            const { data: appData } = await supabase
+            const { data: appData, error: appError } = await supabase
                 .from('job_applications')
-                .select('freelancer_id, users:freelancer_id(id, full_name, email, avatar_url, phone)')
+                .select('freelancer_id, users:freelancer_id(id, full_name, email, avatar_url, phone_number)')
                 .eq('job_id', job.id)
                 .eq('status', 'accepted')
                 .maybeSingle();
+            if (appError) {
+                console.error(`⚠️ Lỗi lấy job_applications cho job ${job.id}:`, appError.message);
+            }
             job.freelancer = appData?.users || null;
             job.freelancer_id = appData?.freelancer_id || null;
+
+            // Fallback nếu không lấy được users qua join
+            if (!job.freelancer && job.freelancer_id) {
+                const { data: uData } = await supabase
+                    .from('users')
+                    .select('id, full_name, email, avatar_url, phone_number')
+                    .eq('id', job.freelancer_id)
+                    .maybeSingle();
+                if (uData) job.freelancer = uData;
+            }
         }
             
         // Lấy đánh giá của khách hàng từ reviews.json
@@ -160,8 +173,16 @@ router.get('/api/client/:client_id/pending-actions', async (req, res) => {
                         const r = allRev.find(rev => rev.job_id === job.id && rev.client_id === client_id);
                         if (r) {
                             job.review = r;
-                            if (!job.freelancer_id && r.freelancer_id) {
+                            if ((!job.freelancer_id || job.freelancer_id === 'null') && r.freelancer_id && r.freelancer_id !== 'null') {
                                 job.freelancer_id = r.freelancer_id;
+                            }
+                            if (!job.freelancer && job.freelancer_id && job.freelancer_id !== 'null') {
+                                const { data: uData } = await supabase
+                                    .from('users')
+                                    .select('id, full_name, email, avatar_url, phone_number')
+                                    .eq('id', job.freelancer_id)
+                                    .maybeSingle();
+                                if (uData) job.freelancer = uData;
                             }
                         }
                     }

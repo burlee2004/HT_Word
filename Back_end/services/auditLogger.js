@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const supabase = require('../config/supabase');
 
-const logFilePath = path.join(__dirname, '..', 'node_modules', '.cache', 'htwork_data', 'audit_logs.json');
+const logFilePath = path.join(__dirname, '..', 'node_modules', '.cache', 'kgs work_data', 'audit_logs.json');
 const legacyLogFilePath = path.join(__dirname, '..', 'data', 'audit_logs.json');
 
 // Đảm bảo file log json tồn tại

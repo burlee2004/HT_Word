@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ Sơ Năng Lực Ứng Viên | HT Work</title>
+    <title>Hồ Sơ Năng Lực Ứng Viên | KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -72,6 +72,7 @@
                             <p id="displayHeadline" class="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-1">Chuyên gia Lập trình & Phát triển Phần mềm</p>
                             <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
                                 <span id="displayCategoryBadge"></span>
+                                <span id="displayFreelancerTypeBadge"></span>
                                 <span class="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Sẵn sàng nhận việc
                                 </span>
@@ -211,7 +212,7 @@
                                 <img src="https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(p.title)}" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-overlay opacity-60" alt="Placeholder">
                                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <i class="fas fa-magic text-2xl text-indigo-400 mb-1 drop-shadow-md"></i>
-                                    <span class="text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 drop-shadow-md">HT Portfolio</span>
+                                    <span class="text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 drop-shadow-md">KGS Portfolio</span>
                                 </div>
                             </div>
                         `}
@@ -311,13 +312,24 @@
             const phoneBadge = document.getElementById('phoneVerifiedBadge');
             if (phoneBadge) {
                 if (data.is_phone_verified && data.phone_number) {
-                    phoneBadge.innerHTML = `<span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm"><i class="fab fa-whatsapp mr-1.5 text-emerald-600"></i> ${data.phone_number} (Đã xác minh)</span>`;
+                    phoneBadge.innerHTML = `<span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm"><i class="fas fa-check-circle mr-1.5 text-emerald-600"></i> ${data.phone_number} (Đã xác minh)</span>`;
                 } else {
                     phoneBadge.innerHTML = `<span class="bg-gray-100 dark:bg-gray-800 text-gray-500 text-xs font-bold px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700 flex items-center"><i class="fas fa-phone mr-1.5 text-gray-400"></i> Chưa xác thực SĐT</span>`;
                 }
             }
 
             // Category badge
+                        // Freelancer Type Badge
+            const fType = user.freelancer_type || 'Cá nhân';
+            const typeBadge = document.getElementById('displayFreelancerTypeBadge');
+            if (typeBadge) {
+                if (fType === 'Đội nhóm / Agency') {
+                    typeBadge.innerHTML = `<span class="bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 text-xs font-black px-3 py-1 rounded-full border border-purple-300 dark:border-purple-800 flex items-center shadow-sm"><i class="fas fa-users mr-1.5 text-purple-600"></i> Đội nhóm / Agency</span>`;
+                } else {
+                    typeBadge.innerHTML = `<span class="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-bold px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 flex items-center"><i class="fas fa-user mr-1.5 text-blue-600"></i> Freelancer Cá nhân</span>`;
+                }
+            }
+
             const catBadge = document.getElementById('displayCategoryBadge');
             if (catBadge) {
                 if (data.primary_category) {

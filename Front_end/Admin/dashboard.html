@@ -49,92 +49,154 @@
                 </div>
             </div>
 
-            <!-- 6 KPI Stat Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                <!-- KPI 1: Total Users -->
-                <a href="users.html" class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-blue-400 transition flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Người Dùng</span>
-                        <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold">
-                            <i class="fas fa-users"></i>
+                                    <!-- SECTION 1: DÒNG TIỀN & KÝ QUỸ ESCROW (Hàng 1 - 4 Thẻ Tài Chính) -->
+            <div class="mb-5">
+                <div class="flex items-center justify-between mb-2.5 px-1">
+                    <span class="text-xs font-black uppercase tracking-wider text-gray-600 dark:text-gray-300 flex items-center">
+                        <i class="fas fa-wallet text-emerald-500 mr-2 text-sm"></i> Dòng Tiền & Ký Quỹ Escrow
+                    </span>
+                    <span class="text-[11px] text-gray-400 font-semibold hidden sm:inline-block">Tỷ lệ quy chuẩn: 1 VNĐ = 1 Token</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+                    <!-- KPI 1: Tổng Nạp Token -->
+                    <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-gray-400">Tổng Nạp Token</span>
+                            <div class="w-9 h-9 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm font-bold shadow-sm">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="statTotalDeposits" class="text-2xl sm:text-[26px] font-black text-emerald-600 dark:text-emerald-400 tracking-tight">0</p>
+                            <span class="text-xs text-emerald-600/80 dark:text-emerald-400/80 font-bold block mt-1 flex items-center">
+                                <i class="fas fa-arrow-down mr-1 text-[10px]"></i> Tổng nạp qua VietQR PayOS
+                            </span>
                         </div>
                     </div>
-                    <div>
-                        <p id="statTotalUsers" class="text-2xl font-black text-gray-900 dark:text-white">0</p>
-                        <span id="statUserRatio" class="text-[10px] text-gray-400 font-semibold block mt-0.5">0 Client • 0 Freelancer</span>
-                    </div>
-                </a>
 
-                
-                <!-- KPI 1.5: Total Deposits -->
-                <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Tổng Nạp Token</span>
-                        <div class="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm font-bold">
-                            <i class="fas fa-coins"></i>
+                    <!-- KPI 2: Tổng Rút Token -->
+                    <a href="withdrawals.html" class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-rose-400 hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-gray-400 group-hover:text-rose-500 transition-colors">Tổng Rút Token</span>
+                            <div class="w-9 h-9 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-500 dark:text-rose-400 flex items-center justify-center text-sm font-bold shadow-sm">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="statTotalWithdrawn" class="text-2xl sm:text-[26px] font-black text-rose-600 dark:text-rose-400 tracking-tight">0</p>
+                            <span class="text-xs text-rose-500 font-bold block mt-1 flex items-center">
+                                <i class="fas fa-check-circle mr-1 text-[10px]"></i> Đã chi trả thành công
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- KPI 3: Tiền Trong Hệ Thống -->
+                    <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-gray-400">Tiền Trong Hệ Thống</span>
+                            <div class="w-9 h-9 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm font-bold shadow-sm">
+                                <i class="fas fa-vault"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="statSystemFunds" class="text-2xl sm:text-[26px] font-black text-purple-600 dark:text-purple-400 tracking-tight">0</p>
+                            <span id="statSystemFundsBreakdown" class="text-xs text-purple-600 dark:text-purple-300 font-bold block mt-1 flex items-center">
+                                <i class="fas fa-layer-group mr-1 text-[10px]"></i> Ví: 0M • Escrow: 0M
+                            </span>
                         </div>
                     </div>
-                    <div>
-                        <p id="statTotalDeposits" class="text-2xl font-black text-teal-600 dark:text-teal-400">0</p>
-                        <span class="text-[10px] text-gray-400 font-semibold block mt-0.5">Token đã nạp vào HT Work</span>
+
+                    <!-- KPI 4: Escrow Đang Khóa -->
+                    <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-gray-400">Escrow Đang Khóa</span>
+                            <div class="w-9 h-9 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm font-bold shadow-sm">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="statEscrowLocked" class="text-2xl sm:text-[26px] font-black text-teal-600 dark:text-teal-400 tracking-tight">0</p>
+                            <span class="text-xs text-teal-600 dark:text-teal-400 font-bold block mt-1 flex items-center">
+                                <i class="fas fa-lock mr-1 text-[10px]"></i> Token bảo vệ 100% hợp đồng
+                            </span>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- KPI 2: Active Jobs -->
-                <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Dự Án Đang Chạy</span>
-                        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <p id="statActiveJobs" class="text-2xl font-black text-indigo-600 dark:text-indigo-400">0</p>
-                        <span id="statTotalJobs" class="text-[10px] text-gray-400 font-semibold block mt-0.5">Tổng: 0 dự án</span>
-                    </div>
+            <!-- SECTION 2: VẬN HÀNH & HOẠT ĐỘNG SÀN (Hàng 2 - 4 Thẻ Nghiệp Vụ) -->
+            <div class="mb-6 sm:mb-8">
+                <div class="flex items-center justify-between mb-2.5 px-1">
+                    <span class="text-xs font-black uppercase tracking-wider text-gray-600 dark:text-gray-300 flex items-center">
+                        <i class="fas fa-chart-line text-indigo-500 mr-2 text-sm"></i> Vận Hành & Giám Sát Hoạt Động Sàn
+                    </span>
+                    <span class="text-[11px] text-gray-400 font-semibold hidden sm:inline-block">Cập nhật trực tiếp thời gian thực</span>
                 </div>
-
-                <!-- KPI 3: Escrow Locked -->
-                <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Escrow Đang Khóa</span>
-                        <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm font-bold">
-                            <i class="fas fa-shield-alt"></i>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+                    <!-- KPI 5: Người Dùng -->
+                    <a href="users.html" class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-blue-400 hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-gray-400 group-hover:text-blue-500 transition-colors">Người Dùng</span>
+                            <div class="w-9 h-9 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold shadow-sm">
+                                <i class="fas fa-users"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <p id="statEscrowLocked" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">0</p>
-                        <span class="text-[10px] text-emerald-600 font-bold block mt-0.5">Token bảo vệ 100%</span>
-                    </div>
+                        <div>
+                            <p id="statTotalUsers" class="text-2xl sm:text-[26px] font-black text-gray-900 dark:text-white tracking-tight">0</p>
+                            <span id="statUserRatio" class="text-xs text-gray-400 font-semibold block mt-1 flex items-center">
+                                <i class="fas fa-user-check mr-1 text-[10px] text-blue-500"></i> 0 Khách • 0 Thợ
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- KPI 6: Dự Án Đang Chạy -->
+                    <a href="projects-monitor.html" class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-indigo-400 hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-gray-400 group-hover:text-indigo-500 transition-colors">Dự Án Đang Chạy</span>
+                            <div class="w-9 h-9 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold shadow-sm">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="statActiveJobs" class="text-2xl sm:text-[26px] font-black text-indigo-600 dark:text-indigo-400 tracking-tight">0</p>
+                            <span id="statTotalJobs" class="text-xs text-gray-400 font-semibold block mt-1 flex items-center">
+                                <i class="fas fa-folder-open mr-1 text-[10px] text-indigo-500"></i> Tổng: 0 dự án
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- KPI 7: Rút Tiền Pending -->
+                    <a href="withdrawals.html" class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-amber-400 hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-gray-400 group-hover:text-amber-500 transition-colors">Rút Tiền Pending</span>
+                            <div class="w-9 h-9 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center text-sm font-bold shadow-sm">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="statPendingWithdrawCount" class="text-2xl sm:text-[26px] font-black text-amber-500 tracking-tight">0</p>
+                            <span id="statPendingWithdrawAmount" class="text-xs text-amber-600 dark:text-amber-400 font-bold block mt-1 flex items-center">
+                                <i class="fas fa-clock mr-1 text-[10px]"></i> 0 Token chờ duyệt
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- KPI 8: Tranh Chấp Tòa Án -->
+                    <a href="projects-monitor.html" class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-red-400 hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-gray-400 group-hover:text-red-500 transition-colors">Tranh Chấp Tòa Án</span>
+                            <div class="w-9 h-9 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 flex items-center justify-center text-sm font-bold shadow-sm">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="statDisputedJobs" class="text-2xl sm:text-[26px] font-black text-red-600 tracking-tight">0</p>
+                            <span class="text-xs text-red-500 font-bold block mt-1 flex items-center">
+                                <i class="fas fa-balance-scale mr-1 text-[10px]"></i> Cần phán quyết
+                            </span>
+                        </div>
+                    </a>
                 </div>
-
-                <!-- KPI 4: Pending Withdrawals -->
-                <a href="withdrawals.html" class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-amber-400 transition flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Rút Tiền Pending</span>
-                        <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center text-sm font-bold">
-                            <i class="fas fa-qrcode"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <p id="statPendingWithdrawCount" class="text-2xl font-black text-amber-500">0</p>
-                        <span id="statPendingWithdrawAmount" class="text-[10px] text-amber-600 font-bold block mt-0.5">0 Token chờ quét QR</span>
-                    </div>
-                </a>
-
-                <!-- KPI 5: Disputes -->
-                <a href="projects-monitor.html" class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-red-400 transition flex flex-col justify-between col-span-2 sm:col-span-1">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Tranh Chấp Tòa Án</span>
-                        <div class="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 flex items-center justify-center text-sm font-bold">
-                            <i class="fas fa-gavel"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <p id="statDisputedJobs" class="text-2xl font-black text-red-600">0</p>
-                        <span class="text-[10px] text-red-500 font-bold block mt-0.5">Cần phán quyết</span>
-                    </div>
-                </a>
             </div>
 
             
@@ -268,15 +330,25 @@
                 const data = await res.json();
                 if (res.ok && data.stats) {
                     const s = data.stats;
-                    document.getElementById('statTotalUsers').innerText = s.total_users;
+                    if(document.getElementById('statTotalUsers')) document.getElementById('statTotalUsers').innerText = s.total_users;
                     if(document.getElementById('statTotalDeposits')) document.getElementById('statTotalDeposits').innerText = (s.total_deposits || 0).toLocaleString();
-                    document.getElementById('statUserRatio').innerText = `${s.total_clients} Khách • ${s.total_freelancers} Thợ`;
-                    document.getElementById('statActiveJobs').innerText = s.active_jobs;
-                    document.getElementById('statTotalJobs').innerText = `Tổng: ${s.total_jobs} dự án`;
-                    document.getElementById('statEscrowLocked').innerText = s.total_escrow_locked.toLocaleString();
-                    document.getElementById('statPendingWithdrawCount').innerText = s.pending_withdraw_count;
-                    document.getElementById('statPendingWithdrawAmount').innerText = `${s.pending_withdraw_amount.toLocaleString()} Token chờ duyệt`;
-                    document.getElementById('statDisputedJobs').innerText = s.disputed_jobs;
+                    if(document.getElementById('statTotalWithdrawn')) document.getElementById('statTotalWithdrawn').innerText = (s.total_withdrawn || 0).toLocaleString();
+                    
+                    const sysFunds = s.total_system_funds !== undefined ? s.total_system_funds : ((s.total_balance || 0) + (s.total_escrow_locked || 0));
+                    if(document.getElementById('statSystemFunds')) document.getElementById('statSystemFunds').innerText = sysFunds.toLocaleString();
+                    if(document.getElementById('statSystemFundsBreakdown')) {
+                        const balM = ((s.total_balance || 0) / 1000000).toFixed(1) + 'M';
+                        const escM = ((s.total_escrow_locked || 0) / 1000000).toFixed(1) + 'M';
+                        document.getElementById('statSystemFundsBreakdown').innerText = `Ví: ${balM} • Escrow: ${escM}`;
+                    }
+
+                    if(document.getElementById('statUserRatio')) document.getElementById('statUserRatio').innerText = `${s.total_clients} Khách • ${s.total_freelancers} Thợ`;
+                    if(document.getElementById('statActiveJobs')) document.getElementById('statActiveJobs').innerText = s.active_jobs;
+                    if(document.getElementById('statTotalJobs')) document.getElementById('statTotalJobs').innerText = `Tổng: ${s.total_jobs} dự án`;
+                    if(document.getElementById('statEscrowLocked')) document.getElementById('statEscrowLocked').innerText = (s.total_escrow_locked || 0).toLocaleString();
+                    if(document.getElementById('statPendingWithdrawCount')) document.getElementById('statPendingWithdrawCount').innerText = s.pending_withdraw_count;
+                    if(document.getElementById('statPendingWithdrawAmount')) document.getElementById('statPendingWithdrawAmount').innerText = `${(s.pending_withdraw_amount || 0).toLocaleString()} Token chờ duyệt`;
+                    if(document.getElementById('statDisputedJobs')) document.getElementById('statDisputedJobs').innerText = s.disputed_jobs;
                 }
             } catch(e) {
                 console.error(e);
@@ -465,13 +537,31 @@
                         },
                         
                         options: { 
-                            layout: { padding: { top: 20, right: 20, left: 10, bottom: 10 } },
+                            layout: { padding: { top: 35, right: 25, left: 10, bottom: 10 } },
                             responsive: true, maintainAspectRatio: false, 
-                            scales: { x: { grid: { color: theme.gridColor }, ticks: { color: theme.textColor } }, y: { grid: { color: theme.gridColor }, ticks: { color: theme.textColor } } }, 
+                            scales: { 
+                                x: { grid: { color: theme.gridColor }, ticks: { color: theme.textColor } }, 
+                                y: { 
+                                    beginAtZero: true,
+                                    grace: '30%', // Tạo khoảng đệm trên đỉnh để không bị dính chữ
+                                    grid: { color: theme.gridColor }, 
+                                    ticks: { color: theme.textColor } 
+                                } 
+                            }, 
                             plugins: { 
-                                legend: { labels: { color: theme.textColor } },
+                                legend: { 
+                                    position: 'top',
+                                    labels: { 
+                                        color: theme.textColor,
+                                        usePointStyle: true,
+                                        boxWidth: 8,
+                                        padding: 20,
+                                        font: { weight: 'bold', size: 12 }
+                                    } 
+                                },
                                 datalabels: {
                                     align: 'top',
+                                    offset: 4,
                                     display: 'auto',
                                     color: theme.textColor,
                                     font: { weight: 'bold', size: 10 },

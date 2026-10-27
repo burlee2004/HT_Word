@@ -125,7 +125,7 @@ router.post('/api/admin/projects/resolve-dispute', async (req, res) => {
             module: 'DISPUTE',
             action: 'RESOLVE_DISPUTE',
             actor_id: 'ADMIN',
-            actor_email: 'admin@htwork.vn',
+            actor_email: 'admin@kgs work.vn',
             target_id: winner === 'client' ? client_id : freelancer_id,
             level: 'CRITICAL',
             details: `Admin đã đưa ra phán quyết Tối Cao: [${winner === 'client' ? 'KHÁCH HÀNG THẮNG (Hoàn Escrow)' : 'FREELANCER THẮNG (Ép giải ngân)'}] cho dự án #${job_id} (Số tiền: ${amount.toLocaleString()} Token)`,

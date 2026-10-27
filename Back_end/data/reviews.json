@@ -1,34 +1,41 @@
 [
   {
-    "id": "rev_mu0ylxc6",
-    "job_id": "b082b73a-9631-452c-9296-d9f05e21a07e",
-    "job_title": "Phát triển Game đánh nhau (Fighting Game) trên Unity/Unreal",
-    "client_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
-    "client_name": "Client Test User",
-    "client_avatar": "",
-    "freelancer_id": "8ac76bce-0422-443c-b2d9-d2b08db28da1",
-    "rating": 5,
-    "comment": "rất tốt tôi rất hài lòng về dự án",
-    "tags": [
-      "💬 Giao tiếp tốt",
-      "💻 Code chất lượng cao",
-      "🌟 Chuyên nghiệp",
-      "⚡ Đúng hạn",
-      "🤝 Nhiệt tình hỗ trợ"
-    ],
-    "created_at": "2026-09-14T08:06:50.118Z"
-  },
-  {
     "id": "rev_mu6rrbsd",
     "job_id": "ac436266-cb2d-4682-a49d-177f4e8d73d8",
     "job_title": "Kiểm thử xâm nhập & Bảo mật hệ thống Web nội bộ (LAN)",
     "client_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
     "client_name": "Client Test User",
     "client_avatar": "",
-    "freelancer_id": "null",
+    "freelancer_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "freelancer_name": "HoangfreeLancer",
+    "freelancer_avatar": "https://res.cloudinary.com/burlee2004/image/upload/v1791534702/avatars/olbt4ezqtjhn4yvzyntx.jpg",
     "rating": 5,
     "comment": "Freelancer làm việc rất uy tín, chuyên nghiệp và đúng tiến độ!",
-    "tags": [],
+    "tags": [
+      "⚡ Đúng hạn",
+      "💻 Code chất lượng cao",
+      "🌟 Chuyên nghiệp"
+    ],
     "created_at": "2026-09-18T09:41:41.869Z"
+  },
+  {
+    "id": "rev_mvov91i4",
+    "job_id": "3c6228a4-756e-405c-8951-8c6b58de8017",
+    "job_title": "Phát triển Tool tự động trích xuất dữ liệu từ PDF sang Excel",
+    "client_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "client_name": "Huy Hoang Trinh",
+    "client_avatar": "",
+    "freelancer_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "freelancer_name": "HoangfreeLancer",
+    "freelancer_avatar": "https://res.cloudinary.com/burlee2004/image/upload/v1791534702/avatars/olbt4ezqtjhn4yvzyntx.jpg",
+    "rating": 5,
+    "comment": "Ratas nhanh chóng",
+    "tags": [
+      "⚡ Đúng hạn",
+      "💻 Code chất lượng cao",
+      "💬 Giao tiếp tốt",
+      "🌟 Chuyên nghiệp"
+    ],
+    "created_at": "2026-10-26T06:19:00.701Z"
   }
 ]

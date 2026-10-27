@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - HT Work</title>
+    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -177,23 +177,33 @@
     <!-- MODAL: Đánh Giá & Chấm Sao Freelancer (Rating Modal) -->
     <div id="reviewFreelancerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
         <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 md:p-8 rounded-3xl shadow-2xl max-w-lg w-full">
-            <div class="text-center mb-5">
-                <div class="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-500 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+            <div class="text-center mb-4">
+                <div class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-500 flex items-center justify-center text-2xl mx-auto mb-2 shadow-inner">
                     <i class="fas fa-crown"></i>
                 </div>
-                <h2 class="text-xl font-black text-gray-900 dark:text-gray-100">Đánh Giá Freelancer</h2>
+                <h2 class="text-xl font-black text-gray-900 dark:text-gray-100">Đánh Giá & Chấm Điểm Freelancer</h2>
                 <p id="reviewJobTitleDisplay" class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate font-medium"></p>
             </div>
 
             <input type="hidden" id="review_job_id">
             <input type="hidden" id="review_freelancer_id">
 
-            <!-- Freelancer Info Badge -->
-            <div class="flex items-center gap-3 bg-gray-50 dark:bg-gray-750 p-3 rounded-2xl border border-gray-100 dark:border-gray-700 mb-5">
-                <img id="reviewFreelancerAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Freelancer" class="w-12 h-12 rounded-full object-cover border-2 border-indigo-200">
-                <div>
-                    <h4 id="reviewFreelancerName" class="font-bold text-gray-900 dark:text-gray-100 text-sm">Freelancer</h4>
-                    <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center"><i class="fas fa-check-circle text-[10px] mr-1"></i> Đã hoàn thành dự án</p>
+            <!-- Freelancer Info Badge (Rõ ràng & Nổi bật) -->
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-750 dark:to-gray-800 p-4 rounded-2xl border-2 border-amber-200 dark:border-amber-700/60 mb-5 flex items-center gap-3.5 shadow-sm">
+                <div class="relative shrink-0">
+                    <img id="reviewFreelancerAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Freelancer" class="w-14 h-14 rounded-full object-cover border-2 border-amber-400 shadow-md">
+                    <span class="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title="Freelancer thực hiện">
+                        <i class="fas fa-check"></i>
+                    </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <span class="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded-md inline-block mb-1">
+                        Freelancer phụ trách dự án
+                    </span>
+                    <h4 id="reviewFreelancerName" class="font-black text-gray-900 dark:text-white text-base truncate">Freelancer</h4>
+                    <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center mt-0.5">
+                        <i class="fas fa-shield-alt text-[11px] mr-1"></i> Nghiệm thu hoàn tất & Thanh toán an toàn
+                    </p>
                 </div>
             </div>
 
@@ -364,31 +374,34 @@
         let isPolling = false;
         async function pollPendingActions() {
             if (isPolling) return;
+            if (!currentUser || !currentUser.id) return;
             isPolling = true;
             try {
-                const response = await fetch(`${API_URL}/api/clients/${currentUser.id}/pending-actions`);
+                const response = await fetch(`${API_URL}/api/client/${currentUser.id}/pending-actions`);
+                if (!response.ok) return;
                 const data = await response.json();
                 
-                if (data.jobs) {
+                if (data && Array.isArray(data.jobs)) {
                     const newJobsStr = JSON.stringify(data.jobs);
-                    const oldJobsStr = JSON.stringify(allJobs);
+                    const oldJobsStr = JSON.stringify(allJobsData);
                     
                     if (oldJobsStr !== newJobsStr) {
-                        allJobs = data.jobs;
+                        allJobsData = data.jobs;
                         updateTabCounts();
-                        renderJobsList();
+                        renderFilteredJobs();
                     }
                 }
             } catch (error) {
                 console.error('Polling error:', error);
+            } finally {
+                isPolling = false;
             }
-            isPolling = false;
         }
 
         // Auto refresh jobs data every 3 seconds
         setInterval(pollPendingActions, 3000);
 
-        async function loadPendingActions() {
+        async function loadPendingActions(silent = false) {
             const userStr = localStorage.getItem('user');
             if (!userStr) {
                 window.location.replace('../sharedFolder/login.html');
@@ -399,16 +412,38 @@
             const listDiv = document.getElementById('jobsList');
             if (!listDiv) return;
 
+            if (allJobsData.length === 0 && !silent) {
+                listDiv.innerHTML = `
+                    <div class="flex items-center justify-center p-12">
+                        <i class="fas fa-spinner fa-spin text-2xl text-indigo-600 mr-3"></i>
+                        <span class="text-sm font-bold text-gray-500">Đang tải danh sách dự án...</span>
+                    </div>
+                `;
+            }
+
             try {
                 const response = await fetch(`${API_URL}/api/client/${currentUser.id}/pending-actions`);
+                if (!response.ok) {
+                    throw new Error(`Máy chủ phản hồi mã lỗi: ${response.status}`);
+                }
                 const data = await response.json();
                 allJobsData = data.jobs || [];
 
                 updateTabCounts();
                 renderFilteredJobs();
             } catch (err) {
-                console.error('[HT Work] Lỗi load pending actions:', err);
-                listDiv.innerHTML = '<div class="bg-red-50 text-red-600 p-6 rounded-2xl text-center text-sm font-bold">Không thể kết nối đến máy chủ Backend!</div>';
+                console.error('[KGS Work] Lỗi load pending actions:', err);
+                if (allJobsData.length === 0) {
+                    listDiv.innerHTML = `
+                        <div class="bg-red-50 text-red-600 p-6 rounded-2xl text-center text-sm font-bold border border-red-200">
+                            <i class="fas fa-exclamation-triangle mr-2 text-base"></i>
+                            Không thể kết nối đến máy chủ Backend! Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau.
+                            <button onclick="loadPendingActions()" class="block mx-auto mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-xl text-xs font-bold transition">
+                                <i class="fas fa-redo mr-1"></i> Tải lại trang
+                            </button>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -564,23 +599,36 @@
             let reviewActionHtml = '';
             if (job.status === 'completed') {
                 if (job.review) {
+                    const reviewTagsHtml = job.review.tags && job.review.tags.length > 0
+                        ? `<div class="mt-2 flex flex-wrap gap-1.5">
+                            ${job.review.tags.map(t => `<span class="px-2 py-0.5 bg-amber-100/90 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200 text-[10px] font-bold rounded-lg border border-amber-200 dark:border-amber-700/60">${t}</span>`).join('')}
+                           </div>`
+                        : '';
+                    const reviewCommentHtml = job.review.comment
+                        ? `<p class="text-xs text-amber-800 dark:text-amber-300 mt-1 italic leading-relaxed">"${job.review.comment}"</p>`
+                        : '';
+
                     reviewActionHtml = `
                         <div class="mt-4 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-600 flex items-center justify-center text-xl shrink-0 mt-0.5">
                                     <i class="fas fa-check-circle"></i>
                                 </div>
                                 <div>
-                                    <p class="font-bold text-amber-900 dark:text-amber-200 text-sm">Bạn đã đánh giá Freelancer này!</p>
-                                    <div class="text-xs text-amber-700 dark:text-amber-400 mt-1 flex items-center">
-                                        <div class="text-yellow-500 mr-2">
-                                            ${Array(5).fill(0).map((_, i) => `<i class="${i < job.review.rating ? 'fas' : 'far text-gray-300'} fa-star"></i>`).join('')}
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <p class="font-bold text-amber-900 dark:text-amber-200 text-sm">Bạn đã đánh giá Freelancer này!</p>
+                                        <div class="text-xs text-amber-700 dark:text-amber-400 flex items-center">
+                                            <div class="text-yellow-500 mr-1.5 flex items-center gap-0.5">
+                                                ${Array(5).fill(0).map((_, i) => `<i class="${i < job.review.rating ? 'fas' : 'far text-gray-300'} fa-star"></i>`).join('')}
+                                            </div>
+                                            <span class="font-black text-amber-800 dark:text-amber-300">(${job.review.rating}/5)</span>
                                         </div>
-                                        <span>${job.review.rating}/5</span>
                                     </div>
+                                    ${reviewCommentHtml}
+                                    ${reviewTagsHtml}
                                 </div>
                             </div>
-                            <button onclick="openReviewModal('${job.id}', '${job.freelancer_id || job.review?.freelancer_id || ''}', '${encodeURIComponent(freelancerName)}', '${encodeURIComponent(freelancerAvatar)}', '${encodeURIComponent(job.title)}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
+                            <button onclick="openReviewModal('${job.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center self-end sm:self-center">
                                 <i class="fas fa-edit mr-1.5"></i> Sửa Đánh Giá
                             </button>
                         </div>
@@ -594,10 +642,10 @@
                                 </div>
                                 <div>
                                     <p class="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Dự án đã hoàn tất nghiệm thu & thanh toán!</p>
-                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên HT Work.</p>
+                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên KGS Work.</p>
                                 </div>
                             </div>
-                            <button onclick="openReviewModal('${job.id}', '${job.freelancer_id || job.review?.freelancer_id || ''}', '${encodeURIComponent(freelancerName)}', '${encodeURIComponent(freelancerAvatar)}', '${encodeURIComponent(job.title)}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
+                            <button onclick="openReviewModal('${job.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
                                 <i class="fas fa-star mr-1.5"></i> Viết Đánh Giá
                             </button>
                         </div>
@@ -629,7 +677,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <button onclick="openChatModal('${job.id}', '${encodeURIComponent(job.title)}')" class="bg-blue-50 hover:bg-blue-100 dark:bg-gray-700 dark:text-blue-400 text-blue-600 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center shadow-sm">
+                                <button onclick="goToDirectChat('${job.freelancer_id || ''}')" class="bg-blue-50 hover:bg-blue-100 dark:bg-gray-700 dark:text-blue-400 text-blue-600 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center shadow-sm" title="Mở trang Tin nhắn 1-1 với Freelancer">
                                     <i class="fas fa-comments mr-1"></i> Chat
                                 </button>
                                 <button onclick="openDisputeModal('${job.id}')" class="bg-red-50 hover:bg-red-100 dark:bg-gray-700 dark:text-red-400 text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center shadow-sm">
@@ -678,9 +726,15 @@
                         ${m.proof_urls.map((u, i) => {
                             let linkUrl = typeof u === 'string' ? u : u.url;
                             let linkName = typeof u === 'string' ? `Tệp Báo Cáo #${i+1}` : (u.name || `Tệp Báo Cáo #${i+1}`);
+                            if (linkUrl && linkUrl.startsWith('http://project-internship-8z76.onrender.com')) {
+                                linkUrl = linkUrl.replace('http://', 'https://');
+                            }
+                            const isGit = linkUrl.includes('github.com') || linkUrl.includes('.git');
+                            const iconClass = isGit ? 'fab fa-github' : (linkUrl.endsWith('.py') ? 'fab fa-python' : 'fas fa-download');
+                            const downloadAttr = isGit ? '' : `download="${linkName}"`;
                             return `
-                            <a href="${linkUrl}" target="_blank" title="${linkUrl}" class="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 transition truncate max-w-[200px] sm:max-w-xs">
-                                <i class="fas fa-external-link-alt mr-1.5 shrink-0"></i> <span class="truncate">${linkName}</span>
+                            <a href="${linkUrl}" target="_blank" ${downloadAttr} title="Tải xuống / Mở: ${linkUrl}" class="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 transition truncate max-w-[220px] sm:max-w-xs shadow-sm">
+                                <i class="${iconClass} mr-1.5 shrink-0 text-indigo-500"></i> <span class="truncate">${linkName}</span>
                             </a>
                             `;
                         }).join('')}
@@ -846,10 +900,8 @@
 
                     // Kiểm tra xem job có hoàn thành không để mở modal đánh giá
                     const updatedJob = allJobsData.find(j => j.id === jobId);
-                    if (updatedJob && updatedJob.status === 'completed' && freelancerId) {
-                        const fName = updatedJob.freelancer?.full_name || 'Freelancer';
-                        const fAvatar = updatedJob.freelancer?.avatar_url || '';
-                        openReviewModal(jobId, freelancerId, fName, fAvatar, updatedJob.title);
+                    if (updatedJob && updatedJob.status === 'completed') {
+                        openReviewModal(jobId);
                     }
                 } else {
                     alert('Lỗi: ' + data.error);
@@ -947,16 +999,45 @@
             }
         }
 
+        function goToDirectChat(partnerId) {
+            if (partnerId && partnerId !== 'null' && partnerId !== 'undefined') {
+                window.location.href = `direct-chat.html?partner=${encodeURIComponent(partnerId)}`;
+            } else {
+                window.location.href = 'direct-chat.html';
+            }
+        }
+
         function openReviewModal(jobId, freelancerId, freelancerName, freelancerAvatar, jobTitle) {
-            document.getElementById('review_job_id').value = jobId;
-            document.getElementById('review_freelancer_id').value = freelancerId;
-            document.getElementById('reviewFreelancerName').textContent = decodeURIComponent(freelancerName || 'Freelancer');
-            document.getElementById('reviewJobTitleDisplay').textContent = 'Dự án: ' + decodeURIComponent(jobTitle || '');
-            if (freelancerAvatar) {
-                document.getElementById('reviewFreelancerAvatar').src = decodeURIComponent(freelancerAvatar);
+            const existingJob = allJobsData.find(j => j.id === jobId);
+
+            // Tìm freelancerId chính xác
+            let fId = freelancerId;
+            if (!fId || fId === 'null' || fId === 'undefined') {
+                fId = existingJob?.freelancer_id || existingJob?.review?.freelancer_id || '';
             }
 
-            const existingJob = allJobsData.find(j => j.id === jobId);
+            // Tên freelancer
+            let fName = freelancerName ? decodeURIComponent(freelancerName) : '';
+            if (!fName || fName === 'Freelancer' || fName === 'Freelancer đã nhận việc') {
+                fName = existingJob?.freelancer?.full_name || existingJob?.review?.freelancer_name || 'Freelancer phụ trách';
+            }
+
+            // Avatar freelancer
+            let fAvatar = freelancerAvatar ? decodeURIComponent(freelancerAvatar) : '';
+            if (!fAvatar || fAvatar.includes('seed=Freelancer')) {
+                fAvatar = existingJob?.freelancer?.avatar_url || existingJob?.review?.freelancer_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(fName)}`;
+            }
+
+            let jTitle = jobTitle ? decodeURIComponent(jobTitle) : (existingJob?.title || 'Dự án');
+
+            document.getElementById('review_job_id').value = jobId;
+            document.getElementById('review_freelancer_id').value = fId;
+            document.getElementById('reviewFreelancerName').textContent = fName;
+            document.getElementById('reviewJobTitleDisplay').textContent = 'Dự án: ' + jTitle;
+            if (fAvatar) {
+                document.getElementById('reviewFreelancerAvatar').src = fAvatar;
+            }
+
             const existingReview = existingJob ? existingJob.review : null;
 
             // Rating
@@ -1005,7 +1086,11 @@
 
         async function submitReview() {
             const jobId = document.getElementById('review_job_id').value;
-            const freelancerId = document.getElementById('review_freelancer_id').value;
+            let freelancerId = document.getElementById('review_freelancer_id').value;
+            const existingJob = allJobsData.find(j => j.id === jobId);
+            if (!freelancerId || freelancerId === 'null' || freelancerId === 'undefined') {
+                freelancerId = existingJob?.freelancer_id || existingJob?.review?.freelancer_id || '';
+            }
             const rating = parseInt(document.getElementById('selectedRating').value) || 5;
             const comment = document.getElementById('reviewComment').value.trim();
 
@@ -1030,7 +1115,24 @@
                 if (response.ok) {
                     alert('🎉 Cảm ơn bạn đã gửi đánh giá! Điểm uy tín của Freelancer đã được cộng.');
                     closeReviewModal();
-                    loadPendingActions();
+
+                    // Cập nhật ngay trong memory để UI đổi trạng thái tức thì
+                    if (existingJob) {
+                        existingJob.review = data.review || {
+                            job_id: jobId,
+                            client_id: currentUser.id,
+                            freelancer_id: freelancerId,
+                            rating: rating,
+                            comment: comment || 'Freelancer làm việc rất uy tín, chuyên nghiệp và đúng tiến độ!',
+                            tags: selectedComplimentTags,
+                            created_at: new Date().toISOString()
+                        };
+                    }
+                    updateTabCounts();
+                    renderFilteredJobs();
+
+                    // Đồng bộ nền lại với server
+                    loadPendingActions(true);
                 } else {
                     alert('Lỗi: ' + data.error);
                 }
@@ -1151,17 +1253,9 @@
         }
 
         async function openChatModal(jobId, jobTitle) {
-            document.getElementById('chat_job_id').value = jobId;
-            document.getElementById('chatTitle').textContent = decodeURIComponent(jobTitle || 'Phòng Thảo Luận Dự Án');
-            document.getElementById('chatModal').classList.remove('hidden');
-            lastMessageCount = 0;
-            
-            loadChatMessages(jobId, false);
-
-            if (chatPollingInterval) clearInterval(chatPollingInterval);
-            chatPollingInterval = setInterval(() => {
-                loadChatMessages(jobId, true);
-            }, 3000);
+            const j = allJobsData.find(item => item.id === jobId);
+            const partnerId = j?.freelancer_id || j?.freelancer?.id || '';
+            goToDirectChat(partnerId);
         }
 
         function closeChatModal() {
@@ -1319,12 +1413,7 @@
                 if (jid) {
                     const targetJob = allJobsData.find(j => j.id === jid);
                     if (targetJob) {
-                        const fName = targetJob.freelancer?.full_name || 'Freelancer';
-                        const fAvatar = targetJob.freelancer?.avatar_url || '';
-                        // Fallback freelancer_id từ review nếu job_applications bị lỗi
-                        const fId = targetJob.freelancer_id || targetJob.review?.freelancer_id || '';
-                        
-                        openReviewModal(targetJob.id, fId, encodeURIComponent(fName), encodeURIComponent(fAvatar), encodeURIComponent(targetJob.title));
+                        openReviewModal(targetJob.id);
                         
                         // Xóa tham số khỏi URL để không mở lại khi F5
                         const url = new URL(window.location);

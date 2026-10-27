@@ -26,8 +26,10 @@ router.get('/api/admin/stats', async (req, res) => {
         // Wallets & Escrow stats
         const { data: ledgers } = await supabase.from('wallet_ledger').select('amount, type');
         let totalDeposits = 0;
+        let totalWithdrawn = 0;
         if (ledgers) {
             totalDeposits = ledgers.filter(l => l.type === 'DEPOSIT' || l.type === 'ADMIN_CREDIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
+            totalWithdrawn = ledgers.filter(l => l.type === 'WITHDRAW' || l.type === 'ADMIN_DEBIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
         }
 
         const { data: wallets } = await supabase.from('wallets').select('balance, locked_balance');
@@ -39,12 +41,19 @@ router.get('/api/admin/stats', async (req, res) => {
                 totalLockedEscrow += parseFloat(w.locked_balance || 0);
             });
         }
+        const totalSystemFunds = totalBalance + totalLockedEscrow;
 
         // Withdraw requests stats
         const { data: withdraws } = await supabase.from('withdraw_requests').select('amount, status');
         const pendingWithdraws = (withdraws || []).filter(w => w.status === 'pending');
         const pendingWithdrawCount = pendingWithdraws.length;
         const pendingWithdrawAmount = pendingWithdraws.reduce((sum, w) => sum + parseFloat(w.amount || 0), 0);
+
+        const approvedWithdraws = (withdraws || []).filter(w => w.status === 'approved' || w.status === 'completed' || w.status === 'SUCCESS');
+        const approvedWithdrawAmount = approvedWithdraws.reduce((sum, w) => sum + parseFloat(w.amount || 0), 0);
+        if (totalWithdrawn === 0 && approvedWithdrawAmount > 0) {
+            totalWithdrawn = approvedWithdrawAmount;
+        }
 
         res.status(200).json({
             success: true,
@@ -58,7 +67,9 @@ router.get('/api/admin/stats', async (req, res) => {
                 completed_jobs: completedJobs,
                 total_balance: totalBalance,
                 total_escrow_locked: totalLockedEscrow,
+                total_system_funds: totalSystemFunds,
                 total_deposits: totalDeposits,
+                total_withdrawn: totalWithdrawn,
                 pending_withdraw_count: pendingWithdrawCount,
                 pending_withdraw_amount: pendingWithdrawAmount
             }

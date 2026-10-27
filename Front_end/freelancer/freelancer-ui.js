@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-xl text-gray-800 dark:text-white tracking-wide block leading-tight">HT Work</span>
+                <span class="font-black text-xl text-gray-800 dark:text-white tracking-wide block leading-tight">KGS Work</span>
                 <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Freelancer Hub</span>
             </div>
         </div>
@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="profile.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold transition-colors">
                 <i class="fas fa-user-circle w-5 text-purple-500"></i> <span>Hồ sơ năng lực</span>
             </a>
+            <a href="support.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold transition-colors">
+                <i class="fas fa-headset w-5 text-rose-500"></i> <span>Trung tâm Hỗ trợ</span>
+            </a>
         </nav>
         
         <div class="p-4 border-t border-gray-200 dark:border-gray-700">
@@ -68,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <span class="font-black text-lg text-gray-900 dark:text-white block">HT Work</span>
+                        <span class="font-black text-lg text-gray-900 dark:text-white block">KGS Work</span>
                         <span class="text-[10px] font-bold text-indigo-500 uppercase">Freelancer Hub</span>
                     </div>
                 </div>
@@ -95,6 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </a>
                 <a href="profile.html" class="drawer-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 font-semibold">
                     <i class="fas fa-user-circle w-5 text-purple-500"></i> <span>Hồ sơ năng lực</span>
+                </a>
+                <a href="support.html" class="drawer-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 font-semibold">
+                    <i class="fas fa-headset w-5 text-rose-500"></i> <span>Trung tâm Hỗ trợ</span>
                 </a>
             </nav>
             
@@ -155,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             <!-- User Avatar -->
             <a href="profile.html" class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full border-2 border-indigo-300 dark:border-indigo-500 overflow-hidden shadow-sm hover:border-indigo-500 transition-colors shrink-0 flex items-center justify-center bg-indigo-50" title="Xem hồ sơ năng lực">
-                <img id="uiAvatar" referrerpolicy="no-referrer" src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || 'Freelancer')}&background=4f46e5&color=fff" alt="Avatar" class="w-full h-full object-cover">
+                <img id="uiAvatar" referrerpolicy="no-referrer" src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || 'Freelancer')}&background=4f46e5&color=fff" alt="Avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || 'Freelancer')}&background=4f46e5&color=fff';" class="w-full h-full object-cover">
             </a>
         </div>
     </header>`;
@@ -291,7 +297,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 7. User Avatar & Logout
     const uiAvatar = document.getElementById('uiAvatar');
-    if (uiAvatar && user.avatar_url) uiAvatar.src = user.avatar_url;
+    if (uiAvatar) {
+        const fallbackAvt = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || 'Freelancer')}&background=4f46e5&color=fff`;
+        uiAvatar.onerror = function() {
+            this.onerror = null;
+            this.src = fallbackAvt;
+        };
+        uiAvatar.src = user.avatar_url || fallbackAvt;
+
+        // Tự động đồng bộ avatar mới nhất từ server nếu có
+        if (user.id) {
+            fetch(`${API_URL}/api/users/${user.id}`).then(r => r.json()).then(data => {
+                if (data && data.avatar_url && data.avatar_url !== user.avatar_url) {
+                    user.avatar_url = data.avatar_url;
+                    if (data.full_name) user.full_name = data.full_name;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    uiAvatar.src = data.avatar_url;
+                }
+            }).catch(() => {});
+        }
+    }
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -304,21 +329,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const drawerLogoutBtn = document.getElementById('uiDrawerLogoutBtn');
     if (drawerLogoutBtn) drawerLogoutBtn.addEventListener('click', handleLogout);
 
-    // 8. Fetch Global Balance
+    // 8. Fetch Global Balance (Hỗ trợ LocalStorage Cache tải tức thì 0ms)
     async function loadGlobalBalance() {
+        const balanceElement = document.getElementById('uiBalanceDisplay');
+        if (!balanceElement) return;
+
+        // Đọc ngay từ cache để UI hiển thị số dư tức thì, không bị khựng ở "-- Token"
+        const cachedBal = localStorage.getItem('cached_wallet_balance');
+        if (cachedBal !== null && balanceElement.innerText.trim() === '-- Token') {
+            const num = parseFloat(cachedBal) || 0;
+            balanceElement.innerHTML = typeof window.formatTokenHTML === "function" 
+                ? window.formatTokenHTML(num) 
+                : num.toLocaleString() + " Token";
+        }
+
         try {
             const response = await fetch(`${API_URL}/api/wallet/${user.id}`);
-            const balanceElement = document.getElementById('uiBalanceDisplay');
             if (response.ok) {
                 const data = await response.json();
-                if (balanceElement) {
-                    balanceElement.innerHTML = typeof window.formatTokenHTML === "function" ? window.formatTokenHTML((data.balance || 0)) : ((data.balance || 0)).toLocaleString() + " Token";
+                const bal = data.balance || 0;
+                localStorage.setItem('cached_wallet_balance', bal.toString());
+                if (data.locked_balance !== undefined) {
+                    localStorage.setItem('cached_locked_balance', data.locked_balance.toString());
                 }
-            } else {
-                if (balanceElement) balanceElement.innerText = '0 Token';
+                balanceElement.innerHTML = typeof window.formatTokenHTML === "function" 
+                    ? window.formatTokenHTML(bal) 
+                    : bal.toLocaleString() + " Token";
             }
         } catch (error) {
-            console.error('Lỗi lấy số dư:', error);
+            console.warn('Lỗi lấy số dư:', error);
         }
     }
 
@@ -447,24 +486,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Realtime polling setup
-    setInterval(() => {
-        loadFreelancerNotifications();
-        loadGlobalBalance();
-        setInterval(() => {
-            if(user && user.id) loadGlobalBalance();
-        }, 5000);
-    }, 5000);
-
     // 10. Global Modern Typography & Sleek Scrollbar Style
-    if (!document.getElementById('htwork-global-style')) {
+    if (!document.getElementById('kgs work-global-style')) {
         const fontLink = document.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap';
         document.head.appendChild(fontLink);
 
         const style = document.createElement('style');
-        style.id = 'htwork-global-style';
+        style.id = 'kgs work-global-style';
         style.innerHTML = `
             * {
                 font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -517,10 +547,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Khởi chạy ban đầu
     loadGlobalBalance();
-        setInterval(() => {
-            if(user && user.id) loadGlobalBalance();
-        }, 5000);
     loadFreelancerNotifications();
     window.loadFreelancerNotifications = loadFreelancerNotifications;
     window.loadGlobalBalance = loadGlobalBalance;
+
+    // Polling định kỳ hợp lý (15s/lần) không gây nghẽn mạng và chống tràn bộ nhớ
+    setInterval(() => {
+        if (user && user.id) {
+            loadGlobalBalance();
+            loadFreelancerNotifications();
+        }
+    }, 15000);
 });

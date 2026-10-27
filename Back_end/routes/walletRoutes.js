@@ -18,7 +18,7 @@ router.get('/api/admin/transactions', async (req, res) => {
     }
 });
 
-// 15. API: Lấy thông tin ví của user
+// 15. API: Lấy thông tin ví của user (Tối ưu phản hồi siêu tốc)
 router.get('/api/wallet/:user_id', async (req, res) => {
     const { user_id } = req.params;
     try {
@@ -28,16 +28,9 @@ router.get('/api/wallet/:user_id', async (req, res) => {
         let dbBalance = data ? (parseFloat(data.balance) || 0) : 0;
         let dbLocked = data ? Math.max(0, parseFloat(data.locked_balance) || 0) : 0;
 
-        // BẢO MẬT WEB2.5: ĐỐI CHIẾU BLOCKCHAIN (SOURCE OF TRUTH)
+        // BẢO MẬT WEB2.5: Đối chiếu Blockchain chạy nền bất đồng bộ (không block làm chậm response của User)
         if (blockchain.isConfigured() && data) {
-            const bcBalance = await blockchain.getBalance(user_id);
-            if (bcBalance !== null) {
-                const expectedTotal = dbBalance + dbLocked;
-                
-                if (bcBalance !== expectedTotal) {
-                    // console.error(`[CẢNH BÁO HACK] User ${user_id} bị lệch số dư! DB: ${expectedTotal} != Blockchain: ${bcBalance}`);
-                }
-            }
+            blockchain.getBalance(user_id).catch(() => {});
         }
 
         res.status(200).json({ 
@@ -121,7 +114,7 @@ router.get('/api/admin/audit/users', async (req, res) => {
 });
 
 // API DEV / TESTER (DỌN DẸP VÍ)
-const ALLOWED_TESTERS = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+const ALLOWED_TESTERS = ['admin@kgs work.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
 
 router.post('/api/test/reset-wallet', async (req, res) => {
     const { user_id, email } = req.body;

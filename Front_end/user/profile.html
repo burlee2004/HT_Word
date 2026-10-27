@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ của tôi - Khách hàng | HT Work</title>
+    <title>Hồ sơ của tôi - Khách hàng | KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script>
@@ -31,7 +31,7 @@
                     <div class="px-6 md:px-8 pb-6 pt-0 flex flex-col md:flex-row justify-between items-start md:items-end -mt-16 md:-mt-20 relative z-10 gap-4">
                         <div class="flex flex-col sm:flex-row items-center sm:items-end gap-5">
                             <div class="relative shrink-0">
-                                <img id="avatarContainer" referrerpolicy="no-referrer" src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" alt="Avatar" class="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-800">
+                                <img id="avatarContainer" referrerpolicy="no-referrer" src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" alt="Avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent(document.getElementById('displayName')?.innerText || 'User') + '&background=4f46e5&color=fff';" class="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white dark:border-gray-800 shadow-xl object-cover bg-white dark:bg-gray-800">
                                 <span class="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full shadow" title="Đang hoạt động"></span>
                             </div>
                             <div class="text-center sm:text-left mb-1">
@@ -40,7 +40,7 @@
                                     <span id="displayNickname" class="bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-0.5 rounded-full">@client</span>
                                 </div>
                                 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400 mt-1.5">
-                                    <span class="flex items-center text-blue-600 dark:text-blue-400 font-medium"><i class="fas fa-briefcase mr-1.5"></i>Khách hàng Tuyển dụng VIP</span>
+                                    <span id="displayClientTier" class="flex items-center text-blue-600 dark:text-blue-400 font-medium"><i class="fas fa-user-check mr-1.5"></i>Client Basic</span>
                                     <span id="displayLocation" class="flex items-center"><i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i>TP. Hồ Chí Minh, VN</span>
                                     <span id="displayJoinDate" class="flex items-center"><i class="far fa-calendar-alt mr-1.5"></i>Thành viên từ 2026</span>
                                 </div>
@@ -260,13 +260,13 @@
                             <label class="font-bold text-gray-800 dark:text-gray-200 text-sm block mb-2">Ảnh đại diện</label>
                             <div class="flex justify-center mb-3"><img id="previewAvatar" src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" class="w-20 h-20 rounded-full border-2 border-indigo-500 object-cover shadow"></div>
                             <label for="avatarUpload" class="inline-block bg-indigo-50 dark:bg-gray-700 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer transition"><i class="fas fa-upload mr-1"></i> Đổi ảnh Avatar</label>
-                            <input type="file" id="avatarUpload" class="hidden" accept="image/*"><input type="hidden" id="avatar_url">
+                            <input type="file" id="avatarUpload" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp, image/gif, image/svg+xml"><input type="hidden" id="avatar_url">
                         </div>
                         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-xl text-center">
                             <label class="font-bold text-gray-800 dark:text-gray-200 text-sm block mb-2">Ảnh bìa Cover</label>
                             <div class="flex justify-center mb-3"><img id="previewCover" src="https://via.placeholder.com/600x200" class="w-full h-20 rounded-lg border object-cover shadow"></div>
                             <label for="coverUpload" class="inline-block bg-indigo-50 dark:bg-gray-700 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer transition"><i class="fas fa-upload mr-1"></i> Đổi ảnh Cover</label>
-                            <input type="file" id="coverUpload" class="hidden" accept="image/*"><input type="hidden" id="cover_url">
+                            <input type="file" id="coverUpload" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp, image/gif, image/svg+xml"><input type="hidden" id="cover_url">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -342,7 +342,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4"><h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center"><i class="fas fa-envelope-open-text text-indigo-600 mr-2"></i> Xác thực địa chỉ Email</h3><button onclick="closeEmailModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button></div>
             <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
                 <p class="font-semibold text-gray-800 dark:text-gray-200">Tại sao cần xác thực Email?</p>
-                <ul class="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400"><li>Nhận thông báo quan trọng khi Freelancer nộp bài / yêu cầu giải ngân.</li><li>Bảo vệ tài khoản và khôi phục mật khẩu khi có sự cố.</li><li>Tăng huy hiệu uy tín trên sàn giao dịch HT Work.</li></ul>
+                <ul class="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400"><li>Nhận thông báo quan trọng khi Freelancer nộp bài / yêu cầu giải ngân.</li><li>Bảo vệ tài khoản và khôi phục mật khẩu khi có sự cố.</li><li>Tăng huy hiệu uy tín trên sàn giao dịch KGS Work.</li></ul>
                 <div class="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800 mt-2"><p class="text-xs text-blue-800 dark:text-blue-300"><b>Email đăng ký của bạn:</b> <span id="modalEmailText" class="font-bold">...</span></p></div>
             </div>
             <div class="mt-6 flex flex-col gap-2">
@@ -352,45 +352,82 @@
         </div>
     </div>
 
-    <!-- MODAL 3: PHONE OTP WHATSAPP -->
+    <!-- MODAL 3: PHONE OTP TELEGRAM -->
     <div id="phoneModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-6 border border-gray-100 dark:border-gray-700 animate-in zoom-in-95 duration-150">
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4">
                 <h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center">
-                    <i class="fab fa-whatsapp text-emerald-500 text-lg mr-2"></i> Xác Thực SĐT Qua WhatsApp
+                    <i class="fab fa-telegram text-sky-500 text-xl mr-2"></i> Xác Thực SĐT Qua Telegram Bot
                 </h3>
                 <button onclick="closePhoneModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
             </div>
             
             <div class="space-y-4 text-sm">
                 <!-- Step 1: Input phone & Send OTP -->
-                <div id="phoneStepInput">
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Số điện thoại WhatsApp của bạn:</label>
-                    <div class="flex space-x-2 mb-2">
-                        <input type="tel" id="otpPhoneNumber" class="flex-1 border border-gray-300 dark:border-gray-600 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 bg-gray-50 dark:bg-gray-700 font-mono font-bold" placeholder="VD: 0834779397">
-                        <button type="button" onclick="sendPhoneOtp()" id="btnSendOtp" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md shrink-0 transition flex items-center">
-                            <span>Gửi mã OTP</span>
-                        </button>
+                <div id="phoneStepInput" class="space-y-3">
+                    <!-- Hướng dẫn 3 bước nhanh gọn -->
+                    <div class="bg-sky-50/80 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/60 rounded-2xl p-3 text-xs space-y-2">
+                        <div class="font-bold flex items-center text-sky-700 dark:text-sky-300">
+                            <i class="fas fa-info-circle mr-1.5 text-sky-500"></i> Hướng dẫn 3 bước nhận OTP qua Telegram:
+                        </div>
+                        <div class="space-y-1.5 text-[12px] text-gray-600 dark:text-gray-300">
+                            <div class="flex items-start">
+                                <span class="w-4 h-4 rounded-full bg-sky-200 dark:bg-sky-800 text-sky-800 dark:text-sky-200 text-[10px] font-black inline-flex items-center justify-center mr-2 shrink-0 mt-0.5">1</span>
+                                <span>Nhập số điện thoại của bạn rồi bấm <b>"Lấy mã OTP"</b>.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="w-4 h-4 rounded-full bg-sky-200 dark:bg-sky-800 text-sky-800 dark:text-sky-200 text-[10px] font-black inline-flex items-center justify-center mr-2 shrink-0 mt-0.5">2</span>
+                                <span>Bấm nút <b>"Mở Telegram"</b> 👉 Trong chat với bot, bấm <b>START (Bắt đầu)</b>.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="w-4 h-4 rounded-full bg-sky-200 dark:bg-sky-800 text-sky-800 dark:text-sky-200 text-[10px] font-black inline-flex items-center justify-center mr-2 shrink-0 mt-0.5">3</span>
+                                <span>Bot gửi ngay mã 6 chữ số, bạn nhập mã vào đây và bấm <b>Xác nhận</b> là xong!</span>
+                            </div>
+                        </div>
                     </div>
-                    <p class="text-[11px] text-gray-400">
-                        ⚡ Hệ thống sẽ tự động gửi mã OTP 6 số trực tiếp vào tin nhắn WhatsApp của bạn (hoàn toàn miễn phí).
-                    </p>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Số điện thoại của bạn:</label>
+                        <div class="flex space-x-2 mb-2">
+                            <input type="tel" id="otpPhoneNumber" class="flex-1 border border-gray-300 dark:border-gray-600 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-sky-500 bg-gray-50 dark:bg-gray-700 font-mono font-bold" placeholder="VD: 0834779397">
+                            <button type="button" onclick="sendPhoneOtp()" id="btnSendOtp" class="bg-sky-500 hover:bg-sky-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md shrink-0 transition flex items-center">
+                                <span>Lấy mã OTP</span>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-gray-400">
+                            ⚡ Nhận mã OTP 6 số tức thì qua Telegram Bot (<b>@kgswork_hoang_otp_bot</b>) hoàn toàn miễn phí & bảo mật 100%.
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Step 2: Enter OTP -->
                 <div id="otpInputSection" class="hidden space-y-3 pt-2 border-t border-gray-100 dark:border-gray-700">
-                    <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
-                        <span>Đã gửi mã OTP tới: <strong id="dispTargetPhone" class="font-mono">...</strong></span>
-                        <button type="button" onclick="resetPhoneStep()" class="text-[11px] text-emerald-600 font-bold hover:underline">Đổi SĐT</button>
+                    <div class="p-3 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 rounded-xl text-xs text-sky-900 dark:text-sky-200 flex items-center justify-between">
+                        <span>Đang xác thực SĐT: <strong id="dispTargetPhone" class="font-mono text-sky-600 dark:text-sky-400 font-bold">...</strong></span>
+                        <button type="button" onclick="resetPhoneStep()" class="text-[11px] text-sky-600 dark:text-sky-400 font-bold hover:underline">Đổi SĐT</button>
+                    </div>
+
+                    <!-- Direct Open Telegram Button -->
+                    <a id="btnOpenTelegramUser" href="#" target="_blank" class="w-full py-3 px-4 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg shadow-sky-500/25 transition text-xs flex items-center justify-center space-x-2 text-center">
+                        <i class="fab fa-telegram-plane text-base"></i>
+                        <span>👉 BẤM ĐÂY ĐỂ MỞ TELEGRAM NHẬN MÃ OTP 👈</span>
+                    </a>
+
+                    <!-- Tip bấm START rõ ràng -->
+                    <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-xl p-2.5 text-xs text-amber-800 dark:text-amber-200 flex items-start space-x-2">
+                        <i class="fas fa-hand-pointer text-amber-500 text-sm mt-0.5 shrink-0"></i>
+                        <span class="leading-relaxed">
+                            <b>Lưu ý quan trọng:</b> Khi màn hình Telegram mở lên, bạn chỉ cần bấm nút <b>START</b> (hoặc <b>BẮT ĐẦU</b>) ở cạnh dưới cuộc trò chuyện, Bot sẽ lập tức gửi mã OTP 6 số cho bạn!
+                        </span>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Nhập mã OTP 6 số:</label>
-                        <input type="text" id="otpCode" maxlength="6" class="w-full text-center tracking-widest text-2xl font-black font-mono border-2 border-emerald-300 dark:border-emerald-700 rounded-xl py-2.5 focus:ring-2 focus:ring-emerald-500 bg-gray-50 dark:bg-gray-700" placeholder="123456">
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Nhập mã OTP 6 số từ Telegram:</label>
+                        <input type="text" id="otpCode" maxlength="6" class="w-full text-center tracking-widest text-2xl font-black font-mono border-2 border-sky-300 dark:border-sky-700 rounded-xl py-2.5 focus:ring-2 focus:ring-sky-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="123456">
                     </div>
 
                     <div class="flex items-center justify-between text-xs text-gray-400">
-                        <span>⏱️ Hết hạn sau: <strong id="phoneOtpTimer" class="font-mono text-emerald-600 font-bold">05:00</strong></span>
+                        <span>⏱️ Hết hạn sau: <strong id="phoneOtpTimer" class="font-mono text-sky-600 dark:text-sky-400 font-bold">05:00</strong></span>
                         <button type="button" id="btnResendPhoneOtp" onclick="sendPhoneOtp()" disabled class="text-xs font-bold text-gray-400 cursor-not-allowed">Gửi lại (60s)</button>
                     </div>
 
@@ -453,7 +490,7 @@
                     return;
                 }
             } catch (e) {
-                console.warn('[HT Work] Dùng fallback tỉnh thành:', e);
+                console.warn('[KGS Work] Dùng fallback tỉnh thành:', e);
             }
             selectEl.innerHTML = fallbackProvinces.map(p => `
                 <option value="${p}" ${p === selectedProvince ? 'selected' : ''}>${p}</option>
@@ -528,7 +565,19 @@
         }
 
         // Modal Controls
-        function openEditModal() { document.getElementById('editModal').classList.remove('hidden'); }
+        function openEditModal() { 
+            if (profileData) {
+                if (profileData.avatar_url) {
+                    document.getElementById('avatar_url').value = profileData.avatar_url;
+                    document.getElementById('previewAvatar').src = profileData.avatar_url;
+                }
+                if (profileData.cover_url) {
+                    document.getElementById('cover_url').value = profileData.cover_url;
+                    document.getElementById('previewCover').src = profileData.cover_url;
+                }
+            }
+            document.getElementById('editModal').classList.remove('hidden'); 
+        }
         function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
         function openEmailModal() { 
@@ -551,8 +600,27 @@
             document.getElementById('phoneStepInput').classList.remove('hidden');
         }
 
-        // 1. Upload Helper
+        // 1. Image Validation & Upload Helper
+        function isValidImageFile(file) {
+            if (!file) return false;
+            const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const fileName = (file.name || '').toLowerCase();
+            const hasValidExt = validExtensions.some(ext => fileName.endsWith(ext));
+            const hasValidMime = file.type && file.type.startsWith('image/');
+
+            // Chặn rõ ràng các định dạng tài liệu phổ biến (docx, csv, xlsx, pdf...)
+            const invalidDocExts = ['.docx', '.doc', '.csv', '.xlsx', '.xls', '.pdf', '.zip', '.rar', '.txt', '.json'];
+            if (invalidDocExts.some(ext => fileName.endsWith(ext))) {
+                return false;
+            }
+
+            return hasValidExt && (hasValidMime || !file.type);
+        }
+
         async function uploadImageFile(file) {
+            if (!isValidImageFile(file)) {
+                throw new Error('File không hợp lệ! Ảnh chỉ chấp nhận các định dạng hình ảnh (JPG, PNG, GIF, WEBP...). Không hỗ trợ các định dạng tài liệu như DOCX, CSV, PDF...');
+            }
             const formData = new FormData();
             formData.append('file', file);
             const res = await fetch(`${API_URL}/api/upload/image`, { method: 'POST', body: formData });
@@ -564,14 +632,26 @@
         document.getElementById('avatarUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
+            // Kiểm tra định dạng ảnh
+            if (!isValidImageFile(file)) {
+                alert(`❌ File không hợp lệ!\nẢnh đại diện chỉ chấp nhận các tệp định dạng hình ảnh (JPG, PNG, GIF, WEBP...).\nFile "${file.name}" không phải là định dạng ảnh.`);
+                e.target.value = '';
+                return;
+            }
+
             const img = document.getElementById('previewAvatar');
-            const oldSrc = img.src;
+            const mainImg = document.getElementById('avatarContainer');
+            const oldSrc = mainImg.src;
             img.src = 'https://i.gifer.com/ZKZg.gif';
+            mainImg.src = 'https://i.gifer.com/ZKZg.gif';
             try {
                 const url = await uploadImageFile(file);
                 img.src = url;
+                mainImg.src = url;
                 document.getElementById('avatar_url').value = url;
-                document.getElementById('avatarContainer').src = url;
+                if (profileData) profileData.avatar_url = url;
+                
                 await fetch(`${API_URL}/api/users/${currentUser.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -579,29 +659,50 @@
                 });
                 currentUser.avatar_url = url;
                 localStorage.setItem('user', JSON.stringify(currentUser));
+                const uiAvt = document.getElementById('uiAvatar');
+                if (uiAvt) uiAvt.src = url;
                 alert('✅ Đổi ảnh đại diện thành công!');
             } catch (err) {
                 img.src = oldSrc;
+                mainImg.src = oldSrc;
                 alert('❌ ' + err.message);
+            } finally {
+                e.target.value = '';
             }
         });
 
         document.getElementById('coverUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
+            // Kiểm tra định dạng ảnh
+            if (!isValidImageFile(file)) {
+                alert(`❌ File không hợp lệ!\nẢnh bìa chỉ chấp nhận các tệp định dạng hình ảnh (JPG, PNG, GIF, WEBP...).\nFile "${file.name}" không phải là định dạng ảnh.`);
+                e.target.value = '';
+                return;
+            }
+
+            const previewCover = document.getElementById('previewCover');
+            const coverContainer = document.getElementById('coverContainer');
             try {
                 const url = await uploadImageFile(file);
                 document.getElementById('cover_url').value = url;
-                document.getElementById('previewCover').src = url;
-                document.getElementById('coverContainer').style.backgroundImage = `url('${url}')`;
+                if (profileData) profileData.cover_url = url;
+                if (previewCover) previewCover.src = url;
+                if (coverContainer) coverContainer.style.backgroundImage = `url('${url}')`;
+
                 await fetch(`${API_URL}/api/users/${currentUser.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cover_url: url })
                 });
+                currentUser.cover_url = url;
+                localStorage.setItem('user', JSON.stringify(currentUser));
                 alert('✅ Đổi ảnh bìa thành công!');
             } catch (err) {
                 alert('❌ ' + err.message);
+            } finally {
+                e.target.value = '';
             }
         });
 
@@ -631,7 +732,7 @@
             }
         }
 
-        // 3. Phone OTP WhatsApp
+        // 3. Phone OTP Telegram
         async function sendPhoneOtp() {
             const phone = document.getElementById('otpPhoneNumber').value.trim();
             if (!phone || phone.length < 9) {
@@ -641,7 +742,7 @@
 
             const btn = document.getElementById('btnSendOtp');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang gửi...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang kết nối...';
 
             try {
                 const res = await fetch(`${API_URL}/api/auth/send-phone-otp`, {
@@ -655,20 +756,28 @@
                     document.getElementById('dispTargetPhone').innerText = phone;
                     document.getElementById('phoneStepInput').classList.add('hidden');
                     document.getElementById('otpInputSection').classList.remove('hidden');
+
+                    if (data.deepLink) {
+                        const tgBtn = document.getElementById('btnOpenTelegramUser');
+                        if (tgBtn) tgBtn.href = data.deepLink;
+                        // Tự động mở link Telegram nhận mã
+                        window.open(data.deepLink, '_blank');
+                    }
+
                     document.getElementById('otpCode').focus();
 
                     startPhoneTimer(300);
                     startPhoneCooldown(60);
 
-                    alert(`✅ ${data.message}`);
+                    alert('✅ Đã tạo liên kết OTP thành công!\n\n👉 Khi màn hình Telegram mở lên, bạn chỉ cần bấm nút START (hoặc BẮT ĐẦU) ở góc dưới để Bot gửi ngay mã 6 số về nhé!');
                 } else {
-                    alert('❌ Lỗi: ' + (data.error || 'Không thể gửi mã OTP WhatsApp'));
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể tạo mã OTP Telegram'));
                 }
             } catch (err) {
                 alert('Lỗi kết nối máy chủ!');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<span>Gửi mã OTP</span>';
+                btn.innerHTML = '<span>Lấy mã OTP</span>';
             }
         }
 
@@ -729,7 +838,7 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    alert(`🎉 XÁC THỰC THÀNH CÔNG!\n\nSố điện thoại WhatsApp [${phone}] đã được liên kết chính chủ.`);
+                    alert(`🎉 XÁC THỰC THÀNH CÔNG!\n\nSố điện thoại [${phone}] đã được liên kết chính chủ.`);
                     closePhoneModal();
                     loadProfile();
                 } else {
@@ -754,14 +863,47 @@
             document.getElementById('displayEmail').innerText = data.email || currentUser.email;
             document.getElementById('displayPhone').innerText = data.phone_number || 'Chưa cập nhật';
 
+            const nameInitials = encodeURIComponent(name);
+            const defaultAvatar = `https://ui-avatars.com/api/?name=${nameInitials}&background=4f46e5&color=fff`;
+
+            const mainAvt = document.getElementById('avatarContainer');
+            const prevAvt = document.getElementById('previewAvatar');
+            const uiAvt = document.getElementById('uiAvatar');
+
+            if (mainAvt) mainAvt.onerror = function() { this.onerror = null; this.src = defaultAvatar; };
+            if (prevAvt) prevAvt.onerror = function() { this.onerror = null; this.src = defaultAvatar; };
+            if (uiAvt) uiAvt.onerror = function() { this.onerror = null; this.src = defaultAvatar; };
+
             if (data.avatar_url) {
-                document.getElementById('avatarContainer').src = data.avatar_url;
-                document.getElementById('previewAvatar').src = data.avatar_url;
+                if (mainAvt) mainAvt.src = data.avatar_url;
+                if (prevAvt) prevAvt.src = data.avatar_url;
+                document.getElementById('avatar_url').value = data.avatar_url;
+                if (uiAvt) uiAvt.src = data.avatar_url;
+            } else {
+                if (mainAvt) mainAvt.src = defaultAvatar;
+                if (prevAvt) prevAvt.src = defaultAvatar;
+                document.getElementById('avatar_url').value = '';
+                if (uiAvt) uiAvt.src = defaultAvatar;
             }
+
             if (data.cover_url) {
                 document.getElementById('coverContainer').style.backgroundImage = `url('${data.cover_url}')`;
                 document.getElementById('previewCover').src = data.cover_url;
+                document.getElementById('cover_url').value = data.cover_url;
+            } else {
+                document.getElementById('coverContainer').style.backgroundImage = 'none';
+                document.getElementById('previewCover').src = '';
             }
+
+            // Đồng bộ dữ liệu mới nhất vào localStorage
+            try {
+                if (currentUser && data) {
+                    if (data.avatar_url) currentUser.avatar_url = data.avatar_url;
+                    if (data.cover_url) currentUser.cover_url = data.cover_url;
+                    if (data.full_name) currentUser.full_name = data.full_name;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                }
+            } catch(e) {}
 
             // Email verification badge
             const emailBadge = document.getElementById('emailBadgeContainer');
@@ -778,8 +920,8 @@
             const phoneBadge = document.getElementById('phoneBadgeContainer');
             const phoneAction = document.getElementById('phoneActionContainer');
             if (data.is_phone_verified && data.phone_number) {
-                phoneBadge.innerHTML = `<span class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-full"><i class="fab fa-whatsapp mr-1"></i>Đã xác thực</span>`;
-                phoneAction.innerHTML = `<span class="text-xs text-emerald-600 font-bold">✓ WhatsApp đã kết nối</span>`;
+                phoneBadge.innerHTML = `<span class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-full"><i class="fas fa-check-circle mr-1"></i>Đã xác thực</span>`;
+                phoneAction.innerHTML = `<span class="text-xs text-emerald-600 font-bold">✓ SĐT đã xác thực</span>`;
             } else {
                 phoneBadge.innerHTML = `<span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Chưa xác thực</span>`;
                 phoneAction.innerHTML = `<button onclick="openPhoneModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline"><i class="fas fa-shield-alt mr-1"></i> Xác thực OTP SĐT</button>`;
@@ -841,6 +983,20 @@
                 creditTierBadge.innerHTML = `<i class="fas fa-certificate mr-1.5 text-emerald-400"></i> ${tierName}`;
             }
 
+            // Client Tier Display in Header
+            const clientTierEl = document.getElementById('displayClientTier');
+            if (clientTierEl) {
+                const isVip = (stats.total_spent && stats.total_spent >= 2000) || 
+                              (stats.credit_tier && (stats.credit_tier.includes('VIP') || stats.credit_tier.includes('Hạng A')));
+                if (isVip) {
+                    clientTierEl.innerHTML = `<i class="fas fa-crown text-amber-500 mr-1.5"></i>Client VIP`;
+                    clientTierEl.className = 'flex items-center text-amber-600 dark:text-amber-400 font-bold';
+                } else {
+                    clientTierEl.innerHTML = `<i class="fas fa-user-check text-blue-600 dark:text-blue-400 mr-1.5"></i>Client Basic`;
+                    clientTierEl.className = 'flex items-center text-blue-600 dark:text-blue-400 font-medium';
+                }
+            }
+
             // Form inputs
             document.getElementById('full_name').value = data.full_name || '';
             document.getElementById('nickname').value = data.nickname || '';
@@ -883,10 +1039,22 @@
                 bio: document.getElementById('bio').value.trim(),
                 bank_name: document.getElementById('bank_name').value,
                 bank_account: document.getElementById('bank_account').value.trim(),
-                bank_owner: document.getElementById('bank_owner').value.trim().toUpperCase(),
-                avatar_url: document.getElementById('avatar_url').value,
-                cover_url: document.getElementById('cover_url').value
+                bank_owner: document.getElementById('bank_owner').value.trim().toUpperCase()
             };
+
+            const avatarVal = document.getElementById('avatar_url').value.trim();
+            if (avatarVal) {
+                payload.avatar_url = avatarVal;
+            } else if (profileData && profileData.avatar_url) {
+                payload.avatar_url = profileData.avatar_url;
+            }
+
+            const coverVal = document.getElementById('cover_url').value.trim();
+            if (coverVal) {
+                payload.cover_url = coverVal;
+            } else if (profileData && profileData.cover_url) {
+                payload.cover_url = profileData.cover_url;
+            }
 
             try {
                 const res = await fetch(`${API_URL}/api/users/${currentUser.id}`, {

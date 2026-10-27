@@ -236,7 +236,7 @@ router.post('/api/messages/direct', async (req, res) => {
                         max_violations: strikeInfo.max_violations,
                         strikes_remaining: strikeInfo.strikes_remaining,
                         warning_banner: `⚠️ CẢNH BÁO VI PHẠM (Lần ${strikeInfo.violation_count}/5): Bạn còn ${strikeInfo.strikes_remaining} lần trước khi tài khoản bị KHÓA 30 NGÀY!`,
-                        error: mediaMod.warning_message || 'Tệp tin hoặc hình ảnh vi phạm tiêu chuẩn an toàn nội dung của HT Work!',
+                        error: mediaMod.warning_message || 'Tệp tin hoặc hình ảnh vi phạm tiêu chuẩn an toàn nội dung của KGS Work!',
                         violations: mediaMod.violations,
                         matched_summary: mediaMod.matched_summary
                     });

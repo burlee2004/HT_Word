@@ -1,39 +1,35 @@
 const nodemailer = require('nodemailer');
 const { logEvent } = require('./auditLogger');
 
-// Khởi tạo Transporter cho Nodemailer
+// Khởi tạo Transporter cho Nodemailer (Hỗ trợ chuẩn STARTTLS Port 587 chống nghẽn Cloud)
 function createTransporter() {
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = parseInt(process.env.SMTP_PORT || '587');
     const secure = process.env.SMTP_SECURE === 'true' || port === 465;
-    const user = (process.env.SMTP_USER || '').trim();
-    const pass = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // Tự động làm sạch mọi dấu cách từ Google App Password
+    const user = (process.env.SMTP_USER || 'htworkcompany@gmail.com').trim();
+    const pass = (process.env.SMTP_PASS || 'vezjmttuipykqzre').replace(/\s+/g, ''); // Tự động làm sạch mọi dấu cách từ Google App Password
 
     if (!user || !pass || user.includes('your_email') || pass.includes('your_app_password')) {
         return null; // Chế độ DEV/Sandbox (chưa cấu hình mail thật)
     }
 
-    // Tối ưu riêng cho Gmail SMTP
-    if (host.includes('gmail') || host.includes('google')) {
-        return nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user, pass }
-        });
-    }
-
+    // Kết nối trực tiếp qua Host + Port 587 với Timeout nghiêm ngặt, tuyệt đối không dùng service:'gmail' vì port 465 bị firewall chặn
     return nodemailer.createTransport({
-        host,
-        port,
-        secure,
+        host: host || 'smtp.gmail.com',
+        port: port || 587,
+        secure: secure, // false cho 587 STARTTLS
         auth: { user, pass },
-        pool: true,
-        maxConnections: 5,
-        maxMessages: 100
+        connectionTimeout: 3500, // 3.5s tối đa kết nối socket
+        greetingTimeout: 3000,   // 3s chào hỏi SMTP
+        socketTimeout: 4000,     // 4s truyền dữ liệu
+        tls: {
+            rejectUnauthorized: false
+        }
     });
 }
 
 /**
- * Tạo giao diện HTML Email thương hiệu HT Work cao cấp
+ * Tạo giao diện HTML Email thương hiệu KGS Work cao cấp
  */
 function generateOtpHtmlTemplate(fullName, otpCode) {
     return `
@@ -42,7 +38,7 @@ function generateOtpHtmlTemplate(fullName, otpCode) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Mã xác thực OTP - HT Work</title>
+        <title>Mã xác thực OTP - KGS Work</title>
         <style>
             body { margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
             .container { max-width: 560px; margin: 30px auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
@@ -63,12 +59,12 @@ function generateOtpHtmlTemplate(fullName, otpCode) {
     <body>
         <div class="container">
             <div class="header">
-                <h1 class="logo-text">HT Work</h1>
+                <h1 class="logo-text">KGS Work</h1>
                 <span class="badge">Nền tảng IT & Freelancer Hub</span>
             </div>
             <div class="content">
                 <div class="greeting">Xin chào ${fullName || 'Quý khách'},</div>
-                <p class="desc">Cảm ơn bạn đã đăng ký tài khoản trên nền tảng <strong>HT Work</strong>. Để hoàn tất kích hoạt tài khoản và bảo vệ an toàn thông tin, vui lòng nhập mã xác thực OTP 6 số dưới đây:</p>
+                <p class="desc">Cảm ơn bạn đã đăng ký tài khoản trên nền tảng <strong>KGS Work</strong>. Để hoàn tất kích hoạt tài khoản và bảo vệ an toàn thông tin, vui lòng nhập mã xác thực OTP 6 số dưới đây:</p>
                 
                 <div class="otp-box">
                     <div class="otp-label">MÃ XÁC THỰC CỦA BẠN</div>
@@ -77,12 +73,12 @@ function generateOtpHtmlTemplate(fullName, otpCode) {
                 </div>
 
                 <div class="warning">
-                    ⚠️ <strong>Lưu ý bảo mật:</strong> Tuyệt đối không chia sẻ mã này cho bất kỳ ai, kể cả nhân viên hỗ trợ của HT Work. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.
+                    ⚠️ <strong>Lưu ý bảo mật:</strong> Tuyệt đối không chia sẻ mã này cho bất kỳ ai, kể cả nhân viên hỗ trợ của KGS Work. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.
                 </div>
             </div>
             <div class="footer">
-                <p style="margin: 0 0 6px 0;">© 2026 HT Work Platform. All rights reserved.</p>
-                <p style="margin: 0;">Email này được gửi tự động từ hệ thống xác thực của HT Work.</p>
+                <p style="margin: 0 0 6px 0;">© 2026 KGS Work Platform. All rights reserved.</p>
+                <p style="margin: 0;">Email này được gửi tự động từ hệ thống xác thực của KGS Work.</p>
             </div>
         </div>
     </body>
@@ -99,7 +95,7 @@ async function sendOtpEmail(email, fullName, otpCode) {
     // 1. Chế độ Sandbox / Dev nếu chưa cấu hình SMTP thật
     if (!transporter) {
         console.log(`\n===============================================================`);
-        console.log(`📧 [HT WORK DEV EMAIL OTP SERVICE - SANDBOX MODE]`);
+        console.log(`📧 [KGS WORK DEV EMAIL OTP SERVICE - SANDBOX MODE]`);
         console.log(`👉 Người nhận: ${fullName} <${email}>`);
         console.log(`👉 MÃ XÁC THỰC OTP: [ ${otpCode} ]`);
         console.log(`👉 Hiệu lực: 5 phút | Trạng thái: Sẵn sàng nhận cấu hình SMTP thật trong .env`);
@@ -114,18 +110,18 @@ async function sendOtpEmail(email, fullName, otpCode) {
             metadata: { email, fullName, sandbox: true }
         });
 
-        return { success: true, mode: 'sandbox', message: 'Mã OTP đã được tạo (Sandbox Mode)' };
+        return { success: true, mode: 'sandbox', demo_otp: otpCode, message: 'Mã OTP đã được tạo (Sandbox Mode)' };
     }
 
     // 2. Chế độ Gửi Thật qua SMTP (Gmail / Resend / SendGrid)
     try {
-        const fromEmail = process.env.EMAIL_FROM || `HT Work <${process.env.SMTP_USER}>`;
+        const fromEmail = process.env.EMAIL_FROM || `KGS Work <${process.env.SMTP_USER || 'htworkcompany@gmail.com'}>`;
         
         // Gửi mail bất đồng bộ
         const mailOptions = {
             from: fromEmail,
             to: email,
-            subject: `[HT Work] ${otpCode} là mã xác thực đăng ký tài khoản của bạn`,
+            subject: `[KGS Work] ${otpCode} là mã xác thực đăng ký tài khoản của bạn`,
             html: generateOtpHtmlTemplate(fullName, otpCode)
         };
 
@@ -157,7 +153,7 @@ async function sendOtpEmail(email, fullName, otpCode) {
             metadata: { error: error.message }
         });
 
-        return { success: false, error: error.message, fallbackOtp: otpCode };
+        return { success: false, mode: 'error', error: error.message, demo_otp: otpCode, fallbackOtp: otpCode };
     }
 }
 
@@ -187,19 +183,19 @@ function generateResetOtpHtmlTemplate(fullName, otpCode) {
     <body>
         <div class="container">
             <div class="header">
-                <h1 class="logo-text">HT Work</h1>
+                <h1 class="logo-text">KGS Work</h1>
                 <div style="color:white; font-size: 14px; margin-top: 5px;">Yêu cầu Đặt Lại Mật Khẩu</div>
             </div>
             <div class="content">
                 <div class="greeting">Xin chào ${fullName || 'Quý khách'},</div>
-                <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>HT Work</strong> của bạn.</p>
+                <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>KGS Work</strong> của bạn.</p>
                 <p>Vui lòng sử dụng mã xác thực (OTP) dưới đây để thay đổi mật khẩu mới:</p>
                 <div class="otp-box"><div class="otp-code">${otpCode}</div><div style="font-size: 12px; color: #ef4444; margin-top: 10px;">⏱️ Mã có hiệu lực trong 5 phút</div></div>
                 <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 8px; font-size: 13px; color: #92400e;">
                     ⚠️ Nếu bạn không yêu cầu đổi mật khẩu, vui lòng bỏ qua email này. Tài khoản của bạn vẫn an toàn.
                 </div>
             </div>
-            <div class="footer">© 2026 HT Work Platform. All rights reserved.</div>
+            <div class="footer">© 2026 KGS Work Platform. All rights reserved.</div>
         </div>
     </body>
     </html>
@@ -210,25 +206,25 @@ async function sendResetPasswordEmail(email, fullName, otpCode) {
     const transporter = createTransporter();
     if (!transporter) {
         console.log(`\n===============================================================`);
-        console.log(`📧 [HT WORK DEV EMAIL OTP SERVICE - SANDBOX MODE] (RESET PASSWORD)`);
+        console.log(`📧 [KGS WORK DEV EMAIL OTP SERVICE - SANDBOX MODE] (RESET PASSWORD)`);
         console.log(`👉 Người nhận: ${fullName} <${email}>`);
         console.log(`👉 MÃ XÁC THỰC OTP: [ ${otpCode} ]`);
         console.log(`===============================================================\n`);
         return { success: true, mode: 'sandbox', demo_otp: otpCode };
     }
     try {
-        const fromEmail = process.env.EMAIL_FROM || `HT Work <${process.env.SMTP_USER}>`;
+        const fromEmail = process.env.EMAIL_FROM || `KGS Work <${process.env.SMTP_USER || 'htworkcompany@gmail.com'}>`;
         const mailOptions = {
             from: fromEmail,
             to: email,
-            subject: `[HT Work] ${otpCode} là mã xác thực đặt lại mật khẩu của bạn`,
+            subject: `[KGS Work] ${otpCode} là mã xác thực đặt lại mật khẩu của bạn`,
             html: generateResetOtpHtmlTemplate(fullName, otpCode)
         };
         const info = await transporter.sendMail(mailOptions);
         return { success: true, mode: 'smtp', messageId: info.messageId };
     } catch (error) {
         console.error('Lỗi gửi email reset', error);
-        return { success: false, error: error.message, fallbackOtp: otpCode };
+        return { success: false, mode: 'error', error: error.message, demo_otp: otpCode, fallbackOtp: otpCode };
     }
 }
 module.exports.sendResetPasswordEmail = sendResetPasswordEmail;

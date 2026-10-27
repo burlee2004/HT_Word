@@ -18,9 +18,16 @@ if (!fs.existsSync(uploadsDir)) {
 }
 app.use('/uploads', express.static(uploadsDir));
 
+// Fallback chuyển hướng sang Cloudinary nếu file cục bộ bị xóa trên Render
+app.get('/uploads/:filename', (req, res) => {
+    const filename = req.params.filename;
+    console.log(`[Uploads Fallback] Redirecting to Cloudinary for file: ${filename}`);
+    return res.redirect(`https://res.cloudinary.com/burlee2004/raw/upload/deliverables/${filename}`);
+});
+
 // 2. Route kiểm tra trạng thái Server
 app.get('/', (req, res) => {
-    res.send('HT Work Backend is running in Modular Architecture!');
+    res.send('KGS Work Backend is running in Modular Architecture!');
 });
 
 // 3. Đăng ký (Mount) các Route Module theo từng cụm chức năng
@@ -38,11 +45,16 @@ app.use(require('./routes/categoryRoutes'));
 app.use(require('./routes/reviewRoutes'));
 app.use(require('./routes/aiRoutes'));
 app.use(require('./routes/adminRoutes'));
+app.use(require('./routes/supportRoutes'));
 app.use(require('./routes/connectionRoutes'));
 app.use(require('./routes/testRoutes'));
 
-// 4. Khởi chạy Server (Tích hợp AI Groq Llama 3.3)
+// 4. Khởi chạy Server (Tích hợp AI Groq Llama 3.3 & Telegram OTP Bot)
+const { initTelegramBot } = require('./services/telegramService');
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`✅ Server đang chạy tại http://localhost:${PORT}`);
+    // Khởi động bot Telegram lắng nghe tin nhắn OTP
+    initTelegramBot();
 });

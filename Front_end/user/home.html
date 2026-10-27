@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chợ Nhân Sự IT & Săn Freelancer - HT Work</title>
+    <title>Chợ Nhân Sự IT & Săn Freelancer - KGS Work</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -593,7 +593,8 @@
             }
 
             grid.innerHTML = filtered.map(f => {
-                const avatar = f.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(f.full_name)}&background=4f46e5&color=fff`;
+                const fallbackAvt = `https://ui-avatars.com/api/?name=${encodeURIComponent(f.full_name)}&background=4f46e5&color=fff`;
+                const avatar = f.avatar_url || fallbackAvt;
                 
                 const skillBadges = (f.skills || []).slice(0, 3).map(s => 
                     `<span class="bg-indigo-50 dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-md mr-1 mb-1 inline-block border border-indigo-100 dark:border-gray-600">${s}</span>`
@@ -607,7 +608,7 @@
                         <!-- Header Freelancer Card (Click để xem Profile & Work History) -->
                         <div class="flex items-start space-x-3.5 mb-3.5 cursor-pointer" onclick="openProfileModal('${f.id}')">
                             <div class="relative w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] shrink-0">
-                                <img src="${avatar}" alt="${escapeHtml(f.full_name)}" class="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-2xl object-cover border-2 border-indigo-100 dark:border-gray-700 shadow-sm group-hover:scale-105 transition duration-200">
+                                <img src="${avatar}" alt="${escapeHtml(f.full_name)}" onerror="this.onerror=null; this.src='${fallbackAvt}';" class="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-2xl object-cover border-2 border-indigo-100 dark:border-gray-700 shadow-sm group-hover:scale-105 transition duration-200">
                                 <span class="w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full absolute -bottom-0.5 -right-0.5 shadow-sm" title="Sẵn sàng nhận việc"></span>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -638,7 +639,7 @@
                         </div>
 
                         <!-- Bio -->
-                        <p class="text-xs text-gray-600 dark:text-gray-300 mb-3.5 line-clamp-2 leading-relaxed cursor-pointer" onclick="openProfileModal('${f.id}')">${escapeHtml(f.bio || 'Chuyên gia lập trình và phát triển phần mềm trên sàn HT Work.')}</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-300 mb-3.5 line-clamp-2 leading-relaxed cursor-pointer" onclick="openProfileModal('${f.id}')">${escapeHtml(f.bio || 'Chuyên gia lập trình và phát triển phần mềm trên sàn KGS Work.')}</p>
 
                         <!-- Skills -->
                         <div class="flex flex-wrap mb-2">
@@ -684,8 +685,13 @@
                     const f = data.freelancer;
                     activeProfileFreelancer = f;
 
-                    const avatar = f.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(f.full_name)}&background=4f46e5&color=fff`;
-                    document.getElementById('mAvatar').src = avatar;
+                    const fallbackAvt = `https://ui-avatars.com/api/?name=${encodeURIComponent(f.full_name)}&background=4f46e5&color=fff`;
+                    const avatar = f.avatar_url || fallbackAvt;
+                    const mAvtEl = document.getElementById('mAvatar');
+                    if (mAvtEl) {
+                        mAvtEl.onerror = function() { this.onerror = null; this.src = fallbackAvt; };
+                        mAvtEl.src = avatar;
+                    }
                     document.getElementById('mFullName').innerText = f.full_name;
                     document.getElementById('mEmail').innerText = f.email;
                     document.getElementById('mLocation').innerText = f.location || 'Việt Nam';

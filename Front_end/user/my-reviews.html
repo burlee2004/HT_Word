@@ -3,119 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HT Work - Đánh giá của tôi</title>
-    <!-- Tailwind CSS -->
+    <title>Khách hàng - Đánh Giá Của Tôi - KGS Work</title>
+    
+    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        dark: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
     <script src="../assets/js/token-formatter.js?v=1791344398"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased overflow-hidden">
-    <!-- Navbar (sẽ được inject bởi ui.js) -->
-    <div id="navbar-container"></div>
-    <div class="flex h-[calc(100vh-64px)] overflow-hidden relative">
-        <!-- Sidebar -->
-        <div id="sidebar-container" class="h-full"></div>
-        <div id="mobile-sidebar-container"></div>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
+    
+    <!-- Sidebar Placeholder (Injected by ui.js) -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Header Placeholder (Injected by ui.js) -->
+        <div id="header-container"></div>
+        
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto bg-gray-50/50 p-4 md:p-6 lg:p-8" id="main-content">
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-10">
             <div class="max-w-5xl mx-auto space-y-6">
-                <!-- Header -->
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div>
-                        <h1 class="text-2xl font-black text-gray-900 tracking-tight flex items-center">
-                            <i class="fas fa-star text-amber-400 mr-2.5"></i>
-                            Đánh Giá Của Tôi
-                        </h1>
-                        <p class="text-sm text-gray-500 mt-1">Quản lý và xem lại tất cả các đánh giá bạn đã viết cho Freelancer.</p>
+                
+                <!-- Back Button & Breadcrumbs -->
+                <div class="flex items-center justify-between">
+                    <button onclick="window.history.back()" class="text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition flex items-center text-sm font-semibold">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </button>
+                    <div class="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                        Client Hub <span class="mx-1">/</span> <span class="text-indigo-600 dark:text-indigo-400 font-bold">Đánh giá của tôi</span>
                     </div>
                 </div>
-                <!-- Danh sách đánh giá -->
-                <div id="reviewsList" class="space-y-4">
-                    <p class="text-center text-gray-400 text-sm mt-10"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</p>
+
+                <!-- Page Header & Overview Card -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 transition">
+                    <div class="flex items-start sm:items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-amber-500/20 shrink-0">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                                Đánh Giá Của Tôi
+                            </h1>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                                Quản lý, theo dõi và chỉnh sửa các nhận xét, chấm điểm uy tín bạn đã dành cho Freelancer.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Badges -->
+                    <div class="flex items-center gap-3 shrink-0 self-stretch md:self-auto justify-end">
+                        <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 px-4 py-2.5 rounded-2xl text-center min-w-[100px]">
+                            <p class="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Tổng Đánh Giá</p>
+                            <p id="statTotalReviews" class="text-xl font-black text-amber-900 dark:text-amber-200 mt-0.5">0</p>
+                        </div>
+                        <div class="bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 px-4 py-2.5 rounded-2xl text-center min-w-[110px]">
+                            <p class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Điểm TB Đã Cho</p>
+                            <p id="statAvgRating" class="text-xl font-black text-indigo-900 dark:text-indigo-200 mt-0.5">5.0 ⭐</p>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Filter Tabs & Search Bar -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="flex items-center gap-2 flex-wrap" id="ratingFilterTabs">
+                        <button onclick="filterReviews('all')" id="tab_all" class="filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition">
+                            Tất cả (<span id="count_all">0</span>)
+                        </button>
+                        <button onclick="filterReviews('5')" id="tab_5" class="filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                            5 ⭐ (<span id="count_5">0</span>)
+                        </button>
+                        <button onclick="filterReviews('4')" id="tab_4" class="filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                            4 ⭐ (<span id="count_4">0</span>)
+                        </button>
+                        <button onclick="filterReviews('below4')" id="tab_below4" class="filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                            ≤ 3 ⭐ (<span id="count_below4">0</span>)
+                        </button>
+                    </div>
+
+                    <div class="relative w-full sm:w-72">
+                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Tìm theo tên dự án hoặc Freelancer..." class="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-indigo-500 shadow-sm transition">
+                    </div>
+                </div>
+
+                <!-- Danh Sách Đánh Giá (Reviews List) -->
+                <div id="reviewsList" class="space-y-4">
+                    <div class="flex items-center justify-center p-12 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <i class="fas fa-spinner fa-spin text-2xl text-indigo-600 mr-3"></i>
+                        <span class="text-sm font-bold text-gray-500 dark:text-gray-400">Đang tải lịch sử đánh giá của bạn...</span>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
-    <!-- Script -->
-    <script src="ui.js?v=1791344398"></script>
+    <!-- Script Logic -->
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
             : 'https://project-internship-8z76.onrender.com';
 
         let currentUser = null;
+        let allReviews = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
 
         async function loadMyReviews() {
             try {
                 const userStr = localStorage.getItem('user');
                 if (!userStr) {
-                    window.location.href = '../index.html';
+                    window.location.replace('../sharedFolder/login.html');
                     return;
                 }
                 currentUser = JSON.parse(userStr);
 
                 const response = await fetch(`${API_URL}/api/reviews/client/${currentUser.id}`);
-                const data = await response.json();
-                const reviews = data.reviews || [];
-
-                const reviewsList = document.getElementById('reviewsList');
-                
-                if (reviews.length === 0) {
-                    reviewsList.innerHTML = `
-                        <div class="bg-white rounded-3xl p-10 text-center shadow-sm border border-gray-100">
-                            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-comment-slash text-3xl text-gray-300"></i>
-                            </div>
-                            <h3 class="text-lg font-bold text-gray-700 mb-2">Chưa có đánh giá nào</h3>
-                            <p class="text-sm text-gray-500 max-w-sm mx-auto">Bạn chưa viết bất kỳ đánh giá nào cho Freelancer. Các đánh giá sẽ xuất hiện ở đây sau khi bạn nghiệm thu dự án.</p>
-                        </div>
-                    `;
-                    return;
+                if (!response.ok) {
+                    throw new Error(`Mã lỗi HTTP: ${response.status}`);
                 }
+                const data = await response.json();
+                allReviews = data.reviews || [];
 
-                reviewsList.innerHTML = reviews.map(r => renderReviewCard(r)).join('');
+                updateStats();
+                renderFilteredReviews();
 
             } catch (err) {
-                console.error(err);
-                document.getElementById('reviewsList').innerHTML = '<p class="text-center text-red-500 text-sm mt-10">Lỗi kết nối máy chủ.</p>';
+                console.error('[KGS Work] Lỗi load reviews:', err);
+                document.getElementById('reviewsList').innerHTML = `
+                    <div class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-3xl p-8 text-center text-red-600 dark:text-red-400 shadow-sm">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
+                        <p class="font-bold text-sm">Không thể tải dữ liệu đánh giá từ máy chủ.</p>
+                        <p class="text-xs text-red-500 dark:text-red-400 mt-1">Vui lòng kiểm tra lại kết nối mạng hoặc thử lại.</p>
+                        <button onclick="loadMyReviews()" class="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition">
+                            <i class="fas fa-redo mr-1.5"></i> Thử lại
+                        </button>
+                    </div>
+                `;
             }
         }
 
+        function updateStats() {
+            const total = allReviews.length;
+            document.getElementById('statTotalReviews').textContent = total;
+
+            const count5 = allReviews.filter(r => r.rating === 5).length;
+            const count4 = allReviews.filter(r => r.rating === 4).length;
+            const countBelow4 = allReviews.filter(r => r.rating <= 3).length;
+
+            document.getElementById('count_all').textContent = total;
+            document.getElementById('count_5').textContent = count5;
+            document.getElementById('count_4').textContent = count4;
+            document.getElementById('count_below4').textContent = countBelow4;
+
+            if (total > 0) {
+                const sum = allReviews.reduce((acc, cur) => acc + (cur.rating || 5), 0);
+                const avg = Math.round((sum / total) * 10) / 10;
+                document.getElementById('statAvgRating').textContent = `${avg} ⭐`;
+            } else {
+                document.getElementById('statAvgRating').textContent = `5.0 ⭐`;
+            }
+        }
+
+        function filterReviews(filterKey) {
+            currentFilter = filterKey;
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.className = 'filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition';
+            });
+            const activeTab = document.getElementById(`tab_${filterKey}`);
+            if (activeTab) {
+                activeTab.className = 'filter-tab px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition';
+            }
+            renderFilteredReviews();
+        }
+
+        function handleSearch() {
+            searchQuery = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+            renderFilteredReviews();
+        }
+
+        function renderFilteredReviews() {
+            const listDiv = document.getElementById('reviewsList');
+            let filtered = allReviews;
+
+            // Lọc theo số sao
+            if (currentFilter === '5') filtered = filtered.filter(r => r.rating === 5);
+            else if (currentFilter === '4') filtered = filtered.filter(r => r.rating === 4);
+            else if (currentFilter === 'below4') filtered = filtered.filter(r => r.rating <= 3);
+
+            // Tìm kiếm theo từ khoá
+            if (searchQuery) {
+                filtered = filtered.filter(r => {
+                    const title = (r.job_title || '').toLowerCase();
+                    const fName = (r.freelancer_name || '').toLowerCase();
+                    const comment = (r.comment || '').toLowerCase();
+                    return title.includes(searchQuery) || fName.includes(searchQuery) || comment.includes(searchQuery);
+                });
+            }
+
+            if (filtered.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-12 text-center shadow-sm flex flex-col items-center justify-center">
+                        <div class="w-20 h-20 bg-amber-50 dark:bg-amber-950/40 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500 dark:text-amber-400 text-3xl shadow-inner">
+                            <i class="fas fa-comment-slash"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-gray-800 dark:text-gray-100 mb-1">
+                            ${searchQuery || currentFilter !== 'all' ? 'Không tìm thấy đánh giá phù hợp' : 'Bạn chưa có đánh giá nào'}
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed mb-6">
+                            ${searchQuery || currentFilter !== 'all' 
+                                ? 'Hãy thử đổi bộ lọc số sao hoặc từ khóa tìm kiếm để xem các đánh giá khác.' 
+                                : 'Sau khi nghiệm thu và giải ngân thành công một dự án với Freelancer, bạn có thể chấm sao và viết nhận xét để lưu lại uy tín cho đối tác.'}
+                        </p>
+                        <a href="review-work.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-indigo-500/20 transition">
+                            <i class="fas fa-check-double"></i> Đi Đến Quản Lý Tiến Độ
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            listDiv.innerHTML = filtered.map(r => renderReviewCard(r)).join('');
+        }
+
         function renderReviewCard(review) {
-            const starHtml = Array(5).fill(0).map((_, i) => `<i class="${i < review.rating ? 'fas' : 'far text-gray-300'} fa-star"></i>`).join('');
+            const starHtml = Array(5).fill(0).map((_, i) => `<i class="${i < review.rating ? 'fas' : 'far text-gray-300 dark:text-gray-600'} fa-star"></i>`).join('');
+            
             const tagsHtml = review.tags && review.tags.length > 0 ? `
-                <div class="flex flex-wrap gap-1.5 mt-3">
-                    ${review.tags.map(t => `<span class="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-gray-50 text-amber-800 border border-amber-200/50">${t}</span>`).join('')}
+                <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-amber-200/50 dark:border-amber-800/40">
+                    ${review.tags.map(t => `<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-amber-100/80 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200 border border-amber-200/60 dark:border-amber-700/60">${t}</span>`).join('')}
                 </div>
             ` : '';
-            const dateStr = new Date(review.created_at).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const dateStr = review.created_at ? new Date(review.created_at).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Vừa xong';
+            const freelancerName = review.freelancer_name || 'Freelancer phụ trách';
+            const freelancerAvatar = review.freelancer_avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(freelancerName)}`;
 
             return `
-                <div class="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-gray-100 transition hover:shadow-md">
-                    <div class="flex flex-col md:flex-row justify-between items-start gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between mb-2">
-                                <h3 class="font-bold text-gray-900 text-base flex items-center">
-                                    <i class="fas fa-project-diagram text-indigo-400 mr-2 text-sm"></i> ${review.job_title}
-                                </h3>
-                                <span class="text-[11px] font-semibold text-gray-400"><i class="far fa-clock mr-1"></i> ${dateStr}</span>
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition">
+                    
+                    <!-- Card Header -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-700 gap-3">
+                        <div class="flex items-start gap-3">
+                            <div class="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg shrink-0 mt-0.5">
+                                <i class="fas fa-project-diagram"></i>
                             </div>
-                            
-                            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-2xl p-4 mt-3">
-                                <div class="flex items-center mb-2">
-                                    <div class="flex text-amber-400 text-sm mr-2">${starHtml}</div>
-                                    <span class="text-[10px] font-bold text-amber-800 bg-amber-200/50 px-2 py-0.5 rounded-md">${review.rating}/5</span>
-                                </div>
-                                <p class="text-sm text-gray-700 italic">"${review.comment}"</p>
-                                ${tagsHtml}
+                            <div>
+                                <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 mb-1">
+                                    <i class="fas fa-check-circle mr-1"></i> Đã Nghiệm Thu & Đánh Giá
+                                </span>
+                                <h3 class="font-extrabold text-gray-900 dark:text-gray-100 text-base md:text-lg leading-snug">
+                                    ${review.job_title}
+                                </h3>
                             </div>
                         </div>
+
+                        <!-- Freelancer Mini Profile -->
+                        <div class="flex items-center gap-3 bg-gray-50 dark:bg-gray-750 p-2 sm:p-2.5 rounded-2xl border border-gray-100 dark:border-gray-700 self-start md:self-auto">
+                            <img src="${freelancerAvatar}" class="w-9 h-9 rounded-full object-cover border border-gray-200 dark:border-gray-600 shrink-0">
+                            <div>
+                                <p class="text-xs font-bold text-gray-900 dark:text-gray-200 leading-tight">${freelancerName}</p>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500">Freelancer phụ trách</p>
+                            </div>
+                            <a href="direct-chat.html?partner=${encodeURIComponent(review.freelancer_id)}" class="ml-1 w-8 h-8 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs transition shrink-0" title="Nhắn tin với Freelancer">
+                                <i class="fas fa-comment-dots"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Rating & Comment Box -->
+                    <div class="mt-4 bg-gradient-to-br from-amber-50/70 to-orange-50/40 dark:from-amber-950/20 dark:to-orange-950/10 border border-amber-200/70 dark:border-amber-800/50 rounded-2xl p-4 md:p-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="flex text-yellow-500 text-sm gap-0.5">${starHtml}</div>
+                                <span class="text-xs font-black text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-md">${review.rating}/5</span>
+                            </div>
+                            <span class="text-xs font-medium text-gray-400 dark:text-gray-500">
+                                <i class="far fa-clock mr-1"></i> ${dateStr}
+                            </span>
+                        </div>
                         
-                        <div class="shrink-0 flex items-center justify-end w-full md:w-auto mt-2 md:mt-0">
-                            <!-- Nút sửa liên kết đến review-work -->
-                            <a href="review-work.html?edit_review=true&job_id=${review.job_id}" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold flex items-center bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-xl transition">
-                                <i class="fas fa-edit mr-1.5"></i> Sửa Đánh Giá
+                        <p class="text-sm font-medium text-gray-800 dark:text-gray-200 italic leading-relaxed">
+                            "${review.comment}"
+                        </p>
+
+                        ${tagsHtml}
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-1">
+                        <span class="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+                            <i class="fas fa-shield-alt text-emerald-500"></i> Đánh giá minh bạch qua giao dịch Ký quỹ Escrow
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <a href="review-work.html?edit_review=true&job_id=${review.job_id}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-indigo-500/20 transition flex items-center gap-1.5">
+                                <i class="fas fa-edit"></i> Sửa Đánh Giá
                             </a>
                         </div>
                     </div>
@@ -125,6 +323,9 @@
 
         window.addEventListener('DOMContentLoaded', loadMyReviews);
     </script>
+
+    <!-- Shared UI Script (Generates Sidebar, Header, Mobile Nav & Balance) -->
+    <script src="ui.js?v=1791344398"></script>
 
     <script>
         // Global Drag and Drop protection
@@ -136,5 +337,4 @@
         }, false);
     </script>
 </body>
-
 </html>

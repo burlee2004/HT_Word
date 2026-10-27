@@ -1,0 +1,30 @@
+{
+    "widgets": [
+        {
+            "id": "widget-1",
+            "title": "Dòng Tiền Lưu Thông",
+            "type": "line",
+            "source_table": "wallet_ledger",
+            "group_by": "created_at",
+            "metric": "sum",
+            "metric_column": "amount",
+            "w": 4,
+            "h": 2,
+            "x": 0,
+            "y": 0
+        },
+        {
+            "id": "widget-2",
+            "title": "Tỷ Trọng Giao Dịch",
+            "type": "doughnut",
+            "source_table": "wallet_ledger",
+            "group_by": "transaction_type",
+            "metric": "sum",
+            "metric_column": "amount",
+            "w": 4,
+            "h": 2,
+            "x": 0,
+            "y": 2
+        }
+    ]
+}

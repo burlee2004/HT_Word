@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Phá Chuyên Gia IT & Freelancer Xuất Sắc - KGS Work</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- NAVIGATION HEADER -->
+    <header class="w-full px-4 sm:px-8 py-3.5 border-b border-gray-200/80 dark:border-gray-800/80 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 overflow-hidden text-white font-bold transition-transform group-hover:scale-105">
+                    <img src="assets/logo.png" onerror="this.src='user/logo.png'" alt="KGS" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <span class="font-black text-xl text-gray-900 dark:text-white tracking-tight">KGS <span class="text-indigo-600 dark:text-indigo-400">Work</span></span>
+                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 block -mt-1 tracking-wider uppercase">Sàn IT & Escrow Hub</span>
+                </div>
+            </a>
+
+            <!-- Nav Links -->
+            <nav class="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-bold text-gray-600 dark:text-gray-300">
+                <a href="index.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <i class="fas fa-home mr-1.5"></i> Trang Chủ
+                </a>
+                <a href="explore-jobs.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <i class="fas fa-briefcase mr-1.5 text-indigo-500"></i> Việc Làm IT
+                </a>
+                <a href="explore-freelancers.html" class="px-3 py-2 rounded-xl text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 font-black">
+                    <i class="fas fa-users mr-1.5 text-purple-500"></i> Chuyên Gia IT
+                </a>
+                <a href="how-it-works.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <i class="fas fa-shield-alt mr-1.5 text-emerald-500"></i> Cơ Chế Escrow
+                </a>
+            </nav>
+
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button id="themeToggle" class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center justify-center transition shadow-sm" title="Chuyển chế độ Sáng / Tối">
+                    <i class="fas fa-moon dark:hidden text-sm"></i>
+                    <i class="fas fa-sun hidden dark:block text-sm text-yellow-400"></i>
+                </button>
+                <a href="sharedFolder/login.html" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    Đăng nhập
+                </a>
+                <button onclick="openOnboardingModal('client')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 transition">
+                    Đăng việc tuyển thợ
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-8 py-8">
+        <!-- Title Banner -->
+        <div class="mb-8">
+            <span class="text-xs font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider">Mạng Lưới Nhân Sự Công Nghệ</span>
+            <h1 class="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white mt-1">
+                Tìm Kiếm Chuyên Gia & Lập Trình Viên Đỉnh Cao
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-3xl">
+                Tuyển chọn những Freelancer công nghệ hàng đầu với hồ sơ năng lực minh bạch, đánh giá thật và bảo vệ an toàn dòng tiền qua cơ chế Ký quỹ Escrow.
+            </p>
+        </div>
+
+        <!-- SEARCH & FILTER TOOLBAR -->
+        <div class="bg-white dark:bg-gray-900 p-5 rounded-3xl shadow-sm border border-gray-200/80 dark:border-gray-800 mb-8 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                <div class="md:col-span-6 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Tìm theo tên chuyên gia, kỹ năng (Fullstack, React, AI, Solidity, Figma, Flutter...)..." class="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs sm:text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="md:col-span-3">
+                    <select id="tierFilter" onchange="applyFilters()" class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs sm:text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">🎖️ Mọi cấp bậc uy tín</option>
+                        <option value="pro">Chuyên gia Pro (&ge; 4.8⭐ & 10+ jobs)</option>
+                        <option value="potential">Tiềm năng (3+ jobs)</option>
+                        <option value="active">Tích cực (1+ jobs)</option>
+                    </select>
+                </div>
+
+                <div class="md:col-span-3">
+                    <select id="sortFilter" onchange="applyFilters()" class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs sm:text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="rating_desc">⭐ Đánh giá cao nhất</option>
+                        <option value="jobs_desc">🏆 Hoàn thành nhiều dự án nhất</option>
+                        <option value="name_asc">🔤 Tên A - Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Field Specialization Tabs -->
+            <div class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none pt-1" id="categoryTabsContainer">
+                <button onclick="selectSpecialty('all')" class="spec-pill active px-4 py-2 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-sm">
+                    ✨ Tất cả lĩnh vực
+                </button>
+                <button onclick="selectSpecialty('Fullstack')" class="spec-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    💻 Fullstack Web
+                </button>
+                <button onclick="selectSpecialty('Mobile')" class="spec-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    📱 Mobile App (Flutter/React Native)
+                </button>
+                <button onclick="selectSpecialty('AI')" class="spec-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    🤖 Trí Tuệ Nhân Tạo & Data
+                </button>
+                <button onclick="selectSpecialty('Blockchain')" class="spec-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    ⛓️ Blockchain & Web3
+                </button>
+                <button onclick="selectSpecialty('UI/UX')" class="spec-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    🎨 Thiết Kế UI/UX
+                </button>
+                <button onclick="selectSpecialty('DevOps')" class="spec-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    ☁️ Cloud & DevOps
+                </button>
+            </div>
+        </div>
+
+        <!-- COUNTER -->
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
+                Hiển thị <span id="freelancersCount" class="text-purple-600 dark:text-purple-400 font-black">0</span> chuyên gia sẵn sàng nhận dự án
+            </p>
+            <span class="text-xs text-indigo-600 dark:text-indigo-400 font-bold flex items-center">
+                <i class="fas fa-check-circle mr-1 text-emerald-500"></i> Đã xác thực kỹ năng & CCCD
+            </span>
+        </div>
+
+        <!-- FREELANCERS GRID -->
+        <div id="freelancersGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loading -->
+            <div class="col-span-full py-16 text-center text-gray-400">
+                <i class="fas fa-spinner fa-spin text-2xl text-purple-600 mb-2"></i>
+                <p class="text-xs font-bold">Đang tải danh sách chuyên gia...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 text-xs text-gray-500 text-center mt-12">
+        <p>© 2026 KGS Work - Sàn IT Freelancer Ký Quỹ Escrow An Toàn Hàng Đầu.</p>
+    </footer>
+
+    <!-- ONBOARDING MODAL -->
+    <div id="onboardingModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="p-6 pb-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-750">
+                <h3 class="text-base font-black text-gray-900 dark:text-white">💼 Thuê Chuyên Gia IT</h3>
+                <button onclick="closeOnboardingModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center justify-center">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-gray-600 dark:text-gray-300">
+                    Để mời chuyên gia làm việc hoặc trao đổi chi tiết dự án, bạn vui lòng đăng ký tài khoản Doanh nghiệp / Khách hàng:
+                </p>
+                <a href="sharedFolder/register.html?role=client" class="block w-full py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-center text-sm shadow transition">
+                    Đăng Ký Tài Khoản Khách Hàng Ngay
+                </a>
+                <a href="sharedFolder/login.html" class="block w-full py-2.5 px-4 rounded-2xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold text-center text-xs transition">
+                    Đã có tài khoản? Đăng nhập
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FREELANCER DETAIL MODAL -->
+    <div id="freelancerDetailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-xl max-h-[88vh] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-750">
+                <div class="flex items-center space-x-3">
+                    <img id="modalAvatar" src="" class="w-12 h-12 rounded-2xl object-cover border-2 border-white dark:border-gray-700 shadow">
+                    <div>
+                        <h3 id="modalName" class="text-base font-black text-gray-900 dark:text-white"></h3>
+                        <p id="modalTitle" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold"></p>
+                    </div>
+                </div>
+                <button onclick="closeFreelancerDetailModal()" class="w-8 h-8 rounded-full bg-white dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-white flex items-center justify-center shadow-sm">
+                    &times;
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed flex-grow">
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-gray-50 dark:bg-gray-750 p-3 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[10px] text-gray-400 font-bold block uppercase">Đánh giá</span>
+                        <span id="modalRating" class="text-base font-black text-amber-500"></span>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-750 p-3 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[10px] text-gray-400 font-bold block uppercase">Dự án xong</span>
+                        <span id="modalJobs" class="text-base font-black text-indigo-600 dark:text-indigo-400"></span>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-750 p-3 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[10px] text-gray-400 font-bold block uppercase">Hoàn thành</span>
+                        <span class="text-base font-black text-emerald-600 dark:text-emerald-400">100%</span>
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div>
+                    <h4 class="font-black text-xs uppercase tracking-wider text-gray-500 mb-1.5">Giới thiệu bản thân</h4>
+                    <p id="modalBio" class="bg-gray-50 dark:bg-gray-750 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 leading-relaxed"></p>
+                </div>
+
+                <!-- Skills -->
+                <div>
+                    <h4 class="font-black text-xs uppercase tracking-wider text-gray-500 mb-2">Kỹ năng cốt lõi</h4>
+                    <div id="modalSkills" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <!-- Escrow Guarantee Badge -->
+                <div class="bg-indigo-50 dark:bg-indigo-950/40 p-3.5 rounded-2xl border border-indigo-100 dark:border-indigo-900/60 flex items-center space-x-3 text-indigo-700 dark:text-indigo-300">
+                    <i class="fas fa-shield-alt text-2xl"></i>
+                    <p class="text-xs">
+                        <strong>Bảo hộ Escrow:</strong> Khi thuê chuyên gia này qua KGS Work, bạn chỉ thanh toán khi đã nghiệm thu hài lòng sản phẩm cuối cùng.
+                    </p>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex items-center justify-between">
+                <button onclick="closeFreelancerDetailModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">Đóng</button>
+                <button onclick="hireFreelancerFromModal()" class="px-5 py-2 rounded-xl text-xs font-black bg-indigo-600 hover:bg-indigo-700 text-white shadow">
+                    Mời Hợp Tác Dự Án
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        let allFreelancers = [];
+        let filteredFreelancers = [];
+        let selectedSpecialty = 'all';
+
+        // Theme toggle
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+        }
+
+        function openOnboardingModal() {
+            document.getElementById('onboardingModal').classList.remove('hidden');
+        }
+        function closeOnboardingModal() {
+            document.getElementById('onboardingModal').classList.add('hidden');
+        }
+
+        function initFreelancersData() {
+            // Danh sách chuyên gia thực tế được phân loại chuẩn công nghệ
+            allFreelancers = [
+                {
+                    id: 'f-1',
+                    name: 'Nguyễn Quốc Bảo',
+                    title: 'Senior Fullstack Engineer',
+                    specialty: 'Fullstack',
+                    avatar: 'https://ui-avatars.com/api/?name=Quoc+Bao&background=4f46e5&color=fff',
+                    rating: 5.0,
+                    reviewsCount: 28,
+                    completedJobs: 28,
+                    tier: 'pro',
+                    location: 'TP. Hồ Chí Minh',
+                    bio: 'Kỹ sư Fullstack với hơn 6 năm kinh nghiệm thực chiến phát triển các giải pháp thương mại điện tử, FinTech và nền tảng SaaS quy mô lớn trên nền Next.js, Node.js và Supabase/PostgreSQL.',
+                    skills: ['ReactJS', 'Next.js', 'Node.js', 'Express', 'PostgreSQL', 'TailwindCSS', 'Redis']
+                },
+                {
+                    id: 'f-2',
+                    name: 'Lê Minh Ánh',
+                    title: 'UI/UX & Frontend Specialist',
+                    specialty: 'UI/UX',
+                    avatar: 'https://ui-avatars.com/api/?name=Minh+Anh&background=ec4899&color=fff',
+                    rating: 4.9,
+                    reviewsCount: 19,
+                    completedJobs: 19,
+                    tier: 'pro',
+                    location: 'Hà Nội',
+                    bio: 'Chuyên gia thiết kế giao diện người dùng và tối ưu trải nghiệm tương tác (UI/UX). Thành thạo chuyển đổi bản vẽ Figma phức tạp thành code HTML/TailwindCSS/Vue.js chuẩn pixel-perfect và chuẩn SEO/Accessible.',
+                    skills: ['Figma', 'UI/UX Design', 'TailwindCSS', 'Vue.js', 'Design System', 'Responsive Web']
+                },
+                {
+                    id: 'f-3',
+                    name: 'Trần Tuấn Kiệt',
+                    title: 'Mobile Lead & Flutter Dev',
+                    specialty: 'Mobile',
+                    avatar: 'https://ui-avatars.com/api/?name=Tuan+Kiet&background=10b981&color=fff',
+                    rating: 5.0,
+                    reviewsCount: 34,
+                    completedJobs: 34,
+                    tier: 'pro',
+                    location: 'Đà Nẵng',
+                    bio: 'Chuyên gia xây dựng ứng dụng di động đa nền tảng Flutter (iOS & Android). Từng phát hành hơn 15 ứng dụng lên App Store & Google Play với tính năng realtime chat, push notification và thanh toán in-app.',
+                    skills: ['Flutter', 'Dart', 'iOS & Android', 'Firebase', 'State Management (Bloc/Riverpod)', 'RESTful API']
+                },
+                {
+                    id: 'f-4',
+                    name: 'Hoàng Đức Thịnh',
+                    title: 'Blockchain & AI Architect',
+                    specialty: 'Blockchain',
+                    avatar: 'https://ui-avatars.com/api/?name=Duc+Thinh&background=8b5cf6&color=fff',
+                    rating: 5.0,
+                    reviewsCount: 22,
+                    completedJobs: 22,
+                    tier: 'pro',
+                    location: 'TP. Hồ Chí Minh',
+                    bio: 'Kiến trúc sư giải pháp Web3 & AI. Chuyên sâu phát triển hợp đồng thông minh Smart Contract (Solidity, Ethers.js, Hardhat), kiểm toán bảo mật hợp đồng và tích hợp các mô hình ngôn ngữ lớn LLM (Llama, GPT) vào sản phẩm thực tế.',
+                    skills: ['Solidity', 'Ethers.js', 'Web3.js', 'Python AI', 'Smart Contract Escrow', 'Llama 3']
+                },
+                {
+                    id: 'f-5',
+                    name: 'Phạm Đăng Khoa',
+                    title: 'Backend & Cloud DevOps Engineer',
+                    specialty: 'DevOps',
+                    avatar: 'https://ui-avatars.com/api/?name=Dang+Khoa&background=0284c7&color=fff',
+                    rating: 4.8,
+                    reviewsCount: 14,
+                    completedJobs: 14,
+                    tier: 'potential',
+                    location: 'Bình Dương',
+                    bio: 'Kỹ sư chuyên thiết kế kiến trúc vi dịch vụ (Microservices), tối ưu hóa cơ sở dữ liệu lớn và thiết lập luồng CI/CD tự động hóa trên AWS, Docker và Kubernetes.',
+                    skills: ['Docker', 'AWS S3/EC2', 'PostgreSQL', 'Golang', 'Node.js', 'CI/CD Pipelines']
+                },
+                {
+                    id: 'f-6',
+                    name: 'Vũ Thị Ngọc Hà',
+                    title: 'AI Prompt Engineer & Data Analyst',
+                    specialty: 'AI',
+                    avatar: 'https://ui-avatars.com/api/?name=Ngoc+Ha&background=f59e0b&color=fff',
+                    rating: 4.9,
+                    reviewsCount: 11,
+                    completedJobs: 11,
+                    tier: 'potential',
+                    location: 'TP. Hồ Chí Minh',
+                    bio: 'Chuyên gia xử lý dữ liệu và xây dựng các tác nhân trí tuệ nhân tạo (AI Agents), Fine-tuning mô hình ngôn ngữ và xây dựng hệ thống phân tích dữ liệu kinh doanh thông minh (PowerBI, Python Pandas).',
+                    skills: ['Python', 'Pandas', 'LangChain', 'OpenAI API', 'Data Visualization', 'SQL']
+                }
+            ];
+
+            applyFilters();
+        }
+
+        function selectSpecialty(spec) {
+            selectedSpecialty = spec;
+            document.querySelectorAll('.spec-pill').forEach(btn => {
+                btn.className = "spec-pill px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700";
+            });
+            event.currentTarget.className = "spec-pill active px-4 py-2 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-sm";
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            const tier = document.getElementById('tierFilter')?.value || 'all';
+            const sort = document.getElementById('sortFilter')?.value || 'rating_desc';
+
+            filteredFreelancers = allFreelancers.filter(f => {
+                const name = f.name.toLowerCase();
+                const title = f.title.toLowerCase();
+                const bio = f.bio.toLowerCase();
+                const skillsStr = f.skills.join(' ').toLowerCase();
+
+                // Search matching
+                if (search && !name.includes(search) && !title.includes(search) && !bio.includes(search) && !skillsStr.includes(search)) {
+                    return false;
+                }
+
+                // Specialty matching
+                if (selectedSpecialty !== 'all' && f.specialty !== selectedSpecialty && !title.includes(selectedSpecialty) && !skillsStr.includes(selectedSpecialty.toLowerCase())) {
+                    return false;
+                }
+
+                // Tier matching
+                if (tier === 'pro' && f.tier !== 'pro') return false;
+                if (tier === 'potential' && f.tier !== 'potential') return false;
+                if (tier === 'active' && f.completedJobs < 1) return false;
+
+                return true;
+            });
+
+            // Sorting
+            if (sort === 'rating_desc') {
+                filteredFreelancers.sort((a, b) => b.rating - a.rating);
+            } else if (sort === 'jobs_desc') {
+                filteredFreelancers.sort((a, b) => b.completedJobs - a.completedJobs);
+            } else if (sort === 'name_asc') {
+                filteredFreelancers.sort((a, b) => a.name.localeCompare(b.name));
+            }
+
+            renderFreelancers();
+        }
+
+        function renderFreelancers() {
+            const container = document.getElementById('freelancersGridContainer');
+            const countEl = document.getElementById('freelancersCount');
+            if (countEl) countEl.innerText = filteredFreelancers.length;
+
+            if (filteredFreelancers.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-gray-400 bg-white dark:bg-gray-900 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800">
+                        <i class="fas fa-user-slash text-4xl mb-3 opacity-30"></i>
+                        <p class="text-sm font-bold text-gray-600 dark:text-gray-300">Không tìm thấy chuyên gia phù hợp với từ khóa</p>
+                        <p class="text-xs text-gray-400 mt-1">Hãy thử xóa bộ lọc hoặc tìm kiếm với kỹ năng khác.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredFreelancers.map(f => {
+                const tierBadge = f.tier === 'pro' 
+                    ? '<span class="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 text-[10px] font-black border border-purple-200 dark:border-purple-800">Cấp Pro</span>'
+                    : '<span class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 text-[10px] font-black border border-indigo-200 dark:border-indigo-800">Tiềm Năng</span>';
+
+                return `
+                    <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 border border-gray-100 dark:border-gray-800 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <img src="${f.avatar}" alt="${escapeHtml(f.name)}" class="w-14 h-14 rounded-2xl object-cover shadow-sm border border-gray-200 dark:border-gray-700 group-hover:scale-105 transition-transform">
+                                        <span class="absolute -bottom-1 -right-1 bg-emerald-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[9px] border-2 border-white dark:border-gray-900">✓</span>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h3 class="font-black text-base text-gray-900 dark:text-white truncate">${escapeHtml(f.name)}</h3>
+                                        <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 truncate">${escapeHtml(f.title)}</p>
+                                        <span class="text-[10px] text-gray-400 block mt-0.5">📍 ${escapeHtml(f.location)}</span>
+                                    </div>
+                                </div>
+                                ${tierBadge}
+                            </div>
+
+                            <!-- Rating & Completed Jobs -->
+                            <div class="flex items-center space-x-2 text-xs mb-3 bg-gray-50 dark:bg-gray-800 p-2.5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center text-amber-500 font-bold">
+                                    <i class="fas fa-star mr-1"></i> ${f.rating.toFixed(1)}
+                                </div>
+                                <span class="text-gray-300 dark:text-gray-600">|</span>
+                                <div class="text-gray-600 dark:text-gray-300 font-medium">
+                                    <strong>${f.completedJobs}</strong> dự án hoàn thành
+                                </div>
+                            </div>
+
+                            <!-- Bio snippet -->
+                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed mb-4">
+                                ${escapeHtml(f.bio)}
+                            </p>
+
+                            <!-- Skills pills -->
+                            <div class="flex flex-wrap gap-1.5 mb-4">
+                                ${f.skills.slice(0, 4).map(s => `
+                                    <span class="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-600 dark:text-gray-300">${escapeHtml(s)}</span>
+                                `).join('')}
+                                ${f.skills.length > 4 ? `<span class="px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-[10px] font-black text-indigo-600 dark:text-indigo-400">+${f.skills.length - 4}</span>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Card Footer CTA Buttons -->
+                        <div class="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center space-x-2">
+                            <button onclick="openFreelancerDetail('${f.id}')" class="flex-1 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-bold transition">
+                                Xem hồ sơ
+                            </button>
+                            <button onclick="openOnboardingModal()" class="flex-1 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow transition">
+                                Mời làm việc
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openFreelancerDetail(id) {
+            const f = allFreelancers.find(item => item.id === id);
+            if (!f) return;
+
+            document.getElementById('modalAvatar').src = f.avatar;
+            document.getElementById('modalName').innerText = f.name;
+            document.getElementById('modalTitle').innerText = f.title;
+            document.getElementById('modalRating').innerText = `${f.rating.toFixed(1)} / 5.0 ⭐`;
+            document.getElementById('modalJobs').innerText = `${f.completedJobs} Dự án`;
+            document.getElementById('modalBio').innerText = f.bio;
+
+            const skillsContainer = document.getElementById('modalSkills');
+            skillsContainer.innerHTML = f.skills.map(s => `
+                <span class="px-2.5 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-100 dark:border-indigo-800">
+                    ✓ ${escapeHtml(s)}
+                </span>
+            `).join('');
+
+            document.getElementById('freelancerDetailModal').classList.remove('hidden');
+        }
+
+        function closeFreelancerDetailModal() {
+            document.getElementById('freelancerDetailModal').classList.add('hidden');
+        }
+
+        function hireFreelancerFromModal() {
+            closeFreelancerDetailModal();
+            openOnboardingModal();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        window.addEventListener('DOMContentLoaded', initFreelancersData);
+    </script>
+</body>
+</html>

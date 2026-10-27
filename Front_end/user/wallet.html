@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ví Token & Ngân Sách - HT Work</title>
+    <title>Ví Token & Ngân Sách - KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
@@ -401,7 +401,7 @@
     <!-- KHU VỰC IN BIÊN LAI (Ẩn trên Web, chỉ hiện khi in PDF) -->
     <div id="printReceiptArea" class="hidden bg-white p-10 text-gray-800 w-full max-w-3xl mx-auto border-2 border-gray-200">
         <div class="text-center mb-8 border-b-2 border-indigo-600 pb-4">
-            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">HT WORK</h1>
+            <h1 class="text-4xl font-black text-indigo-700 tracking-wider">KGS WORK</h1>
             <p class="text-gray-500 font-bold mt-1">NỀN TẢNG FREELANCE IT VIỆT NAM</p>
         </div>
         
@@ -427,13 +427,13 @@
             </div>
             <div class="text-left text-sm text-gray-500">
                 <p class="font-bold text-gray-700 uppercase tracking-widest text-xs mb-1">Web3 Secured Transaction</p>
-                <p class="italic">Dữ liệu giao dịch được đồng bộ và xác thực trên sổ cái kế toán bảo mật HT Work.</p>
+                <p class="italic">Dữ liệu giao dịch được đồng bộ và xác thực trên sổ cái kế toán bảo mật KGS Work.</p>
             </div>
         </div>
 
         <div class="text-center text-gray-500 text-sm border-t pt-4">
-            <p>Chứng từ này được tạo tự động bởi hệ thống HT Work. Có giá trị đối soát trên toàn hệ thống.</p>
-            <p>Trang web: https://htwork.vn | Email hỗ trợ: support@htwork.com</p>
+            <p>Chứng từ này được tạo tự động bởi hệ thống KGS Work. Có giá trị đối soát trên toàn hệ thống.</p>
+            <p>Trang web: https://kgs-work.vn | Email hỗ trợ: support@kgs-work.com</p>
         </div>
     </div>
 
@@ -490,7 +490,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'QR_Thanh_Toan_HT_Work.png';
+                a.download = 'QR_Thanh_Toan_KGS_Work.png';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -607,40 +607,64 @@
                 window.history.replaceState(null, '', window.location.pathname);
             }
 
+            // 0. Đọc ngay từ Cache để hiển thị lập tức 0ms, triệt tiêu hiện tượng hiển thị 0 Token
+            const cachedBal = localStorage.getItem('cached_wallet_balance');
+            const cachedLocked = localStorage.getItem('cached_locked_balance');
+            const cachedDisbursed = localStorage.getItem('cached_total_disbursed');
+            if (cachedBal !== null) {
+                currentWalletBalance = parseFloat(cachedBal) || 0;
+                document.getElementById('balance').innerHTML = formatTokenHTML(currentWalletBalance);
+                document.getElementById('balanceVND').textContent = `${parseInt(currentWalletBalance).toLocaleString('vi-VN')} VNĐ`;
+            }
+            if (cachedLocked !== null) {
+                document.getElementById('locked_balance').innerHTML = formatTokenHTML(Math.max(0, parseFloat(cachedLocked) || 0));
+            }
+            if (cachedDisbursed !== null) {
+                document.getElementById('total_disbursed').innerHTML = formatTokenHTML(parseFloat(cachedDisbursed) || 0);
+            }
+
             try {
-                // 1. Tải thông tin số dư ví
-                const response = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
-                const data = await response.json();
-                
-                if (response.ok && data.wallet) {
-                    currentWalletBalance = data.wallet.balance || 0;
-                    document.getElementById('balance').innerHTML = `${formatTokenHTML(data.wallet.balance)}`;
-                    document.getElementById('balanceVND').textContent = `${parseInt(data.wallet.balance || 0).toLocaleString('vi-VN')} VNĐ`;
-                    document.getElementById('locked_balance').innerHTML = `${formatTokenHTML(Math.max(0, data.wallet.locked_balance || 0))}`;
+                // Tải song song cả Số Dư và Lịch Sử Giao Dịch để tối ưu tốc độ x2
+                const [walletRes, txRes] = await Promise.all([
+                    fetch(`${API_URL}/api/wallet/${currentUser.id}`),
+                    fetch(`${API_URL}/api/wallet/${currentUser.id}/transactions`)
+                ]);
+
+                if (walletRes.ok) {
+                    const data = await walletRes.json();
+                    if (data.wallet) {
+                        currentWalletBalance = data.wallet.balance || 0;
+                        localStorage.setItem('cached_wallet_balance', currentWalletBalance.toString());
+                        localStorage.setItem('cached_locked_balance', (data.wallet.locked_balance || 0).toString());
+
+                        document.getElementById('balance').innerHTML = `${formatTokenHTML(data.wallet.balance)}`;
+                        document.getElementById('balanceVND').textContent = `${parseInt(data.wallet.balance || 0).toLocaleString('vi-VN')} VNĐ`;
+                        document.getElementById('locked_balance').innerHTML = `${formatTokenHTML(Math.max(0, data.wallet.locked_balance || 0))}`;
+                    }
                 }
 
-                // 2. Tải lịch sử giao dịch
-                const txRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}/transactions`);
-                const txData = await txRes.json();
-                
-                if (txRes.ok && txData.transactions) {
-                    rawTransactions = txData.transactions;
+                if (txRes.ok) {
+                    const txData = await txRes.json();
+                    if (txData.transactions) {
+                        rawTransactions = txData.transactions;
 
-                    // Tính tổng tiền đã giải ngân nghiệm thu
-                    let totalDisbursed = 0;
-                    rawTransactions.forEach(tx => {
-                        const rawType = (tx.type || '').toLowerCase();
-                        if (tx.sender_id === currentUser.id && (rawType === 'escrow_release' || rawType === 'release' || rawType === 'milestone_payment' || rawType === 'job_payment')) {
-                            totalDisbursed += parseFloat(tx.amount) || 0;
-                        }
-                    });
-                    document.getElementById('total_disbursed').innerHTML = formatTokenHTML(totalDisbursed);
+                        // Tính tổng tiền đã giải ngân nghiệm thu
+                        let totalDisbursed = 0;
+                        rawTransactions.forEach(tx => {
+                            const rawType = (tx.type || '').toLowerCase();
+                            if (tx.sender_id === currentUser.id && (rawType === 'escrow_release' || rawType === 'release' || rawType === 'milestone_payment' || rawType === 'job_payment')) {
+                                totalDisbursed += parseFloat(tx.amount) || 0;
+                            }
+                        });
+                        localStorage.setItem('cached_total_disbursed', totalDisbursed.toString());
+                        document.getElementById('total_disbursed').innerHTML = formatTokenHTML(totalDisbursed);
 
-                    // Render danh sách giao dịch
-                    renderTransactions();
+                        // Render danh sách giao dịch
+                        renderTransactions();
+                    }
                 }
 
-                // 3. Tải danh sách lệnh rút tiền đang chờ duyệt
+                // Tải danh sách lệnh rút tiền đang chờ duyệt
                 loadPendingWithdrawals();
 
             } catch (err) {
@@ -956,7 +980,7 @@
                     const transferCode = 'HTword ' + req.id.substring(0, 6).toUpperCase();
                     
                     const bankId = 'vietinbank';
-                    const accountNo = 'HT WORKPAY';
+                    const accountNo = 'KGS WORKPAY';
                     const accountName = 'TRINH HUY HOANG_107882187291';
                     const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferCode)}&accountName=${encodeURIComponent(accountName)}`;
                     
@@ -1208,7 +1232,7 @@
 
         // DEV Mode Reset
         function checkDevMode() {
-            const allowedEmails = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+            const allowedEmails = ['admin@kgs-work.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
             if (currentUser && allowedEmails.includes(currentUser.email)) {
                 document.getElementById('btnDevReset').classList.remove('hidden');
             }

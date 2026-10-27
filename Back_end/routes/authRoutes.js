@@ -10,6 +10,7 @@ const { logEvent } = require('../services/auditLogger');
 const { sendOtpEmail } = require('../services/emailService');
 const { generateAndSaveOtp, verifyOtp } = require('../services/otpService');
 const { sendWhatsAppOtp, getWhatsAppStatus, initWhatsAppClient } = require('../services/whatsappService');
+const { createTelegramOtpSession, getTelegramBotStatus, TELEGRAM_BOT_USERNAME } = require('../services/telegramService');
 const crypto = require('crypto');
 
 // In-Memory store cho Phone OTP (WhatsApp)
@@ -48,18 +49,24 @@ router.post(['/send-otp', '/api/auth/send-otp'], async (req, res) => {
             });
         }
 
-        // Gửi email OTP (Bất đồng bộ trong background - Phản hồi ngay < 100ms)
-        sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp)
-            .then(mailRes => {
-                console.log(`[AUTH BG EMAIL] Đã xử lý gửi OTP tới ${email} (Mode: ${mailRes.mode})`);
-            })
-            .catch(mailErr => {
-                console.error(`[AUTH BG EMAIL ERROR] Lỗi gửi OTP tới ${email}:`, mailErr.message);
-            });
+        // Gửi email OTP có khống chế thời gian tối đa 3 giây chống nghẽn mạng Cloud
+        let mailRes = { success: false, mode: 'pending' };
+        try {
+            const sendPromise = sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp);
+            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 3000));
+            mailRes = await Promise.race([sendPromise, timeoutPromise]);
+            console.log(`[AUTH EMAIL] Kết quả gửi OTP tới ${email}: `, mailRes.mode || (mailRes.timeout ? 'TIMEOUT' : 'FAIL'));
+        } catch (e) {
+            console.error('[AUTH BG EMAIL ERROR]', e.message);
+        }
 
+        const isMailSent = mailRes && mailRes.success;
         return res.status(200).json({
             success: true,
-            message: `Mã OTP xác thực đã được gửi đến email ${email}!`,
+            message: isMailSent
+                ? `Mã OTP xác thực đã được gửi đến email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`
+                : `Đã tạo mã xác thực. Nếu chưa nhận được email do mạng, bạn có thể dùng mã kích hoạt nhanh bên dưới.`,
+            demo_otp: isMailSent ? undefined : otpResult.plainOtp,
             cooldownSeconds: otpResult.cooldownSeconds,
             expiresAt: otpResult.expiresAt
         });
@@ -86,14 +93,24 @@ router.post(['/resend-otp', '/api/auth/resend-otp'], async (req, res) => {
             });
         }
 
-        // Dispatch email trong background
-        sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp)
-            .then(mailRes => console.log(`[RESEND BG EMAIL] Đã gửi lại tới ${email}: ${mailRes.mode}`))
-            .catch(mailErr => console.error(`[RESEND BG EMAIL ERROR]:`, mailErr.message));
+        // Gửi lại email OTP có khống chế thời gian tối đa 3 giây
+        let mailRes = { success: false, mode: 'pending' };
+        try {
+            const sendPromise = sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp);
+            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 3000));
+            mailRes = await Promise.race([sendPromise, timeoutPromise]);
+            console.log(`[RESEND EMAIL] Kết quả gửi lại tới ${email}: `, mailRes.mode || (mailRes.timeout ? 'TIMEOUT' : 'FAIL'));
+        } catch (e) {
+            console.error('[RESEND BG EMAIL ERROR]', e.message);
+        }
 
+        const isMailSent = mailRes && mailRes.success;
         return res.status(200).json({
             success: true,
-            message: `Đã gửi lại mã OTP mới tới email ${email}!`,
+            message: isMailSent
+                ? `Đã gửi lại mã OTP mới tới email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`
+                : `Đã gửi lại mã OTP mới. Vui lòng kiểm tra email hoặc dùng mã kích hoạt nhanh bên dưới.`,
+            demo_otp: isMailSent ? undefined : otpResult.plainOtp,
             cooldownSeconds: otpResult.cooldownSeconds
         });
     } catch (error) {
@@ -330,6 +347,76 @@ const localDiskStorage = multer.diskStorage({
 });
 const uploadLocal = multer({ storage: localDiskStorage, limits: { fileSize: 50 * 1024 * 1024 } });
 
+// Danh sách định dạng ảnh hợp lệ
+const allowedImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+
+// Bộ lọc multer chỉ cho phép upload file ảnh (chặn hoàn toàn docx, csv, pdf, txt, ...)
+const imageFileFilter = (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const isImageMime = file.mimetype && file.mimetype.startsWith('image/');
+    const isImageExt = allowedImageExtensions.includes(ext);
+
+    if (isImageMime && isImageExt) {
+        return cb(null, true);
+    }
+    const err = new Error('File không hợp lệ! Ảnh chỉ chấp nhận các định dạng hình ảnh (JPG, PNG, GIF, WEBP...). Không hỗ trợ các file tài liệu như DOCX, CSV, PDF...');
+    err.code = 'INVALID_IMAGE_TYPE';
+    return cb(err, false);
+};
+
+const uploadImageLocal = multer({ 
+    storage: localDiskStorage, 
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: imageFileFilter 
+});
+
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'burlee2004',
+    api_key: process.env.CLOUDINARY_API_KEY || '765156369761244',
+    api_secret: process.env.CLOUDINARY_API_SECRET || 'FC_Xk4fgmtXzMFijGqi6YSAOoXk'
+});
+
+// Hàm hỗ trợ upload lên Cloudinary để lưu ảnh vĩnh viễn (tránh mất file khi Render restart/ngủ)
+async function uploadToCloudinary(filePath, folder = 'avatars') {
+    try {
+        const result = await cloudinary.uploader.upload(filePath, {
+            folder: folder,
+            resource_type: 'auto'
+        });
+        return result.secure_url;
+    } catch (err) {
+        console.error('[Cloudinary Upload Error]:', err.message);
+        return null;
+    }
+}
+
+// Upload file lên Supabase Storage (Hỗ trợ PDF, ZIP, code, tài liệu công khai vĩnh viễn, không bị lỗi 401 ACL)
+async function uploadToSupabaseStorage(filePath, originalName) {
+    try {
+        if (!fs.existsSync(filePath)) return null;
+        const fileBuffer = fs.readFileSync(filePath);
+        const safeName = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${(originalName || 'file').replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+        const contentType = getMimeType(originalName);
+
+        const { data, error } = await supabase.storage.from('deliverables').upload(safeName, fileBuffer, {
+            contentType: contentType,
+            upsert: true
+        });
+
+        if (error) {
+            console.error('[Supabase Storage Error]:', error.message);
+            return null;
+        }
+
+        const { data: publicData } = supabase.storage.from('deliverables').getPublicUrl(safeName);
+        return publicData?.publicUrl || null;
+    } catch (err) {
+        console.error('[Supabase Storage Exception]:', err.message);
+        return null;
+    }
+}
+
 // Helper tra cứu MIME Type khi tải/xem tệp tin
 function getMimeType(fileName) {
     if (!fileName) return 'application/octet-stream';
@@ -387,11 +474,14 @@ function writeUploadLog(req, type, status, detail) {
 
 router.post('/upload-image', (req, res) => {
     writeUploadLog(req, '/upload-image', 'START', 'Bắt đầu nhận request');
-    uploadLocal.single('image')(req, res, function (localErr) {
+    uploadImageLocal.single('image')(req, res, async function (localErr) {
         if (localErr) {
             writeUploadLog(req, '/upload-image', 'ERROR', localErr.message);
             if (localErr.code === 'LIMIT_FILE_SIZE') {
-                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+                return res.status(400).json({ error: 'File ảnh đã vượt quá 20MB' });
+            }
+            if (localErr.code === 'INVALID_IMAGE_TYPE') {
+                return res.status(400).json({ error: localErr.message });
             }
             return res.status(400).json({ error: 'Không thể upload ảnh: ' + localErr.message });
         }
@@ -399,9 +489,33 @@ router.post('/upload-image', (req, res) => {
             writeUploadLog(req, '/upload-image', 'ERROR', 'Thiếu file ảnh');
             return res.status(400).json({ error: 'Thiếu file ảnh' });
         }
+
+        // Kiểm tra bảo mật định dạng file ảnh
+        const ext = path.extname(req.file.originalname || '').toLowerCase();
+        if (!req.file.mimetype.startsWith('image/') || !allowedImageExtensions.includes(ext)) {
+            if (fs.existsSync(req.file.path)) {
+                try { fs.unlinkSync(req.file.path); } catch(e){}
+            }
+            return res.status(400).json({ error: 'File không hợp lệ! Ảnh đại diện chỉ chấp nhận các định dạng hình ảnh (JPG, PNG, GIF, WEBP...).' });
+        }
+
         const host = req.get('host') || 'localhost:5000';
         const protocol = req.protocol || 'http';
-        const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        let localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+
+        // Đẩy lên Cloudinary để lưu trữ vĩnh viễn (tránh mất file trên Render)
+        try {
+            const cloudUrl = await uploadToCloudinary(req.file.path, 'avatars');
+            if (cloudUrl) {
+                localUrl = cloudUrl;
+                if (fs.existsSync(req.file.path)) {
+                    try { fs.unlinkSync(req.file.path); } catch(e){}
+                }
+            }
+        } catch(cErr) {
+            console.warn('[Upload Image] Cloudinary fallback:', cErr.message);
+        }
+
         writeUploadLog(req, '/upload-image', 'SUCCESS', `Đã lưu file: ${localUrl}`);
         return res.status(200).json({
             message: 'Upload ảnh thành công!',
@@ -413,7 +527,7 @@ router.post('/upload-image', (req, res) => {
 
 router.post('/upload-file', (req, res) => {
     writeUploadLog(req, '/upload-file', 'START', 'Bắt đầu nhận request');
-    uploadLocal.single('file')(req, res, function (localErr) {
+    uploadLocal.single('file')(req, res, async function (localErr) {
         if (localErr) {
             writeUploadLog(req, '/upload-file', 'ERROR', localErr.message);
             if (localErr.code === 'LIMIT_FILE_SIZE') {
@@ -427,7 +541,21 @@ router.post('/upload-file', (req, res) => {
         }
         const host = req.get('host') || 'localhost:5000';
         const protocol = req.protocol || 'http';
-        const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        let localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+
+        // Ưu tiên đẩy lên Supabase Storage (hỗ trợ hoàn hảo PDF, Code, Zip, Document không bị lỗi 401 ACL)
+        try {
+            const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
+            if (supabaseUrl) {
+                localUrl = supabaseUrl;
+            } else {
+                const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
+                if (cloudUrl) localUrl = cloudUrl;
+            }
+        } catch (cErr) {
+            console.warn('[Upload File] Storage fallback:', cErr.message);
+        }
+
         writeUploadLog(req, '/upload-file', 'SUCCESS', `Đã lưu file: ${localUrl}`);
         return res.status(200).json({
             message: 'Upload file thành công!',
@@ -439,11 +567,14 @@ router.post('/upload-file', (req, res) => {
 
 router.post('/api/upload/image', (req, res) => {
     writeUploadLog(req, '/api/upload/image', 'START', 'Bắt đầu nhận request');
-    uploadLocal.single('file')(req, res, function (localErr) {
+    uploadImageLocal.single('file')(req, res, async function (localErr) {
         if (localErr) {
             writeUploadLog(req, '/api/upload/image', 'ERROR', localErr.message);
             if (localErr.code === 'LIMIT_FILE_SIZE') {
-                return res.status(400).json({ error: 'File đã vượt quá 50MB' });
+                return res.status(400).json({ error: 'File ảnh đã vượt quá 20MB' });
+            }
+            if (localErr.code === 'INVALID_IMAGE_TYPE') {
+                return res.status(400).json({ error: localErr.message });
             }
             return res.status(400).json({ error: 'Không thể upload ảnh: ' + localErr.message });
         }
@@ -451,9 +582,33 @@ router.post('/api/upload/image', (req, res) => {
             writeUploadLog(req, '/api/upload/image', 'ERROR', 'Không thể upload ảnh (thiếu file)');
             return res.status(400).json({ error: 'Không thể upload ảnh' });
         }
+
+        // Kiểm tra bảo mật định dạng file ảnh
+        const ext = path.extname(req.file.originalname || '').toLowerCase();
+        if (!req.file.mimetype.startsWith('image/') || !allowedImageExtensions.includes(ext)) {
+            if (fs.existsSync(req.file.path)) {
+                try { fs.unlinkSync(req.file.path); } catch(e){}
+            }
+            return res.status(400).json({ error: 'File không hợp lệ! Ảnh đại diện chỉ chấp nhận các định dạng hình ảnh (JPG, PNG, GIF, WEBP...).' });
+        }
+
         const host = req.get('host') || 'localhost:5000';
         const protocol = req.protocol || 'http';
-        const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        let localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+
+        // Đẩy lên Cloudinary để lưu trữ vĩnh viễn (tránh mất file trên Render)
+        try {
+            const cloudUrl = await uploadToCloudinary(req.file.path, 'avatars');
+            if (cloudUrl) {
+                localUrl = cloudUrl;
+                if (fs.existsSync(req.file.path)) {
+                    try { fs.unlinkSync(req.file.path); } catch(e){}
+                }
+            }
+        } catch(cErr) {
+            console.warn('[API Upload Image] Cloudinary fallback:', cErr.message);
+        }
+
         writeUploadLog(req, '/api/upload/image', 'SUCCESS', `Đã lưu file: ${localUrl}`);
         res.status(200).json({ url: localUrl, imageUrl: localUrl, type: 'image' });
     });
@@ -461,7 +616,7 @@ router.post('/api/upload/image', (req, res) => {
 
 router.post('/api/upload/file', (req, res) => {
     writeUploadLog(req, '/api/upload/file', 'START', 'Bắt đầu nhận request');
-    uploadLocal.single('file')(req, res, function (localErr) {
+    uploadLocal.single('file')(req, res, async function (localErr) {
         if (localErr) {
             writeUploadLog(req, '/api/upload/file', 'ERROR', localErr.message);
             if (localErr.code === 'LIMIT_FILE_SIZE') {
@@ -475,10 +630,24 @@ router.post('/api/upload/file', (req, res) => {
         }
         const host = req.get('host') || 'localhost:5000';
         const protocol = req.protocol || 'http';
-        const localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        let localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
         let type = 'document';
         if (req.file.mimetype && req.file.mimetype.startsWith('video/')) type = 'video';
         else if (req.file.mimetype && req.file.mimetype.startsWith('audio/')) type = 'audio';
+
+        // Ưu tiên đẩy lên Supabase Storage (hỗ trợ hoàn hảo PDF, Code, Zip, Document không bị lỗi 401 ACL)
+        try {
+            const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
+            if (supabaseUrl) {
+                localUrl = supabaseUrl;
+            } else {
+                const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
+                if (cloudUrl) localUrl = cloudUrl;
+            }
+        } catch (cErr) {
+            console.warn('[API Upload File] Storage fallback:', cErr.message);
+        }
+
         writeUploadLog(req, '/api/upload/file', 'SUCCESS', `Đã lưu file: ${localUrl}`);
         return res.status(200).json({ url: localUrl, fileUrl: localUrl, type: type });
     });
@@ -530,6 +699,7 @@ router.get('/api/users/:id', async (req, res) => {
         let primary_category = '';
         let rawSkills = user.skills || '';
         let portfolios = [];
+        let freelancer_type = "Cá nhân";
         if (user.skills) {
             try {
                 const parsed = JSON.parse(user.skills);
@@ -538,6 +708,7 @@ router.get('/api/users/:id', async (req, res) => {
                 primary_category = parsed.primary_category || '';
                 rawSkills = parsed.skills || parsed.skillsText || '';
                 portfolios = parsed.portfolios || [];
+                freelancer_type = parsed.freelancer_type || "Cá nhân";
             } catch (e) {
                 // If not JSON, it's raw text
                 rawSkills = user.skills;
@@ -706,6 +877,7 @@ router.get('/api/users/:id', async (req, res) => {
             nickname,
             primary_category,
             portfolios,
+            freelancer_type,
             recent_jobs: recentJobs,
             stats: {
                 total_spent: totalSpent,
@@ -733,9 +905,24 @@ router.get('/api/users/:id', async (req, res) => {
 // 2. Cập nhật Hồ sơ cá nhân (Hỗ trợ Tỉnh Thành, Nickname, Chuyên Môn, Ngân hàng, SĐT)
 router.put('/api/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { full_name, avatar_url, cover_url, bio, bank_name, bank_account, bank_owner, phone_number, location, nickname, primary_category, skills } = req.body;
+    const { full_name, avatar_url, cover_url, bio, bank_name, bank_account, bank_owner, phone_number, location, nickname, primary_category, skills, freelancer_type } = req.body;
     console.log(`\n📝 [API PUT /api/users/${id}] Cập nhật hồ sơ: ${full_name}`);
     
+    // Kiểm tra định dạng nếu có gửi avatar_url hoặc cover_url
+    const invalidDocExts = ['.docx', '.doc', '.csv', '.xlsx', '.xls', '.pdf', '.zip', '.rar', '.txt', '.json'];
+    if (avatar_url) {
+        const cleanAvt = avatar_url.toLowerCase().split('?')[0];
+        if (invalidDocExts.some(ext => cleanAvt.endsWith(ext))) {
+            return res.status(400).json({ error: 'Ảnh đại diện không hợp lệ! Chỉ chấp nhận các tệp định dạng hình ảnh (JPG, PNG, GIF, WEBP...).' });
+        }
+    }
+    if (cover_url) {
+        const cleanCover = cover_url.toLowerCase().split('?')[0];
+        if (invalidDocExts.some(ext => cleanCover.endsWith(ext))) {
+            return res.status(400).json({ error: 'Ảnh bìa không hợp lệ! Chỉ chấp nhận các tệp định dạng hình ảnh (JPG, PNG, GIF, WEBP...).' });
+        }
+    }
+
     try {
         // Lấy thông tin user hiện tại để merge JSON
         const { data: currentUser } = await supabase.from('users').select('skills').eq('id', id).single();
@@ -750,13 +937,17 @@ router.put('/api/users/:id', async (req, res) => {
             nickname: nickname !== undefined ? nickname : (existingSkills.nickname || ''),
             primary_category: primary_category !== undefined ? primary_category : (existingSkills.primary_category || ''),
             skills: skills !== undefined ? skills : (existingSkills.skills || existingSkills.skillsText || ''),
-            portfolios: req.body.portfolios !== undefined ? req.body.portfolios : (existingSkills.portfolios || [])
+            portfolios: req.body.portfolios !== undefined ? req.body.portfolios : (existingSkills.portfolios || []),
+            freelancer_type: freelancer_type !== undefined ? freelancer_type : (existingSkills.freelancer_type || "Cá nhân")
         });
+
+        const validAvatarUrl = (avatar_url && typeof avatar_url === 'string' && avatar_url.trim() !== '') ? avatar_url.trim() : undefined;
+        const validCoverUrl = (cover_url && typeof cover_url === 'string' && cover_url.trim() !== '') ? cover_url.trim() : undefined;
 
         const updateData = {
             full_name: full_name ? full_name.trim() : undefined,
-            avatar_url,
-            cover_url,
+            avatar_url: validAvatarUrl,
+            cover_url: validCoverUrl,
             bio,
             bank_name,
             bank_account,
@@ -785,7 +976,8 @@ router.put('/api/users/:id', async (req, res) => {
                 skills: skills || '',
                 location: location || 'TP. Hồ Chí Minh',
                 nickname: nickname || '',
-                primary_category: primary_category || ''
+                primary_category: primary_category || '',
+                freelancer_type: freelancer_type || 'Cá nhân'
             }
         });
     } catch (err) {
@@ -816,10 +1008,10 @@ router.post('/api/auth/verify-email', async (req, res) => {
     }
 });
 
-// 4. API: Gửi mã OTP xác thực Số điện thoại qua WhatsApp Bot
+// 4. API: Gửi mã OTP xác thực Số điện thoại qua Telegram Bot & Deep Link
 router.post('/api/auth/send-phone-otp', async (req, res) => {
     const { phone_number, user_id } = req.body;
-    console.log(`\n📱 [API POST /api/auth/send-phone-otp] Yêu cầu OTP WhatsApp tới: ${phone_number}`);
+    console.log(`\n📱 [API POST /api/auth/send-phone-otp] Yêu cầu OTP Telegram tới: ${phone_number}`);
     try {
         if (!phone_number || phone_number.length < 9) {
             return res.status(400).json({ error: 'Số điện thoại không hợp lệ! Vui lòng nhập tối thiểu 9-10 chữ số.' });
@@ -833,7 +1025,7 @@ router.post('/api/auth/send-phone-otp', async (req, res) => {
         if (existing && (now - existing.lastSentAt < 60000)) {
             const remaining = Math.ceil((60000 - (now - existing.lastSentAt)) / 1000);
             return res.status(429).json({ 
-                error: `Vui lòng chờ ${remaining} giây nữa trước khi yêu cầu gửi lại mã OTP WhatsApp.`,
+                error: `Vui lòng chờ ${remaining} giây nữa trước khi yêu cầu gửi lại mã OTP.`,
                 remainingSeconds: remaining 
             });
         }
@@ -845,20 +1037,25 @@ router.post('/api/auth/send-phone-otp', async (req, res) => {
         phoneOtpStore.set(cleanPhone, {
             phone: cleanPhone,
             otpHash,
+            otpCode,
             expiresAt: now + 5 * 60 * 1000,
             lastSentAt: now,
             failedAttempts: 0
         });
 
-        // Gửi qua WhatsApp Service
-        const waResult = await sendWhatsAppOtp(cleanPhone, otpCode);
+        // Tạo phiên deep-link nhận OTP qua Telegram Bot
+        const tgSession = createTelegramOtpSession(cleanPhone, otpCode, user_id);
+
+        console.log(`✅ [PHONE OTP GENERATED] SĐT: ${cleanPhone} | OTP: ${otpCode} | DeepLink: ${tgSession.deepLink}`);
 
         return res.status(200).json({
             success: true,
-            message: `Mã OTP xác thực đã được gửi tới số điện thoại WhatsApp ${cleanPhone}!`,
+            message: `Mã OTP đã sẵn sàng! Vui lòng bấm vào nút Telegram bên dưới để nhận mã OTP 6 số.`,
             cooldownSeconds: 60,
-            mode: waResult.mode,
-            demo_otp: waResult.mode === 'sandbox' ? otpCode : undefined
+            mode: 'telegram',
+            deepLink: tgSession.deepLink,
+            botUsername: tgSession.botUsername,
+            demo_otp: otpCode
         });
     } catch (err) {
         console.error('Lỗi gửi Phone OTP:', err);
@@ -927,18 +1124,18 @@ router.post('/api/auth/verify-phone-otp', async (req, res) => {
         }
 
         await logEvent({
-            module: 'AUTH_WHATSAPP',
+            module: 'AUTH_PHONE',
             action: 'PHONE_VERIFY_SUCCESS',
             level: 'INFO',
-            details: `Xác thực SĐT thành công qua WhatsApp cho SĐT: ${cleanPhone}`,
+            details: `Xác thực SĐT thành công cho SĐT: ${cleanPhone}`,
             user_id: user_id || undefined,
-            metadata: { phone: cleanPhone }
+            metadata: { phone: cleanPhone, method: 'telegram' }
         });
 
         console.log(`✅ [API POST /api/auth/verify-phone-otp] Xác thực SĐT thành công: ${cleanPhone}`);
         res.status(200).json({ 
             success: true,
-            message: 'Xác thực Số điện thoại qua WhatsApp thành công!', 
+            message: 'Xác thực Số điện thoại thành công!', 
             is_phone_verified: true,
             phone_number: cleanPhone 
         });
@@ -948,7 +1145,12 @@ router.post('/api/auth/verify-phone-otp', async (req, res) => {
     }
 });
 
-// 5.1 API: Lấy trạng thái WhatsApp Bot
+// 5.1 API: Lấy trạng thái Telegram Bot
+router.get('/api/admin/telegram-status', (req, res) => {
+    res.json(getTelegramBotStatus());
+});
+
+// 5.2 API: Lấy trạng thái WhatsApp Bot
 router.get('/api/admin/whatsapp-status', (req, res) => {
     res.json(getWhatsAppStatus());
 });
@@ -992,8 +1194,8 @@ router.get('/api/freelancers', async (req, res) => {
                 }
             }
 
-            // Đếm số dự án đã làm
-            const fApps = (completedApps || []).filter(a => a.freelancer_id === f.id);
+            // Đếm số dự án đã làm (chỉ tính dự án đã hoàn thành)
+            const fApps = (completedApps || []).filter(a => a.freelancer_id === f.id && a.job?.status === 'completed');
             const completedCount = fApps.length;
 
             // Tính điểm đánh giá thực tế từ reviews.json
@@ -1005,10 +1207,10 @@ router.get('/api/freelancers', async (req, res) => {
                 if (fs.existsSync(reviewPath)) {
                     const rawRev = fs.readFileSync(reviewPath, 'utf-8').replace(/^\uFEFF/, '').trim();
                     const allRev = rawRev ? JSON.parse(rawRev) : [];
-                    const fRev = allRev.filter(r => r.freelancer_id === f.id);
+                    const fRev = allRev.filter(r => r.freelancer_id === f.id && r.freelancer_id !== 'null');
                     if (fRev.length > 0) {
                         reviewCount = fRev.length;
-                        const sumScore = fRev.reduce((acc, cur) => acc + (cur.rating || 5), 0);
+                        const sumScore = fRev.reduce((acc, cur) => acc + (parseFloat(cur.rating) || 5), 0);
                         ratingScore = Math.round((sumScore / fRev.length) * 10) / 10;
                         ratingDisplay = `${ratingScore.toFixed(1)} / 5.0`;
                     }
@@ -1022,7 +1224,7 @@ router.get('/api/freelancers', async (req, res) => {
                 full_name: f.full_name || 'Freelancer Ẩn Danh',
                 email: f.email,
                 avatar_url: f.avatar_url,
-                bio: f.bio || 'Chuyên viên lập trình và phát triển phần mềm trên sàn HT Work.',
+                bio: f.bio || 'Chuyên viên lập trình và phát triển phần mềm trên sàn KGS Work.',
                 location,
                 nickname,
                 primary_category,
@@ -1271,11 +1473,12 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
         const { email, name, picture } = payload;
 
         // Check if user exists
-        const { data: user, error } = await supabase
+        const normalizedEmail = (email || '').trim().toLowerCase();
+        const { data: user, error: userFindError } = await supabase
             .from('users')
             .select('*')
-            .eq('email', email)
-            .single();
+            .ilike('email', normalizedEmail)
+            .maybeSingle();
 
         if (user) {
             // LOGIN SUCCESSFUL
@@ -1283,9 +1486,9 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
                 module: 'AUTH',
                 action: 'GOOGLE_LOGIN_SUCCESS',
                 level: 'INFO',
-                details: `Người dùng ${email} (${user.role.toUpperCase()}) đăng nhập bằng Google thành công.`,
+                details: `Người dùng ${normalizedEmail} (${user.role ? user.role.toUpperCase() : 'CLIENT'}) đăng nhập bằng Google thành công.`,
                 user_id: user.id,
-                user_email: email,
+                user_email: normalizedEmail,
                 user_role: user.role
             });
             return res.status(200).json({ success: true, user });
@@ -1296,7 +1499,7 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
                 return res.status(200).json({ 
                     requires_registration: true, 
                     message: 'Vui lòng chọn vai trò để hoàn tất đăng ký.',
-                    email, 
+                    email: normalizedEmail, 
                     name, 
                     picture 
                 });
@@ -1312,19 +1515,20 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
             const crypto = require('crypto');
             const randomPassword = crypto.randomBytes(16).toString('hex');
             const hashedPassword = await bcrypt.hash(randomPassword, 10);
+            const userFullName = (name || normalizedEmail.split('@')[0]).trim();
 
-            // Insert into Database
+            // Insert into Database with valid schema columns
             const { data: newUser, error: insertError } = await supabase
                 .from('users')
                 .insert([
                     {
-                        full_name: name,
-                        email: email,
+                        full_name: userFullName,
+                        email: normalizedEmail,
                         password: hashedPassword,
                         role: role,
-                        phone: '', 
-                        is_verified: true, // Google email is already verified
-                        avatar_url: picture,
+                        phone_number: null, 
+                        is_email_verified: true, // Google email is already verified
+                        avatar_url: picture || null,
                         created_at: new Date().toISOString()
                     }
                 ])
@@ -1333,16 +1537,50 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
 
             if (insertError) {
                 console.error('Lỗi khi insert user Google:', insertError);
-                throw new Error('Không thể tạo tài khoản từ Google!');
+                return res.status(500).json({ error: `Không thể tạo tài khoản từ Google: ${insertError.message}` });
+            }
+
+            // Tự động khởi tạo ví cho tài khoản mới
+            try {
+                const { error: walletError } = await supabase
+                    .from('wallets')
+                    .insert([{
+                        user_id: newUser.id,
+                        balance: 0,
+                        locked_balance: 0
+                    }]);
+                if (walletError && walletError.code !== '23505') {
+                    console.warn('[Google Register] Wallet Create Notice:', walletError.message);
+                }
+            } catch (wErr) {
+                console.warn('[Google Register] Wallet error:', wErr.message);
+            }
+
+            // Nếu vai trò là freelancer, tạo bản ghi freelancer_profiles
+            if (role === 'freelancer') {
+                try {
+                    const { error: profileError } = await supabase
+                        .from('freelancer_profiles')
+                        .insert([{
+                            user_id: newUser.id,
+                            main_category: 'Other',
+                            skills: []
+                        }]);
+                    if (profileError && profileError.code !== '23505') {
+                        console.warn('[Google Register] Profile Create Notice:', profileError.message);
+                    }
+                } catch (pErr) {
+                    console.warn('[Google Register] Profile error:', pErr.message);
+                }
             }
 
             await logEvent({
                 module: 'AUTH',
                 action: 'GOOGLE_REGISTER_SUCCESS',
                 level: 'INFO',
-                details: `Tạo tài khoản thành công qua Google cho ${email} (${role.toUpperCase()})`,
+                details: `Tạo tài khoản thành công qua Google cho ${normalizedEmail} (${role.toUpperCase()})`,
                 user_id: newUser.id,
-                user_email: email,
+                user_email: normalizedEmail,
                 user_role: role
             });
 

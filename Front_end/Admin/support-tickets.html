@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Yêu Cầu Hỗ Trợ (Tickets) - KGS Work Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative space-y-6">
+            
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-headset mr-3 text-amber-500"></i> Quản Lý Yêu Cầu Hỗ Trợ & Ticket
+                    </h1>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Tiếp nhận, xử lý khiếu nại và phản hồi người dùng (Freelancer & Khách hàng)
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="../user/direct-chat.html" class="px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 shadow-md shadow-emerald-600/20 transition">
+                        <i class="fas fa-comments"></i>
+                        <span>Hộp Thư Chat Trực Tuyến</span>
+                    </a>
+                    <button onclick="loadTickets()" class="px-3.5 py-2.5 rounded-xl font-bold text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 flex items-center gap-1.5 transition">
+                        <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Summary Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block">Tổng Yêu Cầu</span>
+                        <span class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mt-1 block" id="kpiTotal">0</span>
+                    </div>
+                    <span class="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500 flex items-center justify-center text-lg">
+                        <i class="fas fa-ticket-alt"></i>
+                    </span>
+                </div>
+
+                <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-amber-500 font-bold uppercase tracking-wider block">Chờ Tiếp Nhận</span>
+                        <span class="text-2xl sm:text-3xl font-black text-amber-500 mt-1 block" id="kpiPending">0</span>
+                    </div>
+                    <span class="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center text-lg">
+                        <i class="fas fa-hourglass-start animate-spin"></i>
+                    </span>
+                </div>
+
+                <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-blue-500 font-bold uppercase tracking-wider block">Đang Xử Lý</span>
+                        <span class="text-2xl sm:text-3xl font-black text-blue-500 mt-1 block" id="kpiInProgress">0</span>
+                    </div>
+                    <span class="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-500 flex items-center justify-center text-lg">
+                        <i class="fas fa-tools"></i>
+                    </span>
+                </div>
+
+                <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-emerald-500 font-bold uppercase tracking-wider block">Đã Giải Quyết</span>
+                        <span class="text-2xl sm:text-3xl font-black text-emerald-500 mt-1 block" id="kpiResolved">0</span>
+                    </div>
+                    <span class="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 flex items-center justify-center text-lg">
+                        <i class="fas fa-check-circle"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Filter & Search Bar -->
+            <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+                <div class="flex flex-wrap gap-2.5 items-center flex-1">
+                    <!-- Search Input -->
+                    <div class="relative flex-1 min-w-[200px]">
+                        <i class="fas fa-search absolute left-3.5 top-3 text-gray-400 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="debounceFilter()" placeholder="Tìm theo mã vé (#TK-...), tiêu đề, tên user..." class="w-full pl-9 pr-4 py-2 rounded-xl text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+
+                    <!-- Role Filter -->
+                    <select id="roleFilter" onchange="loadTickets()" class="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white outline-none">
+                        <option value="all">👥 Tất cả đối tượng</option>
+                        <option value="freelancer">💻 Freelancer</option>
+                        <option value="client">👔 Khách hàng (Client)</option>
+                    </select>
+
+                    <!-- Status Filter -->
+                    <select id="statusFilter" onchange="loadTickets()" class="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white outline-none">
+                        <option value="all">⚡ Mọi trạng thái</option>
+                        <option value="pending" selected>🟡 Chờ tiếp nhận</option>
+                        <option value="in_progress">🔵 Đang xử lý</option>
+                        <option value="resolved">🟢 Đã giải quyết</option>
+                        <option value="closed">⚪ Đã đóng</option>
+                    </select>
+
+                    <!-- Category Filter -->
+                    <select id="categoryFilter" onchange="loadTickets()" class="px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white outline-none">
+                        <option value="all">📁 Mọi danh mục</option>
+                        <option value="payment">💎 Nạp/Rút & Ví Token</option>
+                        <option value="job_dispute">⚖️ Tranh chấp dự án</option>
+                        <option value="fraud_report">🛡️ Báo cáo gian lận</option>
+                        <option value="tech_bug">🐞 Lỗi kỹ thuật</option>
+                        <option value="kyc_account">🆔 Tài khoản & KYC</option>
+                        <option value="other">❓ Khác</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table Tickets List -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-gray-50 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-700 text-gray-500 font-black uppercase text-[11px] tracking-wider">
+                            <tr>
+                                <th class="p-4">Mã Vé</th>
+                                <th class="p-4">Người Gửi</th>
+                                <th class="p-4">Danh Mục</th>
+                                <th class="p-4">Tiêu Đề & Nội Dung</th>
+                                <th class="p-4">Ưu Tiên</th>
+                                <th class="p-4">Trạng Thái</th>
+                                <th class="p-4">Thời Gian</th>
+                                <th class="p-4 text-center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketsTableBody" class="divide-y divide-gray-100 dark:divide-gray-700/60 font-medium">
+                            <tr>
+                                <td colspan="8" class="text-center p-8 text-gray-400">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL XỬ LÝ & PHẢN HỒI TICKET CỦA ADMIN -->
+    <div id="adminActionModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-gray-200 dark:border-gray-700 max-h-[92vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
+                <div class="flex items-center gap-3">
+                    <span id="actTicketCode" class="text-sm font-black px-3 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">#TK-0000</span>
+                    <span id="actRoleBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full">Freelancer</span>
+                </div>
+                <button onclick="closeActionModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-gray-500 text-sm flex items-center justify-center">
+                    &times;
+                </button>
+            </div>
+
+            <!-- User Info Card -->
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-800">
+                <div class="flex items-center gap-3">
+                    <img id="actUserAvatar" src="https://ui-avatars.com/api/?name=User" class="w-10 h-10 rounded-2xl object-cover border">
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900 dark:text-white" id="actUserName">Tên User</h4>
+                        <p class="text-[11px] text-gray-400" id="actUserEmail">email@domain.com</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-bold text-gray-700 dark:text-gray-300 block" id="actUserPhone">SĐT: --</span>
+                    <button onclick="openChatWithUser()" class="mt-1 text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center gap-1 justify-end">
+                        <i class="fas fa-comments"></i> Chat 1-1 ngay
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ticket Content -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black text-gray-400 uppercase tracking-wider" id="actTicketCategory">DANH MỤC</span>
+                    <span class="text-[11px] text-gray-400" id="actTicketTime">Gửi lúc: --</span>
+                </div>
+                <h3 class="text-base font-black text-gray-900 dark:text-white" id="actTicketSubject">Tiêu đề yêu cầu</h3>
+                <div class="p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800 text-xs sm:text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed" id="actTicketMessage"></div>
+                <div id="actAttachmentsBox" class="flex flex-wrap gap-2 pt-1 hidden"></div>
+            </div>
+
+            <!-- Form Xử lý & Phản hồi -->
+            <form onsubmit="handleAdminReplySubmit(event)" class="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-700">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                            Cập Nhật Trạng Thái
+                        </label>
+                        <select id="actStatusSelect" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-xs sm:text-sm font-bold text-gray-900 dark:text-white outline-none">
+                            <option value="pending">🟡 Chờ tiếp nhận</option>
+                            <option value="in_progress">🔵 Đang xử lý</option>
+                            <option value="resolved">🟢 Đã giải quyết</option>
+                            <option value="closed">⚪ Đã đóng</option>
+                        </select>
+                    </div>
+
+                    <!-- Gợi ý mẫu câu trả lời nhanh -->
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                            Mẫu Phản Hồi Nhanh
+                        </label>
+                        <select onchange="insertQuickReply(this.value)" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-xs text-gray-900 dark:text-white outline-none">
+                            <option value="">-- Chọn câu trả lời mẫu --</option>
+                            <option value="Ban Quản Trị đã tiếp nhận thông tin và đang tiến hành tra soát. Vui lòng giữ liên lạc trong ít phút.">Đang tra soát</option>
+                            <option value="Lệnh nạp/rút Token của bạn đã được đối soát thành công và tiền đã được cộng vào số dư ví. Vui lòng kiểm tra lại.">Đã cộng/hoàn Token</option>
+                            <option value="Vụ việc tranh chấp đã được chuyển sang bộ phận Tòa Án Giám Sát Escrow. Admin sẽ triệu tập hai bên để đối chất và phán quyết.">Chuyển sang Tranh chấp Escrow</option>
+                            <option value="Sự cố kỹ thuật đã được đội ngũ lập trình khắc phục hoàn tất. Bạn có thể thử lại ngay bây giờ.">Đã fix lỗi kỹ thuật</option>
+                            <option value="Tài khoản vi phạm đã bị xử lý cảnh cáo/khóa theo quy chế hoạt động của KGS Work. Cảm ơn bạn đã báo cáo.">Đã xử lý gian lận</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                        Nội Dung Phản Hồi Chính Thức Đến Người Dùng <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea id="actAdminReplyText" rows="4" required placeholder="Nhập câu trả lời, hướng dẫn giải quyết hoặc kết quả tra soát..." class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-xs sm:text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
+                    <p class="text-[11px] text-gray-400 mt-1">Khi lưu, hệ thống sẽ tự động gửi thông báo chuông In-App ngay lập tức đến người dùng.</p>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <button type="button" onclick="closeActionModal()" class="px-5 py-2.5 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold text-xs">
+                        Hủy
+                    </button>
+                    <button type="submit" id="btnSaveReply" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs shadow-md shadow-amber-500/30 flex items-center gap-1.5 transition">
+                        <i class="fas fa-save"></i> <span>Lưu Phản Hồi & Bắn Thông Báo</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Scripts Framework -->
+    <script src="admin-ui.js?v=1791344398"></script>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://project-internship-8z76.onrender.com';
+
+        let allTickets = [];
+        let activeSelectedTicket = null;
+        let debounceTimer = null;
+
+        function debounceFilter() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                renderTable();
+            }, 300);
+        }
+
+        async function loadTickets() {
+            const icon = document.getElementById('refreshIcon');
+            if (icon) icon.classList.add('fa-spin');
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/support/tickets`);
+                const data = await res.json();
+                if (res.ok && data.tickets) {
+                    allTickets = data.tickets;
+                    updateKPIs(allTickets);
+                    renderTable();
+                }
+            } catch(e) {
+                console.error(e);
+            } finally {
+                if (icon) icon.classList.remove('fa-spin');
+            }
+        }
+
+        function updateKPIs(tickets) {
+            document.getElementById('kpiTotal').innerText = tickets.length;
+            document.getElementById('kpiPending').innerText = tickets.filter(t => t.status === 'pending').length;
+            document.getElementById('kpiInProgress').innerText = tickets.filter(t => t.status === 'in_progress').length;
+            document.getElementById('kpiResolved').innerText = tickets.filter(t => t.status === 'resolved').length;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('ticketsTableBody');
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+            const role = document.getElementById('roleFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+
+            let filtered = allTickets;
+
+            if (role !== 'all') {
+                filtered = filtered.filter(t => t.user_role === role);
+            }
+            if (status !== 'all') {
+                filtered = filtered.filter(t => t.status === status);
+            }
+            if (category !== 'all') {
+                filtered = filtered.filter(t => t.category === category);
+            }
+            if (search) {
+                filtered = filtered.filter(t => 
+                    (t.ticket_code && t.ticket_code.toLowerCase().includes(search)) ||
+                    (t.subject && t.subject.toLowerCase().includes(search)) ||
+                    (t.user_name && t.user_name.toLowerCase().includes(search)) ||
+                    (t.user_email && t.user_email.toLowerCase().includes(search))
+                );
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center p-8 text-gray-400 text-xs">
+                            Không tìm thấy yêu cầu hỗ trợ nào phù hợp với bộ lọc.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((t, idx) => {
+                const isFreelancer = t.user_role === 'freelancer';
+                const roleBadge = isFreelancer 
+                    ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200">Freelancer</span>'
+                    : '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200">Khách Hàng</span>';
+                
+                const statusBadge = getStatusBadge(t.status);
+                const priorityBadge = getPriorityBadge(t.priority);
+                const time = new Date(t.created_at).toLocaleString('vi-VN');
+                const avatar = t.user_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.user_name || 'U')}&background=4f46e5&color=fff`;
+
+                return `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition cursor-pointer" onclick="openActionModal('${t.id}')">
+                    <td class="p-4 font-black text-amber-600 dark:text-amber-400 whitespace-nowrap">
+                        ${t.ticket_code}
+                    </td>
+                    <td class="p-4 whitespace-nowrap">
+                        <div class="flex items-center gap-2.5">
+                            <img src="${avatar}" class="w-8 h-8 rounded-xl object-cover border shrink-0">
+                            <div>
+                                <span class="font-extrabold text-gray-900 dark:text-white block text-xs truncate max-w-[140px]">${escapeHtml(t.user_name)}</span>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    ${roleBadge}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-4 whitespace-nowrap text-xs text-gray-600 dark:text-gray-300 font-bold">
+                        ${t.category_label || t.category}
+                    </td>
+                    <td class="p-4 max-w-xs">
+                        <span class="font-bold text-gray-900 dark:text-white block truncate text-xs">${escapeHtml(t.subject)}</span>
+                        <span class="text-[11px] text-gray-400 line-clamp-1">${escapeHtml(t.message)}</span>
+                    </td>
+                    <td class="p-4 whitespace-nowrap">
+                        ${priorityBadge}
+                    </td>
+                    <td class="p-4 whitespace-nowrap">
+                        ${statusBadge}
+                    </td>
+                    <td class="p-4 whitespace-nowrap text-[11px] text-gray-400">
+                        ${time}
+                    </td>
+                    <td class="p-4 text-center whitespace-nowrap">
+                        <button onclick="event.stopPropagation(); openActionModal('${t.id}')" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-gray-700 dark:text-indigo-300 font-black text-xs transition">
+                            <i class="fas fa-edit mr-1"></i> Xử lý
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function getStatusBadge(st) {
+            const map = {
+                'pending': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200">Chờ tiếp nhận</span>',
+                'in_progress': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200">Đang xử lý</span>',
+                'resolved': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200">Đã giải quyết</span>',
+                'closed': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200">Đã đóng</span>'
+            };
+            return map[st] || '';
+        }
+
+        function getPriorityBadge(pr) {
+            const map = {
+                'low': '<span class="text-[10px] text-gray-400 font-bold">Thấp</span>',
+                'medium': '<span class="text-[10px] text-amber-500 font-bold">🟡 Bình thường</span>',
+                'high': '<span class="text-[10px] text-orange-500 font-black">🟠 Cao</span>',
+                'urgent': '<span class="text-[10px] text-rose-500 font-black animate-pulse">🔴 Khẩn cấp</span>'
+            };
+            return map[pr] || '';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function openActionModal(ticketId) {
+            const t = allTickets.find(item => item.id === ticketId);
+            if (!t) return;
+            activeSelectedTicket = t;
+
+            document.getElementById('actTicketCode').innerText = t.ticket_code;
+            document.getElementById('actRoleBadge').innerText = t.user_role === 'freelancer' ? 'Freelancer' : 'Khách Hàng (Client)';
+            document.getElementById('actRoleBadge').className = t.user_role === 'freelancer' 
+                ? 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700'
+                : 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700';
+
+            document.getElementById('actUserName').innerText = t.user_name || 'Người dùng';
+            document.getElementById('actUserEmail').innerText = t.user_email || 'Chưa có email';
+            document.getElementById('actUserPhone').innerText = `SĐT: ${t.phone || 'Chưa cập nhật'}`;
+            document.getElementById('actUserAvatar').src = t.user_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.user_name || 'U')}&background=4f46e5&color=fff`;
+
+            document.getElementById('actTicketCategory').innerText = `DANH MỤC: ${t.category_label || t.category}`;
+            document.getElementById('actTicketTime').innerText = `Gửi: ${new Date(t.created_at).toLocaleString('vi-VN')}`;
+            document.getElementById('actTicketSubject').innerText = t.subject;
+            document.getElementById('actTicketMessage').innerText = t.message;
+
+            const attBox = document.getElementById('actAttachmentsBox');
+            if (t.attachments && t.attachments.length > 0) {
+                attBox.innerHTML = t.attachments.map(url => `
+                    <a href="${url}" target="_blank" class="block w-20 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:scale-105 transition">
+                        <img src="${url}" class="w-full h-full object-cover">
+                    </a>
+                `).join('');
+                attBox.classList.remove('hidden');
+            } else {
+                attBox.classList.add('hidden');
+            }
+
+            document.getElementById('actStatusSelect').value = t.status || 'pending';
+            document.getElementById('actAdminReplyText').value = t.admin_reply || '';
+
+            document.getElementById('adminActionModal').classList.remove('hidden');
+        }
+
+        function closeActionModal() {
+            document.getElementById('adminActionModal').classList.add('hidden');
+            activeSelectedTicket = null;
+        }
+
+        function insertQuickReply(text) {
+            if (!text) return;
+            const area = document.getElementById('actAdminReplyText');
+            area.value = text;
+            area.focus();
+        }
+
+        function openChatWithUser() {
+            if (!activeSelectedTicket || !activeSelectedTicket.user_id) return;
+            window.location.href = `../user/direct-chat.html?partner=${activeSelectedTicket.user_id}`;
+        }
+
+        async function handleAdminReplySubmit(e) {
+            e.preventDefault();
+            if (!activeSelectedTicket) return;
+
+            const btn = document.getElementById('btnSaveReply');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang lưu...';
+
+            const payload = {
+                status: document.getElementById('actStatusSelect').value,
+                admin_reply: document.getElementById('actAdminReplyText').value.trim(),
+                admin_name: 'Quản Trị Viên KGS Work'
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/support/tickets/${activeSelectedTicket.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('✅ Đã lưu phản hồi và gửi thông báo thành công cho người dùng!');
+                    closeActionModal();
+                    loadTickets();
+                } else {
+                    alert('❌ Lỗi: ' + (data.error || 'Không thể lưu phản hồi'));
+                }
+            } catch(err) {
+                alert('❌ Lỗi kết nối máy chủ');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save mr-1"></i> Lưu Phản Hồi & Bắn Thông Báo';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTickets();
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,23 @@
-# 1. Chuyển hướng truy cập tên miền gốc vào thẳng trang đăng nhập
+# 1. Trang chủ chính (Landing Page dành cho khách vãng lai)
 [[redirects]]
   from = "/"
-  to = "/sharedFolder/login.html"
+  to = "/index.html"
+  status = 200
+
+# 1b. Hỗ trợ đường dẫn ngắn cho các trang khám phá công khai
+[[redirects]]
+  from = "/jobs"
+  to = "/explore-jobs.html"
+  status = 200
+
+[[redirects]]
+  from = "/freelancers"
+  to = "/explore-freelancers.html"
+  status = 200
+
+[[redirects]]
+  from = "/how-it-works"
+  to = "/how-it-works.html"
   status = 200
 
 # 2. Hỗ trợ cả 2 đường dẫn đăng nhập (có và không có đuôi .html)
@@ -15,14 +31,30 @@
   to = "/sharedFolder/login.html"
   status = 200
 
-# 3. Tạo đường dẫn rút gọn cho trang đăng ký
+# 3. Tạo đường dẫn cho trang đăng ký (hỗ trợ cả /register và /register.html)
 [[redirects]]
   from = "/register"
   to = "/sharedFolder/register.html"
   status = 200
 
-# 4. Bắt TẤT CẢ các lỗi truy cập sai link và đẩy người dùng về trang đăng nhập
+[[redirects]]
+  from = "/register.html"
+  to = "/sharedFolder/register.html"
+  status = 200
+
+# 4. Quên mật khẩu
+[[redirects]]
+  from = "/forgot-password"
+  to = "/sharedFolder/forgot-password.html"
+  status = 200
+
+[[redirects]]
+  from = "/forgot-password.html"
+  to = "/sharedFolder/forgot-password.html"
+  status = 200
+
+# 5. Bắt các lỗi truy cập sai link và chuyển về trang chủ
 [[redirects]]
   from = "/*"
-  to = "/sharedFolder/login.html"
+  to = "/index.html"
   status = 404

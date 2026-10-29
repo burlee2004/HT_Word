@@ -69,7 +69,7 @@ function generateOtpHtmlTemplate(fullName, otpCode) {
                 <div class="otp-box">
                     <div class="otp-label">MÃ XÁC THỰC CỦA BẠN</div>
                     <div class="otp-code">${otpCode}</div>
-                    <div class="expiry-notice">⏱️ Mã có hiệu lực trong vòng <strong>5 phút</strong></div>
+                    <div class="expiry-notice">⏱️ Mã có hiệu lực trong vòng <strong>1 phút (60 giây)</strong></div>
                 </div>
 
                 <div class="warning">

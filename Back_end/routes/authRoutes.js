@@ -49,24 +49,26 @@ router.post(['/send-otp', '/api/auth/send-otp'], async (req, res) => {
             });
         }
 
-        // Gửi email OTP có khống chế thời gian tối đa 3 giây chống nghẽn mạng Cloud
+        // Gửi email OTP tới địa chỉ email người dùng (chờ tối đa 12s cho Gmail SMTP)
         let mailRes = { success: false, mode: 'pending' };
         try {
             const sendPromise = sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp);
-            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 3000));
+            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 12000));
             mailRes = await Promise.race([sendPromise, timeoutPromise]);
             console.log(`[AUTH EMAIL] Kết quả gửi OTP tới ${email}: `, mailRes.mode || (mailRes.timeout ? 'TIMEOUT' : 'FAIL'));
         } catch (e) {
             console.error('[AUTH BG EMAIL ERROR]', e.message);
         }
 
-        const isMailSent = mailRes && mailRes.success;
+        if (!mailRes || !mailRes.success) {
+            return res.status(500).json({
+                error: 'Không thể gửi email chứa mã OTP lúc này. Vui lòng kiểm tra lại địa chỉ email hoặc thử lại sau ít giây!'
+            });
+        }
+
         return res.status(200).json({
             success: true,
-            message: isMailSent
-                ? `Mã OTP xác thực đã được gửi đến email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`
-                : `Đã tạo mã xác thực. Nếu chưa nhận được email do mạng, bạn có thể dùng mã kích hoạt nhanh bên dưới.`,
-            demo_otp: isMailSent ? undefined : otpResult.plainOtp,
+            message: `Mã OTP xác thực đã được gửi đến email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam). Mã có hiệu lực trong 1 phút.`,
             cooldownSeconds: otpResult.cooldownSeconds,
             expiresAt: otpResult.expiresAt
         });
@@ -93,24 +95,26 @@ router.post(['/resend-otp', '/api/auth/resend-otp'], async (req, res) => {
             });
         }
 
-        // Gửi lại email OTP có khống chế thời gian tối đa 3 giây
+        // Gửi lại email OTP (chờ tối đa 12s cho Gmail SMTP)
         let mailRes = { success: false, mode: 'pending' };
         try {
             const sendPromise = sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp);
-            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 3000));
+            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 12000));
             mailRes = await Promise.race([sendPromise, timeoutPromise]);
             console.log(`[RESEND EMAIL] Kết quả gửi lại tới ${email}: `, mailRes.mode || (mailRes.timeout ? 'TIMEOUT' : 'FAIL'));
         } catch (e) {
             console.error('[RESEND BG EMAIL ERROR]', e.message);
         }
 
-        const isMailSent = mailRes && mailRes.success;
+        if (!mailRes || !mailRes.success) {
+            return res.status(500).json({
+                error: 'Không thể gửi lại email OTP lúc này. Vui lòng kiểm tra lại email hoặc thử lại sau ít giây!'
+            });
+        }
+
         return res.status(200).json({
             success: true,
-            message: isMailSent
-                ? `Đã gửi lại mã OTP mới tới email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`
-                : `Đã gửi lại mã OTP mới. Vui lòng kiểm tra email hoặc dùng mã kích hoạt nhanh bên dưới.`,
-            demo_otp: isMailSent ? undefined : otpResult.plainOtp,
+            message: `Đã gửi lại mã OTP mới tới email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam). Mã có hiệu lực trong 1 phút.`,
             cooldownSeconds: otpResult.cooldownSeconds
         });
     } catch (error) {

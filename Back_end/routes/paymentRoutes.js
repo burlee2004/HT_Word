@@ -14,8 +14,12 @@ router.post('/api/payment/create-deposit', async (req, res) => {
     const { user_id, amount, method } = req.body;
     console.log(`\n💳 [API POST /api/payment/create-deposit] User: ${user_id} | Amount: ${amount} | Method: ${method || 'default'}`);
     try {
-        if (!user_id || !amount || Number(amount) < 10000) {
-            return res.status(400).json({ error: 'Số lượng Token nạp tối thiểu là 10,000 Token.' });
+        const numAmount = Number(amount);
+        if (!user_id || isNaN(numAmount) || !Number.isFinite(numAmount) || numAmount < 10000) {
+            return res.status(400).json({ error: 'Số lượng Token nạp không hợp lệ (Tối thiểu 10,000 Token).' });
+        }
+        if (numAmount > 1000000000) {
+            return res.status(400).json({ error: 'Số lượng Token nạp vượt quá giới hạn tối đa cho phép (1,000,000,000 Token).' });
         }
 
         // Chống spam: Giới hạn tần suất tạo lệnh (tối thiểu cách nhau 3 giây)

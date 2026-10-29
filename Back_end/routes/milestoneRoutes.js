@@ -204,9 +204,12 @@ router.get(['/api/client/:client_id/pending-actions', '/api/clients/:client_id/p
 router.post('/api/escrow/release', async (req, res) => {
     const { client_id, milestone_id, amount } = req.body;
     try {
-        // Lấy job_id từ milestone
-        const { data: mData, error: mErr } = await supabase.from('milestones').select('job_id').eq('id', milestone_id).single();
-        if (mErr) throw new Error('Không tìm thấy milestone');
+        // Lấy thông tin milestone và kiểm tra trạng thái (Chống Double-Release Escrow)
+        const { data: mData, error: mErr } = await supabase.from('milestones').select('job_id, status, amount').eq('id', milestone_id).single();
+        if (mErr || !mData) throw new Error('Không tìm thấy milestone');
+        if (mData.status === 'approved' || mData.status === 'PAID') {
+            return res.status(400).json({ error: 'Giao đoạn (Milestone) này đã được nghiệm thu và giải ngân trước đó.' });
+        }
 
         // Lấy freelancer_id từ job_applications (chỉ lấy người đã được accepted)
         const { data: appData, error: appErr } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', mData.job_id).eq('status', 'accepted').single();

@@ -833,7 +833,11 @@
                 const res = await fetch(`${API_URL}/api/withdraw`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: currentUser.id, amount })
+                    body: JSON.stringify({ 
+                        user_id: currentUser.id, 
+                        amount, 
+                        idempotency_key: (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : ('idemp_' + Date.now()) 
+                    })
                 });
 
                 const data = await res.json();

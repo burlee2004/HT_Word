@@ -5,11 +5,48 @@ const blockchain = require('../blockchain');
 const settingsStore = require('../services/settingsStore');
 const { logEvent } = require('../services/auditLogger');
 
+// Rate limiting store chống spam rút tiền: user_id -> timestamp
+const lastWithdrawMap = new Map();
+
 // 1. Tạo lệnh rút tiền (Web2.5)
 router.post('/api/withdraw', async (req, res) => {
-    const { user_id, amount } = req.body;
+    const { user_id, amount, idempotency_key } = req.body;
     try {
-        if (!user_id || !amount || amount <= 0) throw new Error('Dữ liệu không hợp lệ');
+        const numAmount = Number(amount);
+        if (!user_id || isNaN(numAmount) || !Number.isFinite(numAmount) || numAmount <= 0) {
+            return res.status(400).json({ error: 'Số tiền rút không hợp lệ (Phải là số dương).' });
+        }
+        if (numAmount < 10000) {
+            return res.status(400).json({ error: 'Số tiền rút tối thiểu là 10,000 Token.' });
+        }
+        if (numAmount > 500000000) {
+            return res.status(400).json({ error: 'Số tiền rút vượt quá hạn mức tối đa cho phép một lần giao dịch (500,000,000 Token).' });
+        }
+
+        // Chống spam: Giới hạn tần suất tạo lệnh rút tiền (tối thiểu cách nhau 3 giây)
+        const now = Date.now();
+        const lastCreated = lastWithdrawMap.get(user_id) || 0;
+        if (now - lastCreated < 3000) {
+            return res.status(429).json({ error: 'Thao tác quá nhanh. Vui lòng đợi vài giây trước khi tạo lệnh rút mới.' });
+        }
+        lastWithdrawMap.set(user_id, now);
+
+        // Chống Double-Spending qua Idempotency Key
+        const finalKey = idempotency_key || req.headers['idempotency-key'];
+        if (finalKey) {
+            const { data: existingLedger } = await supabase
+                .from('wallet_ledger')
+                .select('id, amount, created_at')
+                .eq('idempotency_key', finalKey)
+                .maybeSingle();
+
+            if (existingLedger) {
+                return res.status(200).json({
+                    message: 'Giao dịch rút tiền này đã được tiếp nhận và xử lý trước đó (Idempotency Protection).',
+                    duplicate: true
+                });
+            }
+        }
 
         // Kiểm tra thông tin ngân hàng
         const { data: user } = await supabase.from('users').select('bank_name, bank_account, bank_owner').eq('id', user_id).single();

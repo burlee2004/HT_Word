@@ -49,26 +49,20 @@ router.post(['/send-otp', '/api/auth/send-otp'], async (req, res) => {
             });
         }
 
-        // Gửi email OTP tới địa chỉ email người dùng (chờ tối đa 12s cho Gmail SMTP)
-        let mailRes = { success: false, mode: 'pending' };
-        try {
-            const sendPromise = sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp);
-            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 12000));
-            mailRes = await Promise.race([sendPromise, timeoutPromise]);
-            console.log(`[AUTH EMAIL] Kết quả gửi OTP tới ${email}: `, mailRes.mode || (mailRes.timeout ? 'TIMEOUT' : 'FAIL'));
-        } catch (e) {
-            console.error('[AUTH BG EMAIL ERROR]', e.message);
-        }
-
-        if (!mailRes || !mailRes.success) {
-            return res.status(500).json({
-                error: 'Không thể gửi email chứa mã OTP lúc này. Vui lòng kiểm tra lại địa chỉ email hoặc thử lại sau ít giây!'
-            });
-        }
+        // Cơ chế Async Queue Non-Blocking: Gửi email ngầm, phản hồi API cho người dùng tức thì (<50ms)
+        sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp)
+            .then(res => {
+                if (!res || !res.success) {
+                    console.warn(`[BG EMAIL WARN] Gửi OTP tới ${email}:`, res ? res.error : 'unknown');
+                } else {
+                    console.log(`[BG EMAIL SUCCESS] Đã gửi OTP tới ${email} | MsgId: ${res.messageId}`);
+                }
+            })
+            .catch(e => console.error('[AUTH BG EMAIL ERROR]', e.message));
 
         return res.status(200).json({
             success: true,
-            message: `Mã OTP xác thực đã được gửi đến email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam). Mã có hiệu lực trong 1 phút.`,
+            message: `Mã OTP xác thực đã được gửi đến email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`,
             cooldownSeconds: otpResult.cooldownSeconds,
             expiresAt: otpResult.expiresAt
         });
@@ -95,26 +89,17 @@ router.post(['/resend-otp', '/api/auth/resend-otp'], async (req, res) => {
             });
         }
 
-        // Gửi lại email OTP (chờ tối đa 12s cho Gmail SMTP)
-        let mailRes = { success: false, mode: 'pending' };
-        try {
-            const sendPromise = sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp);
-            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 12000));
-            mailRes = await Promise.race([sendPromise, timeoutPromise]);
-            console.log(`[RESEND EMAIL] Kết quả gửi lại tới ${email}: `, mailRes.mode || (mailRes.timeout ? 'TIMEOUT' : 'FAIL'));
-        } catch (e) {
-            console.error('[RESEND BG EMAIL ERROR]', e.message);
-        }
-
-        if (!mailRes || !mailRes.success) {
-            return res.status(500).json({
-                error: 'Không thể gửi lại email OTP lúc này. Vui lòng kiểm tra lại email hoặc thử lại sau ít giây!'
-            });
-        }
+        // Bắn email gửi lại ở chế độ Background Queue (Phản hồi tức thì)
+        sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp)
+            .then(res => {
+                if (!res || !res.success) console.warn(`[BG RESEND WARN] ${email}:`, res ? res.error : 'unknown');
+                else console.log(`[BG RESEND SUCCESS] ${email} | MsgId: ${res.messageId}`);
+            })
+            .catch(e => console.error('[RESEND BG EMAIL ERROR]', e.message));
 
         return res.status(200).json({
             success: true,
-            message: `Đã gửi lại mã OTP mới tới email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam). Mã có hiệu lực trong 1 phút.`,
+            message: `Đã gửi lại mã OTP mới tới email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`,
             cooldownSeconds: otpResult.cooldownSeconds
         });
     } catch (error) {
@@ -1468,10 +1453,16 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
             return res.status(400).json({ error: 'Missing Google credential' });
         }
 
-        // Verify Google token
+        // Verify Google token (Hỗ trợ cả Client ID mới và Client ID cũ trên Render)
+        const allowedAudiences = [
+            process.env.GOOGLE_CLIENT_ID,
+            '905738014040-8ba9e9i9qpq8s14h7hliogdeb41punkc.apps.googleusercontent.com',
+            '761267588437-mruiob3ob59sb2k34pim306d09vquj8s.apps.googleusercontent.com'
+        ].filter(Boolean);
+
         const ticket = await googleClient.verifyIdToken({
             idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: allowedAudiences,
         });
         const payload = ticket.getPayload();
         const { email, name, picture } = payload;
@@ -1593,8 +1584,8 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
         }
 
     } catch (err) {
-        console.error('Lỗi Google Auth:', err);
-        return res.status(401).json({ error: 'Xác thực Google thất bại hoặc có lỗi xảy ra.' });
+        console.error('Lỗi Google Auth:', err.message || err);
+        return res.status(401).json({ error: `Xác thực Google thất bại: ${err.message || 'Lỗi token'}` });
     }
 });
 

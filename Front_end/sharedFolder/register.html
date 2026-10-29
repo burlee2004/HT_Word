@@ -660,7 +660,7 @@
             hideOtpError();
 
             // Khởi động 5-minute countdown timer
-            startExpiryTimer(60);
+            startExpiryTimer(180);
 
             // Khởi động 60s cooldown timer cho nút gửi lại
             startCooldownTimer(60);
@@ -681,7 +681,7 @@
                     clearInterval(otpExpiryInterval);
                     timerDisplay.innerText = '00:00 (Hết hạn)';
                     timerDisplay.className = 'font-bold text-red-500 font-mono';
-                    showOtpError('Mã OTP đã hết hạn hiệu lực (quá 1 phút). Vui lòng bấm "Gửi lại mã"!');
+                    showOtpError('Mã OTP đã hết hạn hiệu lực (quá 3 phút). Vui lòng bấm "Gửi lại mã"!');
                 }
                 remainingExpirySeconds--;
             }
@@ -736,9 +736,9 @@
                 const data = await response.json();
                 if (response.ok) {
                     hideOtpError();
-                    startExpiryTimer(60);
+                    startExpiryTimer(180);
                     startCooldownTimer(60);
-                    alert(`✅ Mã OTP mới đã được gửi tới email: ${pendingRegistration.email}\n\nVui lòng kiểm tra hộp thư (kể cả thư mục Spam/Thư rác)! Mã có hiệu lực trong 1 phút.`);
+                    alert(`✅ Mã OTP mới đã được gửi tới email: ${pendingRegistration.email}\n\nVui lòng kiểm tra hộp thư (kể cả thư mục Spam/Thư rác)! Mã có hiệu lực trong 3 phút.`);
                 } else {
                     showOtpError(data.error || 'Không thể gửi lại mã OTP lúc này!');
                     if (data.remainingSeconds) {

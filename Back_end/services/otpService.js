@@ -20,7 +20,7 @@ const otpMemoryStore = new Map();
 
 // Cấu hình thời gian & giới hạn bảo mật
 const OTP_CONFIG = {
-    EXPIRATION_MS: 60 * 1000,          // 1 phút (60 giây) theo yêu cầu bảo mật
+    EXPIRATION_MS: 3 * 60 * 1000,          // 3 phút (180 giây)
     COOLDOWN_MS: 60 * 1000,           // 60 giây giãn cách giữa 2 lần gửi
     MAX_SENDS_PER_WINDOW: 5,          // Tối đa 5 lần gửi trong 15 phút
     WINDOW_MS: 15 * 60 * 1000,        // Khung thời gian 15 phút
@@ -164,7 +164,7 @@ async function verifyOtp(rawEmail, inputOtp) {
         return { 
             success: false, 
             code: 'OTP_EXPIRED',
-            error: 'Mã OTP đã hết hiệu lực (quá 1 phút). Vui lòng yêu cầu gửi mã mới.' 
+            error: 'Mã OTP đã hết hiệu lực (quá 3 phút). Vui lòng yêu cầu gửi mã mới.' 
         };
     }
 

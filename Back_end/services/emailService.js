@@ -1,31 +1,37 @@
 const nodemailer = require('nodemailer');
 const { logEvent } = require('./auditLogger');
 
-// Khởi tạo Transporter cho Nodemailer (Hỗ trợ chuẩn STARTTLS Port 587 chống nghẽn Cloud)
+// Khởi tạo Pooled Transporter Singleton cho Nodemailer (Duy trì kết nối ấm, gửi tức thì <1s)
+let cachedTransporter = null;
 function createTransporter() {
+    if (cachedTransporter) return cachedTransporter;
+
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = parseInt(process.env.SMTP_PORT || '587');
     const secure = process.env.SMTP_SECURE === 'true' || port === 465;
     const user = (process.env.SMTP_USER || 'htworkcompany@gmail.com').trim();
-    const pass = (process.env.SMTP_PASS || 'vezjmttuipykqzre').replace(/\s+/g, ''); // Tự động làm sạch mọi dấu cách từ Google App Password
+    const pass = (process.env.SMTP_PASS || 'vezjmttuipykqzre').replace(/\s+/g, '');
 
     if (!user || !pass || user.includes('your_email') || pass.includes('your_app_password')) {
-        return null; // Chế độ DEV/Sandbox (chưa cấu hình mail thật)
+        return null;
     }
 
-    // Kết nối trực tiếp qua Host + Port 587 với Timeout nghiêm ngặt, tuyệt đối không dùng service:'gmail' vì port 465 bị firewall chặn
-    return nodemailer.createTransport({
+    cachedTransporter = nodemailer.createTransport({
+        pool: true,
+        maxConnections: 5,
+        maxMessages: 100,
         host: host || 'smtp.gmail.com',
         port: port || 587,
-        secure: secure, // false cho 587 STARTTLS
+        secure: secure,
         auth: { user, pass },
-        connectionTimeout: 3500, // 3.5s tối đa kết nối socket
-        greetingTimeout: 3000,   // 3s chào hỏi SMTP
-        socketTimeout: 4000,     // 4s truyền dữ liệu
+        connectionTimeout: 8000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
         tls: {
             rejectUnauthorized: false
         }
     });
+    return cachedTransporter;
 }
 
 /**
@@ -69,7 +75,7 @@ function generateOtpHtmlTemplate(fullName, otpCode) {
                 <div class="otp-box">
                     <div class="otp-label">MÃ XÁC THỰC CỦA BẠN</div>
                     <div class="otp-code">${otpCode}</div>
-                    <div class="expiry-notice">⏱️ Mã có hiệu lực trong vòng <strong>1 phút (60 giây)</strong></div>
+                    <div class="expiry-notice">⏱️ Mã có hiệu lực trong vòng <strong>3 phút</strong></div>
                 </div>
 
                 <div class="warning">

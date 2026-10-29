@@ -1,10 +1,4 @@
-# 1. Trang chủ chính (Landing Page dành cho khách vãng lai)
-[[redirects]]
-  from = "/"
-  to = "/index.html"
-  status = 200
-
-# 1b. Hỗ trợ đường dẫn ngắn cho các trang khám phá công khai
+# Redirects
 [[redirects]]
   from = "/jobs"
   to = "/explore-jobs.html"
@@ -20,7 +14,6 @@
   to = "/how-it-works.html"
   status = 200
 
-# 2. Hỗ trợ cả 2 đường dẫn đăng nhập (có và không có đuôi .html)
 [[redirects]]
   from = "/login"
   to = "/sharedFolder/login.html"
@@ -31,7 +24,6 @@
   to = "/sharedFolder/login.html"
   status = 200
 
-# 3. Tạo đường dẫn cho trang đăng ký (hỗ trợ cả /register và /register.html)
 [[redirects]]
   from = "/register"
   to = "/sharedFolder/register.html"
@@ -42,7 +34,6 @@
   to = "/sharedFolder/register.html"
   status = 200
 
-# 4. Quên mật khẩu
 [[redirects]]
   from = "/forgot-password"
   to = "/sharedFolder/forgot-password.html"
@@ -53,8 +44,13 @@
   to = "/sharedFolder/forgot-password.html"
   status = 200
 
-# 5. Bắt các lỗi truy cập sai link và chuyển về trang chủ
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 404
+# Security Headers bảo vệ toàn diện (Đạt chuẩn Grade A / A+)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https:;"

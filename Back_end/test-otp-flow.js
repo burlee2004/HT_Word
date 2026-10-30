@@ -23,13 +23,13 @@ async function runOtpTests() {
     }
 
     // 1. Kiểm tra Sinh mã OTP
-    console.log('--- 1. Kiểm thử Sinh mã OTP & Thời hạn 1 phút (60s) ---');
+    console.log('--- 1. Kiểm thử Sinh mã OTP & Thời hạn 3 phút (180s) ---');
     const genResult = await generateAndSaveOtp(testEmail, '127.0.0.1');
     assert(genResult.success === true, 'Sinh mã OTP thành công');
     assert(genResult.plainOtp && genResult.plainOtp.length === 6, `Mã OTP đủ 6 chữ số ngẫu nhiên (${genResult.plainOtp})`);
     
     const expiryDiff = genResult.expiresAt - Date.now();
-    assert(expiryDiff > 55000 && expiryDiff <= 60000, `Thời hạn hiệu lực mã chính xác là 60 giây / 1 phút (Thực tế: ${Math.round(expiryDiff / 1000)}s)`);
+    assert(expiryDiff > 170000 && expiryDiff <= 180000, `Thời hạn hiệu lực mã chính xác là 180 giây / 3 phút (Thực tế: ${Math.round(expiryDiff / 1000)}s)`);
 
     // 2. Kiểm thử Cooldown chống spam
     console.log('\n--- 2. Kiểm thử Cooldown giãn cách gửi lại ---');

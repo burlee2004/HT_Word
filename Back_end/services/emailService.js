@@ -95,6 +95,26 @@ function generateOtpHtmlTemplate(fullName, otpCode) {
 /**
  * Gửi email OTP (Xử lý bất đồng bộ, không làm nghẽn API)
  */
+
+/**
+ * Tạo bản sao Plain Text cho Email (Bắt buộc để tránh bộ lọc SpamAssassin của Gmail/Outlook)
+ */
+function generateOtpTextTemplate(fullName, otpCode) {
+    return `Xin chào ${fullName || 'Quý khách'},\n\n` +
+        `Mã xác thực đăng ký tài khoản HT Work của bạn là: ${otpCode}\n\n` +
+        `Mã có hiệu lực trong vòng 3 phút. Vui lòng không chia sẻ mã này cho bất kỳ ai để đảm bảo an toàn tài khoản.\n\n` +
+        `Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.\n\n` +
+        `Trân trọng,\nĐội ngũ HT Work Platform\nWebsite: https://htwork.id.vn`;
+}
+
+function generateResetOtpTextTemplate(fullName, otpCode) {
+    return `Xin chào ${fullName || 'Quý khách'},\n\n` +
+        `Mã xác thực đặt lại mật khẩu HT Work của bạn là: ${otpCode}\n\n` +
+        `Mã có hiệu lực trong vòng 5 phút.\n\n` +
+        `Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này. Tài khoản của bạn vẫn an toàn.\n\n` +
+        `Trân trọng,\nĐội ngũ HT Work Platform\nWebsite: https://htwork.id.vn`;
+}
+
 async function sendOtpEmail(email, fullName, otpCode) {
     const transporter = createTransporter();
 
@@ -121,14 +141,24 @@ async function sendOtpEmail(email, fullName, otpCode) {
 
     // 2. Chế độ Gửi Thật qua SMTP (Gmail / Resend / SendGrid)
     try {
-        const fromEmail = process.env.EMAIL_FROM || `HT Work <${process.env.SMTP_USER || 'htworkcompany@gmail.com'}>`;
+        const cleanFrom = (process.env.EMAIL_FROM || `HT Work <${process.env.SMTP_USER || 'htworkcompany@gmail.com'}>`).replace(/^"|"$/g, '').trim();
+        const replyAddress = (process.env.SMTP_USER || 'htworkcompany@gmail.com').trim();
         
-        // Gửi mail bất đồng bộ
+        // Gửi mail đa phương thức (Bao gồm cả Plain Text + HTML + Priority Headers để vào Hộp thư chính)
         const mailOptions = {
-            from: fromEmail,
+            from: cleanFrom,
             to: email,
-            subject: `[HT Work] ${otpCode} là mã xác thực đăng ký tài khoản của bạn`,
-            html: generateOtpHtmlTemplate(fullName, otpCode)
+            replyTo: replyAddress,
+            subject: `[HT Work] Mã xác thực tài khoản của bạn: ${otpCode}`,
+            text: generateOtpTextTemplate(fullName, otpCode),
+            html: generateOtpHtmlTemplate(fullName, otpCode),
+            headers: {
+                'X-Priority': '1',
+                'X-MSMail-Priority': 'High',
+                'Importance': 'high',
+                'X-Auto-Response-Suppress': 'OOF, AutoReply',
+                'Auto-Submitted': 'auto-generated'
+            }
         };
 
         const info = await transporter.sendMail(mailOptions);
@@ -219,12 +249,22 @@ async function sendResetPasswordEmail(email, fullName, otpCode) {
         return { success: true, mode: 'sandbox', demo_otp: otpCode };
     }
     try {
-        const fromEmail = process.env.EMAIL_FROM || `HT Work <${process.env.SMTP_USER || 'htworkcompany@gmail.com'}>`;
+        const cleanFrom = (process.env.EMAIL_FROM || `HT Work <${process.env.SMTP_USER || 'htworkcompany@gmail.com'}>`).replace(/^"|"$/g, '').trim();
+        const replyAddress = (process.env.SMTP_USER || 'htworkcompany@gmail.com').trim();
         const mailOptions = {
-            from: fromEmail,
+            from: cleanFrom,
             to: email,
-            subject: `[HT Work] ${otpCode} là mã xác thực đặt lại mật khẩu của bạn`,
-            html: generateResetOtpHtmlTemplate(fullName, otpCode)
+            replyTo: replyAddress,
+            subject: `[HT Work] Mã xác thực đặt lại mật khẩu: ${otpCode}`,
+            text: generateResetOtpTextTemplate(fullName, otpCode),
+            html: generateResetOtpHtmlTemplate(fullName, otpCode),
+            headers: {
+                'X-Priority': '1',
+                'X-MSMail-Priority': 'High',
+                'Importance': 'high',
+                'X-Auto-Response-Suppress': 'OOF, AutoReply',
+                'Auto-Submitted': 'auto-generated'
+            }
         };
         const info = await transporter.sendMail(mailOptions);
         return { success: true, mode: 'smtp', messageId: info.messageId };

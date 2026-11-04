@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "test:security": "node test-security-suite.js",
     "test:otp": "node test-otp-flow.js",
-    "test:fee": "node test-platform-fee.js"
+    "test:fee": "node test-platform-fee.js",
+    "test:storage": "node test-upload-destinations.js"
   },
   "keywords": [],
   "author": "",

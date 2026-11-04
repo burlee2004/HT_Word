@@ -662,17 +662,24 @@ router.post('/api/upload/file', (req, res) => {
         if (req.file.mimetype && req.file.mimetype.startsWith('video/')) type = 'video';
         else if (req.file.mimetype && req.file.mimetype.startsWith('audio/')) type = 'audio';
 
-        // Ưu tiên đẩy lên Supabase Storage (hỗ trợ hoàn hảo PDF, Code, Zip, Document không bị lỗi 401 ACL)
+        // 1. Ưu tiên hàng đầu: Upload lên AWS S3 Bucket (docx, rar, pdf, zip, video, audio, ...)
         try {
-            const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
-            if (supabaseUrl) {
-                localUrl = supabaseUrl;
+            const s3Url = await uploadToS3(req.file.path, req.file.originalname);
+            if (s3Url) {
+                localUrl = s3Url;
             } else {
-                const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
-                if (cloudUrl) localUrl = cloudUrl;
+                // 2. Dự phòng 1: Supabase Storage
+                const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
+                if (supabaseUrl) {
+                    localUrl = supabaseUrl;
+                } else {
+                    // 3. Dự phòng 2: Cloudinary
+                    const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
+                    if (cloudUrl) localUrl = cloudUrl;
+                }
             }
         } catch (cErr) {
-            console.warn('[API Upload File] Storage fallback:', cErr.message);
+            console.warn('[API Upload File] S3 fallback:', cErr.message);
         }
 
         writeUploadLog(req, '/api/upload/file', 'SUCCESS', `Đã lưu file: ${localUrl}`);

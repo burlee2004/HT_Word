@@ -43,6 +43,9 @@
                     <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Đối soát dòng tiền, giám sát người dùng, xử lý chi hộ VietQR và phân xử tranh chấp tối cao.</p>
                 </div>
                 <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <button onclick="openBroadcastModal()" class="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow transition flex items-center text-xs sm:text-sm mr-2">
+                        <i class="fas fa-bullhorn mr-2"></i> Bắn thông báo toàn server
+                    </button>
                     <button onclick="loadDashboardAll()" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm">
                         <i class="fas fa-sync-alt mr-2 text-red-500"></i> Làm mới dữ liệu
                     </button>
@@ -651,6 +654,122 @@
         }
 
         loadDashboardAll();
+    </script>
+
+    <!-- MODAL PHÁT THÔNG BÁO TOÀN SERVER (BROADCAST NOTIFICATION) -->
+    <div id="broadcastModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-gray-100 dark:border-gray-700 space-y-4">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-bullhorn text-red-500 mr-2 text-lg"></i> Phát Thông Báo Toàn Hệ Thống
+                </h3>
+                <button onclick="closeBroadcastModal()" class="text-gray-400 hover:text-red-500 font-bold text-xl">&times;</button>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Đối tượng nhận</label>
+                <select id="broadcastRole" class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs font-bold bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                    <option value="ALL">🌐 Toàn bộ người dùng trên server (Khách hàng & Freelancer)</option>
+                    <option value="freelancer">💼 Chỉ gửi Freelancer</option>
+                    <option value="client">👔 Chỉ gửi Khách hàng (Client)</option>
+                </select>
+            </div>
+
+            <!-- Mẫu thông báo nhanh -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Mẫu nhanh (Presets)</label>
+                <div class="flex flex-wrap gap-1.5">
+                    <button type="button" onclick="setBroadcastPreset('update')" class="text-[11px] px-2.5 py-1 bg-red-50 text-red-600 rounded-lg font-bold border border-red-200 hover:bg-red-100">🎉 Bản cập nhật mới</button>
+                    <button type="button" onclick="setBroadcastPreset('promo')" class="text-[11px] px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg font-bold border border-amber-200 hover:bg-amber-100">🎁 Ưu đãi Voucher</button>
+                    <button type="button" onclick="setBroadcastPreset('maint')" class="text-[11px] px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg font-bold border border-blue-200 hover:bg-blue-100">⚡ Bảo trì hệ thống</button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Tiêu đề thông báo *</label>
+                <input type="text" id="broadcastTitle" placeholder="VD: 🎉 Cập nhật hệ thống: Phí hoa hồng Escrow chỉ 5%..." class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs font-bold bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Nội dung chi tiết *</label>
+                <textarea id="broadcastContent" rows="4" placeholder="Nội dung thông báo gửi đến chuông thông báo của người dùng..." class="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-red-500 leading-relaxed"></textarea>
+            </div>
+
+            <div id="broadcastResultMsg" class="hidden text-xs font-bold text-center p-2 rounded-xl"></div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                <button onclick="closeBroadcastModal()" class="px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition">Hủy</button>
+                <button onclick="submitBroadcastNotification()" id="broadcastSubmitBtn" class="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow transition flex items-center">
+                    <i class="fas fa-paper-plane mr-2"></i> Bắn thông báo ngay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openBroadcastModal() {
+            document.getElementById('broadcastModal').classList.remove('hidden');
+            document.getElementById('broadcastResultMsg').classList.add('hidden');
+        }
+        function closeBroadcastModal() {
+            document.getElementById('broadcastModal').classList.add('hidden');
+        }
+        function setBroadcastPreset(type) {
+            const titleInput = document.getElementById('broadcastTitle');
+            const contentInput = document.getElementById('broadcastContent');
+            if (type === 'update') {
+                titleInput.value = '🎉 [Cập Nhật Hệ Thống] Tối ưu Phí hoa hồng Escrow chỉ 5% & Gói Đẩy Tin Tuyển Gấp!';
+                contentInput.value = 'Hệ thống HT Work đã nâng cấp: Phí hoa hồng dịch vụ hoàn thành dự án tối ưu chỉ còn 5% (thay vì 10%), Freelancer nhận 95% thu nhập, rút tiền 0đ miễn phí, bổ sung các gói Đẩy Tin Tuyển Gấp ưu đãi tới 30% cho khách hàng mới!';
+            } else if (type === 'promo') {
+                titleInput.value = '🎁 [Khuyến Mãi] Tặng Voucher Giảm 30% Cho Gói Đẩy Tin Tuyển Gấp!';
+                contentInput.value = 'Nhập ngay mã "HTWORKNEW" hoặc "HOTDEAL" khi đăng tin tuyển dụng để nhận chiết khấu lên đến 30.000 Token. Cơ hội tiếp cận các lập trình viên hàng đầu với chi phí tối ưu!';
+            } else if (type === 'maint') {
+                titleInput.value = '⚡ [Thông Báo Hệ Thống] Bảo trì và nâng cấp định kỳ';
+                contentInput.value = 'Hệ thống sẽ tiến hành bảo dưỡng hạ tầng trong 15 phút tới để tối ưu tốc độ xử lý nạp rút và tin nhắn. Trân trọng cảm ơn sự đồng hành của bạn!';
+            }
+        }
+        async function submitBroadcastNotification() {
+            const role = document.getElementById('broadcastRole').value;
+            const title = document.getElementById('broadcastTitle').value.trim();
+            const content = document.getElementById('broadcastContent').value.trim();
+            const msgDiv = document.getElementById('broadcastResultMsg');
+            const btn = document.getElementById('broadcastSubmitBtn');
+
+            if (!title || !content) {
+                alert('Vui lòng nhập đầy đủ tiêu đề và nội dung thông báo!');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang phát...';
+            msgDiv.classList.add('hidden');
+
+            try {
+                const res = await fetch(`${API_URL}/api/notifications/broadcast`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content, role: role === 'ALL' ? null : role })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    msgDiv.textContent = `✅ ${data.message}`;
+                    msgDiv.className = 'text-xs font-bold text-center p-2.5 rounded-xl bg-emerald-50 text-emerald-700 block';
+                    setTimeout(() => {
+                        closeBroadcastModal();
+                        if (typeof loadRecentAuditLogs === 'function') loadRecentAuditLogs();
+                    }, 1500);
+                } else {
+                    msgDiv.textContent = `❌ ${data.error || 'Lỗi khi gửi thông báo'}`;
+                    msgDiv.className = 'text-xs font-bold text-center p-2.5 rounded-xl bg-red-50 text-red-700 block';
+                }
+            } catch(e) {
+                msgDiv.textContent = `❌ Lỗi kết nối: ${e.message}`;
+                msgDiv.className = 'text-xs font-bold text-center p-2.5 rounded-xl bg-red-50 text-red-700 block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Bắn thông báo ngay';
+            }
+        }
     </script>
 </body>
 </html>

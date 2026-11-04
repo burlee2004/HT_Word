@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
+const notificationService = require('../services/notificationService');
 
 // 14. API: Lấy thông báo của user
 router.get('/api/notifications/:user_id', async (req, res) => {
@@ -42,7 +43,6 @@ router.put('/api/notifications/:id/read', async (req, res) => {
     }
 });
 
-
 // 17. API: Đánh dấu TẤT CẢ thông báo đã đọc
 router.put('/api/notifications/user/:user_id/read-all', async (req, res) => {
     const { user_id } = req.params;
@@ -67,5 +67,30 @@ router.delete('/api/notifications/user/:user_id/delete-all', async (req, res) =>
     }
 });
 
-module.exports = router;
+// 19. API: Phát thông báo toàn server (Broadcast tới toàn bộ user hoặc theo role)
+router.post('/api/notifications/broadcast', async (req, res) => {
+    try {
+        const { title, content, role, admin_id } = req.body;
+        if (!title || !content) {
+            return res.status(400).json({ error: 'Tiêu đề và nội dung thông báo không được để trống.' });
+        }
 
+        let result;
+        if (role && ['client', 'freelancer'].includes(role.toLowerCase())) {
+            result = await notificationService.broadcastToRole(role.toLowerCase(), { title, content, actor_id: admin_id });
+        } else {
+            result = await notificationService.broadcastToAllUsers({ title, content, actor_id: admin_id });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Đã gửi thông báo thành công tới ${result.delivered_count} tài khoản.`,
+            ...result
+        });
+    } catch (error) {
+        console.error('Lỗi khi broadcast thông báo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+module.exports = router;

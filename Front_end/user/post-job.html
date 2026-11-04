@@ -280,11 +280,80 @@
 
                     <!-- BƯỚC 3: Ngân sách & Xác nhận -->
                     <div id="step3" class="hidden space-y-4">
+                        <!-- 1. Tóm tắt dự án -->
                         <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/60">
                             <h3 class="font-bold text-indigo-900 dark:text-indigo-300 text-sm mb-2 flex items-center">
                                 <i class="fas fa-clipboard-check mr-1.5"></i> Tóm tắt Thông Tin Dự Án
                             </h3>
                             <ul class="text-xs text-indigo-950 dark:text-indigo-200 space-y-1.5" id="summaryList"></ul>
+                        </div>
+
+                        <!-- 2. Gói Đẩy Tin Tuyển Gấp 🔥 -->
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 shadow-sm space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xl">🔥</span>
+                                    <div>
+                                        <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 flex items-center">
+                                            Nâng Cấp Gói Đẩy Tin "Tuyển Gấp"
+                                            <span class="ml-2 text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold uppercase">HOT</span>
+                                        </h4>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Đưa bài viết lên đầu trang chủ, tiếp cận Top Freelancer nhanh gấp 5 lần</p>
+                                    </div>
+                                </div>
+                                <div id="firstTimeDiscountBadge" class="hidden px-2.5 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[11px] font-black rounded-lg shadow-sm animate-pulse">
+                                    🎁 Ưu đãi 30% lần đầu
+                                </div>
+                            </div>
+
+                            <!-- Danh sách gói đẩy tin -->
+                            <div id="boostPackagesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                                <div class="text-center py-4 text-xs text-gray-400 col-span-full">
+                                    <i class="fas fa-spinner fa-spin mr-1"></i> Đang tải các gói ưu đãi...
+                                </div>
+                            </div>
+
+                            <!-- Nhập Mã Giảm Giá / Voucher -->
+                            <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center">
+                                        <i class="fas fa-ticket-alt text-amber-500 mr-1.5"></i> Mã Giảm Giá / Voucher
+                                    </label>
+                                    <span class="text-[11px] text-gray-400">Gợi ý: HTWORKNEW, HOTDEAL, FREESHIP</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="voucherInput" placeholder="Nhập mã giảm giá..." class="flex-grow uppercase border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 focus:bg-white focus:ring-2 focus:ring-amber-500">
+                                    <button type="button" onclick="applyVoucher()" id="applyVoucherBtn" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition shrink-0">
+                                        Áp Dụng
+                                    </button>
+                                </div>
+                                <div id="voucherStatusMsg" class="text-xs mt-1.5 hidden font-semibold"></div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Bảng Thanh Toán Minh Bạch -->
+                        <div class="bg-gradient-to-br from-gray-50 to-indigo-50/40 dark:from-gray-800 dark:to-indigo-950/20 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-2">
+                            <h4 class="text-xs font-black uppercase text-gray-500 dark:text-gray-400 tracking-wider">Chi Tiết Khoản Trừ Ví Ký Quỹ</h4>
+                            <div class="flex justify-between text-xs text-gray-700 dark:text-gray-300">
+                                <span>Ký quỹ ngân sách dự án:</span>
+                                <span id="billingEscrowBudget" class="font-bold">0 Token</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-700 dark:text-gray-300">
+                                <span>Phí dịch vụ đẩy tin:</span>
+                                <span id="billingBoostFee" class="font-bold">0 Token</span>
+                            </div>
+                            <div id="billingDiscountRow" class="flex justify-between text-xs text-emerald-600 dark:text-emerald-400 hidden">
+                                <span id="billingDiscountLabel">Ưu đãi giảm giá:</span>
+                                <span id="billingDiscountAmount" class="font-black">-0 Token</span>
+                            </div>
+                            <div class="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                                <span class="text-sm font-black text-gray-900 dark:text-white">Tổng Trừ Ví Ký Quỹ:</span>
+                                <span id="billingTotalAmount" class="text-base font-black text-indigo-600 dark:text-indigo-400">0 Token</span>
+                            </div>
+                            <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center justify-between pt-1">
+                                <span>Số dư ví hiện tại: <strong id="billingCurrentBalance" class="text-gray-800 dark:text-gray-200">0 Token</strong></span>
+                                <span id="billingBalanceStatus" class="font-bold"></span>
+                            </div>
                         </div>
                     </div>
 
@@ -1129,9 +1198,12 @@
             if (nextBtn) nextBtn.classList.toggle('hidden', step === 3);
             if (submitBtn) submitBtn.classList.toggle('hidden', step !== 3);
             
-            // If Step 3: Populate summary
+            // If Step 3: Populate summary and boost packages
             if (step === 3) {
                 renderPostSummary();
+                if (typeof loadAndRenderBoostPackages === 'function') {
+                    loadAndRenderBoostPackages();
+                }
             }
         }
 
@@ -1930,7 +2002,9 @@
                 budget: budget,
                 category_id: selectedCategory ? selectedCategory.id : null,
                 category_name: selectedCategory ? selectedCategory.name : null,
-                tags: allTags
+                tags: allTags,
+                package_id: selectedBoostPackageId || null,
+                voucher_code: appliedVoucherCode || null
             };
 
             const btn = document.getElementById('submitBtn');
@@ -2097,6 +2171,228 @@
         window.addEventListener('drop', function(e) {
             e.preventDefault();
         }, false);
+
+        // ==========================================
+        // QUẢN LÝ GÓI ĐẨY TIN & VOUCHER KHUYẾN MÃI
+        // ==========================================
+        let boostPackagesData = null;
+        let selectedBoostPackageId = null;
+        let appliedVoucherCode = null;
+        let verifiedVoucherData = null;
+        let userWalletBalance = 0;
+
+        async function loadAndRenderBoostPackages() {
+            const container = document.getElementById('boostPackagesContainer');
+            const badge = document.getElementById('firstTimeDiscountBadge');
+            if (!container) return;
+
+            try {
+                if (currentUser && currentUser.id) {
+                    const wRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
+                    const wData = await wRes.json();
+                    if (wRes.ok && wData.wallet) {
+                        userWalletBalance = wData.wallet.balance || 0;
+                    }
+                }
+
+                const res = await fetch(`${API_URL}/api/jobs/boost-packages?client_id=${currentUser ? currentUser.id : ''}`);
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    boostPackagesData = data;
+                    if (data.is_first_time) {
+                        if (badge) badge.classList.remove('hidden');
+                    } else {
+                        if (badge) badge.classList.add('hidden');
+                    }
+
+                    let html = `
+                        <div onclick="selectBoostPackage(null)" id="boost_card_none" class="boost-pkg-card cursor-pointer p-3 rounded-xl border-2 transition border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 relative">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <input type="radio" name="boost_radio" checked class="text-indigo-600">
+                                    <span class="text-xs font-bold text-gray-800 dark:text-gray-100">Tiêu chuẩn (Không đẩy tin)</span>
+                                </div>
+                                <span class="text-xs font-extrabold text-gray-500">0 Token</span>
+                            </div>
+                            <p class="text-[11px] text-gray-400 mt-1 pl-5">Hiển thị bài đăng bình thường trên sàn</p>
+                        </div>
+                    `;
+
+                    data.packages.forEach(pkg => {
+                        const isSelected = selectedBoostPackageId === pkg.id;
+                        const borderCls = isSelected ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/40 ring-2 ring-amber-500/50' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-750 hover:border-amber-300';
+                        const checked = isSelected ? 'checked' : '';
+                        const priceDisplay = pkg.discounted_price < pkg.price 
+                            ? `<span class="line-through text-gray-400 text-[10px] mr-1">${pkg.price.toLocaleString()}</span><span class="text-amber-600 dark:text-amber-400 font-black">${pkg.discounted_price.toLocaleString()} Token</span>`
+                            : `<span class="text-amber-600 dark:text-amber-400 font-black">${pkg.price.toLocaleString()} Token</span>`;
+
+                        html += `
+                            <div onclick="selectBoostPackage('${pkg.id}')" id="boost_card_${pkg.id}" class="boost-pkg-card cursor-pointer p-3 rounded-xl border-2 transition ${borderCls} relative">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="radio" name="boost_radio" ${checked} class="text-amber-500">
+                                        <span class="text-xs font-bold text-gray-800 dark:text-gray-100">${pkg.name}</span>
+                                    </div>
+                                    <div class="text-right text-xs">
+                                        ${priceDisplay}
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-1 pl-5 text-[11px] text-gray-500 dark:text-gray-400">
+                                    <span>${pkg.description}</span>
+                                    <span class="font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded text-[10px]">${pkg.days} ngày</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = html;
+                    updateBillingCalculation();
+                }
+            } catch (err) {
+                console.error('Lỗi tải gói boost:', err);
+                container.innerHTML = '<p class="text-xs text-red-500 col-span-full text-center">Không thể tải thông tin gói đẩy tin.</p>';
+            }
+        }
+
+        function selectBoostPackage(pkgId) {
+            selectedBoostPackageId = pkgId;
+            document.querySelectorAll('.boost-pkg-card').forEach(c => {
+                c.className = 'boost-pkg-card cursor-pointer p-3 rounded-xl border-2 transition border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-750 hover:border-amber-300 relative';
+                const rad = c.querySelector('input[type="radio"]');
+                if (rad) rad.checked = false;
+            });
+
+            const activeCard = pkgId ? document.getElementById(`boost_card_${pkgId}`) : document.getElementById('boost_card_none');
+            if (activeCard) {
+                activeCard.className = pkgId 
+                    ? 'boost-pkg-card cursor-pointer p-3 rounded-xl border-2 transition border-amber-500 bg-amber-50/40 dark:bg-amber-950/40 ring-2 ring-amber-500/50 relative'
+                    : 'boost-pkg-card cursor-pointer p-3 rounded-xl border-2 transition border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 relative';
+                const rad = activeCard.querySelector('input[type="radio"]');
+                if (rad) rad.checked = true;
+            }
+
+            if (appliedVoucherCode) {
+                applyVoucher();
+            } else {
+                updateBillingCalculation();
+            }
+        }
+
+        async function applyVoucher() {
+            const input = document.getElementById('voucherInput');
+            const msg = document.getElementById('voucherStatusMsg');
+            const code = (input?.value || '').trim().toUpperCase();
+
+            if (!code) {
+                appliedVoucherCode = null;
+                verifiedVoucherData = null;
+                if (msg) msg.classList.add('hidden');
+                updateBillingCalculation();
+                return;
+            }
+
+            if (!selectedBoostPackageId) {
+                if (msg) {
+                    msg.textContent = '⚠️ Vui lòng chọn 1 gói đẩy tin phía trên trước khi áp dụng voucher!';
+                    msg.className = 'text-xs mt-1.5 font-bold text-amber-600 block';
+                }
+                return;
+            }
+
+            const pkg = boostPackagesData?.packages?.find(p => p.id === selectedBoostPackageId);
+            const packagePrice = pkg ? pkg.price : 0;
+
+            try {
+                const res = await fetch(`${API_URL}/api/jobs/verify-voucher`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ voucher_code: code, package_price: packagePrice })
+                });
+                const data = await res.json();
+                if (res.ok && data.success && data.voucher) {
+                    appliedVoucherCode = code;
+                    verifiedVoucherData = data.voucher;
+                    if (msg) {
+                        msg.textContent = `✅ Áp dụng mã "${code}" thành công: Giảm ${data.voucher.discount_amount.toLocaleString()} Token!`;
+                        msg.className = 'text-xs mt-1.5 font-bold text-emerald-600 block';
+                    }
+                } else {
+                    appliedVoucherCode = null;
+                    verifiedVoucherData = null;
+                    if (msg) {
+                        msg.textContent = `❌ ${data.error || 'Mã voucher không hợp lệ'}`;
+                        msg.className = 'text-xs mt-1.5 font-bold text-red-500 block';
+                    }
+                }
+            } catch (err) {
+                if (msg) {
+                    msg.textContent = `❌ Lỗi kiểm tra voucher: ${err.message}`;
+                    msg.className = 'text-xs mt-1.5 font-bold text-red-500 block';
+                }
+            }
+            updateBillingCalculation();
+        }
+
+        function updateBillingCalculation() {
+            const budgetVal = parseFormattedNumber(document.getElementById('budget')?.value) || 0;
+            const escrowEl = document.getElementById('billingEscrowBudget');
+            const boostEl = document.getElementById('billingBoostFee');
+            const discountRow = document.getElementById('billingDiscountRow');
+            const discountLabel = document.getElementById('billingDiscountLabel');
+            const discountAmountEl = document.getElementById('billingDiscountAmount');
+            const totalEl = document.getElementById('billingTotalAmount');
+            const balanceEl = document.getElementById('billingCurrentBalance');
+            const statusEl = document.getElementById('billingBalanceStatus');
+
+            if (escrowEl) escrowEl.textContent = budgetVal.toLocaleString('vi-VN') + ' Token';
+            if (balanceEl) balanceEl.textContent = userWalletBalance.toLocaleString('vi-VN') + ' Token';
+
+            let boostFee = 0;
+            let discount = 0;
+
+            if (selectedBoostPackageId && boostPackagesData) {
+                const pkg = boostPackagesData.packages.find(p => p.id === selectedBoostPackageId);
+                if (pkg) {
+                    boostFee = pkg.price;
+                    if (boostPackagesData.is_first_time) {
+                        discount += (pkg.price - pkg.discounted_price);
+                    }
+                }
+            }
+
+            if (verifiedVoucherData && verifiedVoucherData.discount_amount) {
+                discount += verifiedVoucherData.discount_amount;
+            }
+
+            if (boostEl) boostEl.textContent = boostFee.toLocaleString('vi-VN') + ' Token';
+
+            if (discount > 0) {
+                if (discountRow) discountRow.classList.remove('hidden');
+                if (discountAmountEl) discountAmountEl.textContent = `-${discount.toLocaleString('vi-VN')} Token`;
+                if (discountLabel) {
+                    let label = 'Ưu đãi:';
+                    if (boostPackagesData?.is_first_time && verifiedVoucherData) label = 'Ưu đãi lần đầu + Voucher:';
+                    else if (boostPackagesData?.is_first_time) label = 'Ưu đãi 30% khách hàng mới:';
+                    else if (verifiedVoucherData) label = `Mã giảm giá ${appliedVoucherCode}:`;
+                    discountLabel.textContent = label;
+                }
+            } else {
+                if (discountRow) discountRow.classList.add('hidden');
+            }
+
+            const totalPay = Math.max(0, budgetVal + boostFee - discount);
+            if (totalEl) totalEl.textContent = totalPay.toLocaleString('vi-VN') + ' Token';
+
+            if (statusEl) {
+                if (userWalletBalance >= totalPay) {
+                    statusEl.innerHTML = '<span class="text-emerald-600 dark:text-emerald-400 font-bold">✓ Số dư khả dụng đủ</span>';
+                } else {
+                    const thiếu = totalPay - userWalletBalance;
+                    statusEl.innerHTML = `<span class="text-red-500 font-bold">⚠️ Thiếu ${thiếu.toLocaleString('vi-VN')} Token</span>`;
+                }
+            }
+        }
     </script>
 
     <!-- Budget Warning Modal -->

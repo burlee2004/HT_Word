@@ -3,6 +3,7 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const blockchain = require('../blockchain');
 const { logEvent } = require('../services/auditLogger');
+const settingsStore = require('../services/settingsStore');
 
 // 4.1. API: Freelancer tạo Kế hoạch (Tạo nhiều Milestones)
 router.post('/api/milestones/create-plan', async (req, res) => {
@@ -224,13 +225,31 @@ router.post('/api/escrow/release', async (req, res) => {
         if (cwError || fwError || !clientWallet || !freeWallet) throw new Error('Lỗi truy xuất ví');
         if (clientWallet.locked_balance < amount) throw new Error('Không đủ số dư bị khóa để giải ngân');
 
-        // Trừ locked client, cộng balance freelancer
-        await supabase.from('wallets').update({ locked_balance: clientWallet.locked_balance - amount }).eq('user_id', client_id);
-        await supabase.from('wallets').update({ balance: freeWallet.balance + amount }).eq('user_id', freelancer_id);
+        const numAmount = parseFloat(amount);
+        const feePercent = settingsStore.getPlatformFeePercent ? settingsStore.getPlatformFeePercent() : 10;
+        const platformFee = Math.round(numAmount * (feePercent / 100));
+        const netFreelancerAmount = numAmount - platformFee;
 
-        // Đồng bộ lên Blockchain (Chuyển tiền thực tế trên Sổ cái)
+        // Trừ locked client đủ amount
+        await supabase.from('wallets').update({ locked_balance: clientWallet.locked_balance - numAmount }).eq('user_id', client_id);
+
+        // Cộng balance freelancer số tiền thực nhận (đã trừ phí sàn)
+        await supabase.from('wallets').update({ balance: freeWallet.balance + netFreelancerAmount }).eq('user_id', freelancer_id);
+
+        // Tìm tài khoản Admin hoặc System để ghi nhận phí sàn
+        const { data: adminUser } = await supabase.from('users').select('id').eq('role', 'admin').limit(1).maybeSingle();
+        const adminId = adminUser ? adminUser.id : '11111111-1111-1111-1111-111111111111';
+
+        if (platformFee > 0 && adminUser) {
+            const { data: adminWallet } = await supabase.from('wallets').select('balance').eq('user_id', adminId).maybeSingle();
+            if (adminWallet) {
+                await supabase.from('wallets').update({ balance: parseFloat(adminWallet.balance || 0) + platformFee }).eq('user_id', adminId);
+            }
+        }
+
+        // Đồng bộ lên Blockchain (Chuyển tiền thực nhận cho Freelancer)
         if (blockchain.isConfigured()) {
-            blockchain.transferBalance(client_id, freelancer_id, amount)
+            blockchain.transferBalance(client_id, freelancer_id, netFreelancerAmount)
                 .catch(err => console.error('Lỗi khi gọi smart contract transfer:', err));
         }
 
@@ -238,19 +257,31 @@ router.post('/api/escrow/release', async (req, res) => {
         await supabase.from('milestones').update({ status: 'approved' }).eq('id', milestone_id);
 
         // Ghi transaction vào Sổ cái (wallet_ledger)
+        // 1. Khoản thanh toán cho Freelancer
         await supabase.from('wallet_ledger').insert([{
             sender_id: client_id,
             receiver_id: freelancer_id,
-            amount: amount,
+            amount: netFreelancerAmount,
             type: 'escrow_release',
-            note: `Thanh toán nghiệm thu (Milestone)`
+            note: `Thanh toán nghiệm thu (Milestone) - Thực nhận sau trừ ${feePercent}% phí sàn`
         }]);
+
+        // 2. Khoản phí hoa hồng Sàn thu được
+        if (platformFee > 0) {
+            await supabase.from('wallet_ledger').insert([{
+                sender_id: freelancer_id,
+                receiver_id: adminId,
+                amount: platformFee,
+                type: 'PLATFORM_FEE',
+                note: `Phí hoa hồng nền tảng (${feePercent}%) cho dự án #${mData.job_id}`
+            }]);
+        }
 
         // Gửi thông báo cho Freelancer
         await supabase.from('notifications').insert([{
             user_id: freelancer_id,
             title: 'Đã nhận thanh toán!',
-            content: `Khách hàng đã nghiệm thu công việc và giải ngân ${amount} Token vào ví của bạn.`
+            content: `Khách hàng đã nghiệm thu công việc. Bạn nhận được ${netFreelancerAmount.toLocaleString()} Token (Đã trừ ${feePercent}% phí dịch vụ sàn: ${platformFee.toLocaleString()} Token).`
         }]);
 
         logEvent({
@@ -259,10 +290,17 @@ router.post('/api/escrow/release', async (req, res) => {
             level: 'INFO',
             user_id: client_id,
             user_role: 'client',
-            details: `Khách hàng nghiệm thu giai đoạn #${milestone_id} và giải ngân ${amount} Token.`
+            details: `Khách hàng nghiệm thu giai đoạn #${milestone_id} và giải ngân ${numAmount.toLocaleString()} Token (Phí sàn: ${platformFee.toLocaleString()} Token).`,
+            metadata: { milestone_id, total_amount: numAmount, net_amount: netFreelancerAmount, platform_fee: platformFee, fee_percent: feePercent }
         });
 
-        res.status(200).json({ message: 'Giải ngân thành công! Tiền đã được chuyển cho Freelancer.' });
+        res.status(200).json({ 
+            message: 'Giải ngân thành công! Tiền đã được chuyển cho Freelancer.',
+            total_amount: numAmount,
+            net_amount: netFreelancerAmount,
+            platform_fee: platformFee,
+            fee_percent: feePercent
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

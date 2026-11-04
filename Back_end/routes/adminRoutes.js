@@ -6,6 +6,7 @@ const supabase = require('../config/supabase');
 const blockchain = require('../blockchain');
 const { logEvent, getAuditLogs } = require('../services/auditLogger');
 const { getDisputes } = require('../services/disputeStore');
+const settingsStore = require('../services/settingsStore');
 
 // 1. API: Thống kê tổng quan KPI cho Admin Dashboard
 router.get('/api/admin/stats', async (req, res) => {
@@ -27,9 +28,11 @@ router.get('/api/admin/stats', async (req, res) => {
         const { data: ledgers } = await supabase.from('wallet_ledger').select('amount, type');
         let totalDeposits = 0;
         let totalWithdrawn = 0;
+        let totalPlatformRevenue = 0;
         if (ledgers) {
             totalDeposits = ledgers.filter(l => l.type === 'DEPOSIT' || l.type === 'ADMIN_CREDIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
             totalWithdrawn = ledgers.filter(l => l.type === 'WITHDRAW' || l.type === 'ADMIN_DEBIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
+            totalPlatformRevenue = ledgers.filter(l => l.type === 'PLATFORM_FEE' || l.type === 'JOB_BOOST_FEE').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
         }
 
         const { data: wallets } = await supabase.from('wallets').select('balance, locked_balance');
@@ -71,7 +74,10 @@ router.get('/api/admin/stats', async (req, res) => {
                 total_deposits: totalDeposits,
                 total_withdrawn: totalWithdrawn,
                 pending_withdraw_count: pendingWithdrawCount,
-                pending_withdraw_amount: pendingWithdrawAmount
+                pending_withdraw_amount: pendingWithdrawAmount,
+                total_platform_revenue: totalPlatformRevenue,
+                platform_fee_percent: settingsStore.getPlatformFeePercent ? settingsStore.getPlatformFeePercent() : 10,
+                urgent_job_fee: settingsStore.getUrgentJobFee ? settingsStore.getUrgentJobFee() : 50000
             }
         });
     } catch (error) {

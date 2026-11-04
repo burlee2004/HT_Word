@@ -4,16 +4,47 @@ const fs = require('fs');
 const path = require('path');
 const supabase = require('../config/supabase');
 const { logEvent } = require('../services/auditLogger');
+const settingsStore = require('../services/settingsStore');
 
 // 1. API: Khách hàng đăng Job mới
 router.post('/api/jobs', async (req, res) => {
-    const { client_id, title, description, budget, category_id, category_name, tags } = req.body;
+    const { client_id, title, description, budget, category_id, category_name, tags, is_urgent } = req.body;
     console.log(`\n📢 [API POST /api/jobs] Nhận yêu cầu tạo dự án: "${title}" | Danh mục: "${category_name || 'Mặc định'}" | Ngân sách: ${budget} Token | Client: ${client_id}`);
     try {
-        // KIỂM TRA SỐ DƯ VÍ TRƯỚC KHI CHO ĐĂNG DỰ ÁN
-        const { data: wallet, error: walletErr } = await supabase.from('wallets').select('balance').eq('user_id', client_id).single();
+        // KIỂM TRA SỐ DƯ VÍ TRƯỚC KHI CHO ĐĂNG DỰ ÁN (BAO GỒM CẢ PHÍ ĐẨY TIN TUYỂN GẤP NẾU CÓ)
+        const isUrgent = Boolean(is_urgent === true || is_urgent === 'true');
+        const urgentFee = isUrgent ? (settingsStore.getUrgentJobFee ? settingsStore.getUrgentJobFee() : 50000) : 0;
+        const totalRequired = parseFloat(budget) + urgentFee;
+
+        let { data: wallet, error: walletErr } = await supabase.from('wallets').select('balance').eq('user_id', client_id).single();
         if (walletErr || !wallet) { const { data: newW } = await supabase.from('wallets').insert([{ user_id: client_id, balance: 0, locked_balance: 0 }]).select().single(); wallet = newW || { balance: 0 }; }
-        if (wallet.balance < budget) throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${budget} Token, nhưng ví bạn chỉ có ${wallet.balance} Token. Vui lòng nạp thêm.`);
+        if (wallet.balance < totalRequired) {
+            throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${parseFloat(budget).toLocaleString()} Token ${urgentFee > 0 ? `+ ${urgentFee.toLocaleString()} Token phí Tuyển Gấp (Tổng: ${totalRequired.toLocaleString()} Token)` : ''}, nhưng ví bạn chỉ có ${wallet.balance.toLocaleString()} Token. Vui lòng nạp thêm.`);
+        }
+
+        // Nếu có phí đẩy tin Tuyển Gấp, trừ phí và chuyển vào quỹ doanh thu sàn
+        if (urgentFee > 0) {
+            await supabase.from('wallets').update({ balance: wallet.balance - urgentFee }).eq('user_id', client_id);
+            wallet.balance -= urgentFee;
+
+            const { data: adminUser } = await supabase.from('users').select('id').eq('role', 'admin').limit(1).maybeSingle();
+            const adminId = adminUser ? adminUser.id : '11111111-1111-1111-1111-111111111111';
+
+            if (adminUser) {
+                const { data: adminWallet } = await supabase.from('wallets').select('balance').eq('user_id', adminId).maybeSingle();
+                if (adminWallet) {
+                    await supabase.from('wallets').update({ balance: parseFloat(adminWallet.balance || 0) + urgentFee }).eq('user_id', adminId);
+                }
+            }
+
+            await supabase.from('wallet_ledger').insert([{
+                sender_id: client_id,
+                receiver_id: adminId,
+                amount: urgentFee,
+                type: 'JOB_BOOST_FEE',
+                note: `Phí dịch vụ đẩy tin Tuyển Gấp (🔥) cho dự án: "${title}"`
+            }]);
+        }
 
         // Đóng gói Danh mục & Tags vào nội dung mô tả một cách chuyên nghiệp
         let fullDescription = description ? description.trim() : '';
@@ -25,9 +56,11 @@ router.post('/api/jobs', async (req, res) => {
             fullDescription += `\n\n🏷️ [Kỹ năng yêu cầu: ${tagList}]`;
         }
 
+        const finalTitle = isUrgent && !title.includes('🔥') ? `🔥 [TUYỂN GẤP] ${title.trim()}` : title.trim();
+
         const { data, error } = await supabase
             .from('jobs')
-            .insert([{ client_id, title, description: fullDescription, budget, status: 'open' }])
+            .insert([{ client_id, title: finalTitle, description: fullDescription, budget, status: 'open' }])
             .select();
 
         if (error) throw error;

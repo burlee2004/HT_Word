@@ -5,27 +5,70 @@ const path = require('path');
 const supabase = require('../config/supabase');
 const { logEvent } = require('../services/auditLogger');
 const settingsStore = require('../services/settingsStore');
+const boostPackageStore = require('../services/boostPackageStore');
+
+
+// API: Lấy danh sách các gói đẩy tin & voucher khuyến mãi cho Client
+router.get('/api/jobs/boost-packages', (req, res) => {
+    try {
+        const { client_id } = req.query;
+        const packages = boostPackageStore.getPackagesForUser(client_id);
+        const vouchers = boostPackageStore.vouchers.filter(v => v.active);
+        const isFirstTime = boostPackageStore.isFirstTimeBuyer(client_id);
+        res.status(200).json({
+            success: true,
+            is_first_time: isFirstTime,
+            first_time_discount_percent: boostPackageStore.firstTimeDiscountPercent,
+            packages,
+            public_vouchers: vouchers
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// API: Kiểm tra mã giảm giá Voucher cho gói đẩy tin
+router.post('/api/jobs/verify-voucher', (req, res) => {
+    try {
+        const { voucher_code, package_price } = req.body;
+        const result = boostPackageStore.verifyVoucher(voucher_code, Number(package_price || 0));
+        if (!result) return res.status(400).json({ error: 'Mã voucher không hợp lệ.' });
+        if (!result.valid) return res.status(400).json({ error: result.error });
+        res.status(200).json({ success: true, voucher: result });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
 
 // 1. API: Khách hàng đăng Job mới
 router.post('/api/jobs', async (req, res) => {
-    const { client_id, title, description, budget, category_id, category_name, tags, is_urgent } = req.body;
+    const { client_id, title, description, budget, category_id, category_name, tags, is_urgent, package_id, boost_package_id, voucher_code } = req.body;
     console.log(`\n📢 [API POST /api/jobs] Nhận yêu cầu tạo dự án: "${title}" | Danh mục: "${category_name || 'Mặc định'}" | Ngân sách: ${budget} Token | Client: ${client_id}`);
     try {
-        // KIỂM TRA SỐ DƯ VÍ TRƯỚC KHI CHO ĐĂNG DỰ ÁN (BAO GỒM CẢ PHÍ ĐẨY TIN TUYỂN GẤP NẾU CÓ)
-        const isUrgent = Boolean(is_urgent === true || is_urgent === 'true');
-        const urgentFee = isUrgent ? (settingsStore.getUrgentJobFee ? settingsStore.getUrgentJobFee() : 50000) : 0;
-        const totalRequired = parseFloat(budget) + urgentFee;
+        // TÍNH TOÁN PHÍ GÓI ĐẨY TIN (KÈM ƯU ĐÃI LẦN ĐẦU VÀ MÃ GIẢM GIÁ NẾU CÓ)
+        const selectedPkgId = package_id || boost_package_id || (is_urgent === true || is_urgent === 'true' ? 'boost_standard' : null);
+        let boostPricing = null;
+        let boostFee = 0;
+
+        if (selectedPkgId) {
+            boostPricing = boostPackageStore.calculateFinalPrice(client_id, selectedPkgId, voucher_code);
+            if (boostPricing.success) {
+                boostFee = boostPricing.final_price;
+            }
+        }
+
+        const totalRequired = parseFloat(budget) + boostFee;
 
         let { data: wallet, error: walletErr } = await supabase.from('wallets').select('balance').eq('user_id', client_id).single();
         if (walletErr || !wallet) { const { data: newW } = await supabase.from('wallets').insert([{ user_id: client_id, balance: 0, locked_balance: 0 }]).select().single(); wallet = newW || { balance: 0 }; }
         if (wallet.balance < totalRequired) {
-            throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${parseFloat(budget).toLocaleString()} Token ${urgentFee > 0 ? `+ ${urgentFee.toLocaleString()} Token phí Tuyển Gấp (Tổng: ${totalRequired.toLocaleString()} Token)` : ''}, nhưng ví bạn chỉ có ${wallet.balance.toLocaleString()} Token. Vui lòng nạp thêm.`);
+            throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${parseFloat(budget).toLocaleString()} Token ${boostFee > 0 ? `+ ${boostFee.toLocaleString()} Token phí đẩy tin (${boostPricing ? boostPricing.package.name : ''})` : ''}, nhưng ví bạn chỉ có ${wallet.balance.toLocaleString()} Token. Vui lòng nạp thêm.`);
         }
 
-        // Nếu có phí đẩy tin Tuyển Gấp, trừ phí và chuyển vào quỹ doanh thu sàn
-        if (urgentFee > 0) {
-            await supabase.from('wallets').update({ balance: wallet.balance - urgentFee }).eq('user_id', client_id);
-            wallet.balance -= urgentFee;
+        // Nếu có gói đẩy tin, trừ phí và chuyển vào quỹ doanh thu sàn
+        if (boostFee > 0 && boostPricing) {
+            await supabase.from('wallets').update({ balance: wallet.balance - boostFee }).eq('user_id', client_id);
+            wallet.balance -= boostFee;
 
             const { data: adminUser } = await supabase.from('users').select('id').eq('role', 'admin').limit(1).maybeSingle();
             const adminId = adminUser ? adminUser.id : '11111111-1111-1111-1111-111111111111';
@@ -33,20 +76,27 @@ router.post('/api/jobs', async (req, res) => {
             if (adminUser) {
                 const { data: adminWallet } = await supabase.from('wallets').select('balance').eq('user_id', adminId).maybeSingle();
                 if (adminWallet) {
-                    await supabase.from('wallets').update({ balance: parseFloat(adminWallet.balance || 0) + urgentFee }).eq('user_id', adminId);
+                    await supabase.from('wallets').update({ balance: parseFloat(adminWallet.balance || 0) + boostFee }).eq('user_id', adminId);
                 }
             }
+
+            const discountNote = boostPricing.total_discount > 0 
+                ? ` (Đã giảm: ${boostPricing.total_discount.toLocaleString()} Token${boostPricing.is_first_time ? ' - Ưu đãi lần đầu' : ''}${boostPricing.voucher_info ? ` - Voucher: ${boostPricing.voucher_info.code}` : ''})`
+                : '';
 
             await supabase.from('wallet_ledger').insert([{
                 sender_id: client_id,
                 receiver_id: adminId,
-                amount: urgentFee,
+                amount: boostFee,
                 type: 'JOB_BOOST_FEE',
-                note: `Phí dịch vụ đẩy tin Tuyển Gấp (🔥) cho dự án: "${title}"`
+                note: `Phí nâng cấp "${boostPricing.package.name}" (${boostPricing.days} ngày)${discountNote} cho dự án: "${title}"`
             }]);
+
+            // Ghi nhận người dùng đã sử dụng ưu đãi
+            boostPackageStore.recordPurchase(client_id);
         }
 
-        // Đóng gói Danh mục & Tags vào nội dung mô tả một cách chuyên nghiệp
+        // Đóng gói Danh mục, Tags và Thông tin Gói đẩy tin vào nội dung mô tả
         let fullDescription = description ? description.trim() : '';
         if (category_name) {
             fullDescription = `[Danh mục: ${category_name.trim()}]\n` + fullDescription;
@@ -55,8 +105,13 @@ router.post('/api/jobs', async (req, res) => {
             const tagList = Array.isArray(tags) ? tags.join(', ') : tags.trim();
             fullDescription += `\n\n🏷️ [Kỹ năng yêu cầu: ${tagList}]`;
         }
+        if (boostPricing) {
+            const expiryDate = new Date(Date.now() + boostPricing.days * 86400000).toLocaleDateString('vi-VN');
+            fullDescription += `\n\n📌 [Gói dịch vụ: ${boostPricing.package.name} | Hiển thị ưu tiên đến: ${expiryDate}]`;
+        }
 
-        const finalTitle = isUrgent && !title.includes('🔥') ? `🔥 [TUYỂN GẤP] ${title.trim()}` : title.trim();
+        const badgePrefix = boostPricing ? `${boostPricing.badge} ` : '';
+        const finalTitle = badgePrefix && !title.includes(badgePrefix.trim()) ? `${badgePrefix}${title.trim()}` : title.trim();
 
         const { data, error } = await supabase
             .from('jobs')

@@ -1,0 +1,73 @@
+{
+  "packages": [
+    {
+      "id": "boost_starter",
+      "name": "Gói Cơ Bản (Starter)",
+      "days": 4,
+      "price": 20000,
+      "badge": "⚡ [ƯU TIÊN]",
+      "description": "Đẩy bài viết lên trang 1 trong 4 ngày đầu",
+      "is_popular": false
+    },
+    {
+      "id": "boost_standard",
+      "name": "Gói Tiêu Chuẩn (Popular)",
+      "days": 12,
+      "price": 50000,
+      "badge": "🔥 [TUYỂN GẤP]",
+      "description": "Ghim nhãn Tuyển Gấp nổi bật thu hút Freelancer trong 12 ngày",
+      "is_popular": true
+    },
+    {
+      "id": "boost_pro",
+      "name": "Gói Chuyên Nghiệp (Pro)",
+      "days": 25,
+      "price": 100000,
+      "badge": "💎 [VIP PRO]",
+      "description": "Vị trí VIP Pro 25 ngày + Gợi ý cho các lập trình viên hàng đầu",
+      "is_popular": false
+    },
+    {
+      "id": "boost_vip",
+      "name": "Gói Toàn Diện (Diamond VIP)",
+      "days": 60,
+      "price": 200000,
+      "badge": "👑 [DIAMOND VIP]",
+      "description": "Ghim tối cao 60 ngày + Hỗ trợ xét duyệt ứng viên 1-1",
+      "is_popular": false
+    }
+  ],
+  "vouchers": [
+    {
+      "code": "HTWORKNEW",
+      "type": "PERCENT",
+      "value": 30,
+      "max_discount": 60000,
+      "min_order": 0,
+      "description": "Giảm 30% tối đa 60,000 Token cho khách hàng mới",
+      "active": true
+    },
+    {
+      "code": "HOTDEAL",
+      "type": "FIXED",
+      "value": 20000,
+      "max_discount": 20000,
+      "min_order": 50000,
+      "description": "Giảm ngay 20,000 Token cho các gói từ 50,000 Token trở lên",
+      "active": true
+    },
+    {
+      "code": "FREESHIP",
+      "type": "FIXED",
+      "value": 20000,
+      "max_discount": 20000,
+      "min_order": 20000,
+      "description": "Miễn phí đẩy tin gói Cơ Bản (Giảm 20,000 Token)",
+      "active": true
+    }
+  ],
+  "firstTimeDiscountPercent": 30,
+  "purchasedUserIds": [
+    "test_user_new_1793759531246"
+  ]
+}

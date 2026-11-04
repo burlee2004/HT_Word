@@ -61,6 +61,48 @@ router.post('/api/withdraw', async (req, res) => {
             return res.status(400).json({ error: 'Không đủ số dư khả dụng để rút tiền.' });
         }
 
+        // ==============================================================================
+        // 🛡️ BỘ 3 LÁ CHẮN THÔNG MINH CHỐNG SPAM NẠP - RÚT LIÊN TỤC (ƯU TIÊN TRẢI NGHIỆM USER)
+        // ==============================================================================
+        
+        // Lá chắn 1: Khoảng đệm an toàn 15 phút (Chặn Bot nạp rồi lập tức rút ra tự động)
+        const { data: recentDeposit } = await supabase
+            .from('deposit_requests')
+            .select('created_at, amount')
+            .eq('user_id', user_id)
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (recentDeposit) {
+            const depositTime = new Date(recentDeposit.created_at).getTime();
+            const elapsedMs = Date.now() - depositTime;
+            const BUFFER_MS = 15 * 60 * 1000; // 15 phút
+            if (elapsedMs < BUFFER_MS) {
+                const remainingMins = Math.ceil((BUFFER_MS - elapsedMs) / 60000);
+                return res.status(400).json({
+                    error: `[Bảo mật An Toàn Dòng Tiền] Khoản tiền nạp gần nhất đang trong thời gian đệm đối soát (15 phút). Vui lòng thử lại sau ${remainingMins} phút để đảm bảo giao dịch thông suốt.`
+                });
+            }
+        }
+
+        // Lá chắn 2: Hạn ngạch rút tiền tối đa 2 lần miễn phí / ngày (Chặn Spam nghẽn lệnh)
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const { data: todayWithdraws } = await supabase
+            .from('withdraw_requests')
+            .select('id')
+            .eq('user_id', user_id)
+            .gte('created_at', startOfDay.toISOString());
+
+        const withdrawCountToday = todayWithdraws ? todayWithdraws.length : 0;
+        if (withdrawCountToday >= 2) {
+            return res.status(400).json({
+                error: 'Bạn đã đạt hạn mức 2 lệnh rút tiền MIỄN PHÍ trong ngày. Để bảo vệ an toàn dòng tiền hệ thống, vui lòng chờ sang ngày hôm sau để tiếp tục tạo lệnh mới.'
+            });
+        }
+
         // BẢO MẬT WEB2.5: ĐỐI CHIẾU BLOCKCHAIN
         if (blockchain.isConfigured()) {
             const bcBalance = await blockchain.getBalance(user_id);

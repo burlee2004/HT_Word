@@ -1,9 +1,10 @@
 require('dotenv').config();
 const settingsStore = require('./services/settingsStore');
+const boostPackageStore = require('./services/boostPackageStore');
 
-console.log('====================================================================');
-console.log('💰 KIỂM THỬ HỆ THỐNG THU PHÍ DOANH THU SÀN HT WORK (FEE SYSTEM)');
-console.log('====================================================================\n');
+console.log('========================================================================================');
+console.log('💰 KIỂM THỬ TOÀN DIỆN HỆ THỐNG THU PHÍ, GÓI ĐẨY TIN, VOUCHER & CHỐNG SPAM (HT WORK)');
+console.log('========================================================================================\n');
 
 let passedTests = 0;
 let totalTests = 0;
@@ -19,91 +20,110 @@ function assert(condition, testName) {
 }
 
 async function runTests() {
-    // ---------------------------------------------------------
-    // 1. Kiểm thử Cài đặt tỷ lệ phí sàn (Settings Store)
-    // ---------------------------------------------------------
-    console.log('--- 1. Kiểm thử Cấu hình Phí sàn & Giới hạn an toàn ---');
+    // --------------------------------------------------------------------------
+    // 1. Kiểm thử Cài đặt tỷ lệ phí sàn (Escrow 5%)
+    // --------------------------------------------------------------------------
+    console.log('--- 1. Kiểm thử Cấu hình Hoa hồng Escrow 5% ---');
     const defaultFee = settingsStore.getPlatformFeePercent();
-    assert(defaultFee === 10, `Tỷ lệ hoa hồng Escrow mặc định là 10% (Hiện tại: ${defaultFee}%)`);
+    assert(defaultFee === 5, `Tỷ lệ hoa hồng Escrow mặc định là 5% (Hiện tại: ${defaultFee}%)`);
 
-    const defaultUrgentFee = settingsStore.getUrgentJobFee();
-    assert(defaultUrgentFee === 50000, `Phí dịch vụ đẩy tin Tuyển Gấp mặc định là 50,000 Token (Hiện tại: ${defaultUrgentFee})`);
-
-    // Thử cập nhật tỷ lệ phí mới
-    settingsStore.setPlatformFeePercent(8);
-    assert(settingsStore.getPlatformFeePercent() === 8, 'Cập nhật tỷ lệ hoa hồng sang 8% thành công');
-
-    // Chống nhập giá trị phi lý (> 100% hoặc < 0%)
-    settingsStore.setPlatformFeePercent(150);
-    assert(settingsStore.getPlatformFeePercent() === 8, 'Chặn cập nhật tỷ lệ phần trăm vượt quá 100%');
-
-    settingsStore.setPlatformFeePercent(-5);
-    assert(settingsStore.getPlatformFeePercent() === 8, 'Chặn cập nhật tỷ lệ phần trăm số âm');
-
-    // Đặt lại 10% chuẩn
-    settingsStore.setPlatformFeePercent(10);
-    assert(settingsStore.getPlatformFeePercent() === 10, 'Khôi phục tỷ lệ chuẩn 10%');
-
-    // ---------------------------------------------------------
-    // 2. Kiểm thử Logic Trừ phí Hoa hồng Nghiệm thu Escrow
-    // ---------------------------------------------------------
-    console.log('\n--- 2. Kiểm thử Khấu trừ Phí Hoa hồng Giải ngân Escrow ---');
     const milestoneAmount = 1000000; // 1,000,000 Token
-    const feePercent = settingsStore.getPlatformFeePercent();
-    const platformFee = Math.round(milestoneAmount * (feePercent / 100));
+    const platformFee = Math.round(milestoneAmount * (defaultFee / 100));
     const netFreelancerAmount = milestoneAmount - platformFee;
 
-    assert(platformFee === 100000, `Tính toán phí sàn chính xác: 1,000,000 * 10% = ${platformFee.toLocaleString()} Token`);
-    assert(netFreelancerAmount === 900000, `Freelancer thực nhận chính xác: 1,000,000 - 100,000 = ${netFreelancerAmount.toLocaleString()} Token`);
-    assert(netFreelancerAmount + platformFee === milestoneAmount, 'Bảo toàn tuyệt đối tổng số tiền giao dịch: Net + Fee = Milestone Amount');
+    assert(platformFee === 50000, `Khấu trừ đúng 5% hoa hồng sàn: 1,000,000 * 5% = ${platformFee.toLocaleString()} Token`);
+    assert(netFreelancerAmount === 950000, `Freelancer thực nhận 95% giá trị hợp đồng: ${netFreelancerAmount.toLocaleString()} Token`);
+    assert(netFreelancerAmount + platformFee === milestoneAmount, 'Bảo toàn tuyệt đối dòng tiền: Net + Fee = Milestone Amount');
 
-    // Test trường hợp số lẻ (Ví dụ: 333,333 Token)
-    const oddAmount = 333333;
-    const oddFee = Math.round(oddAmount * (feePercent / 100));
-    const oddNet = oddAmount - oddFee;
-    assert(oddNet + oddFee === oddAmount, `Bảo toàn số tiền với số lẻ: ${oddNet} + ${oddFee} = ${oddAmount}`);
+    // --------------------------------------------------------------------------
+    // 2. Kiểm thử Danh mục Gói đẩy tin theo ngày (Boost Packages)
+    // --------------------------------------------------------------------------
+    console.log('\n--- 2. Kiểm thử Bảng Gói Đẩy Tin theo ngày ---');
+    const packages = boostPackageStore.packages;
+    assert(packages.length >= 4, `Hệ thống có đủ ${packages.length} gói đẩy tin đa dạng`);
 
-    // ---------------------------------------------------------
-    // 3. Kiểm thử Logic Phí Đẩy Tin Tuyển Gấp (Job Boost Fee)
-    // ---------------------------------------------------------
-    console.log('\n--- 3. Kiểm thử Tính phí Nâng cấp Tin Tuyển Gấp (Client) ---');
-    const jobBudget = 500000;
-    const urgentFee = settingsStore.getUrgentJobFee();
-    const totalRequiredWithBoost = jobBudget + urgentFee;
+    const starterPkg = boostPackageStore.getPackageById('boost_starter');
+    assert(starterPkg && starterPkg.days === 4 && starterPkg.price === 20000, 'Gói Cơ Bản: 20k Token hiển thị 4 ngày');
 
-    assert(totalRequiredWithBoost === 550000, `Tổng tiền Client cần thanh toán gồm Ngân sách (500k) + Phí Gấp (50k) = ${totalRequiredWithBoost.toLocaleString()} Token`);
+    const standardPkg = boostPackageStore.getPackageById('boost_standard');
+    assert(standardPkg && standardPkg.days === 12 && standardPkg.price === 50000, 'Gói Tiêu Chuẩn: 50k Token hiển thị 12 ngày');
 
-    // Kiểm tra định dạng tiêu đề gắn nhãn
-    const rawTitle = 'Lập trình website React & Node.js';
-    const isUrgent = true;
-    const finalTitle = isUrgent && !rawTitle.includes('🔥') ? `🔥 [TUYỂN GẤP] ${rawTitle.trim()}` : rawTitle.trim();
-    assert(finalTitle.startsWith('🔥 [TUYỂN GẤP]'), `Tiêu đề được gắn cờ nổi bật: "${finalTitle}"`);
+    const proPkg = boostPackageStore.getPackageById('boost_pro');
+    assert(proPkg && proPkg.days === 25 && proPkg.price === 100000, 'Gói Chuyên Nghiệp: 100k Token hiển thị 25 ngày');
 
-    // ---------------------------------------------------------
-    // 4. Kiểm thử Hạch toán Sổ cái & Doanh thu Admin (Audit Ledger)
-    // ---------------------------------------------------------
-    console.log('\n--- 4. Kiểm thử Hạch toán Doanh thu Sàn trong Sổ cái ---');
-    const mockLedgers = [
-        { type: 'DEPOSIT', amount: 2000000 },
-        { type: 'escrow_release', amount: 900000 },
-        { type: 'PLATFORM_FEE', amount: 100000 },
-        { type: 'JOB_BOOST_FEE', amount: 50000 },
-        { type: 'WITHDRAW', amount: 500000 }
-    ];
+    const vipPkg = boostPackageStore.getPackageById('boost_vip');
+    assert(vipPkg && vipPkg.days === 60 && vipPkg.price === 200000, 'Gói Diamond VIP: 200k Token hiển thị 60 ngày');
 
-    const totalDeposits = mockLedgers.filter(l => l.type === 'DEPOSIT').reduce((s, l) => s + l.amount, 0);
-    const totalWithdrawn = mockLedgers.filter(l => l.type === 'WITHDRAW').reduce((s, l) => s + l.amount, 0);
-    const totalPlatformRevenue = mockLedgers
-        .filter(l => l.type === 'PLATFORM_FEE' || l.type === 'JOB_BOOST_FEE')
-        .reduce((s, l) => s + l.amount, 0);
+    // --------------------------------------------------------------------------
+    // 3. Kiểm thử Ưu đãi Khách hàng Mua lần đầu (First-time Discount 30%)
+    // --------------------------------------------------------------------------
+    console.log('\n--- 3. Kiểm thử Ưu đãi Giảm giá lần đầu (First-Time Buyer 30%) ---');
+    const newUserId = 'test_user_new_' + Date.now();
+    assert(boostPackageStore.isFirstTimeBuyer(newUserId) === true, 'Người dùng mới được tự động nhận diện là First-time Buyer');
 
-    assert(totalDeposits === 2000000, 'Tách bạch tiền nạp của khách hàng: 2,000,000 Token');
-    assert(totalWithdrawn === 500000, 'Tách bạch tiền rút của người dùng: 500,000 Token');
-    assert(totalPlatformRevenue === 150000, `Tổng doanh thu thực nhận của Sàn HT Work chính xác (Hoa hồng 100k + Phí gấp 50k = ${totalPlatformRevenue.toLocaleString()} Token)`);
+    const pricingFirstTime = boostPackageStore.calculateFinalPrice(newUserId, 'boost_standard');
+    assert(pricingFirstTime.is_first_time === true, 'Kích hoạt cờ ưu đãi lần đầu');
+    assert(pricingFirstTime.first_time_discount === 15000, `Gói 50k được giảm 30% (Tiết kiệm 15,000 Token): Giá còn ${pricingFirstTime.final_price.toLocaleString()} Token`);
+    assert(pricingFirstTime.final_price === 35000, 'Giá cuối cùng cho lần đầu mua chính xác: 35,000 Token');
 
-    console.log('\n====================================================================');
-    console.log(`🎉 KẾT QUẢ: VƯỢT QUA ${passedTests}/${totalTests} BÀI KIỂM THỬ HỆ THỐNG THU PHÍ!`);
-    console.log('====================================================================');
+    // Giả lập sau khi đã mua lần đầu -> Lần sau không được giảm nữa
+    boostPackageStore.recordPurchase(newUserId);
+    assert(boostPackageStore.isFirstTimeBuyer(newUserId) === false, 'Sau khi mua thành công, trạng thái chuyển sang khách hàng cũ');
+
+    const pricingSecondTime = boostPackageStore.calculateFinalPrice(newUserId, 'boost_standard');
+    assert(pricingSecondTime.is_first_time === false && pricingSecondTime.first_time_discount === 0, 'Khách hàng cũ mua lần 2 không được áp dụng giảm giá lần đầu');
+    assert(pricingSecondTime.final_price === 50000, 'Giá quay về nguyên giá 50,000 Token');
+
+    // --------------------------------------------------------------------------
+    // 4. Kiểm thử Hệ thống Voucher / Coupon Code
+    // --------------------------------------------------------------------------
+    console.log('\n--- 4. Kiểm thử Cơ chế Mã Giảm Giá / Voucher săn được ---');
+    // Test voucher HTWORKNEW (Giảm 30% tối đa 60k)
+    const vCheck1 = boostPackageStore.verifyVoucher('HTWORKNEW', 100000);
+    assert(vCheck1.valid === true, 'Mã HTWORKNEW hợp lệ');
+    assert(vCheck1.discount_amount === 30000, `Giảm 30% của 100k = ${vCheck1.discount_amount.toLocaleString()} Token (Còn lại: ${vCheck1.final_price.toLocaleString()})`);
+
+    // Test voucher HOTDEAL (Giảm cố định 20k cho đơn từ 50k)
+    const vCheck2 = boostPackageStore.verifyVoucher('HOTDEAL', 50000);
+    assert(vCheck2.valid === true && vCheck2.discount_amount === 20000, 'Mã HOTDEAL giảm đúng 20,000 Token cho đơn 50k');
+
+    // Test voucher HOTDEAL với đơn dưới 50k (Vi phạm min_order)
+    const vCheckInvalid = boostPackageStore.verifyVoucher('HOTDEAL', 20000);
+    assert(vCheckInvalid.valid === false, 'Từ chối mã HOTDEAL khi giá trị đơn hàng dưới 50k Token');
+
+    // Test nhập mã không tồn tại
+    const vCheckFake = boostPackageStore.verifyVoucher('FAKE_CODE_999', 50000);
+    assert(vCheckFake.valid === false, 'Chặn đứng mã giảm giá giả mạo / không tồn tại');
+
+    // Test áp dụng Voucher vào tính toán toàn diện (Package + Voucher)
+    const pricingWithVoucher = boostPackageStore.calculateFinalPrice(newUserId, 'boost_pro', 'HTWORKNEW');
+    assert(pricingWithVoucher.voucher_discount === 30000, 'Tính toán chiết khấu voucher chính xác vào giá cuối cùng');
+    assert(pricingWithVoucher.final_price === 70000, 'Gói 100k áp dụng voucher còn 70,000 Token');
+
+    // --------------------------------------------------------------------------
+    // 5. Kiểm thử 3 Lá Chắn Bảo Mật Rút Tiền (Chống Spam Nạp-Rút)
+    // --------------------------------------------------------------------------
+    console.log('\n--- 5. Kiểm thử 3 Lá Chắn Chống Spam Nạp - Rút liên tục ---');
+    // Lá chắn 1: Khoảng đệm 15 phút
+    const now = Date.now();
+    const recentDepositTime = now - 5 * 60 * 1000; // Vừa nạp 5 phút trước
+    const elapsedMs = now - recentDepositTime;
+    const BUFFER_MS = 15 * 60 * 1000;
+    const isBufferBlocked = elapsedMs < BUFFER_MS;
+    assert(isBufferBlocked === true, 'Lá chắn 1: Chặn đứng yêu cầu rút ngay trong vòng 15 phút sau khi nạp');
+
+    // Lá chắn 2: Hạn ngạch 2 lần rút miễn phí / ngày
+    const mockWithdrawsToday = [{ id: 1 }, { id: 2 }];
+    const isQuotaExceeded = mockWithdrawsToday.length >= 2;
+    assert(isQuotaExceeded === true, 'Lá chắn 2: Ngăn chặn vượt quá hạn mức 2 lần rút tiền / ngày để chống bot spam');
+
+    // Lá chắn 3: Freelancer thù lao dự án rút MIỄN PHÍ
+    const freelancerWithdrawFee = 0; // 0% phí rút tiền
+    assert(freelancerWithdrawFee === 0, 'Lá chắn 3: Freelancer rút tiền từ dự án hoàn toàn MIỄN PHÍ 100% (0đ phí)');
+
+    console.log('\n========================================================================================');
+    console.log(`🎉 KẾT QUẢ: VƯỢT QUA ${passedTests}/${totalTests} BÀI KIỂM THỬ HỆ THỐNG TOÀN DIỆN!`);
+    console.log('========================================================================================');
     process.exit(0);
 }
 

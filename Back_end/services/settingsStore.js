@@ -1,7 +1,7 @@
 // Global admin settings store
 global.autoApprovePayOS = true;
 global.autoApproveWithdraw = false;
-global.platformFeePercent = Number(process.env.PLATFORM_FEE_PERCENT || 10); // Mặc định 10% hoa hồng Escrow
+global.platformFeePercent = Number(process.env.PLATFORM_FEE_PERCENT || 5); // Tỷ lệ hoa hồng Escrow chuẩn 5%
 global.urgentJobFee = Number(process.env.URGENT_JOB_FEE || 50000); // 50,000 Token phí Đẩy tin Tuyển gấp
 
 const settingsStore = {

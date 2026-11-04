@@ -1,0 +1,15 @@
+{
+  "name": "ht-work-root",
+  "version": "1.0.0",
+  "description": "HT Work Platform - Root Workspace",
+  "scripts": {
+    "start": "npm start --prefix Back_end",
+    "dev": "npm run dev --prefix Back_end",
+    "test:fee": "npm run test:fee --prefix Back_end",
+    "test:security": "npm run test:security --prefix Back_end",
+    "test:otp": "npm run test:otp --prefix Back_end"
+  },
+  "keywords": [],
+  "author": "HT Work",
+  "license": "ISC"
+}

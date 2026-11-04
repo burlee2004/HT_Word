@@ -313,7 +313,7 @@ router.post('/login', async (req, res) => {
 
 // Cấu hình Multer Local Disk Storage làm lưu trữ cục bộ trực tiếp & dự phòng
 const multer = require('multer');
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const s3Client = new S3Client({
     region: (process.env.AWS_REGION || '').trim(),
     credentials: {
@@ -376,6 +376,37 @@ async function uploadToCloudinary(filePath, folder = 'avatars') {
         return result.secure_url;
     } catch (err) {
         console.error('[Cloudinary Upload Error]:', err.message);
+        return null;
+    }
+}
+
+// Upload file lên AWS S3 Bucket
+async function uploadToS3(filePath, originalName) {
+    try {
+        if (!process.env.AWS_S3_BUCKET_NAME || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+            return null;
+        }
+        if (!fs.existsSync(filePath)) return null;
+
+        const fileBuffer = fs.readFileSync(filePath);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const safeName = 'htwork_files/' + uniqueSuffix + '-' + (originalName || 'file').replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        const contentType = getMimeType(originalName);
+
+        const command = new PutObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Key: safeName,
+            Body: fileBuffer,
+            ContentType: contentType
+        });
+
+        await s3Client.send(command);
+        const region = (process.env.AWS_REGION || 'ap-southeast-1').trim();
+        const s3Url = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${region}.amazonaws.com/${safeName}`;
+        console.log(`✅ [AWS S3] Upload thành công: ${s3Url}`);
+        return s3Url;
+    } catch (err) {
+        console.error('❌ [AWS S3 Upload Error]:', err.message);
         return null;
     }
 }
@@ -532,14 +563,21 @@ router.post('/upload-file', (req, res) => {
         const protocol = req.protocol || 'http';
         let localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
 
-        // Ưu tiên đẩy lên Supabase Storage (hỗ trợ hoàn hảo PDF, Code, Zip, Document không bị lỗi 401 ACL)
+        // 1. Ưu tiên hàng đầu: Upload lên AWS S3 Bucket
         try {
-            const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
-            if (supabaseUrl) {
-                localUrl = supabaseUrl;
+            const s3Url = await uploadToS3(req.file.path, req.file.originalname);
+            if (s3Url) {
+                localUrl = s3Url;
             } else {
-                const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
-                if (cloudUrl) localUrl = cloudUrl;
+                // 2. Dự phòng 1: Supabase Storage
+                const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
+                if (supabaseUrl) {
+                    localUrl = supabaseUrl;
+                } else {
+                    // 3. Dự phòng 2: Cloudinary
+                    const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
+                    if (cloudUrl) localUrl = cloudUrl;
+                }
             }
         } catch (cErr) {
             console.warn('[Upload File] Storage fallback:', cErr.message);

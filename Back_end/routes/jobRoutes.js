@@ -40,6 +40,99 @@ router.post('/api/jobs/verify-voucher', (req, res) => {
     }
 });
 
+// API: Khách hàng nâng cấp gói đẩy tin Tuyển Gấp cho dự án ĐÃ TỒN TẠI
+router.post('/api/jobs/:id/boost', async (req, res) => {
+    const { id } = req.params;
+    const { client_id, package_id, voucher_code } = req.body;
+    try {
+        if (!client_id) return res.status(400).json({ error: 'Thiếu thông tin client_id' });
+        if (!package_id) return res.status(400).json({ error: 'Vui lòng chọn 1 gói đẩy tin' });
+
+        // 1. Kiểm tra dự án
+        const { data: jobs, error: jobErr } = await supabase.from('jobs').select('*').eq('id', id);
+        if (jobErr || !jobs || jobs.length === 0) return res.status(404).json({ error: 'Không tìm thấy dự án' });
+        const job = jobs[0];
+        if (job.client_id !== client_id) return res.status(403).json({ error: 'Bạn không có quyền nâng cấp dự án này' });
+
+        // 2. Tính toán phí
+        const boostPricing = boostPackageStore.calculateFinalPrice(client_id, package_id, voucher_code);
+        if (!boostPricing.success) return res.status(400).json({ error: boostPricing.error });
+        const boostFee = boostPricing.final_price;
+
+        // 3. Kiểm tra số dư ví
+        const { data: wallets, error: walErr } = await supabase.from('wallets').select('*').eq('user_id', client_id);
+        if (walErr || !wallets || wallets.length === 0) return res.status(400).json({ error: 'Không tìm thấy ví người dùng' });
+        const wallet = wallets[0];
+        if (wallet.balance < boostFee) {
+            return res.status(400).json({
+                error: `Số dư ví không đủ! Cần ${boostFee.toLocaleString()} Token để nâng cấp gói ${boostPricing.package.name}, nhưng ví chỉ có ${wallet.balance.toLocaleString()} Token. Vui lòng nạp thêm.`
+            });
+        }
+
+        // 4. Trừ ví client
+        await supabase.from('wallets').update({ balance: wallet.balance - boostFee }).eq('user_id', client_id);
+
+        // 5. Cộng ví Admin
+        const adminId = 'd82c2357-e6f7-41eb-8984-633ca5c04df9';
+        const { data: adminWallets } = await supabase.from('wallets').select('balance').eq('user_id', adminId);
+        if (adminWallets && adminWallets.length > 0) {
+            await supabase.from('wallets').update({ balance: parseFloat(adminWallets[0].balance || 0) + boostFee }).eq('user_id', adminId);
+        }
+
+        // 6. Ghi sổ cái
+        const discountNote = boostPricing.total_discount > 0 
+            ? ` (Đã giảm: ${boostPricing.total_discount.toLocaleString()} Token${boostPricing.is_first_time ? ' - Ưu đãi lần đầu' : ''}${boostPricing.voucher_info ? ` - Voucher: ${boostPricing.voucher_info.code}` : ''})`
+            : '';
+
+        await supabase.from('wallet_ledger').insert([{
+            sender_id: client_id,
+            receiver_id: adminId,
+            amount: boostFee,
+            type: 'JOB_BOOST_FEE',
+            note: `Phí nâng cấp "${boostPricing.package.name}" (${boostPricing.days} ngày)${discountNote} cho dự án: "${job.title}"`
+        }]);
+
+        boostPackageStore.recordPurchase(client_id);
+
+        // 7. Cập nhật tiêu đề và mô tả dự án
+        const badgePrefix = `${boostPricing.badge} `;
+        const cleanedTitle = job.title.replace(/^🔥s*[TUYỂN GẤP]s*/i, '').trim();
+        const newTitle = `${badgePrefix}${cleanedTitle}`;
+        const expiryDate = new Date(Date.now() + boostPricing.days * 86400000).toLocaleDateString('vi-VN');
+        const newDesc = `${job.description || ''}\n\n📌 [Gói dịch vụ: ${boostPricing.package.name} | Hiển thị ưu tiên đến: ${expiryDate}]`;
+
+        await supabase.from('jobs').update({
+            title: newTitle,
+            description: newDesc
+        }).eq('id', id);
+
+        // 8. Thông báo client
+        await supabase.from('notifications').insert([{
+            user_id: client_id,
+            title: 'Nâng cấp Gói Đẩy Tin thành công! 🔥',
+            content: `Dự án "${job.title}" của bạn đã được nâng cấp lên gói "${boostPricing.package.name}" (${boostPricing.days} ngày). Bài viết sẽ được ưu tiên tiếp cận các Freelancer hàng đầu.`
+        }]);
+
+        await logEvent({
+            module: 'JOB',
+            action: 'BOOST_JOB',
+            level: 'INFO',
+            details: `Khách hàng nâng cấp gói đẩy tin "${boostPricing.package.name}" cho dự án #${id} (${boostFee.toLocaleString()} Token)`,
+            user_id: client_id,
+            metadata: { job_id: id, package_id, boostFee }
+        });
+
+        res.status(200).json({
+            success: true,
+            message: `Nâng cấp "${boostPricing.package.name}" thành công!`,
+            pricing: boostPricing
+        });
+    } catch (e) {
+        console.error('Lỗi khi nâng cấp gói đẩy tin:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // 1. API: Khách hàng đăng Job mới
 router.post('/api/jobs', async (req, res) => {
     const { client_id, title, description, budget, category_id, category_name, tags, is_urgent, package_id, boost_package_id, voucher_code } = req.body;

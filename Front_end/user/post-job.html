@@ -82,8 +82,32 @@
                     <button onclick="openAiAssistantModal()" class="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md hover:shadow-lg transition flex items-center text-sm">
                         <i class="fas fa-wand-magic-sparkles mr-2 text-yellow-300"></i> Trợ Lý AI (Soạn Dự Án)
                     </button>
+                    <button onclick="openAnnouncementPoster()" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-3.5 py-2.5 rounded-xl font-bold shadow transition flex items-center text-xs sm:text-sm mr-2">
+                        <i class="fas fa-bullhorn mr-2"></i> Bản Tin Cập Nhật 🎉
+                    </button>
                     <button onclick="openPostModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md hover:shadow-lg transition flex items-center text-sm">
                         <i class="fas fa-plus mr-2"></i> Đăng Dự Án Mới
+                    </button>
+                </div>
+            </div>
+
+            <!-- BANNER QUẢNG CÁO GÓI ĐẨY TIN TUYỂN GẤP -->
+            <div class="mb-6 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-3xl p-4 sm:p-5 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0">
+                        🔥
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h3 class="text-base sm:text-lg font-black tracking-tight">Gói Đẩy Tin "Tuyển Gấp" — Tiếp Cận Top 5% Freelancer</h3>
+                            <span class="bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Ưu Đãi Mới</span>
+                        </div>
+                        <p class="text-xs text-white/90 mt-0.5">Tăng 500% lượt ứng tuyển chất lượng. Giảm ngay 30% cho khách hàng mới + Áp dụng voucher HTWORKNEW</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 shrink-0">
+                    <button onclick="openPostModal()" class="bg-white text-orange-600 hover:bg-orange-50 font-black px-4 py-2.5 rounded-xl text-xs shadow-md transition flex items-center">
+                        <i class="fas fa-rocket mr-1.5"></i> Đăng Tin Tuyển Gấp Ngay
                     </button>
                 </div>
             </div>
@@ -1028,15 +1052,35 @@
             }
         }
 
-        // 3. Xử lý Upload file đính kèm
+        // 3. Xử lý Upload file đính kèm (Có khóa nút Tiếp tục chống mất file)
+        let activeUploadsCount = 0;
+
+        function updateUploadButtonState() {
+            const nextBtn = document.getElementById('nextBtn');
+            if (!nextBtn) return;
+            if (activeUploadsCount > 0) {
+                nextBtn.disabled = true;
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                nextBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang tải file lên...';
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                nextBtn.innerHTML = 'Tiếp tục <i class="fas fa-arrow-right ml-2 text-xs"></i>';
+            }
+        }
+
         async function handleFileUpload(input) {
             if (!input.files || input.files.length === 0) return;
             const file = input.files[0];
             
             if (file.size > 50 * 1024 * 1024) {
                 alert('File đã vượt quá 50MB!');
+                input.value = '';
                 return;
             }
+
+            activeUploadsCount++;
+            updateUploadButtonState();
 
             const formData = new FormData();
             const isImg = file.type.startsWith('image/');
@@ -1065,8 +1109,9 @@
                     const el = document.getElementById(tempId);
                     if (el) {
                         el.innerHTML = `
-                            <i class="${isImg ? 'fas fa-image' : 'fas fa-file-alt'} mr-1.5"></i>
-                            <span class="max-w-[150px] truncate">${file.name}</span>
+                            <i class="${isImg ? 'fas fa-image' : 'fas fa-file-alt'} mr-1.5 text-emerald-500"></i>
+                            <span class="max-w-[150px] truncate font-bold">${file.name}</span>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded ml-1 font-bold">Đã tải xong</span>
                             <button type="button" onclick="removeFile('${url}', '${tempId}')" class="ml-2 text-red-500 hover:text-red-700 font-bold">&times;</button>
                         `;
                     }
@@ -1078,6 +1123,8 @@
                 const el = document.getElementById(tempId);
                 if (el) el.remove();
             } finally {
+                activeUploadsCount--;
+                updateUploadButtonState();
                 input.value = '';
             }
         }
@@ -1209,6 +1256,10 @@
 
         async function nextStep(direction) {
             if (direction === 1) {
+                if (typeof activeUploadsCount !== 'undefined' && activeUploadsCount > 0) {
+                    alert('Tệp đính kèm đang trong quá trình tải lên hệ thống. Vui lòng đợi tải xong để không bị mất tài liệu!');
+                    return;
+                }
                 if (currentStep === 1) {
                     if (!selectedCategory) {
                         alert('Vui lòng chọn 1 danh mục phù hợp cho dự án của bạn!');
@@ -1366,6 +1417,9 @@
                             <span class="text-[11px] text-gray-400"><i class="far fa-clock mr-1"></i> ${created}</span>
                             <div class="flex items-center space-x-2">
                                 ${canEdit ? `
+                                    <button onclick="openBoostExistingJobModal('${j.id}', '${escapeHtml(j.title)}')" class="text-xs bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-600 hover:to-red-600 text-white font-bold px-2.5 py-1.5 rounded-xl shadow-sm transition flex items-center mr-1">
+                                        <i class="fas fa-rocket mr-1 text-[11px]"></i> Đẩy tin
+                                    </button>
                                     <button onclick="openEditJobModal('${j.id}')" title="Chỉnh sửa toàn bộ" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 p-2 rounded-xl transition">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -2420,6 +2474,447 @@
         </div>
     </div>
 
+
+    <!-- MODAL ĐẨY TIN CHO DỰ ÁN CÓ SẴN (Boost Existing Job Modal) -->
+    <div id="boostExistingJobModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-xl w-full p-5 sm:p-6 border border-gray-100 dark:border-gray-700 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700">
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white flex items-center">
+                        <span class="text-xl mr-2">🔥</span> Nâng Cấp Gói Đẩy Tin "Tuyển Gấp"
+                    </h3>
+                    <p id="boostModalJobTitle" class="text-xs text-gray-500 dark:text-gray-400 font-medium truncate max-w-sm mt-0.5"></p>
+                </div>
+                <button onclick="closeBoostExistingJobModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+
+            <input type="hidden" id="boostTargetJobId">
+
+            <!-- Danh sách gói đẩy tin -->
+            <div id="existingJobBoostPackagesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div class="text-center py-4 text-xs text-gray-400 col-span-full">
+                    <i class="fas fa-spinner fa-spin mr-1"></i> Đang tải các gói ưu đãi...
+                </div>
+            </div>
+
+            <!-- Voucher -->
+            <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center">
+                        <i class="fas fa-ticket-alt text-amber-500 mr-1.5"></i> Mã Giảm Giá / Voucher
+                    </label>
+                    <span class="text-[11px] text-gray-400">Gợi ý: HTWORKNEW, HOTDEAL, FREESHIP</span>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="existingJobVoucherInput" placeholder="Nhập mã giảm giá..." class="flex-grow uppercase border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 focus:bg-white focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="applyExistingJobVoucher()" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition shrink-0">
+                        Áp Dụng
+                    </button>
+                </div>
+                <div id="existingJobVoucherMsg" class="text-xs mt-1.5 hidden font-semibold"></div>
+            </div>
+
+            <!-- Hóa đơn -->
+            <div class="bg-gray-50 dark:bg-gray-750 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-2">
+                <div class="flex justify-between text-xs text-gray-700 dark:text-gray-300">
+                    <span>Phí gói dịch vụ:</span>
+                    <span id="existingJobBoostFee" class="font-bold">0 Token</span>
+                </div>
+                <div id="existingJobDiscountRow" class="flex justify-between text-xs text-emerald-600 dark:text-emerald-400 hidden">
+                    <span id="existingJobDiscountLabel">Ưu đãi giảm giá:</span>
+                    <span id="existingJobDiscountAmount" class="font-black">-0 Token</span>
+                </div>
+                <div class="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <span class="text-sm font-black text-gray-900 dark:text-white">Thực Trừ Ví:</span>
+                    <span id="existingJobTotalAmount" class="text-base font-black text-indigo-600 dark:text-indigo-400">0 Token</span>
+                </div>
+                <div class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center justify-between pt-1">
+                    <span>Số dư ví: <strong id="existingJobCurrentBalance" class="text-gray-800 dark:text-gray-200">0 Token</strong></span>
+                    <span id="existingJobBalanceStatus" class="font-bold"></span>
+                </div>
+            </div>
+
+            <div id="existingJobBoostResultMsg" class="hidden text-xs font-bold text-center p-2 rounded-xl"></div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                <button onclick="closeBoostExistingJobModal()" class="px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition">Hủy</button>
+                <button onclick="submitBoostExistingJob()" id="submitBoostExistingJobBtn" class="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-600 hover:to-red-600 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition flex items-center">
+                    <i class="fas fa-bolt mr-1.5"></i> Kích Hoạt Đẩy Tin Tuyển Gấp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POSTER BẢN TIN CẬP NHẬT HỆ THỐNG (PC & MOBILE RESPONSIVE) -->
+    <div id="announcementPosterModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full border border-purple-200 dark:border-purple-800/50 overflow-hidden max-h-[92vh] flex flex-col my-auto transform transition-all">
+            <!-- Header Poster with Gradient -->
+            <div class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-5 sm:p-7 shrink-0 overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+
+                <div class="relative z-10 flex justify-between items-start">
+                    <div class="space-y-1">
+                        <span class="inline-flex items-center gap-1 bg-white/20 backdrop-blur-md text-yellow-300 text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                            ✨ BẢN NÂNG CẤP HỆ THỐNG 2.0
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white mt-1">
+                            Cập Nhật Chính Sách & Tính Năng Mới
+                        </h2>
+                        <p class="text-xs sm:text-sm text-purple-100 leading-snug">
+                            Tối ưu hoa hồng, ưu đãi gói đẩy tin & nâng cấp bảo mật toàn diện
+                        </p>
+                    </div>
+                    <button onclick="closeAnnouncementPoster()" class="text-white/80 hover:text-white text-2xl font-bold w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition shrink-0">&times;</button>
+                </div>
+            </div>
+
+            <!-- Body: 4 Big Feature Cards (2 cols on PC, 1 col on Mobile) -->
+            <div class="p-4 sm:p-6 overflow-y-auto flex-grow space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                    <!-- Card 1: 5% Escrow -->
+                    <div class="bg-gradient-to-br from-indigo-50/60 to-purple-50/60 dark:from-indigo-950/40 dark:to-purple-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/40 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center text-lg shrink-0 shadow-sm">
+                            💎
+                        </div>
+                        <div>
+                            <h4 class="text-xs sm:text-sm font-black text-gray-900 dark:text-white">Phí Sàn Giảm Còn 5%</h4>
+                            <p class="text-[11px] sm:text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                                Trước đây 10%, nay chỉ còn <strong>5%</strong> phí dịch vụ sàn khi nghiệm thu. Freelancer nhận trọn <strong>95%</strong> thu nhập!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Boost Packages -->
+                    <div class="bg-gradient-to-br from-amber-50/60 to-orange-50/60 dark:from-amber-950/40 dark:to-orange-950/40 p-4 rounded-2xl border border-amber-100 dark:border-amber-900/40 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center text-lg shrink-0 shadow-sm">
+                            🔥
+                        </div>
+                        <div>
+                            <h4 class="text-xs sm:text-sm font-black text-gray-900 dark:text-white">Gói Đẩy Tin "Tuyển Gấp"</h4>
+                            <p class="text-[11px] sm:text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                                Lên top đầu trang chủ, tiếp cận lập trình viên giỏi nhanh gấp 5 lần. <strong>Ưu đãi 30%</strong> cho đơn mua lần đầu!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Vouchers -->
+                    <div class="bg-gradient-to-br from-emerald-50/60 to-teal-50/60 dark:from-emerald-950/40 dark:to-teal-950/40 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900/40 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg shrink-0 shadow-sm">
+                            🎟️
+                        </div>
+                        <div>
+                            <h4 class="text-xs sm:text-sm font-black text-gray-900 dark:text-white">Voucher Khuyến Mãi</h4>
+                            <p class="text-[11px] sm:text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                                Nhập ngay mã <code class="bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 px-1 py-0.5 rounded font-bold">HTWORKNEW</code> hoặc <code class="bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 px-1 py-0.5 rounded font-bold">HOTDEAL</code> để nhận chiết khấu tới 30k Token!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: 0đ Rút tiền & Anti-Spam -->
+                    <div class="bg-gradient-to-br from-blue-50/60 to-cyan-50/60 dark:from-blue-950/40 dark:to-cyan-950/40 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/40 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center text-lg shrink-0 shadow-sm">
+                            🛡️
+                        </div>
+                        <div>
+                            <h4 class="text-xs sm:text-sm font-black text-gray-900 dark:text-white">Rút Tiền 0đ Miễn Phí</h4>
+                            <p class="text-[11px] sm:text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                                Freelancer rút tiền từ dự án <strong>hoàn toàn 0đ</strong>. Tích hợp đệm bảo vệ 15 phút chống spam rút tiền ảo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AWS S3 Storage note -->
+                <div class="bg-gray-50 dark:bg-gray-750 p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 flex items-center space-x-3 text-xs text-gray-600 dark:text-gray-300">
+                    <i class="fab fa-aws text-amber-500 text-xl shrink-0"></i>
+                    <span class="leading-snug">Hệ thống tệp đính kèm được lưu trữ an toàn trực tiếp trên <strong>Amazon Web Services (AWS S3)</strong>, đảm bảo bảo mật và tốc độ truy xuất tối đa.</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 sm:p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                <label class="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer">
+                    <input type="checkbox" id="dontShowAnnouncementAgain" class="rounded text-purple-600 focus:ring-purple-500">
+                    <span>Không tự động hiển thị lại poster này</span>
+                </label>
+                <button onclick="closeAnnouncementPoster()" class="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black px-6 py-2.5 rounded-xl text-xs shadow-md transition flex items-center justify-center">
+                    <span>Khám Phá Ngay</span> <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // QUẢN LÝ POSTER THÔNG BÁO & BOOST EXISTING JOB
+        // ==========================================
+        function openAnnouncementPoster() {
+            document.getElementById('announcementPosterModal').classList.remove('hidden');
+        }
+
+        function closeAnnouncementPoster() {
+            const chk = document.getElementById('dontShowAnnouncementAgain');
+            if (chk && chk.checked) {
+                localStorage.setItem('htwork_announcement_seen_v2', 'true');
+            }
+            document.getElementById('announcementPosterModal').classList.add('hidden');
+        }
+
+        // Tự động hiển thị poster trên màn hình lần đầu
+        window.addEventListener('DOMContentLoaded', () => {
+            const hasSeen = localStorage.getItem('htwork_announcement_seen_v2');
+            if (!hasSeen) {
+                setTimeout(() => openAnnouncementPoster(), 600);
+            }
+        });
+
+        // NÂNG CẤP DỰ ÁN ĐÃ TỒN TẠI
+        let existingJobSelectedPkgId = null;
+        let existingJobAppliedVoucher = null;
+        let existingJobVerifiedVoucher = null;
+
+        async function openBoostExistingJobModal(jobId, jobTitle) {
+            document.getElementById('boostTargetJobId').value = jobId;
+            document.getElementById('boostModalJobTitle').textContent = 'Dự án: ' + jobTitle;
+            document.getElementById('boostExistingJobModal').classList.remove('hidden');
+            document.getElementById('existingJobBoostResultMsg').classList.add('hidden');
+            document.getElementById('existingJobVoucherInput').value = '';
+            document.getElementById('existingJobVoucherMsg').classList.add('hidden');
+            existingJobSelectedPkgId = null;
+            existingJobAppliedVoucher = null;
+            existingJobVerifiedVoucher = null;
+
+            await loadExistingJobBoostPackages();
+        }
+
+        function closeBoostExistingJobModal() {
+            document.getElementById('boostExistingJobModal').classList.add('hidden');
+        }
+
+        async function loadExistingJobBoostPackages() {
+            const container = document.getElementById('existingJobBoostPackagesContainer');
+            if (!container) return;
+
+            try {
+                if (currentUser && currentUser.id) {
+                    const wRes = await fetch(`${API_URL}/api/wallet/${currentUser.id}`);
+                    const wData = await wRes.json();
+                    if (wRes.ok && wData.wallet) {
+                        userWalletBalance = wData.wallet.balance || 0;
+                    }
+                }
+
+                const res = await fetch(`${API_URL}/api/jobs/boost-packages?client_id=${currentUser ? currentUser.id : ''}`);
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    boostPackagesData = data;
+                    existingJobSelectedPkgId = data.packages[1]?.id || data.packages[0]?.id; // Default chọn gói Tiêu Chuẩn
+
+                    let html = '';
+                    data.packages.forEach((pkg, index) => {
+                        const isSelected = existingJobSelectedPkgId === pkg.id;
+                        const borderCls = isSelected ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/40 ring-2 ring-amber-500/50' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-750 hover:border-amber-300';
+                        const checked = isSelected ? 'checked' : '';
+                        const priceDisplay = pkg.discounted_price < pkg.price 
+                            ? `<span class="line-through text-gray-400 text-[10px] mr-1">${pkg.price.toLocaleString()}</span><span class="text-amber-600 dark:text-amber-400 font-black">${pkg.discounted_price.toLocaleString()} Token</span>`
+                            : `<span class="text-amber-600 dark:text-amber-400 font-black">${pkg.price.toLocaleString()} Token</span>`;
+
+                        html += `
+                            <div onclick="selectExistingJobBoostPackage('${pkg.id}')" id="ext_boost_card_${pkg.id}" class="ext-boost-pkg-card cursor-pointer p-3 rounded-xl border-2 transition ${borderCls} relative">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="radio" name="ext_boost_radio" ${checked} class="text-amber-500">
+                                        <span class="text-xs font-bold text-gray-800 dark:text-gray-100">${pkg.name}</span>
+                                    </div>
+                                    <div class="text-right text-xs">
+                                        ${priceDisplay}
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-1 pl-5 text-[11px] text-gray-500 dark:text-gray-400">
+                                    <span>${pkg.description}</span>
+                                    <span class="font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded text-[10px]">${pkg.days} ngày</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = html;
+                    updateExistingJobBilling();
+                }
+            } catch (err) {
+                container.innerHTML = '<p class="text-xs text-red-500 col-span-full text-center">Không thể tải thông tin gói đẩy tin.</p>';
+            }
+        }
+
+        function selectExistingJobBoostPackage(pkgId) {
+            existingJobSelectedPkgId = pkgId;
+            document.querySelectorAll('.ext-boost-pkg-card').forEach(c => {
+                c.className = 'ext-boost-pkg-card cursor-pointer p-3 rounded-xl border-2 transition border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-750 hover:border-amber-300 relative';
+                const rad = c.querySelector('input[type="radio"]');
+                if (rad) rad.checked = false;
+            });
+
+            const activeCard = document.getElementById(`ext_boost_card_${pkgId}`);
+            if (activeCard) {
+                activeCard.className = 'ext-boost-pkg-card cursor-pointer p-3 rounded-xl border-2 transition border-amber-500 bg-amber-50/40 dark:bg-amber-950/40 ring-2 ring-amber-500/50 relative';
+                const rad = activeCard.querySelector('input[type="radio"]');
+                if (rad) rad.checked = true;
+            }
+
+            if (existingJobAppliedVoucher) {
+                applyExistingJobVoucher();
+            } else {
+                updateExistingJobBilling();
+            }
+        }
+
+        async function applyExistingJobVoucher() {
+            const input = document.getElementById('existingJobVoucherInput');
+            const msg = document.getElementById('existingJobVoucherMsg');
+            const code = (input?.value || '').trim().toUpperCase();
+
+            if (!code) {
+                existingJobAppliedVoucher = null;
+                existingJobVerifiedVoucher = null;
+                if (msg) msg.classList.add('hidden');
+                updateExistingJobBilling();
+                return;
+            }
+
+            const pkg = boostPackagesData?.packages?.find(p => p.id === existingJobSelectedPkgId);
+            const packagePrice = pkg ? pkg.price : 0;
+
+            try {
+                const res = await fetch(`${API_URL}/api/jobs/verify-voucher`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ voucher_code: code, package_price: packagePrice })
+                });
+                const data = await res.json();
+                if (res.ok && data.success && data.voucher) {
+                    existingJobAppliedVoucher = code;
+                    existingJobVerifiedVoucher = data.voucher;
+                    if (msg) {
+                        msg.textContent = `✅ Áp dụng mã "${code}" thành công: Giảm ${data.voucher.discount_amount.toLocaleString()} Token!`;
+                        msg.className = 'text-xs mt-1.5 font-bold text-emerald-600 block';
+                    }
+                } else {
+                    existingJobAppliedVoucher = null;
+                    existingJobVerifiedVoucher = null;
+                    if (msg) {
+                        msg.textContent = `❌ ${data.error || 'Mã voucher không hợp lệ'}`;
+                        msg.className = 'text-xs mt-1.5 font-bold text-red-500 block';
+                    }
+                }
+            } catch (err) {
+                if (msg) {
+                    msg.textContent = `❌ Lỗi: ${err.message}`;
+                    msg.className = 'text-xs mt-1.5 font-bold text-red-500 block';
+                }
+            }
+            updateExistingJobBilling();
+        }
+
+        function updateExistingJobBilling() {
+            const boostEl = document.getElementById('existingJobBoostFee');
+            const discountRow = document.getElementById('existingJobDiscountRow');
+            const discountLabel = document.getElementById('existingJobDiscountLabel');
+            const discountAmountEl = document.getElementById('existingJobDiscountAmount');
+            const totalEl = document.getElementById('existingJobTotalAmount');
+            const balanceEl = document.getElementById('existingJobCurrentBalance');
+            const statusEl = document.getElementById('existingJobBalanceStatus');
+
+            if (balanceEl) balanceEl.textContent = userWalletBalance.toLocaleString('vi-VN') + ' Token';
+
+            let fee = 0;
+            let discount = 0;
+
+            if (existingJobSelectedPkgId && boostPackagesData) {
+                const pkg = boostPackagesData.packages.find(p => p.id === existingJobSelectedPkgId);
+                if (pkg) {
+                    fee = pkg.price;
+                    if (boostPackagesData.is_first_time) {
+                        discount += (pkg.price - pkg.discounted_price);
+                    }
+                }
+            }
+
+            if (existingJobVerifiedVoucher && existingJobVerifiedVoucher.discount_amount) {
+                discount += existingJobVerifiedVoucher.discount_amount;
+            }
+
+            if (boostEl) boostEl.textContent = fee.toLocaleString('vi-VN') + ' Token';
+
+            if (discount > 0) {
+                if (discountRow) discountRow.classList.remove('hidden');
+                if (discountAmountEl) discountAmountEl.textContent = `-${discount.toLocaleString('vi-VN')} Token`;
+                if (discountLabel) {
+                    discountLabel.textContent = boostPackagesData?.is_first_time ? 'Ưu đãi 30% lần đầu:' : `Mã ${existingJobAppliedVoucher}:`;
+                }
+            } else {
+                if (discountRow) discountRow.classList.add('hidden');
+            }
+
+            const totalPay = Math.max(0, fee - discount);
+            if (totalEl) totalEl.textContent = totalPay.toLocaleString('vi-VN') + ' Token';
+
+            if (statusEl) {
+                if (userWalletBalance >= totalPay) {
+                    statusEl.innerHTML = '<span class="text-emerald-600 dark:text-emerald-400 font-bold">✓ Đủ số dư</span>';
+                } else {
+                    const thiếu = totalPay - userWalletBalance;
+                    statusEl.innerHTML = `<span class="text-red-500 font-bold">⚠️ Thiếu ${thiếu.toLocaleString('vi-VN')} Token</span>`;
+                }
+            }
+        }
+
+        async function submitBoostExistingJob() {
+            const jobId = document.getElementById('boostTargetJobId').value;
+            const btn = document.getElementById('submitBoostExistingJobBtn');
+            const msgDiv = document.getElementById('existingJobBoostResultMsg');
+
+            if (!existingJobSelectedPkgId) {
+                alert('Vui lòng chọn 1 gói đẩy tin');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang kích hoạt...';
+            msgDiv.classList.add('hidden');
+
+            try {
+                const res = await fetch(`${API_URL}/api/jobs/${jobId}/boost`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        client_id: currentUser.id,
+                        package_id: existingJobSelectedPkgId,
+                        voucher_code: existingJobAppliedVoucher
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    msgDiv.textContent = '✅ ' + data.message;
+                    msgDiv.className = 'text-xs font-bold text-center p-2.5 rounded-xl bg-emerald-50 text-emerald-700 block';
+                    setTimeout(() => {
+                        closeBoostExistingJobModal();
+                        loadJobs();
+                    }, 1200);
+                } else {
+                    msgDiv.textContent = '❌ Lỗi: ' + (data.error || 'Không thể nâng cấp gói');
+                    msgDiv.className = 'text-xs font-bold text-center p-2.5 rounded-xl bg-red-50 text-red-700 block';
+                }
+            } catch (err) {
+                msgDiv.textContent = '❌ Lỗi kết nối: ' + err.message;
+                msgDiv.className = 'text-xs font-bold text-center p-2.5 rounded-xl bg-red-50 text-red-700 block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt mr-1.5"></i> Kích Hoạt Đẩy Tin Tuyển Gấp';
+            }
+        }
+    </script>
 </body>
 
 </html>

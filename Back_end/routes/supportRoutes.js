@@ -17,7 +17,7 @@ router.get('/api/admin/online-status', (req, res) => {
 // 2. Admin Heartbeat (Gửi định kỳ từ trang Admin để duy trì trạng thái Online)
 router.post('/api/admin/heartbeat', (req, res) => {
     try {
-        const { admin_id, admin_name } = req.body;
+        const { admin_id, admin_name } = req.body || {};
         const status = supportStore.recordAdminHeartbeat({ admin_id, admin_name });
         res.status(200).json({ success: true, status });
     } catch (err) {
@@ -27,7 +27,7 @@ router.post('/api/admin/heartbeat', (req, res) => {
 
 // 3. Người dùng (Freelancer / Client) gửi yêu cầu hỗ trợ (Ticket)
 router.post('/api/support/tickets', async (req, res) => {
-    const { user_id, category, priority, subject, message, attachments, phone } = req.body;
+    const { user_id, category, priority, subject, message, attachments, phone } = req.body || {};
     
     if (!user_id || !subject || !message) {
         return res.status(400).json({ error: 'Vui lòng nhập đầy đủ tiêu đề và nội dung yêu cầu hỗ trợ!' });
@@ -164,7 +164,7 @@ router.put('/api/admin/support/tickets/:id', async (req, res) => {
         if (admin_reply !== undefined) {
             updateFields.admin_reply = admin_reply;
             updateFields.admin_replied_at = new Date().toISOString();
-            updateFields.admin_name = admin_name || 'Quản Trị Viên HT Work';
+            updateFields.admin_name = admin_name || 'Quản Trị Viên KGS Work';
         }
 
         const updated = supportStore.updateTicket(id, updateFields);

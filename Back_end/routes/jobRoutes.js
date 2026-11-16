@@ -5,191 +5,20 @@ const path = require('path');
 const supabase = require('../config/supabase');
 const { logEvent } = require('../services/auditLogger');
 const settingsStore = require('../services/settingsStore');
-const boostPackageStore = require('../services/boostPackageStore');
+const aiModeration = require('../services/aiModeration');
+const subscriptionService = require('../services/subscriptionService');
 
-
-// API: Lấy danh sách các gói đẩy tin & voucher khuyến mãi cho Client
-router.get('/api/jobs/boost-packages', (req, res) => {
-    try {
-        const { client_id } = req.query;
-        const packages = boostPackageStore.getPackagesForUser(client_id);
-        const vouchers = boostPackageStore.vouchers.filter(v => v.active);
-        const isFirstTime = boostPackageStore.isFirstTimeBuyer(client_id);
-        res.status(200).json({
-            success: true,
-            is_first_time: isFirstTime,
-            first_time_discount_percent: boostPackageStore.firstTimeDiscountPercent,
-            packages,
-            public_vouchers: vouchers
-        });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// API: Kiểm tra mã giảm giá Voucher cho gói đẩy tin
-router.post('/api/jobs/verify-voucher', (req, res) => {
-    try {
-        const { voucher_code, package_price } = req.body;
-        const result = boostPackageStore.verifyVoucher(voucher_code, Number(package_price || 0));
-        if (!result) return res.status(400).json({ error: 'Mã voucher không hợp lệ.' });
-        if (!result.valid) return res.status(400).json({ error: result.error });
-        res.status(200).json({ success: true, voucher: result });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// API: Khách hàng nâng cấp gói đẩy tin Tuyển Gấp cho dự án ĐÃ TỒN TẠI
-router.post('/api/jobs/:id/boost', async (req, res) => {
-    const { id } = req.params;
-    const { client_id, package_id, voucher_code } = req.body;
-    try {
-        if (!client_id) return res.status(400).json({ error: 'Thiếu thông tin client_id' });
-        if (!package_id) return res.status(400).json({ error: 'Vui lòng chọn 1 gói đẩy tin' });
-
-        // 1. Kiểm tra dự án
-        const { data: jobs, error: jobErr } = await supabase.from('jobs').select('*').eq('id', id);
-        if (jobErr || !jobs || jobs.length === 0) return res.status(404).json({ error: 'Không tìm thấy dự án' });
-        const job = jobs[0];
-        if (job.client_id !== client_id) return res.status(403).json({ error: 'Bạn không có quyền nâng cấp dự án này' });
-
-        // 2. Tính toán phí
-        const boostPricing = boostPackageStore.calculateFinalPrice(client_id, package_id, voucher_code);
-        if (!boostPricing.success) return res.status(400).json({ error: boostPricing.error });
-        const boostFee = boostPricing.final_price;
-
-        // 3. Kiểm tra số dư ví
-        const { data: wallets, error: walErr } = await supabase.from('wallets').select('*').eq('user_id', client_id);
-        if (walErr || !wallets || wallets.length === 0) return res.status(400).json({ error: 'Không tìm thấy ví người dùng' });
-        const wallet = wallets[0];
-        if (wallet.balance < boostFee) {
-            return res.status(400).json({
-                error: `Số dư ví không đủ! Cần ${boostFee.toLocaleString()} Token để nâng cấp gói ${boostPricing.package.name}, nhưng ví chỉ có ${wallet.balance.toLocaleString()} Token. Vui lòng nạp thêm.`
-            });
-        }
-
-        // 4. Trừ ví client
-        await supabase.from('wallets').update({ balance: wallet.balance - boostFee }).eq('user_id', client_id);
-
-        // 5. Cộng ví Admin
-        const adminId = 'd82c2357-e6f7-41eb-8984-633ca5c04df9';
-        const { data: adminWallets } = await supabase.from('wallets').select('balance').eq('user_id', adminId);
-        if (adminWallets && adminWallets.length > 0) {
-            await supabase.from('wallets').update({ balance: parseFloat(adminWallets[0].balance || 0) + boostFee }).eq('user_id', adminId);
-        }
-
-        // 6. Ghi sổ cái
-        const discountNote = boostPricing.total_discount > 0 
-            ? ` (Đã giảm: ${boostPricing.total_discount.toLocaleString()} Token${boostPricing.is_first_time ? ' - Ưu đãi lần đầu' : ''}${boostPricing.voucher_info ? ` - Voucher: ${boostPricing.voucher_info.code}` : ''})`
-            : '';
-
-        await supabase.from('wallet_ledger').insert([{
-            sender_id: client_id,
-            receiver_id: adminId,
-            amount: boostFee,
-            type: 'JOB_BOOST_FEE',
-            note: `Phí nâng cấp "${boostPricing.package.name}" (${boostPricing.days} ngày)${discountNote} cho dự án: "${job.title}"`
-        }]);
-
-        boostPackageStore.recordPurchase(client_id);
-
-        // 7. Cập nhật tiêu đề và mô tả dự án
-        const badgePrefix = `${boostPricing.badge} `;
-        const cleanedTitle = job.title.replace(/^🔥s*[TUYỂN GẤP]s*/i, '').trim();
-        const newTitle = `${badgePrefix}${cleanedTitle}`;
-        const expiryDate = new Date(Date.now() + boostPricing.days * 86400000).toLocaleDateString('vi-VN');
-        const newDesc = `${job.description || ''}\n\n📌 [Gói dịch vụ: ${boostPricing.package.name} | Hiển thị ưu tiên đến: ${expiryDate}]`;
-
-        await supabase.from('jobs').update({
-            title: newTitle,
-            description: newDesc
-        }).eq('id', id);
-
-        // 8. Thông báo client
-        await supabase.from('notifications').insert([{
-            user_id: client_id,
-            title: 'Nâng cấp Gói Đẩy Tin thành công! 🔥',
-            content: `Dự án "${job.title}" của bạn đã được nâng cấp lên gói "${boostPricing.package.name}" (${boostPricing.days} ngày). Bài viết sẽ được ưu tiên tiếp cận các Freelancer hàng đầu.`
-        }]);
-
-        await logEvent({
-            module: 'JOB',
-            action: 'BOOST_JOB',
-            level: 'INFO',
-            details: `Khách hàng nâng cấp gói đẩy tin "${boostPricing.package.name}" cho dự án #${id} (${boostFee.toLocaleString()} Token)`,
-            user_id: client_id,
-            metadata: { job_id: id, package_id, boostFee }
-        });
-
-        res.status(200).json({
-            success: true,
-            message: `Nâng cấp "${boostPricing.package.name}" thành công!`,
-            pricing: boostPricing
-        });
-    } catch (e) {
-        console.error('Lỗi khi nâng cấp gói đẩy tin:', e);
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// 1. API: Khách hàng đăng Job mới
+// 1. API: Khách hàng đăng Job mới (Miễn phí đăng tin + AI Kiểm duyệt Llama/GPT-OSS)
 router.post('/api/jobs', async (req, res) => {
-    const { client_id, title, description, budget, category_id, category_name, tags, is_urgent, package_id, boost_package_id, voucher_code } = req.body;
-    console.log(`\n📢 [API POST /api/jobs] Nhận yêu cầu tạo dự án: "${title}" | Danh mục: "${category_name || 'Mặc định'}" | Ngân sách: ${budget} Token | Client: ${client_id}`);
+    const { client_id, title, description, budget, category_id, category_name, tags, is_negotiable } = req.body;
+    const parsedBudget = (is_negotiable || !budget || isNaN(budget) || parseFloat(budget) <= 0) ? 0 : parseFloat(budget);
+    console.log(`\n📢 [API POST /api/jobs] Nhận yêu cầu tạo dự án: "${title}" | Danh mục: "${category_name || 'Mặc định'}" | Ngân sách: ${parsedBudget} Token | Client: ${client_id}`);
+    
     try {
-        // TÍNH TOÁN PHÍ GÓI ĐẨY TIN (KÈM ƯU ĐÃI LẦN ĐẦU VÀ MÃ GIẢM GIÁ NẾU CÓ)
-        const selectedPkgId = package_id || boost_package_id || (is_urgent === true || is_urgent === 'true' ? 'boost_standard' : null);
-        let boostPricing = null;
-        let boostFee = 0;
+        if (!title || !title.trim()) throw new Error('Vui lòng nhập tiêu đề dự án');
+        if (!description || !description.trim()) throw new Error('Vui lòng nhập mô tả chi tiết dự án');
 
-        if (selectedPkgId) {
-            boostPricing = boostPackageStore.calculateFinalPrice(client_id, selectedPkgId, voucher_code);
-            if (boostPricing.success) {
-                boostFee = boostPricing.final_price;
-            }
-        }
-
-        const totalRequired = parseFloat(budget) + boostFee;
-
-        let { data: wallet, error: walletErr } = await supabase.from('wallets').select('balance').eq('user_id', client_id).single();
-        if (walletErr || !wallet) { const { data: newW } = await supabase.from('wallets').insert([{ user_id: client_id, balance: 0, locked_balance: 0 }]).select().single(); wallet = newW || { balance: 0 }; }
-        if (wallet.balance < totalRequired) {
-            throw new Error(`Số dư ví không đủ! Dự án yêu cầu ${parseFloat(budget).toLocaleString()} Token ${boostFee > 0 ? `+ ${boostFee.toLocaleString()} Token phí đẩy tin (${boostPricing ? boostPricing.package.name : ''})` : ''}, nhưng ví bạn chỉ có ${wallet.balance.toLocaleString()} Token. Vui lòng nạp thêm.`);
-        }
-
-        // Nếu có gói đẩy tin, trừ phí và chuyển vào quỹ doanh thu sàn
-        if (boostFee > 0 && boostPricing) {
-            await supabase.from('wallets').update({ balance: wallet.balance - boostFee }).eq('user_id', client_id);
-            wallet.balance -= boostFee;
-
-            const { data: adminUser } = await supabase.from('users').select('id').eq('role', 'admin').limit(1).maybeSingle();
-            const adminId = adminUser ? adminUser.id : '11111111-1111-1111-1111-111111111111';
-
-            if (adminUser) {
-                const { data: adminWallet } = await supabase.from('wallets').select('balance').eq('user_id', adminId).maybeSingle();
-                if (adminWallet) {
-                    await supabase.from('wallets').update({ balance: parseFloat(adminWallet.balance || 0) + boostFee }).eq('user_id', adminId);
-                }
-            }
-
-            const discountNote = boostPricing.total_discount > 0 
-                ? ` (Đã giảm: ${boostPricing.total_discount.toLocaleString()} Token${boostPricing.is_first_time ? ' - Ưu đãi lần đầu' : ''}${boostPricing.voucher_info ? ` - Voucher: ${boostPricing.voucher_info.code}` : ''})`
-                : '';
-
-            await supabase.from('wallet_ledger').insert([{
-                sender_id: client_id,
-                receiver_id: adminId,
-                amount: boostFee,
-                type: 'JOB_BOOST_FEE',
-                note: `Phí nâng cấp "${boostPricing.package.name}" (${boostPricing.days} ngày)${discountNote} cho dự án: "${title}"`
-            }]);
-
-            // Ghi nhận người dùng đã sử dụng ưu đãi
-            boostPackageStore.recordPurchase(client_id);
-        }
-
-        // Đóng gói Danh mục, Tags và Thông tin Gói đẩy tin vào nội dung mô tả
+        // Đóng gói Danh mục & Tags vào nội dung mô tả một cách chuyên nghiệp
         let fullDescription = description ? description.trim() : '';
         if (category_name) {
             fullDescription = `[Danh mục: ${category_name.trim()}]\n` + fullDescription;
@@ -198,40 +27,87 @@ router.post('/api/jobs', async (req, res) => {
             const tagList = Array.isArray(tags) ? tags.join(', ') : tags.trim();
             fullDescription += `\n\n🏷️ [Kỹ năng yêu cầu: ${tagList}]`;
         }
-        if (boostPricing) {
-            const expiryDate = new Date(Date.now() + boostPricing.days * 86400000).toLocaleDateString('vi-VN');
-            fullDescription += `\n\n📌 [Gói dịch vụ: ${boostPricing.package.name} | Hiển thị ưu tiên đến: ${expiryDate}]`;
-        }
 
-        const badgePrefix = boostPricing ? `${boostPricing.badge} ` : '';
-        const finalTitle = badgePrefix && !title.includes(badgePrefix.trim()) ? `${badgePrefix}${title.trim()}` : title.trim();
+        // --- KIỂM DUYỆT BÀI ĐĂNG BẰNG AI HOẶC QUẢN TRỊ VIÊN ---
+        const isAiEnabled = settingsStore.getAiModerationEnabled();
+        let jobStatus = 'open';
+        let moderationResult = {
+            is_approved: true,
+            score: 100,
+            reason: 'Tự động duyệt bài đăng',
+            flagged: false,
+            model: 'Direct'
+        };
+
+        if (isAiEnabled) {
+            moderationResult = await aiModeration.moderateJobContent({
+                title,
+                description: fullDescription,
+                category_name
+            });
+
+            if (!moderationResult.is_approved) {
+                jobStatus = 'pending_review'; // Tạm giữ bài để Admin hậu kiểm
+            } else {
+                jobStatus = 'open'; // AI phê duyệt, hiển thị ngay tức thì
+            }
+        } else {
+            jobStatus = 'pending_review'; // Admin tắt AI tự duyệt -> Chờ duyệt thủ công
+            moderationResult = {
+                is_approved: false,
+                score: 50,
+                reason: 'Đang chờ Admin duyệt thủ công (Tính năng AI tự duyệt đang tạm tắt)',
+                flagged: false,
+                model: 'Manual-Queue'
+            };
+        }
 
         const { data, error } = await supabase
             .from('jobs')
-            .insert([{ client_id, title: finalTitle, description: fullDescription, budget, status: 'open' }])
+            .insert([{ client_id, title: title.trim(), description: fullDescription, budget: parsedBudget, status: jobStatus }])
             .select();
 
         if (error) throw error;
+        const createdJob = data[0];
+
+        // Lưu thông tin kiểm duyệt vào bộ nhớ & file
+        aiModeration.saveModeration(createdJob.id, {
+            ...moderationResult,
+            client_id,
+            title: title.trim(),
+            job_status: jobStatus
+        });
 
         // Gửi thông báo cho Client
-        await supabase.from('notifications').insert([{
-            user_id: client_id,
-            title: 'Tạo Yêu cầu thành công',
-            content: `Bạn đã đăng thành công yêu cầu: "${title}" [${category_name || 'Dự án mới'}]. Hãy chờ Freelancer ứng tuyển nhé.`
-        }]);
+        if (jobStatus === 'open') {
+            await supabase.from('notifications').insert([{
+                user_id: client_id,
+                title: '🎉 Dự án đã được AI phê duyệt tự động!',
+                content: `Dự án "${title}" (${moderationResult.score}/100đ) đã được AI duyệt và mở công khai trên Sàn để Freelancer ứng tuyển.`
+            }]);
+        } else {
+            await supabase.from('notifications').insert([{
+                user_id: client_id,
+                title: '⏳ Dự án đang chờ Quản trị viên xét duyệt',
+                content: `Dự án "${title}" của bạn đang được Ban Quản Trị xem xét trước khi đăng tải. ${moderationResult.reason}`
+            }]);
+        }
 
         // Ghi log kiểm toán
         await logEvent({
-            module: 'JOB',
-            action: 'CREATE_JOB',
-            level: 'INFO',
-            details: `Khách hàng đăng dự án mới: "${title}" | Ngân sách: ${parseFloat(budget).toLocaleString()} Token | Danh mục: ${category_name || 'Mặc định'}`,
+            module: 'JOB_MODERATION',
+            action: jobStatus === 'open' ? 'AI_APPROVED' : 'PENDING_MODERATION',
+            level: jobStatus === 'open' ? 'INFO' : 'WARN',
+            details: `Tạo dự án: "${title}" | Trạng thái: ${jobStatus} | AI Điểm: ${moderationResult.score}/100 | ${moderationResult.reason}`,
             user_id: client_id,
-            metadata: { job_id: data[0].id, title, budget, category_name }
+            metadata: { job_id: createdJob.id, title, budget: parsedBudget, moderation: moderationResult }
         });
 
-        console.log(`✅ [API POST /api/jobs] Tạo dự án thành công! ID: ${data[0].id}`);
-        res.status(201).json({ message: 'Đăng dự án thành công!', job: data[0] });
+        console.log(`✅ [API POST /api/jobs] Tạo dự án thành công! ID: ${createdJob.id} | Trạng thái: ${jobStatus}`);
+        res.status(201).json({
+            message: jobStatus === 'open' ? 'Đăng dự án thành công! AI đã duyệt bài của bạn.' : 'Đăng dự án thành công! Tin đang chờ Ban Quản Trị xét duyệt.',
+            job: { ...createdJob, moderation: moderationResult }
+        });
     } catch (error) {
         console.error(`❌ [API POST /api/jobs] Thất bại: ${error.message}`);
         res.status(400).json({ error: error.message });
@@ -249,9 +125,92 @@ router.get('/api/jobs/:id', async (req, res) => {
             .single();
 
         if (error || !job) throw new Error('Không tìm thấy dự án');
-        res.status(200).json({ success: true, job });
+        const moderation = aiModeration.getModeration(id);
+        res.status(200).json({ success: true, job: { ...job, moderation } });
     } catch (error) {
         res.status(404).json({ success: false, error: error.message });
+    }
+});
+
+// 1c. API: Admin lấy toàn bộ Jobs kèm thông tin AI Moderation
+router.get('/api/admin/jobs', async (req, res) => {
+    try {
+        const { data: jobs, error } = await supabase
+            .from('jobs')
+            .select(`*, users:client_id (id, full_name, email, avatar_url)`)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const allMods = aiModeration.getAllModerations();
+        const enriched = (jobs || []).map(j => ({
+            ...j,
+            moderation: allMods[j.id] || {
+                is_approved: j.status !== 'pending_review' && j.status !== 'rejected',
+                score: j.status === 'open' ? 90 : (j.status === 'rejected' ? 10 : 50),
+                reason: j.status === 'open' ? 'Bài đăng chuẩn mực' : (j.status === 'rejected' ? 'Đã từ chối' : 'Đang chờ xét duyệt'),
+                flagged: j.status === 'pending_review'
+            }
+        }));
+
+        res.status(200).json({ success: true, jobs: enriched });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+// 1d. API: Admin Phê duyệt / Từ chối bài đăng (Override AI)
+router.post('/api/admin/jobs/:id/moderate', async (req, res) => {
+    const { id } = req.params;
+    const { action, note, admin_id } = req.body; // action: 'approve' | 'reject'
+    try {
+        if (!['approve', 'reject'].includes(action)) {
+            return res.status(400).json({ error: 'Hành động không hợp lệ. Chỉ chấp nhận approve hoặc reject.' });
+        }
+
+        const newStatus = action === 'approve' ? 'open' : 'rejected';
+        const { data: job, error } = await supabase
+            .from('jobs')
+            .update({ status: newStatus })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error || !job) throw new Error('Không tìm thấy dự án hoặc không thể cập nhật trạng thái');
+
+        // Ghi đè quyết định của Admin
+        const modRecord = aiModeration.adminOverride(id, { action, note, admin_id });
+
+        // Gửi thông báo cho khách hàng
+        const notiTitle = action === 'approve' ? '✅ Dự án của bạn đã được Admin phê duyệt' : '❌ Dự án của bạn đã bị Admin từ chối';
+        const notiContent = action === 'approve'
+            ? `Dự án "${job.title}" đã được Quản trị viên duyệt công khai trên Sàn việc làm.`
+            : `Dự án "${job.title}" không được phê duyệt. Lý do: ${note || 'Vi phạm tiêu chuẩn cộng đồng'}`;
+
+        await supabase.from('notifications').insert([{
+            user_id: job.client_id,
+            title: notiTitle,
+            content: notiContent
+        }]);
+
+        // Ghi log kiểm toán
+        await logEvent({
+            module: 'ADMIN_MODERATION',
+            action: action === 'approve' ? 'ADMIN_APPROVE_JOB' : 'ADMIN_REJECT_JOB',
+            level: action === 'approve' ? 'INFO' : 'WARN',
+            details: `Admin ${action === 'approve' ? 'phê duyệt' : 'từ chối'} dự án #${id}: "${job.title}". Ghi chú: ${note || 'Không có'}`,
+            user_id: admin_id || 'ADMIN',
+            metadata: { job_id: id, action, note }
+        });
+
+        res.status(200).json({
+            success: true,
+            message: action === 'approve' ? 'Đã phê duyệt và mở công khai dự án!' : 'Đã từ chối bài đăng dự án.',
+            job: { ...job, moderation: modRecord }
+        });
+    } catch (error) {
+        console.error('Lỗi Admin Moderate Job:', error);
+        res.status(400).json({ success: false, error: error.message });
     }
 });
 
@@ -273,6 +232,8 @@ router.get('/api/jobs', async (req, res) => {
             .from('jobs')
             .select('client_id, status, budget');
 
+        const boostedJobsMap = subscriptionService.getBoostedJobsMap();
+
         let jobsEnriched = (jobs || []).map(job => {
             const clientJobs = (allJobs || []).filter(j => j.client_id === job.client_id);
             const totalPosted = clientJobs.length;
@@ -280,6 +241,11 @@ router.get('/api/jobs', async (req, res) => {
             const totalSpent = clientJobs
                 .filter(j => j.status === 'completed' || j.status === 'in_progress')
                 .reduce((sum, j) => sum + (parseFloat(j.budget) || 0), 0);
+
+            // Kiểm tra trạng thái Đẩy Top / Tuyển Gấp từ Hệ thống Monetization
+            const boostRecord = boostedJobsMap[job.id] || null;
+            const isUrgent = !!boostRecord && boostRecord.boost_type === 'urgent_tag';
+            const isBoosted = !!boostRecord && (boostRecord.boost_type === 'job_boost' || !isUrgent);
 
             // Phân tích Category & Tags từ Description
             const catMatch = (job.description || '').match(/\[Danh mục:\s*([^\]]+)\]/i);
@@ -340,8 +306,20 @@ router.get('/api/jobs', async (req, res) => {
                     rating_display: clientRatingDisplay,
                     credit_tier: creditTier,
                     tier_badge: tierBadge
-                }
+                },
+                is_boosted: isBoosted,
+                is_urgent: isUrgent,
+                boost_details: boostRecord
             };
+        });
+
+        // Sắp xếp ưu tiên: Tin Đẩy Top & Tuyển Gấp luôn nằm ở vị trí đầu tiên
+        jobsEnriched.sort((a, b) => {
+            if (a.is_boosted && !b.is_boosted) return -1;
+            if (!a.is_boosted && b.is_boosted) return 1;
+            if (a.is_urgent && !b.is_urgent) return -1;
+            if (!a.is_urgent && b.is_urgent) return 1;
+            return new Date(b.created_at) - new Date(a.created_at);
         });
 
         if (category && category !== 'all') {
@@ -359,17 +337,98 @@ router.get('/api/jobs', async (req, res) => {
     }
 });
 
-// 3. API: Freelancer ứng tuyển (Báo giá)
+// 3. API: Freelancer ứng tuyển (Báo giá & Kiểm soát Hạn Mức Chào Thầu Bids Hàng Ngày)
+router.get('/api/jobs/freelancer-bid-quota/:freelancer_id', async (req, res) => {
+    try {
+        const { freelancer_id } = req.params;
+        const quota = await subscriptionService.getFreelancerBidQuota(freelancer_id, supabase);
+        res.status(200).json(quota);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.post('/api/jobs/apply', async (req, res) => {
     const { job_id, freelancer_id, cover_letter, bid_amount } = req.body;
     try {
+        if (!job_id || !freelancer_id) {
+            return res.status(400).json({ error: 'Thiếu thông tin dự án hoặc chuyên gia ứng tuyển' });
+        }
+
+        const parsedBid = parseFloat(bid_amount);
+        if (isNaN(parsedBid) || parsedBid <= 0) {
+            return res.status(400).json({ error: 'Mức giá chào thầu không hợp lệ' });
+        }
+
+        // 1. Kiểm tra dự án có đang mở không
+        const { data: job, error: jobErr } = await supabase
+            .from('jobs')
+            .select('id, title, client_id, status, budget')
+            .eq('id', job_id)
+            .single();
+
+        if (jobErr || !job) {
+            return res.status(404).json({ error: 'Dự án không tồn tại hoặc đã bị xóa' });
+        }
+
+        if (job.status !== 'open') {
+            return res.status(400).json({ error: 'Dự án này đã đóng hoặc đang trong giai đoạn triển khai' });
+        }
+
+        if (job.client_id === freelancer_id) {
+            return res.status(400).json({ error: 'Bạn không thể tự chào thầu cho dự án do chính bạn đăng tuyển!' });
+        }
+
+        // 2. Kiểm tra xem Freelancer đã nộp hồ sơ cho dự án này chưa (tránh nộp trùng lặp lãng phí lượt)
+        const { data: existingApp } = await supabase
+            .from('job_applications')
+            .select('id, status')
+            .eq('job_id', job_id)
+            .eq('freelancer_id', freelancer_id)
+            .maybeSingle();
+
+        if (existingApp) {
+            return res.status(400).json({ error: 'Bạn đã nộp hồ sơ ứng tuyển cho dự án này rồi! Vui lòng chờ phản hồi từ phía khách hàng.' });
+        }
+
+        // 3. KIỂM TRA HẠN MỨC CHÀO THẦU (5 bids/ngày với Tân Binh, 25 bids/ngày với Pro, Không giới hạn với Agency, hoặc trừ extra_bids)
+        const bidCheck = await subscriptionService.checkAndConsumeFreelancerBid(freelancer_id, supabase);
+        if (!bidCheck.allowed) {
+            return res.status(403).json({
+                error: bidCheck.error,
+                quota: bidCheck.quota
+            });
+        }
+
+        // 4. Lưu hồ sơ ứng tuyển vào Cơ sở dữ liệu
         const { data, error } = await supabase
             .from('job_applications')
-            .insert([{ job_id, freelancer_id, cover_letter, bid_amount, status: 'pending' }])
+            .insert([{ job_id, freelancer_id, cover_letter, bid_amount: parsedBid, status: 'pending' }])
             .select();
         
         if (error) throw error;
-        res.status(201).json({ message: 'Ứng tuyển thành công!', application: data[0] });
+
+        // 5. Gửi thông báo đến Client có ứng viên mới
+        try {
+            await supabase.from('notifications').insert([{
+                user_id: job.client_id,
+                title: '📩 Có Freelancer mới gửi hồ sơ chào thầu!',
+                content: `Dự án "${job.title}" vừa nhận được báo giá ${parsedBid.toLocaleString('vi-VN')} Token. Hãy vào kiểm tra hồ sơ ứng viên ngay!`
+            }]);
+        } catch (nErr) {
+            console.warn('[Notification Warning]:', nErr.message);
+        }
+
+        const successMsg = bidCheck.consumed_extra
+            ? `Ứng tuyển thành công! (${bidCheck.message})`
+            : 'Ứng tuyển thành công! Hồ sơ của bạn đã được chuyển tới khách hàng.';
+
+        res.status(201).json({
+            message: successMsg,
+            application: data[0],
+            quota: bidCheck.quota,
+            consumed_extra: bidCheck.consumed_extra
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -632,6 +691,10 @@ router.get('/api/client/:client_id/my-jobs', async (req, res) => {
             console.error('Lỗi đọc reviews.json (client my-jobs):', e);
         }
 
+        const allMods = aiModeration.getAllModerations();
+        for (let job of (jobs || [])) {
+            job.moderation = allMods[job.id] || null;
+        }
         console.log(`✅ [API GET /api/client/my-jobs] Trả về ${jobs ? jobs.length : 0} dự án`);
         res.status(200).json({ jobs });
     } catch (error) {
@@ -1072,7 +1135,7 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
 
         let rawSkills = [];
         let location = 'Việt Nam';
-        let bio = 'Chuyên gia uy tín trên sàn HT Work.';
+        let bio = 'Chuyên gia uy tín trên sàn KGS Work.';
         let portfolios = [];
         
         if (user.skills) {
@@ -1091,10 +1154,27 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
         }
         
         if (!user.bio && rawSkills.length > 0) {
-            bio = `Chuyên gia ${rawSkills.slice(0, 3).join(', ')} với ${completedJobs.length} dự án đã hoàn thành trên sàn HT Work.`;
+            bio = `Chuyên gia ${rawSkills.slice(0, 3).join(', ')} với ${completedJobs.length} dự án đã hoàn thành trên sàn KGS Work.`;
         } else if (user.bio) {
             bio = user.bio;
         }
+
+        // Kiểm tra Gói VIP Freelancer
+        let isVip = false;
+        let vipTier = 'Cơ bản';
+        let vipBadge = null;
+        let vipDays = 0;
+        let vipExpires = null;
+        try {
+            const sub = subscriptionService.getUserSubscription(id);
+            if (sub && sub.is_active && !sub.is_expired) {
+                isVip = true;
+                vipTier = sub.plan_name;
+                vipBadge = 'Tích Xanh Verified Pro Dev';
+                vipDays = sub.days_remaining || 0;
+                vipExpires = sub.expires_at;
+            }
+        } catch(subErr) {}
 
         res.status(200).json({
             success: true,
@@ -1107,7 +1187,12 @@ router.get('/api/freelancers/:id/work-history', async (req, res) => {
                 in_progress_count: inProgressJobs.length,
                 rating_score: ratingScore,
                 rating_display: avgRating,
-                bio: bio
+                bio: bio,
+                is_vip: isVip,
+                vip_tier: vipTier,
+                vip_badge: vipBadge,
+                vip_days_remaining: vipDays,
+                vip_expires_at: vipExpires
             },
             completed_jobs: completedJobs,
             in_progress_jobs: inProgressJobs,

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ của tôi - Khách hàng | HT Work</title>
+    <title>Hồ sơ của tôi - Khách hàng | KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script>
@@ -12,7 +12,7 @@
             theme: { extend: { colors: { primary: '#4f46e5', dark: '#111827', darkCard: '#1f2937' } } }
         }
     </script>
-    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
+    <script src="../assets/js/token-formatter.js?v=1794810000"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden">
     <div id="sidebar-container"></div>
@@ -167,6 +167,43 @@
                                 <div><p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Đánh giá Uy tín</p><p id="statRating" class="text-xl font-black text-yellow-500 mt-0.5 flex items-center">Chưa có</p></div>
                             </div>
                         </div>
+
+                        <!-- THẺ TRẠNG THÁI GÓI HỘI VIÊN & ĐẶC QUYỀN DOANH NGHIỆP (VIP STATUS CARD) -->
+                        <div id="clientVipCard"></div>
+
+                        <!-- KHỐI LỊCH SỬ MUA GÓI & TIỆN ÍCH DỊCH VỤ -->
+                        <div id="clientSubscriptionHistoryWrapper" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 sm:p-6">
+                            <div class="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-gray-700 mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-500 flex items-center justify-center text-lg font-bold">
+                                        📜
+                                    </div>
+                                    <div>
+                                        <h3 class="font-extrabold text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                            Lịch Sử Mua Gói & Tiện Ích Đã Mua
+                                        </h3>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tất cả giao dịch nâng cấp gói VIP & dịch vụ tăng tốc của bạn</p>
+                                    </div>
+                                </div>
+                                <span id="clientHistoryCountBadge" class="text-xs font-bold bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800">
+                                    0 giao dịch
+                                </span>
+                            </div>
+                            <!-- Tiện ích Addons còn lại (nếu có) -->
+                            <div id="clientAddonCreditsBanner" class="hidden mb-4 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/30 rounded-xl border border-indigo-200 dark:border-indigo-800 text-xs">
+                                <div class="font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5 mb-1">
+                                    <span>⚡ Kho Tiện Ích Sẵn Có:</span>
+                                </div>
+                                <div id="clientAddonCreditsDetails" class="text-gray-700 dark:text-gray-300 flex flex-wrap gap-3"></div>
+                            </div>
+                            <div id="clientSubscriptionHistoryList" class="space-y-3">
+                                <div class="text-center py-6 text-gray-400">
+                                    <i class="fas fa-spinner fa-spin text-xl mb-2 text-indigo-500"></i>
+                                    <p class="text-xs">Đang tải lịch sử mua gói...</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- HYBRID WEB2-WEB3 TRUST LEDGER CARD (ĐIỂM TÍN DỤNG KHÁCH HÀNG) -->
                         <div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white rounded-2xl shadow-md p-6 border border-indigo-700/40 relative overflow-hidden">
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-indigo-800/60 pb-4">
@@ -342,7 +379,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4"><h3 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center"><i class="fas fa-envelope-open-text text-indigo-600 mr-2"></i> Xác thực địa chỉ Email</h3><button onclick="closeEmailModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button></div>
             <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
                 <p class="font-semibold text-gray-800 dark:text-gray-200">Tại sao cần xác thực Email?</p>
-                <ul class="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400"><li>Nhận thông báo quan trọng khi Freelancer nộp bài / yêu cầu giải ngân.</li><li>Bảo vệ tài khoản và khôi phục mật khẩu khi có sự cố.</li><li>Tăng huy hiệu uy tín trên sàn giao dịch HT Work.</li></ul>
+                <ul class="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400"><li>Nhận thông báo quan trọng khi Freelancer nộp bài / yêu cầu giải ngân.</li><li>Bảo vệ tài khoản và khôi phục mật khẩu khi có sự cố.</li><li>Tăng huy hiệu uy tín trên sàn giao dịch KGS Work.</li></ul>
                 <div class="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800 mt-2"><p class="text-xs text-blue-800 dark:text-blue-300"><b>Email đăng ký của bạn:</b> <span id="modalEmailText" class="font-bold">...</span></p></div>
             </div>
             <div class="mt-6 flex flex-col gap-2">
@@ -395,7 +432,7 @@
                             </button>
                         </div>
                         <p class="text-[11px] text-gray-400">
-                            ⚡ Nhận mã OTP 6 số tức thì qua Telegram Bot (<b>@htwork_hoang_otp_bot</b>) hoàn toàn miễn phí & bảo mật 100%.
+                            ⚡ Nhận mã OTP 6 số tức thì qua Telegram Bot (<b>@kgswork_hoang_otp_bot</b>) hoàn toàn miễn phí & bảo mật 100%.
                         </p>
                     </div>
                 </div>
@@ -490,7 +527,7 @@
                     return;
                 }
             } catch (e) {
-                console.warn('[HT Work] Dùng fallback tỉnh thành:', e);
+                console.warn('[KGS Work] Dùng fallback tỉnh thành:', e);
             }
             selectEl.innerHTML = fallbackProvinces.map(p => `
                 <option value="${p}" ${p === selectedProvince ? 'selected' : ''}>${p}</option>
@@ -986,16 +1023,82 @@
             // Client Tier Display in Header
             const clientTierEl = document.getElementById('displayClientTier');
             if (clientTierEl) {
-                const isVip = (stats.total_spent && stats.total_spent >= 2000) || 
-                              (stats.credit_tier && (stats.credit_tier.includes('VIP') || stats.credit_tier.includes('Hạng A')));
-                if (isVip) {
-                    clientTierEl.innerHTML = `<i class="fas fa-crown text-amber-500 mr-1.5"></i>Client VIP`;
-                    clientTierEl.className = 'flex items-center text-amber-600 dark:text-amber-400 font-bold';
+                if (data.is_vip) {
+                    clientTierEl.innerHTML = `<i class="fas fa-crown text-amber-500 mr-1.5 animate-bounce"></i>${data.vip_tier} (Còn ${data.vip_days_remaining} ngày)`;
+                    clientTierEl.className = 'flex items-center text-amber-600 dark:text-amber-400 font-black';
                 } else {
-                    clientTierEl.innerHTML = `<i class="fas fa-user-check text-blue-600 dark:text-blue-400 mr-1.5"></i>Client Basic`;
+                    clientTierEl.innerHTML = `<i class="fas fa-user-check text-blue-600 dark:text-blue-400 mr-1.5"></i>Khách hàng Thường (Cơ bản)`;
                     clientTierEl.className = 'flex items-center text-blue-600 dark:text-blue-400 font-medium';
                 }
             }
+
+            // Render Thẻ Trạng Thái Gói Hội Viên (VIP Status Card)
+            const vipCardEl = document.getElementById('clientVipCard');
+            if (vipCardEl) {
+                if (data.is_vip) {
+                    const clientPerks = (data.subscription && data.subscription.features && data.subscription.features.length)
+                        ? data.subscription.features.slice(0, 4).join(' • ')
+                        : 'Đăng tin dự án không giới hạn • Tặng lượt Đẩy Top • Mở khóa Zalo/SĐT Senior Dev • Ưu tiên trọng tài 4h';
+                    vipCardEl.innerHTML = `
+                    <div class="bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/5 dark:from-amber-950/40 dark:via-yellow-950/20 dark:to-stone-900 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-5 sm:p-6 shadow-md">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-gray-950 flex items-center justify-center text-2xl font-black shadow shrink-0">
+                                    👑
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-[10px] font-black uppercase bg-amber-400 text-gray-950 px-2.5 py-0.5 rounded-full shadow-xs">👑 GÓI ĐANG HOẠT ĐỘNG</span>
+                                        <span class="text-xs font-black text-amber-600 dark:text-amber-400">${data.vip_tier}</span>
+                                    </div>
+                                    <h4 class="text-base sm:text-lg font-black text-gray-900 dark:text-white mt-1">
+                                        Thời hạn còn lại: <span class="text-emerald-600 dark:text-emerald-400">${data.vip_days_remaining} ngày</span>
+                                        <span class="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">(Hết hạn: ${new Date(data.vip_expires_at).toLocaleDateString('vi-VN')})</span>
+                                    </h4>
+                                    <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                                        Đặc quyền: ${clientPerks}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="shrink-0 flex items-center space-x-2">
+                                <button onclick="window.openPricingModal('client')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-gray-900 font-black text-xs shadow-md transition transform hover:scale-105 flex items-center space-x-1.5 cursor-pointer">
+                                    <i class="fas fa-sync-alt"></i> <span>Gia Hạn / Nâng Cấp Gói</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                    vipCardEl.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 flex items-center justify-center text-xl shrink-0">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-[10px] font-bold uppercase bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2.5 py-0.5 rounded-full">Gói Cơ Bản (Starter)</span>
+                                        <span class="text-xs text-gray-400 font-medium">Chưa kích hoạt VIP</span>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 mt-1">
+                                        Nâng cấp lên Doanh Nghiệp Pro để mở khóa xem SĐT/Zalo Freelancer và đẩy tin tuyển dụng lên Top 1
+                                    </h4>
+                                </div>
+                            </div>
+                            <div class="shrink-0">
+                                <button onclick="window.openPricingModal('client')" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow transition flex items-center space-x-1.5 cursor-pointer">
+                                    <i class="fas fa-crown text-amber-300"></i> <span>Nâng Cấp Gói VIP Ngay</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+            }
+
+            // Render Lịch Sử Đăng Ký & Mua Gói Hội Viên
+            const historyData = data.subscription_history || (data.subscription && data.subscription.history) || [];
+            const addonData = data.addons || (data.subscription && data.subscription.addons) || null;
+            renderSubscriptionHistory(historyData, addonData);
 
             // Form inputs
             document.getElementById('full_name').value = data.full_name || '';
@@ -1011,12 +1114,110 @@
             updateModalBankPreview();
         }
 
+        // Render Lịch Sử Gói & Tiện Ích Đã Mua
+        function renderSubscriptionHistory(historyItems, addons) {
+            const listEl = document.getElementById('clientSubscriptionHistoryList');
+            const badgeEl = document.getElementById('clientHistoryCountBadge');
+            const addonBanner = document.getElementById('clientAddonCreditsBanner');
+            const addonDetails = document.getElementById('clientAddonCreditsDetails');
+
+            // Render Kho Tiện Ích Còn Lại
+            if (addonBanner && addonDetails && addons) {
+                const boosts = addons.job_boost_credits || 0;
+                const urgents = addons.urgent_tag_credits || 0;
+                if (boosts > 0 || urgents > 0) {
+                    addonBanner.classList.remove('hidden');
+                    addonDetails.innerHTML = `
+                        <span class="inline-flex items-center bg-white dark:bg-gray-800 px-2.5 py-1 rounded-lg border border-indigo-100 dark:border-indigo-900 font-semibold text-indigo-700 dark:text-indigo-300">
+                            🚀 Đẩy Tin Top 1: <strong class="ml-1 text-indigo-900 dark:text-white">${boosts}</strong> lượt
+                        </span>
+                        <span class="inline-flex items-center bg-white dark:bg-gray-800 px-2.5 py-1 rounded-lg border border-amber-100 dark:border-amber-900 font-semibold text-amber-700 dark:text-amber-300">
+                            🔥 Nhãn Tuyển Gấp: <strong class="ml-1 text-amber-900 dark:text-white">${urgents}</strong> lượt
+                        </span>
+                    `;
+                } else {
+                    addonBanner.classList.add('hidden');
+                }
+            }
+
+            if (!listEl) return;
+            const items = Array.isArray(historyItems) ? historyItems : [];
+            if (badgeEl) badgeEl.innerText = `${items.length} giao dịch`;
+
+            if (items.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-2xl bg-gray-50 dark:bg-gray-700/50 flex items-center justify-center text-xl text-gray-400">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <p class="text-xs font-medium">Bạn chưa thực hiện giao dịch mua gói hoặc tiện ích nào.</p>
+                        <button onclick="window.openPricingModal('client')" class="mt-3 text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline cursor-pointer">
+                            Khám phá các gói dịch vụ VIP ngay &rarr;
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = items.map(item => {
+                const dateStr = item.subscribed_at ? new Date(item.subscribed_at).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Vừa xong';
+                const isPlan = item.plan_id && (item.plan_id.includes('pro') || item.plan_id.includes('vip') || item.plan_id.includes('starter') || item.plan_id.includes('agency'));
+                const icon = isPlan ? '👑' : '⚡';
+                const cycleText = item.billing_cycle === 'annual' ? 'Gói Năm (-20%)' : (item.billing_cycle === 'monthly' ? 'Gói Tháng' : 'Dịch Vụ Lẻ');
+                const price = (item.price || 0).toLocaleString();
+
+                return `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-gray-50 dark:bg-gray-700/40 rounded-xl border border-gray-100 dark:border-gray-700/70 hover:border-amber-400/60 transition gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl ${isPlan ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400' : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400'} flex items-center justify-center text-lg font-black shrink-0 shadow-xs">
+                                ${icon}
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                                    <span class="text-sm font-bold text-gray-900 dark:text-white">${item.plan_name || item.plan_id}</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${isPlan ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800' : 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'}">
+                                        ${cycleText}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                    <i class="far fa-clock mr-1 text-gray-400"></i>${dateStr} • <span class="font-mono text-[11px] text-gray-400">#${item.id || 'N/A'}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-end sm:text-right space-x-3 shrink-0">
+                            <div>
+                                <div class="text-sm font-black text-rose-600 dark:text-rose-400">-${price} Token</div>
+                                <span class="inline-flex items-center text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full mt-0.5 border border-emerald-200 dark:border-emerald-800">
+                                    <i class="fas fa-check-circle mr-1 text-[9px]"></i> Đã thanh toán
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         async function loadProfile() {
             try {
                 const res = await fetch(`${API_URL}/api/users/${currentUser.id}`);
                 const data = await res.json();
                 if (res.ok) {
                     renderUI(data);
+
+                    // Đảm bảo luôn lấy lịch sử giao dịch mới nhất
+                    if (!data.subscription_history || data.subscription_history.length === 0) {
+                        try {
+                            const subRes = await fetch(`${API_URL}/api/monetization/user-subscription/${currentUser.id}`);
+                            if (subRes.ok) {
+                                const subData = await subRes.json();
+                                if (subData.success && subData.history && subData.history.length > 0) {
+                                    renderSubscriptionHistory(subData.history, subData.addons);
+                                }
+                            }
+                        } catch (subErr) {
+                            console.warn('Lỗi lấy lịch sử gói fallback:', subErr);
+                        }
+                    }
                 }
             } catch (e) {
                 console.error('Lỗi nạp hồ sơ:', e);
@@ -1083,7 +1284,7 @@
         loadBanks();
         loadProfile();
     </script>
-    <script src="ui.js?v=1791344398"></script>
+    <script src="ui.js?v=1794810000"></script>
 
     <script>
         // Global Drag and Drop protection

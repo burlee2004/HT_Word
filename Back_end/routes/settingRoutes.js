@@ -7,31 +7,36 @@ router.get('/api/admin/settings', (req, res) => {
     res.json({
         autoApprovePayOS: settingsStore.getAutoApprovePayOS(),
         autoApproveWithdraw: settingsStore.getAutoApproveWithdraw(),
-        platformFeePercent: settingsStore.getPlatformFeePercent(),
-        urgentJobFee: settingsStore.getUrgentJobFee()
+        aiModerationEnabled: settingsStore.getAiModerationEnabled(),
+        googleSheetWebhook: settingsStore.getGoogleSheetWebhook(),
+        firebaseDbUrl: settingsStore.getFirebaseDbUrl()
     });
 });
 
 router.post('/api/admin/settings', (req, res) => {
-    const { autoApprovePayOS, autoApproveWithdraw, platformFeePercent, urgentJobFee } = req.body;
+    const { autoApprovePayOS, autoApproveWithdraw, aiModerationEnabled, googleSheetWebhook, firebaseDbUrl } = req.body || {};
     if (typeof autoApprovePayOS === 'boolean') {
         settingsStore.setAutoApprovePayOS(autoApprovePayOS);
     }
     if (typeof autoApproveWithdraw === 'boolean') {
         settingsStore.setAutoApproveWithdraw(autoApproveWithdraw);
     }
-    if (platformFeePercent !== undefined && !isNaN(Number(platformFeePercent))) {
-        settingsStore.setPlatformFeePercent(platformFeePercent);
+    if (typeof aiModerationEnabled === 'boolean') {
+        settingsStore.setAiModerationEnabled(aiModerationEnabled);
     }
-    if (urgentJobFee !== undefined && !isNaN(Number(urgentJobFee))) {
-        settingsStore.setUrgentJobFee(urgentJobFee);
+    if (typeof googleSheetWebhook === 'string') {
+        settingsStore.setGoogleSheetWebhook(googleSheetWebhook);
+    }
+    if (typeof firebaseDbUrl === 'string') {
+        settingsStore.setFirebaseDbUrl(firebaseDbUrl);
     }
     res.json({
         success: true,
         autoApprovePayOS: settingsStore.getAutoApprovePayOS(),
         autoApproveWithdraw: settingsStore.getAutoApproveWithdraw(),
-        platformFeePercent: settingsStore.getPlatformFeePercent(),
-        urgentJobFee: settingsStore.getUrgentJobFee()
+        aiModerationEnabled: settingsStore.getAiModerationEnabled(),
+        googleSheetWebhook: settingsStore.getGoogleSheetWebhook(),
+        firebaseDbUrl: settingsStore.getFirebaseDbUrl()
     });
 });
 

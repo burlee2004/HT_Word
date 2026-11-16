@@ -3,6 +3,8 @@
     "uploads/*",
     "upload_debug.log",
     "node_modules/*",
-    "*.log"
+    "*.log",
+    "data/*",
+    "*.json"
   ]
 }

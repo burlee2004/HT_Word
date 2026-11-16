@@ -1,52 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
+
 const path = require('path');
 const fs = require('fs');
 
-// Import bộ khiên bảo mật đa tầng (Anti-Bot, XSS Sanitizer, Rate Limiters, CORS Whitelist)
-const {
-    authRateLimiter,
-    publicApiRateLimiter,
-    financialRateLimiter,
-    antiBotMiddleware,
-    xssSanitizerMiddleware,
-    corsOptions
-} = require('./services/securityMiddleware');
-
 // 1. Khởi tạo Express app & Middleware toàn cục
 const app = express();
-
-// 1.1 Khiên bảo vệ HTTP Security Headers (OWASP)
-app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: false // Cho phép nạp CDN FontAwesome, Tailwind, Google Fonts
-}));
-
-// 1.2 Siết chặt nguồn gọi API với CORS Whitelist
-app.use(cors(corsOptions));
-
-// 1.3 Chặn đứng các công cụ cào dữ liệu tự động (Anti-Scraping / Anti-Bot)
-app.use(antiBotMiddleware);
-
-// 1.4 Hỗ trợ đọc dữ liệu JSON & Base64 từ request body
-app.use(express.json({ limit: '50mb' }));
+app.use(cors()); // Cho phép Frontend gọi API
+app.use(express.json({ limit: '50mb' })); // Hỗ trợ đọc dữ liệu JSON & Base64 từ request body
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// 1.5 Làm sạch dữ liệu đầu vào chống Stored XSS Injection
-app.use(xssSanitizerMiddleware);
-
-// 1.6 Áp dụng Rate Limiter cho các vùng nhạy cảm
-app.use('/login', authRateLimiter);
-app.use('/register', authRateLimiter);
-app.use('/api/auth', authRateLimiter);
-app.use('/api/jobs', publicApiRateLimiter);
-app.use('/api/freelancers', publicApiRateLimiter);
-app.use('/api/categories', publicApiRateLimiter);
-app.use('/api/withdraw', financialRateLimiter);
-app.use('/api/payment/create-deposit', financialRateLimiter);
-app.use('/api/escrow/release', financialRateLimiter);
 
 // Đảm bảo thư mục uploads tồn tại để phục vụ static files & fallback uploads
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -64,7 +27,7 @@ app.get('/uploads/:filename', (req, res) => {
 
 // 2. Route kiểm tra trạng thái Server
 app.get('/', (req, res) => {
-    res.send('HT Work Backend is running in Modular Architecture!');
+    res.send('KGS Work Backend is running in Modular Architecture!');
 });
 
 // 3. Đăng ký (Mount) các Route Module theo từng cụm chức năng
@@ -84,9 +47,19 @@ app.use(require('./routes/aiRoutes'));
 app.use(require('./routes/adminRoutes'));
 app.use(require('./routes/supportRoutes'));
 app.use(require('./routes/connectionRoutes'));
+app.use(require('./routes/monetizationRoutes'));
+app.use(require('./routes/analyticsRoutes'));
 app.use(require('./routes/testRoutes'));
 
-// 4. Khởi chạy Server (Tích hợp AI Groq Llama 3.3 & Telegram OTP Bot)
+// 4. Bảo vệ tiến trình Server chống sập ngoài ý muốn
+process.on('uncaughtException', (err) => {
+    console.error('❌ [Global Uncaught Exception]:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.warn('⚠️ [Global Unhandled Rejection]:', reason);
+});
+
+// 5. Khởi chạy Server (Tích hợp AI Groq Llama 3.3 & Telegram OTP Bot)
 const { initTelegramBot } = require('./services/telegramService');
 
 const PORT = process.env.PORT || 5000;

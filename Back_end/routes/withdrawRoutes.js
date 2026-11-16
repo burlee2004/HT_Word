@@ -5,48 +5,11 @@ const blockchain = require('../blockchain');
 const settingsStore = require('../services/settingsStore');
 const { logEvent } = require('../services/auditLogger');
 
-// Rate limiting store chống spam rút tiền: user_id -> timestamp
-const lastWithdrawMap = new Map();
-
 // 1. Tạo lệnh rút tiền (Web2.5)
 router.post('/api/withdraw', async (req, res) => {
-    const { user_id, amount, idempotency_key } = req.body;
+    const { user_id, amount } = req.body;
     try {
-        const numAmount = Number(amount);
-        if (!user_id || isNaN(numAmount) || !Number.isFinite(numAmount) || numAmount <= 0) {
-            return res.status(400).json({ error: 'Số tiền rút không hợp lệ (Phải là số dương).' });
-        }
-        if (numAmount < 10000) {
-            return res.status(400).json({ error: 'Số tiền rút tối thiểu là 10,000 Token.' });
-        }
-        if (numAmount > 500000000) {
-            return res.status(400).json({ error: 'Số tiền rút vượt quá hạn mức tối đa cho phép một lần giao dịch (500,000,000 Token).' });
-        }
-
-        // Chống spam: Giới hạn tần suất tạo lệnh rút tiền (tối thiểu cách nhau 3 giây)
-        const now = Date.now();
-        const lastCreated = lastWithdrawMap.get(user_id) || 0;
-        if (now - lastCreated < 3000) {
-            return res.status(429).json({ error: 'Thao tác quá nhanh. Vui lòng đợi vài giây trước khi tạo lệnh rút mới.' });
-        }
-        lastWithdrawMap.set(user_id, now);
-
-        // Chống Double-Spending qua Idempotency Key
-        const finalKey = idempotency_key || req.headers['idempotency-key'];
-        if (finalKey) {
-            const { data: existingLedger } = await supabase
-                .from('wallet_ledger')
-                .select('id, amount, created_at')
-                .eq('idempotency_key', finalKey)
-                .maybeSingle();
-
-            if (existingLedger) {
-                return res.status(200).json({
-                    message: 'Giao dịch rút tiền này đã được tiếp nhận và xử lý trước đó (Idempotency Protection).',
-                    duplicate: true
-                });
-            }
-        }
+        if (!user_id || !amount || amount <= 0) throw new Error('Dữ liệu không hợp lệ');
 
         // Kiểm tra thông tin ngân hàng
         const { data: user } = await supabase.from('users').select('bank_name, bank_account, bank_owner').eq('id', user_id).single();
@@ -59,48 +22,6 @@ router.post('/api/withdraw', async (req, res) => {
         const { data: wallet } = await supabase.from('wallets').select('balance, locked_balance').eq('user_id', user_id).single();
         if (!wallet || wallet.balance < amount) {
             return res.status(400).json({ error: 'Không đủ số dư khả dụng để rút tiền.' });
-        }
-
-        // ==============================================================================
-        // 🛡️ BỘ 3 LÁ CHẮN THÔNG MINH CHỐNG SPAM NẠP - RÚT LIÊN TỤC (ƯU TIÊN TRẢI NGHIỆM USER)
-        // ==============================================================================
-        
-        // Lá chắn 1: Khoảng đệm an toàn 15 phút (Chặn Bot nạp rồi lập tức rút ra tự động)
-        const { data: recentDeposit } = await supabase
-            .from('deposit_requests')
-            .select('created_at, amount')
-            .eq('user_id', user_id)
-            .eq('status', 'approved')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-        if (recentDeposit) {
-            const depositTime = new Date(recentDeposit.created_at).getTime();
-            const elapsedMs = Date.now() - depositTime;
-            const BUFFER_MS = 15 * 60 * 1000; // 15 phút
-            if (elapsedMs < BUFFER_MS) {
-                const remainingMins = Math.ceil((BUFFER_MS - elapsedMs) / 60000);
-                return res.status(400).json({
-                    error: `[Bảo mật An Toàn Dòng Tiền] Khoản tiền nạp gần nhất đang trong thời gian đệm đối soát (15 phút). Vui lòng thử lại sau ${remainingMins} phút để đảm bảo giao dịch thông suốt.`
-                });
-            }
-        }
-
-        // Lá chắn 2: Hạn ngạch rút tiền tối đa 2 lần miễn phí / ngày (Chặn Spam nghẽn lệnh)
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-        const { data: todayWithdraws } = await supabase
-            .from('withdraw_requests')
-            .select('id')
-            .eq('user_id', user_id)
-            .gte('created_at', startOfDay.toISOString());
-
-        const withdrawCountToday = todayWithdraws ? todayWithdraws.length : 0;
-        if (withdrawCountToday >= 2) {
-            return res.status(400).json({
-                error: 'Bạn đã đạt hạn mức 2 lệnh rút tiền MIỄN PHÍ trong ngày. Để bảo vệ an toàn dòng tiền hệ thống, vui lòng chờ sang ngày hôm sau để tiếp tục tạo lệnh mới.'
-            });
         }
 
         // BẢO MẬT WEB2.5: ĐỐI CHIẾU BLOCKCHAIN
@@ -252,7 +173,7 @@ router.post('/api/admin/withdrawals/bulk-approve', async (req, res) => {
                     module: 'WALLET',
                     action: 'WITHDRAW_APPROVE',
                     actor_id: 'ADMIN',
-                    actor_email: 'admin@htwork.vn',
+                    actor_email: 'admin@kgs work.vn',
                     target_id: user_id,
                     level: 'INFO',
                     details: `Admin đã phê duyệt lệnh rút tiền #${reqData.id} số tiền ${amount.toLocaleString()} Token (Napas/Chi Hộ/Completed)`,
@@ -295,7 +216,7 @@ router.post('/api/admin/withdrawals/reject', async (req, res) => {
                 module: 'WALLET',
                 action: 'WITHDRAW_REJECT',
                 actor_id: 'ADMIN',
-                actor_email: 'admin@htwork.vn',
+                actor_email: 'admin@kgs work.vn',
                 target_id: user_id,
                 level: 'WARN',
                 details: `Admin đã từ chối lệnh rút tiền #${request_id} số tiền ${amount.toLocaleString()} Token và hoàn tiền về ví người dùng`,

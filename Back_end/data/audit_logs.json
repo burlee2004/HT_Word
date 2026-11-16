@@ -1,232 +1,1375 @@
 [
   {
-    "id": "log_1788509764261_gq15k",
-    "timestamp": "2026-09-04T08:16:04.261Z",
-    "module": "AUTH",
-    "action": "SEND_FRIEND_REQUEST",
+    "id": "log_1794796276475_1bspk",
+    "timestamp": "2026-11-16T02:31:16.475Z",
+    "module": "MONETIZATION",
+    "action": "USER_SUBSCRIBE_PLAN",
     "level": "INFO",
-    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "details": "User #5f79cd46-e8e4-4db3-80d7-250c54199b6a đã thanh toán 99000 Token để đăng ký gói Chuyên Gia Pro (monthly)",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "plan_id": "freelancer_pro",
+      "billing_cycle": "monthly",
+      "price": 99000,
+      "expires_at": "2026-12-16T02:31:16.349Z"
+    }
+  },
+  {
+    "id": "log_1794795941228_euyj3",
+    "timestamp": "2026-11-16T02:25:41.228Z",
+    "module": "MONETIZATION",
+    "action": "USER_SUBSCRIBE_PLAN",
+    "level": "INFO",
+    "details": "User #5f79cd46-e8e4-4db3-80d7-250c54199b6a đã thanh toán 99000 Token để đăng ký gói Chuyên Gia Pro (monthly)",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "plan_id": "freelancer_pro",
+      "billing_cycle": "monthly",
+      "price": 99000,
+      "expires_at": "2026-12-16T02:25:41.069Z"
+    }
+  },
+  {
+    "id": "log_1794281717705_e7n3u",
+    "timestamp": "2026-11-10T03:35:17.689Z",
+    "module": "SYSTEM",
+    "action": "CLOUD_STORAGE_TEST",
+    "level": "INFO",
+    "details": "Kiểm tra kết nối Firebase Realtime Database & Google Sheets Webhook",
+    "user_id": null,
+    "user_email": "admin@kgswork.com",
+    "user_role": "admin",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "test": true,
+      "source": "Firebase_GoogleSheet_Integration"
+    }
+  },
+  {
+    "id": "log_1792763484268_9f0xr",
+    "timestamp": "2026-10-23T13:51:24.268Z",
+    "module": "AUTH",
+    "action": "OTP_SENT_PROD",
+    "level": "INFO",
+    "details": "Đã gửi email OTP thực tế tới: tienzed2003@gmail.com",
+    "user_id": null,
+    "user_email": "tienzed2003@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "email": "tienzed2003@gmail.com",
+      "fullName": "Tien Test",
+      "messageId": "<d00353e9-c26b-9626-509c-7f7a56816fe4@gmail.com>"
+    }
+  },
+  {
+    "id": "log_1792725820179_743rd",
+    "timestamp": "2026-10-23T03:23:40.179Z",
+    "module": "AUTH",
+    "action": "OTP_SENT_PROD",
+    "level": "INFO",
+    "details": "Đã gửi email OTP thực tế tới: hthuynhnhu0703@gmail.com",
+    "user_id": null,
+    "user_email": "hthuynhnhu0703@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "email": "hthuynhnhu0703@gmail.com",
+      "fullName": "Huynh Nhu Test",
+      "messageId": "<0ace7ce9-e59b-d77e-046e-755eb25df517@gmail.com>"
+    }
+  },
+  {
+    "id": "log_1791549286899_8pdlp",
+    "timestamp": "2026-10-09T12:34:46.899Z",
+    "module": "SUPPORT",
+    "action": "REPLY_TICKET",
+    "level": "INFO",
+    "details": "Admin đã phản hồi yêu cầu #TK-7096 (Trạng thái: resolved)",
     "user_id": null,
     "user_email": "System",
     "user_role": "system",
     "ip": "127.0.0.1",
     "metadata": {
-      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "note": "Trao đổi dự án"
+      "ticket_code": "#TK-7096",
+      "status": "resolved"
     }
   },
   {
-    "id": "log_1788509707865_allhn",
-    "timestamp": "2026-09-04T08:15:07.865Z",
-    "module": "AUTH",
-    "action": "SEND_FRIEND_REQUEST",
+    "id": "log_1791549286330_oko7p",
+    "timestamp": "2026-10-09T12:34:46.330Z",
+    "module": "SUPPORT",
+    "action": "CREATE_TICKET",
     "level": "INFO",
-    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "details": "[FREELANCER] HoangfreeLancer đã gửi yêu cầu hỗ trợ #TK-7096: \"Cần hỗ trợ rút token\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "ticket_code": "#TK-7096",
+      "category": "payment",
+      "priority": "high"
+    }
+  },
+  {
+    "id": "log_1791428969774_sm1or",
+    "timestamp": "2026-10-08T03:09:29.774Z",
+    "module": "AUTH_PHONE",
+    "action": "PHONE_VERIFY_SUCCESS",
+    "level": "INFO",
+    "details": "Xác thực SĐT thành công cho SĐT: 0834779397",
     "user_id": null,
     "user_email": "System",
     "user_role": "system",
     "ip": "127.0.0.1",
     "metadata": {
-      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "note": "Trao đổi dự án"
+      "phone": "0834779397",
+      "method": "telegram"
     }
   },
   {
-    "id": "log_1788509692946_fmufr",
-    "timestamp": "2026-09-04T08:14:52.946Z",
+    "id": "log_1791343798392_htsu4",
+    "timestamp": "2026-10-07T03:29:58.392Z",
+    "module": "WALLET",
+    "action": "WITHDRAW_APPROVE",
+    "level": "INFO",
+    "details": "Admin đã phê duyệt lệnh rút tiền #f168a6d0-d233-4559-98f5-cfc854954ffd số tiền 50,000 Token (Napas/Chi Hộ/Completed)",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "request_id": "f168a6d0-d233-4559-98f5-cfc854954ffd",
+      "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "amount": 50000
+    }
+  },
+  {
+    "id": "log_1791343733525_571ki",
+    "timestamp": "2026-10-07T03:28:53.525Z",
+    "module": "WALLET",
+    "action": "WITHDRAW_CREATE",
+    "level": "INFO",
+    "details": "Yêu cầu rút 50,000 Token về ngân hàng VPBank - STK 0347793976",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "request_id": "f168a6d0-d233-4559-98f5-cfc854954ffd",
+      "amount": 50000,
+      "bank": "VPBank",
+      "account": "0347793976"
+    }
+  },
+  {
+    "id": "log_1791343516275_osf1c",
+    "timestamp": "2026-10-07T03:25:16.275Z",
+    "module": "WALLET",
+    "action": "WITHDRAW_CREATE",
+    "level": "INFO",
+    "details": "Yêu cầu rút 50,000 Token về ngân hàng VPBank - STK 0347793976",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "request_id": "b5896a68-beb2-4a64-900f-2341e10e1c55",
+      "amount": 50000,
+      "bank": "VPBank",
+      "account": "0347793976"
+    }
+  },
+  {
+    "id": "log_1791343102958_drqqj",
+    "timestamp": "2026-10-07T03:18:22.958Z",
+    "module": "WALLET",
+    "action": "WITHDRAW_CREATE",
+    "level": "INFO",
+    "details": "Yêu cầu rút 50,000 Token về ngân hàng VPBank - STK 0347793976",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "request_id": "510a4558-03f3-4601-a64c-44b60add79bb",
+      "amount": 50000,
+      "bank": "VPBank",
+      "account": "0347793976"
+    }
+  },
+  {
+    "id": "log_1791341579870_zraac",
+    "timestamp": "2026-10-07T02:52:59.870Z",
+    "module": "AUTH",
+    "action": "LOGIN_SUCCESS",
+    "level": "INFO",
+    "details": "Người dùng burlee2004@gmail.com (CLIENT) đăng nhập thành công vào hệ thống.",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "burlee2004@gmail.com",
+    "user_role": "client",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1791341556938_7sri5",
+    "timestamp": "2026-10-07T02:52:36.938Z",
+    "module": "WALLET",
+    "action": "WITHDRAW_REJECT",
+    "level": "WARN",
+    "details": "Admin đã từ chối lệnh rút tiền #ee6bd62f-bd60-4989-b8c7-a32d820f2fdf số tiền 20,000 Token và hoàn tiền về ví người dùng",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "request_id": "ee6bd62f-bd60-4989-b8c7-a32d820f2fdf",
+      "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "amount": 20000
+    }
+  },
+  {
+    "id": "log_1791341527447_mpamr",
+    "timestamp": "2026-10-07T02:52:07.447Z",
+    "module": "WALLET",
+    "action": "WITHDRAW_APPROVE",
+    "level": "INFO",
+    "details": "Admin đã phê duyệt lệnh rút tiền #eb9921aa-4829-432e-b882-ad3bed1cad9a số tiền 5,780,000 Token (Napas/Chi Hộ/Completed)",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "request_id": "eb9921aa-4829-432e-b882-ad3bed1cad9a",
+      "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "amount": 5780000
+    }
+  },
+  {
+    "id": "log_1791341442838_bnczz",
+    "timestamp": "2026-10-07T02:50:42.837Z",
+    "module": "AUTH",
+    "action": "LOGIN_SUCCESS",
+    "level": "INFO",
+    "details": "Người dùng admin@htwork.com (ADMIN) đăng nhập thành công vào hệ thống.",
+    "user_id": "11111111-1111-1111-1111-111111111111",
+    "user_email": "admin@htwork.com",
+    "user_role": "admin",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1791341434378_jxq22",
+    "timestamp": "2026-10-07T02:50:34.378Z",
+    "module": "AUTH",
+    "action": "LOGIN_FAILED",
+    "level": "WARN",
+    "details": "Đăng nhập thất bại: Sai mật khẩu cho tài khoản admin@htwork.com",
+    "user_id": "11111111-1111-1111-1111-111111111111",
+    "user_email": "admin@htwork.com",
+    "user_role": "admin",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1791340996786_rj4cg",
+    "timestamp": "2026-10-07T02:43:16.786Z",
+    "module": "WALLET",
+    "action": "WITHDRAW_CREATE",
+    "level": "INFO",
+    "details": "Yêu cầu rút 5,780,000 Token về ngân hàng MB Bank - STK 0347793976",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "request_id": "eb9921aa-4829-432e-b882-ad3bed1cad9a",
+      "amount": 5780000,
+      "bank": "MB Bank",
+      "account": "0347793976"
+    }
+  },
+  {
+    "id": "log_1791339211764_qtykj",
+    "timestamp": "2026-10-07T02:13:31.764Z",
+    "module": "AUTH",
+    "action": "LOGIN_SUCCESS",
+    "level": "INFO",
+    "details": "Người dùng hoanglubo2004@gmail.com (FREELANCER) đăng nhập thành công vào hệ thống.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1791339205325_fv2gn",
+    "timestamp": "2026-10-07T02:13:25.325Z",
+    "module": "AUTH",
+    "action": "LOGIN_FAILED",
+    "level": "WARN",
+    "details": "Đăng nhập thất bại: Sai mật khẩu cho tài khoản hoanglubo2004@gmail.com",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789977631830_iwx7o",
+    "timestamp": "2026-09-21T08:00:31.830Z",
+    "module": "WALLET",
+    "action": "DEPOSIT_APPROVE",
+    "level": "INFO",
+    "details": "Admin đã phê duyệt nạp 10,000 Token cho User ID: 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "request_id": "e4df7017-4c33-4666-abe7-71a373f382a9",
+      "amount": 10000,
+      "admin_id": "8ac76bce-0422-443c-b2d9-d2b08db28da1"
+    }
+  },
+  {
+    "id": "log_1789977411777_9or7y",
+    "timestamp": "2026-09-21T07:56:51.777Z",
+    "module": "AUTH",
+    "action": "GOOGLE_LOGIN_SUCCESS",
+    "level": "INFO",
+    "details": "Người dùng 2224802010159@student.tdmu.edu.vn (FREELANCER) đăng nhập bằng Google thành công.",
+    "user_id": "8ac76bce-0422-443c-b2d9-d2b08db28da1",
+    "user_email": "2224802010159@student.tdmu.edu.vn",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789974862082_p16y9",
+    "timestamp": "2026-09-21T07:14:22.082Z",
+    "module": "AUTH",
+    "action": "GOOGLE_LOGIN_SUCCESS",
+    "level": "INFO",
+    "details": "Người dùng hoanglubo2004@gmail.com (FREELANCER) đăng nhập bằng Google thành công.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789974333039_f68bw",
+    "timestamp": "2026-09-21T07:05:33.039Z",
+    "module": "AUTH",
+    "action": "GOOGLE_LOGIN_SUCCESS",
+    "level": "INFO",
+    "details": "Người dùng hoanglubo2004@gmail.com (FREELANCER) đăng nhập bằng Google thành công.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789973289694_7pzf6",
+    "timestamp": "2026-09-21T06:48:09.694Z",
+    "module": "AUTH",
+    "action": "LOGIN_SUCCESS",
+    "level": "INFO",
+    "details": "Người dùng hoanglubo2004@gmail.com (FREELANCER) đăng nhập thành công vào hệ thống.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789958866670_gdn0s",
+    "timestamp": "2026-09-21T02:47:46.670Z",
+    "module": "AUTH",
+    "action": "LOGIN_SUCCESS",
+    "level": "INFO",
+    "details": "Người dùng admin@htwork.com (ADMIN) đăng nhập thành công vào hệ thống.",
+    "user_id": "11111111-1111-1111-1111-111111111111",
+    "user_email": "admin@htwork.com",
+    "user_role": "admin",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789722804441_4cr6n",
+    "timestamp": "2026-09-18T09:13:24.441Z",
+    "module": "MILESTONE",
+    "action": "SUBMIT_MILESTONE",
+    "level": "INFO",
+    "details": "Freelancer nộp minh chứng công việc cho giai đoạn #cb371b5a-95c9-4f76-a065-de1b84406592.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789722708090_318gk",
+    "timestamp": "2026-09-18T09:11:48.090Z",
+    "module": "MILESTONE",
+    "action": "SUBMIT_MILESTONE",
+    "level": "INFO",
+    "details": "Freelancer nộp minh chứng công việc cho giai đoạn #8f509a0d-1c3a-4b19-9c79-393d8e67b5aa.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789720604731_0jltp",
+    "timestamp": "2026-09-18T08:36:44.731Z",
+    "module": "MILESTONE",
+    "action": "SUBMIT_MILESTONE",
+    "level": "INFO",
+    "details": "Freelancer nộp minh chứng công việc cho giai đoạn #9efec6e6-9df8-4c1c-9450-0f0117668131.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789719306553_wsf0y",
+    "timestamp": "2026-09-18T08:15:06.553Z",
+    "module": "MILESTONE",
+    "action": "SUBMIT_MILESTONE",
+    "level": "INFO",
+    "details": "Freelancer nộp minh chứng công việc cho giai đoạn #81509bd1-516d-407e-921a-ee1b82539798.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789718383347_cyvly",
+    "timestamp": "2026-09-18T07:59:43.347Z",
+    "module": "MILESTONE",
+    "action": "CREATE_PLAN",
+    "level": "INFO",
+    "details": "Freelancer tạo kế hoạch cho dự án #ac436266-cb2d-4682-a49d-177f4e8d73d8 gồm 4 giai đoạn.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789717111338_6x9kk",
+    "timestamp": "2026-09-18T07:38:31.338Z",
+    "module": "MILESTONE",
+    "action": "CREATE_PLAN",
+    "level": "INFO",
+    "details": "Freelancer tạo kế hoạch cho dự án #ac436266-cb2d-4682-a49d-177f4e8d73d8 gồm 4 giai đoạn.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789714803714_et9pw",
+    "timestamp": "2026-09-18T07:00:03.714Z",
+    "module": "MILESTONE",
+    "action": "CREATE_PLAN",
+    "level": "INFO",
+    "details": "Freelancer tạo kế hoạch cho dự án #ac436266-cb2d-4682-a49d-177f4e8d73d8 gồm 4 giai đoạn.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789714635325_ov7ca",
+    "timestamp": "2026-09-18T06:57:15.325Z",
+    "module": "MILESTONE",
+    "action": "CREATE_PLAN",
+    "level": "INFO",
+    "details": "Freelancer tạo kế hoạch cho dự án #ac436266-cb2d-4682-a49d-177f4e8d73d8 gồm 4 giai đoạn.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "freelancer",
+    "ip": "127.0.0.1",
+    "metadata": {}
+  },
+  {
+    "id": "log_1789713300786_t6ibu",
+    "timestamp": "2026-09-18T06:35:00.786Z",
+    "module": "JOB",
+    "action": "CANCEL_PLANNING_REFUND",
+    "level": "INFO",
+    "details": "Khách hàng thu hồi dự án \"Kiểm thử xâm nhập & Bảo mật hệ thống Web nội bộ (LAN)\" trong giai đoạn lập kế hoạch, hoàn trả 4,750,000 Token Escrow về ví.",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "ac436266-cb2d-4682-a49d-177f4e8d73d8",
+      "budget": 4750000,
+      "client_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "new_balance": 5000000,
+      "next_status": "open"
+    }
+  },
+  {
+    "id": "log_1789713165616_e8kde",
+    "timestamp": "2026-09-18T06:32:45.616Z",
+    "module": "AUTH",
+    "action": "ADD_FAVORITE_PARTNER",
+    "level": "INFO",
+    "details": "Người dùng 9d323da5-c143-4c90-8726-4e8a67a7288b đã thêm 5f79cd46-e8e4-4db3-80d7-250c54199b6a vào danh sách Mối Ruột ❤️",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "target_user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "is_favorite": true
+    }
+  },
+  {
+    "id": "log_1789712895611_lbwoh",
+    "timestamp": "2026-09-18T06:28:15.611Z",
     "module": "AUTH",
     "action": "RESPOND_FRIEND_REQUEST_ACCEPT",
     "level": "INFO",
-    "details": "Người dùng 5f79cd46-e8e4-4db3-80d7-250c54199b6a đã accept lời mời kết bạn với c522cd82-36ab-495a-9e00-7f7378050d3f",
+    "details": "Người dùng 5f79cd46-e8e4-4db3-80d7-250c54199b6a đã accept lời mời kết bạn với 9d323da5-c143-4c90-8726-4e8a67a7288b",
     "user_id": null,
     "user_email": "System",
     "user_role": "system",
     "ip": "127.0.0.1",
     "metadata": {
       "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "target_user_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "target_user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
       "action": "accept"
     }
   },
   {
-    "id": "log_1788509692193_is0rz",
-    "timestamp": "2026-09-04T08:14:52.193Z",
+    "id": "log_1789712868183_1felb",
+    "timestamp": "2026-09-18T06:27:48.183Z",
     "module": "AUTH",
     "action": "SEND_FRIEND_REQUEST",
     "level": "INFO",
-    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "details": "Người dùng 9d323da5-c143-4c90-8726-4e8a67a7288b gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
     "user_id": null,
     "user_email": "System",
     "user_role": "system",
     "ip": "127.0.0.1",
     "metadata": {
-      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
+      "sender_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
       "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "note": "Trao đổi dự án"
+      "note": "Xin chào bạn! Mình thấy hồ sơ của bạn rất phù hợp với các dự án bên mình. Mình muốn kết bạn để tiện trao đổi và hợp tác nhé!"
     }
   },
   {
-    "id": "log_1788509516984_qin3g",
-    "timestamp": "2026-09-04T08:11:56.984Z",
+    "id": "log_1789712858081_awlrl",
+    "timestamp": "2026-09-18T06:27:38.081Z",
+    "module": "AUTH",
+    "action": "UNBLOCK_USER",
+    "level": "INFO",
+    "details": "Người dùng 5f79cd46-e8e4-4db3-80d7-250c54199b6a đã bỏ chặn 9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "target_user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b"
+    }
+  },
+  {
+    "id": "log_1789712838689_smuy0",
+    "timestamp": "2026-09-18T06:27:18.689Z",
+    "module": "AUTH",
+    "action": "BLOCK_USER",
+    "level": "WARNING",
+    "details": "Người dùng 5f79cd46-e8e4-4db3-80d7-250c54199b6a đã chặn 9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "target_user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b"
+    }
+  },
+  {
+    "id": "log_1789712824014_0xwrg",
+    "timestamp": "2026-09-18T06:27:04.014Z",
+    "module": "AUTH",
+    "action": "UNFRIEND_USER",
+    "level": "INFO",
+    "details": "Người dùng 5f79cd46-e8e4-4db3-80d7-250c54199b6a đã hủy kết bạn với 9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "target_user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b"
+    }
+  },
+  {
+    "id": "log_1789712761113_lmoxz",
+    "timestamp": "2026-09-18T06:26:01.113Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [Client Test User ➔ HoangfreeLancer]: \"tôi đây\"",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "burlee2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789712760990_5iiaow",
+      "sender_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "sender_name": "Client Test User",
+      "sender_email": "burlee2004@gmail.com",
+      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_name": "HoangfreeLancer",
+      "content": "tôi đây",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-18T06:26:00.990Z",
+      "is_moderated": false
+    }
+  },
+  {
+    "id": "log_1789712743890_0aw2h",
+    "timestamp": "2026-09-18T06:25:43.890Z",
+    "module": "AUTH",
+    "action": "RESPOND_FRIEND_REQUEST_ACCEPT",
+    "level": "INFO",
+    "details": "Người dùng 9d323da5-c143-4c90-8726-4e8a67a7288b đã accept lời mời kết bạn với 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "target_user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "action": "accept"
+    }
+  },
+  {
+    "id": "log_1789634218289_l28ap",
+    "timestamp": "2026-09-17T08:36:58.289Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [HoangfreeLancer ➔ Client Test User]: \"sao lại không chat dc vazloz\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789634218163_b5ec5i",
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "sender_name": "HoangfreeLancer",
+      "sender_email": "hoanglubo2004@gmail.com",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "receiver_name": "Client Test User",
+      "content": "sao lại không chat dc vazloz",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-17T08:36:58.163Z",
+      "is_moderated": false
+    }
+  },
+  {
+    "id": "log_1789634184641_v2bsf",
+    "timestamp": "2026-09-17T08:36:24.641Z",
+    "module": "CHAT",
+    "action": "CHAT_POLICY_VIOLATION",
+    "level": "SECURITY",
+    "details": "[VI PHẠM QUY TẮC CHAT] Lần 2/5. Từ khóa: \"zl, đĩ\". Hành động: BLOCK.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "raw_content": "qua zl chat đi",
+      "violations": [
+        {
+          "category_id": "BYPASS_SOCIAL",
+          "category_name": "Mạng Xã Hội & Ứng Dụng Chat Ngoài",
+          "severity": "CRITICAL",
+          "action": "BLOCK",
+          "warning_message": "Vui lòng chỉ trao đổi và giao dịch trên nền tảng KGS Work để được bảo vệ quyền lợi và bảo hiểm Escrow!",
+          "matched_keywords": [
+            "zl"
+          ]
+        },
+        {
+          "category_id": "PROFANITY",
+          "category_name": "Ngôn Từ Thô Tục & Xúc Phạm",
+          "severity": "MEDIUM",
+          "action": "MASK",
+          "warning_message": "Vui lòng giữ văn hóa giao tiếp lịch sự, chuyên nghiệp trên nền tảng!",
+          "matched_keywords": [
+            "đĩ"
+          ]
+        }
+      ],
+      "action_taken": "BLOCK",
+      "matched_summary": "zl, đĩ",
+      "violation_count": 2,
+      "is_locked": false
+    }
+  },
+  {
+    "id": "log_1789634180226_cyri0",
+    "timestamp": "2026-09-17T08:36:20.226Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [HoangfreeLancer ➔ Client Test User]: \"no\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789634180088_bmq550",
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "sender_name": "HoangfreeLancer",
+      "sender_email": "hoanglubo2004@gmail.com",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "receiver_name": "Client Test User",
+      "content": "no",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-17T08:36:20.088Z",
+      "is_moderated": false
+    }
+  },
+  {
+    "id": "log_1789634169546_sep9v",
+    "timestamp": "2026-09-17T08:36:09.546Z",
+    "module": "CHAT",
+    "action": "CHAT_POLICY_VIOLATION",
+    "level": "SECURITY",
+    "details": "[VI PHẠM QUY TẮC CHAT] Lần 1/5. Từ khóa: \"lozz\". Hành động: BLOCK.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "raw_content": "chát đc chữ vaz  lozz rồi nè",
+      "violations": [
+        {
+          "category_id": "BYPASS_SOCIAL",
+          "category_name": "Mạng Xã Hội & Ứng Dụng Chat Ngoài",
+          "severity": "CRITICAL",
+          "action": "BLOCK",
+          "warning_message": "Vui lòng chỉ trao đổi và giao dịch trên nền tảng KGS Work để được bảo vệ quyền lợi và bảo hiểm Escrow!",
+          "matched_keywords": [
+            "lozz"
+          ]
+        }
+      ],
+      "action_taken": "BLOCK",
+      "matched_summary": "lozz",
+      "violation_count": 1,
+      "is_locked": false
+    }
+  },
+  {
+    "id": "log_1789634160074_x1jeq",
+    "timestamp": "2026-09-17T08:36:00.074Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [HoangfreeLancer ➔ Client Test User]: \"tôi còn chưa bị cấm chát\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789634159968_nzcs9b",
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "sender_name": "HoangfreeLancer",
+      "sender_email": "hoanglubo2004@gmail.com",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "receiver_name": "Client Test User",
+      "content": "tôi còn chưa bị cấm chát",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-17T08:35:59.968Z",
+      "is_moderated": false
+    }
+  },
+  {
+    "id": "log_1789634153720_t25dm",
+    "timestamp": "2026-09-17T08:35:53.720Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [HoangfreeLancer ➔ Client Test User]: \"alo\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789634153616_s6k6nt",
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "sender_name": "HoangfreeLancer",
+      "sender_email": "hoanglubo2004@gmail.com",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "receiver_name": "Client Test User",
+      "content": "alo",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-17T08:35:53.616Z",
+      "is_moderated": false
+    }
+  },
+  {
+    "id": "log_1789633410793_wa9mq",
+    "timestamp": "2026-09-17T08:23:30.793Z",
+    "module": "CHAT",
+    "action": "USER_AUTO_BANNED_5_VIOLATIONS",
+    "level": "CRITICAL",
+    "details": "[VI PHẠM QUY TẮC CHAT] Lần 5/5. Từ khóa: \"lozz\". Hành động: BLOCK.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "raw_content": "vaz lozzz",
+      "violations": [
+        {
+          "category_id": "BYPASS_SOCIAL",
+          "category_name": "Mạng Xã Hội & Ứng Dụng Chat Ngoài",
+          "severity": "CRITICAL",
+          "action": "BLOCK",
+          "warning_message": "Vui lòng chỉ trao đổi và giao dịch trên nền tảng KGS Work để được bảo vệ quyền lợi và bảo hiểm Escrow!",
+          "matched_keywords": [
+            "lozz"
+          ]
+        }
+      ],
+      "action_taken": "BLOCK",
+      "matched_summary": "lozz",
+      "violation_count": 5,
+      "is_locked": true
+    }
+  },
+  {
+    "id": "log_1789633404487_scc6r",
+    "timestamp": "2026-09-17T08:23:24.487Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [HoangfreeLancer ➔ Client Test User]: \"***\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789633404352_77oro8",
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "sender_name": "HoangfreeLancer",
+      "sender_email": "hoanglubo2004@gmail.com",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "receiver_name": "Client Test User",
+      "content": "***",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-17T08:23:24.353Z",
+      "is_moderated": true
+    }
+  },
+  {
+    "id": "log_1789633404349_fhge7",
+    "timestamp": "2026-09-17T08:23:24.349Z",
+    "module": "CHAT",
+    "action": "CHAT_POLICY_VIOLATION",
+    "level": "SECURITY",
+    "details": "[VI PHẠM QUY TẮC CHAT] Lần 4/5. Từ khóa: \"vl\". Hành động: MASK.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "raw_content": "vl",
+      "violations": [
+        {
+          "category_id": "PROFANITY",
+          "category_name": "Ngôn Từ Thô Tục & Xúc Phạm",
+          "severity": "MEDIUM",
+          "action": "MASK",
+          "warning_message": "Vui lòng giữ văn hóa giao tiếp lịch sự, chuyên nghiệp trên nền tảng!",
+          "matched_keywords": [
+            "vl"
+          ]
+        }
+      ],
+      "action_taken": "MASK",
+      "matched_summary": "vl",
+      "violation_count": 4,
+      "is_locked": false
+    }
+  },
+  {
+    "id": "log_1789633078985_2jf6t",
+    "timestamp": "2026-09-17T08:17:58.985Z",
+    "module": "CHAT",
+    "action": "CHAT_POLICY_VIOLATION",
+    "level": "SECURITY",
+    "details": "[VI PHẠM QUY TẮC CHAT] Lần 3/5. Từ khóa: \"vãi\". Hành động: BLOCK.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "raw_content": "vải",
+      "violations": [
+        {
+          "category_id": "BYPASS_SOCIAL",
+          "category_name": "Mạng Xã Hội & Ứng Dụng Chat Ngoài",
+          "severity": "CRITICAL",
+          "action": "BLOCK",
+          "warning_message": "Vui lòng chỉ trao đổi và giao dịch trên nền tảng KGS Work để được bảo vệ quyền lợi và bảo hiểm Escrow!",
+          "matched_keywords": [
+            "vãi"
+          ]
+        }
+      ],
+      "action_taken": "BLOCK",
+      "matched_summary": "vãi",
+      "violation_count": 3,
+      "is_locked": false
+    }
+  },
+  {
+    "id": "log_1789633071586_kuk48",
+    "timestamp": "2026-09-17T08:17:51.586Z",
+    "module": "CHAT",
+    "action": "CHAT_POLICY_VIOLATION",
+    "level": "SECURITY",
+    "details": "[VI PHẠM QUY TẮC CHAT] Lần 2/5. Từ khóa: \"vãi\". Hành động: BLOCK.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "raw_content": "vãi",
+      "violations": [
+        {
+          "category_id": "BYPASS_SOCIAL",
+          "category_name": "Mạng Xã Hội & Ứng Dụng Chat Ngoài",
+          "severity": "CRITICAL",
+          "action": "BLOCK",
+          "warning_message": "Vui lòng chỉ trao đổi và giao dịch trên nền tảng KGS Work để được bảo vệ quyền lợi và bảo hiểm Escrow!",
+          "matched_keywords": [
+            "vãi"
+          ]
+        }
+      ],
+      "action_taken": "BLOCK",
+      "matched_summary": "vãi",
+      "violation_count": 2,
+      "is_locked": false
+    }
+  },
+  {
+    "id": "log_1789633068467_ktxuk",
+    "timestamp": "2026-09-17T08:17:48.467Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [HoangfreeLancer ➔ Client Test User]: \"ảo thế\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789633068337_0xjqrt",
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "sender_name": "HoangfreeLancer",
+      "sender_email": "hoanglubo2004@gmail.com",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "receiver_name": "Client Test User",
+      "content": "ảo thế",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-17T08:17:48.337Z",
+      "is_moderated": false
+    }
+  },
+  {
+    "id": "log_1789633057428_5nuo3",
+    "timestamp": "2026-09-17T08:17:37.428Z",
+    "module": "ADMIN",
+    "action": "ADD_CHAT_KEYWORD",
+    "level": "INFO",
+    "details": "Thêm từ khóa cấm \"loz\" vào danh mục [BYPASS_SOCIAL]",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "category_id": "BYPASS_SOCIAL",
+      "keyword": "loz"
+    }
+  },
+  {
+    "id": "log_1789633054436_mf233",
+    "timestamp": "2026-09-17T08:17:34.436Z",
+    "module": "ADMIN",
+    "action": "ADD_CHAT_KEYWORD",
+    "level": "INFO",
+    "details": "Thêm từ khóa cấm \"lozz\" vào danh mục [BYPASS_SOCIAL]",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "category_id": "BYPASS_SOCIAL",
+      "keyword": "lozz"
+    }
+  },
+  {
+    "id": "log_1789633050739_n7tp5",
+    "timestamp": "2026-09-17T08:17:30.739Z",
+    "module": "ADMIN",
+    "action": "ADD_CHAT_KEYWORD",
+    "level": "INFO",
+    "details": "Thêm từ khóa cấm \"vãi\" vào danh mục [BYPASS_SOCIAL]",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "category_id": "BYPASS_SOCIAL",
+      "keyword": "vãi"
+    }
+  },
+  {
+    "id": "log_1789633029748_btb9j",
+    "timestamp": "2026-09-17T08:17:09.748Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [HoangfreeLancer ➔ Client Test User]: \"vãi lozz\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789633029598_7njssg",
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "sender_name": "HoangfreeLancer",
+      "sender_email": "hoanglubo2004@gmail.com",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "receiver_name": "Client Test User",
+      "content": "vãi lozz",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-17T08:17:09.598Z",
+      "is_moderated": false
+    }
+  },
+  {
+    "id": "log_1789633015341_gluhe",
+    "timestamp": "2026-09-17T08:16:55.341Z",
+    "module": "CHAT",
+    "action": "CHAT_POLICY_VIOLATION",
+    "level": "SECURITY",
+    "details": "[VI PHẠM QUY TẮC CHAT] Lần 1/5. Từ khóa: \"zl\". Hành động: BLOCK.",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "User:5f79cd46",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "raw_content": "zl",
+      "violations": [
+        {
+          "category_id": "BYPASS_SOCIAL",
+          "category_name": "Mạng Xã Hội & Ứng Dụng Chat Ngoài",
+          "severity": "CRITICAL",
+          "action": "BLOCK",
+          "warning_message": "Vui lòng chỉ trao đổi và giao dịch trên nền tảng KGS Work để được bảo vệ quyền lợi và bảo hiểm Escrow!",
+          "matched_keywords": [
+            "zl"
+          ]
+        }
+      ],
+      "action_taken": "BLOCK",
+      "matched_summary": "zl",
+      "violation_count": 1,
+      "is_locked": false
+    }
+  },
+  {
+    "id": "log_1789632985683_bqftg",
+    "timestamp": "2026-09-17T08:16:25.683Z",
+    "module": "CHAT",
+    "action": "SEND_DIRECT_MESSAGE",
+    "level": "INFO",
+    "details": "[CHAT 1-1] [HoangfreeLancer ➔ Client Test User]: \"hi\"",
+    "user_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "user_email": "hoanglubo2004@gmail.com",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "message_id": "dm_1789632985577_sgszoo",
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "sender_name": "HoangfreeLancer",
+      "sender_email": "hoanglubo2004@gmail.com",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "receiver_name": "Client Test User",
+      "content": "hi",
+      "file_url": null,
+      "file_name": null,
+      "file_type": "text",
+      "created_at": "2026-09-17T08:16:25.577Z",
+      "is_moderated": false
+    }
+  },
+  {
+    "id": "log_1789632973666_h0duw",
+    "timestamp": "2026-09-17T08:16:13.666Z",
+    "module": "AUTH",
+    "action": "SEND_FRIEND_REQUEST",
+    "level": "INFO",
+    "details": "Người dùng 5f79cd46-e8e4-4db3-80d7-250c54199b6a gửi lời mời kết bạn cho 9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_id": null,
+    "user_email": "System",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "sender_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+      "receiver_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+      "note": "Xin chào! Tôi rất mong muốn kết nối để trao đổi và hợp tác các dự án lâu dài."
+    }
+  },
+  {
+    "id": "log_1789631441350_fbpdf",
+    "timestamp": "2026-09-17T07:50:41.350Z",
     "module": "JOB",
-    "action": "DIRECT_HIRE_JOB",
+    "action": "CREATE_JOB",
     "level": "INFO",
-    "details": "Khách hàng giao việc trực tiếp \"Dự án Website TMĐT Cho Mối Ruột\" cho Freelancer mối ruột (500 Token)",
-    "user_id": null,
-    "user_email": "System",
+    "details": "Khách hàng đăng dự án mới: \"Kiểm thử xâm nhập & Bảo mật hệ thống Web nội bộ (LAN)\" | Ngân sách: 5,000,000 Token | Danh mục: An Ninh Mạng & Bảo Mật (Cybersecurity)",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
     "user_role": "system",
     "ip": "127.0.0.1",
     "metadata": {
-      "job_id": "9f0d5f59-251a-4d0d-963b-1a7f17b6d7a3",
-      "title": "Dự án Website TMĐT Cho Mối Ruột",
-      "budget": 500,
-      "client_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "freelancer_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a"
+      "job_id": "ac436266-cb2d-4682-a49d-177f4e8d73d8",
+      "title": "Kiểm thử xâm nhập & Bảo mật hệ thống Web nội bộ (LAN)",
+      "budget": 5000000,
+      "category_name": "An Ninh Mạng & Bảo Mật (Cybersecurity)"
     }
   },
   {
-    "id": "log_1788509512427_w57gk",
-    "timestamp": "2026-09-04T08:11:52.427Z",
-    "module": "AUTH",
-    "action": "SEND_FRIEND_REQUEST",
-    "level": "INFO",
-    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-    "user_id": null,
-    "user_email": "System",
-    "user_role": "system",
-    "ip": "127.0.0.1",
-    "metadata": {
-      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
-    }
-  },
-  {
-    "id": "log_1788509504676_6ub3u",
-    "timestamp": "2026-09-04T08:11:44.676Z",
+    "id": "log_1789631394926_w3aak",
+    "timestamp": "2026-09-17T07:49:54.926Z",
     "module": "JOB",
-    "action": "DIRECT_HIRE_JOB",
+    "action": "UPDATE_JOB",
     "level": "INFO",
-    "details": "Khách hàng giao việc trực tiếp \"Dự án Website TMĐT Cho Mối Ruột\" cho Freelancer mối ruột (500 Token)",
-    "user_id": null,
-    "user_email": "System",
+    "details": "Cập nhật dự án #34353f6e-f8cb-4cfc-bfdf-9009d42dbcfb - \"Thiết kế AI giọng nói trên nền tảng IoT nhúng (ESP32/STM32)\"",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
     "user_role": "system",
     "ip": "127.0.0.1",
     "metadata": {
-      "job_id": "9fa0af55-f343-4446-8c33-56f3546efd7b",
-      "title": "Dự án Website TMĐT Cho Mối Ruột",
-      "budget": 500,
-      "client_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "freelancer_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a"
+      "job_id": "34353f6e-f8cb-4cfc-bfdf-9009d42dbcfb",
+      "title": "Thiết kế AI giọng nói trên nền tảng IoT nhúng (ESP32/STM32)",
+      "budget": 4500000
     }
   },
   {
-    "id": "log_1788509499914_hspad",
-    "timestamp": "2026-09-04T08:11:39.914Z",
-    "module": "AUTH",
-    "action": "SEND_FRIEND_REQUEST",
-    "level": "INFO",
-    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-    "user_id": null,
-    "user_email": "System",
-    "user_role": "system",
-    "ip": "127.0.0.1",
-    "metadata": {
-      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
-    }
-  },
-  {
-    "id": "log_1788509221788_jhb9b",
-    "timestamp": "2026-09-04T08:07:01.788Z",
+    "id": "log_1789631372273_g86zc",
+    "timestamp": "2026-09-17T07:49:32.273Z",
     "module": "JOB",
-    "action": "DIRECT_HIRE_JOB",
+    "action": "CREATE_JOB",
     "level": "INFO",
-    "details": "Khách hàng giao việc trực tiếp \"Dự án Website TMĐT Cho Mối Ruột\" cho Freelancer mối ruột (500 Token)",
+    "details": "Khách hàng đăng dự án mới: \"Thiết kế AI giọng nói trên nền tảng IoT nhúng (ESP32/STM32)\" | Ngân sách: 4,500,000 Token | Danh mục: IoT & Hệ Thống Nhúng (Internet of Things & Embedded)",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "34353f6e-f8cb-4cfc-bfdf-9009d42dbcfb",
+      "title": "Thiết kế AI giọng nói trên nền tảng IoT nhúng (ESP32/STM32)",
+      "budget": 4500000,
+      "category_name": "IoT & Hệ Thống Nhúng (Internet of Things & Embedded)"
+    }
+  },
+  {
+    "id": "log_1789631257805_s0loz",
+    "timestamp": "2026-09-17T07:47:37.805Z",
+    "module": "JOB",
+    "action": "DELETE_JOB",
+    "level": "INFO",
+    "details": "Xóa dự án #4325ebf4-515f-49f7-ad52-45a7143e07b3 - \"Phát triển Robot AI tương tác giọng nói & điều khiển mạch điện tử\"",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "4325ebf4-515f-49f7-ad52-45a7143e07b3",
+      "title": "Phát triển Robot AI tương tác giọng nói & điều khiển mạch điện tử"
+    }
+  },
+  {
+    "id": "log_1789631254160_ncavw",
+    "timestamp": "2026-09-17T07:47:34.160Z",
+    "module": "JOB",
+    "action": "DELETE_JOB",
+    "level": "INFO",
+    "details": "Xóa dự án #352b1d0a-5b43-45ff-9ccd-7ac0db4fd4c6 - \"Phát triển App Flutter Đặt Món & Giao Đồ Ăn cho Nhà Hàng\"",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "352b1d0a-5b43-45ff-9ccd-7ac0db4fd4c6",
+      "title": "Phát triển App Flutter Đặt Món & Giao Đồ Ăn cho Nhà Hàng"
+    }
+  },
+  {
+    "id": "log_1789631245728_8fpc5",
+    "timestamp": "2026-09-17T07:47:25.728Z",
+    "module": "JOB",
+    "action": "CREATE_JOB",
+    "level": "INFO",
+    "details": "Khách hàng đăng dự án mới: \"Phát triển App Flutter Đặt Món & Giao Đồ Ăn cho Nhà Hàng\" | Ngân sách: 1,000,000 Token | Danh mục: Ứng dụng Di Động (Mobile App)",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "352b1d0a-5b43-45ff-9ccd-7ac0db4fd4c6",
+      "title": "Phát triển App Flutter Đặt Món & Giao Đồ Ăn cho Nhà Hàng",
+      "budget": 1000000,
+      "category_name": "Ứng dụng Di Động (Mobile App)"
+    }
+  },
+  {
+    "id": "log_1789631225362_djg3c",
+    "timestamp": "2026-09-17T07:47:05.362Z",
+    "module": "JOB",
+    "action": "DELETE_JOB",
+    "level": "INFO",
+    "details": "Xóa dự án #e49067f0-927d-46d1-8b3b-7322320ffe6a - \"Tích hợp Chatbot AI chăm sóc khách hàng bằng OpenAI API\"",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "e49067f0-927d-46d1-8b3b-7322320ffe6a",
+      "title": "Tích hợp Chatbot AI chăm sóc khách hàng bằng OpenAI API"
+    }
+  },
+  {
+    "id": "log_1789630600899_c1uv1",
+    "timestamp": "2026-09-17T07:36:40.899Z",
+    "module": "JOB",
+    "action": "CREATE_JOB",
+    "level": "INFO",
+    "details": "Khách hàng đăng dự án mới: \"Phát triển Robot AI tương tác giọng nói & điều khiển mạch điện tử\" | Ngân sách: 5,000,000 Token | Danh mục: Robotics, Cơ Điện Tử & Tự Động Hóa",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "4325ebf4-515f-49f7-ad52-45a7143e07b3",
+      "title": "Phát triển Robot AI tương tác giọng nói & điều khiển mạch điện tử",
+      "budget": 5000000,
+      "category_name": "Robotics, Cơ Điện Tử & Tự Động Hóa"
+    }
+  },
+  {
+    "id": "log_1789630318884_8ml48",
+    "timestamp": "2026-09-17T07:31:58.883Z",
+    "module": "JOB",
+    "action": "CREATE_JOB",
+    "level": "INFO",
+    "details": "Khách hàng đăng dự án mới: \"Tích hợp Chatbot AI chăm sóc khách hàng bằng OpenAI API\" | Ngân sách: 250,000 Token | Danh mục: Trí Tuệ Nhân Tạo & Học Máy (AI / ML / LLM)",
+    "user_id": "9d323da5-c143-4c90-8726-4e8a67a7288b",
+    "user_email": "User:9d323da5",
+    "user_role": "system",
+    "ip": "127.0.0.1",
+    "metadata": {
+      "job_id": "e49067f0-927d-46d1-8b3b-7322320ffe6a",
+      "title": "Tích hợp Chatbot AI chăm sóc khách hàng bằng OpenAI API",
+      "budget": 250000,
+      "category_name": "Trí Tuệ Nhân Tạo & Học Máy (AI / ML / LLM)"
+    }
+  },
+  {
+    "id": "log_1789630260411_u5ety",
+    "timestamp": "2026-09-17T07:31:00.411Z",
+    "module": "WALLET",
+    "action": "DEPOSIT_APPROVE",
+    "level": "INFO",
+    "details": "Admin đã phê duyệt nạp 5,000,000 Token cho User ID: 9d323da5-c143-4c90-8726-4e8a67a7288b",
     "user_id": null,
     "user_email": "System",
     "user_role": "system",
     "ip": "127.0.0.1",
     "metadata": {
-      "job_id": "76b90a79-ce16-4782-a45d-bf9ba9d01e4c",
-      "title": "Dự án Website TMĐT Cho Mối Ruột",
-      "budget": 500,
-      "client_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "freelancer_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a"
+      "request_id": "941cb845-e827-49de-8c6e-2586243de15c",
+      "amount": 5000000,
+      "admin_id": "11111111-1111-1111-1111-111111111111"
     }
   },
   {
-    "id": "log_1788509217061_64s6d",
-    "timestamp": "2026-09-04T08:06:57.061Z",
-    "module": "AUTH",
-    "action": "SEND_FRIEND_REQUEST",
+    "id": "log_1789629839950_6865r",
+    "timestamp": "2026-09-17T07:23:59.950Z",
+    "module": "WALLET",
+    "action": "DEPOSIT_APPROVE",
     "level": "INFO",
-    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
+    "details": "Admin đã phê duyệt nạp 1,000,000 Token cho User ID: 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
     "user_id": null,
     "user_email": "System",
     "user_role": "system",
     "ip": "127.0.0.1",
     "metadata": {
-      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
-    }
-  },
-  {
-    "id": "log_1788509198218_pigzm",
-    "timestamp": "2026-09-04T08:06:38.218Z",
-    "module": "AUTH",
-    "action": "SEND_FRIEND_REQUEST",
-    "level": "INFO",
-    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-    "user_id": null,
-    "user_email": "System",
-    "user_role": "system",
-    "ip": "127.0.0.1",
-    "metadata": {
-      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
-    }
-  },
-  {
-    "id": "log_1788509185471_e8g6q",
-    "timestamp": "2026-09-04T08:06:25.471Z",
-    "module": "AUTH",
-    "action": "SEND_FRIEND_REQUEST",
-    "level": "INFO",
-    "details": "Người dùng c522cd82-36ab-495a-9e00-7f7378050d3f gửi lời mời kết bạn cho 5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-    "user_id": null,
-    "user_email": "System",
-    "user_role": "system",
-    "ip": "127.0.0.1",
-    "metadata": {
-      "sender_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-      "receiver_id": "5f79cd46-e8e4-4db3-80d7-250c54199b6a",
-      "note": "Chào bạn, mình muốn kết nối để giao các dự án website sắp tới!"
-    }
-  },
-  {
-    "id": "log_1788507890791_a9onf",
-    "timestamp": "2026-09-04T07:44:50.791Z",
-    "module": "FINANCE",
-    "action": "ADMIN_CREDIT_TOKEN",
-    "level": "WARN",
-    "details": "Admin đã cấp thêm 50 Token cho khach2@gmail.com. Lý do: Thưởng cộng tác viên tích cực (Automated Test)",
-    "user_id": "c522cd82-36ab-495a-9e00-7f7378050d3f",
-    "user_email": "khach2@gmail.com",
-    "user_role": "client",
-    "ip": "127.0.0.1",
-    "metadata": {
-      "amount": 50,
-      "action_type": "CREDIT",
-      "reason": "Thưởng cộng tác viên tích cực (Automated Test)",
-      "admin_id": "SUPER_ADMIN",
-      "old_balance": 20000,
-      "new_balance": 20050
+      "request_id": "136426f6-26df-48d6-90f0-606f43916877",
+      "amount": 1000000,
+      "admin_id": "11111111-1111-1111-1111-111111111111"
     }
   }
 ]

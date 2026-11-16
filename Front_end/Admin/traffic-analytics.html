@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giám Sát Lưu Lượng & Người Dùng Thực Tế - KGS Work Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative space-y-6">
+            
+            <!-- HEADER TIÊU ĐỀ & ACTIONS -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                    <div class="flex items-center space-x-3 mb-1">
+                        <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-chart-line mr-3 text-emerald-500"></i> Giám Sát Lưu Lượng & Người Dùng Thực Tế
+                        </h1>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 animate-pulse">
+                            <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-ping"></span> Live Radar (5s)
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                        Bắt sự kiện thực tế 100%: Nhận diện chính xác từng người dùng đang online (Tên, Email, Vai trò Client/Freelancer), trang họ đang mở và thiết bị sử dụng.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                    <!-- Nút Giả lập lượt truy cập kiểm thử -->
+                    <button onclick="simulateTraffic()" id="btnSimulate" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm cursor-pointer">
+                        <i class="fas fa-bolt mr-2 text-yellow-300"></i> Giả lập 1 lượt truy cập test
+                    </button>
+
+                    <!-- Nút Làm Mới Dữ Liệu -->
+                    <button onclick="loadAnalytics(currentRange)" id="btnRefresh" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm cursor-pointer">
+                        <i class="fas fa-sync-alt mr-2 text-emerald-500" id="refreshIcon"></i> Làm mới (<span id="autoRefreshCountdown">5</span>s)
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 1: 4 KPI CARDS TỔNG QUAN -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- KPI 1: Đang Trực Tuyến Thời Gian Thực -->
+                <div class="bg-gradient-to-br from-emerald-500/10 via-white to-white dark:from-emerald-950/40 dark:via-gray-800 dark:to-gray-800 p-5 rounded-3xl border border-emerald-300 dark:border-emerald-700/60 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Đang Trực Tuyến (Live)</span>
+                        <div class="w-9 h-9 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-sm font-bold shadow-md shadow-emerald-500/30">
+                            <i class="fas fa-signal"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline space-x-2">
+                            <p id="kpiLiveVisitors" class="text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">0</p>
+                            <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded-lg flex items-center">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1 animate-ping"></span> 3 phút qua
+                            </span>
+                        </div>
+                        <span class="text-xs text-emerald-600/90 dark:text-emerald-300/90 font-bold block mt-1">
+                            Người dùng đang active trên sàn
+                        </span>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Lượt Xem Trang Hôm Nay -->
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[11px] font-black uppercase tracking-wider text-gray-400">Lượt Xem Trang Hôm Nay</span>
+                        <div class="w-9 h-9 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold shadow-xs">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="kpiTodayPageviews" class="text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">0</p>
+                        <span class="text-xs text-gray-400 font-medium block mt-1">
+                            Tổng tích lũy: <strong id="kpiTotalPageviews" class="text-gray-700 dark:text-gray-200">0</strong> lượt
+                        </span>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Khách Độc Nhất Hôm Nay -->
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[11px] font-black uppercase tracking-wider text-gray-400">Khách Độc Nhất Hôm Nay</span>
+                        <div class="w-9 h-9 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold shadow-xs">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="kpiTodayUnique" class="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">0</p>
+                        <span class="text-xs text-gray-400 font-medium block mt-1">
+                            Tổng khách duy nhất: <strong id="kpiTotalUnique" class="text-gray-700 dark:text-gray-200">0</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Phân Bổ Thiết Bị -->
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[11px] font-black uppercase tracking-wider text-gray-400">Tỷ Lệ Thiết Bị</span>
+                        <div class="w-9 h-9 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm font-bold shadow-xs">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-black mb-1.5">
+                            <span class="text-indigo-600 dark:text-indigo-400 flex items-center"><i class="fas fa-desktop mr-1"></i> Máy tính <span id="kpiDesktopPercent">0%</span></span>
+                            <span class="text-pink-600 dark:text-pink-400 flex items-center"><i class="fas fa-mobile-alt mr-1"></i> Di động <span id="kpiMobilePercent">0%</span></span>
+                        </div>
+                        <div class="w-full h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden flex">
+                            <div id="barDesktop" class="bg-indigo-500 h-full transition-all duration-500" style="width: 50%"></div>
+                            <div id="barMobile" class="bg-pink-500 h-full transition-all duration-500" style="width: 50%"></div>
+                        </div>
+                        <span class="text-[11px] text-gray-400 font-medium block mt-1.5">
+                            Nhận diện thiết bị người dùng thật
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SECTION 1.5: DANH SÁCH NGƯỜI DÙNG ĐANG TRỰC TUYẾN THỰC TẾ (LIVE USERS) -->
+            <!-- ============================================================== -->
+            <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-xs animate-pulse">
+                            <i class="fas fa-users-viewfinder"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-black text-gray-900 dark:text-white uppercase tracking-wide flex items-center">
+                                Người Dùng Đang Trực Tuyến Thời Gian Thực (Live Users)
+                                <span id="badgeLiveCount" class="ml-2.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                                    0 Đang Online
+                                </span>
+                            </h2>
+                            <p class="text-xs text-gray-400">
+                                Danh tính người dùng đang hoạt động (Khách hàng, Freelancer, Vãng lai), trang cụ thể họ đang mở và thiết bị sử dụng
+                            </p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1 rounded-xl flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-ping"></span> Tự động đồng bộ mỗi 5s
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left min-w-[750px]">
+                        <thead class="bg-gray-50 dark:bg-gray-750 text-gray-400 uppercase text-[10px] font-bold tracking-wider border-b border-gray-100 dark:border-gray-700">
+                            <tr>
+                                <th class="py-3 px-4">Người Dùng</th>
+                                <th class="py-3 px-4">Vai Trò</th>
+                                <th class="py-3 px-4">Trang Đang Mở / Hành Vi</th>
+                                <th class="py-3 px-4">Thiết Bị & Nền Tảng</th>
+                                <th class="py-3 px-4">Địa Chỉ IP</th>
+                                <th class="py-3 px-4 text-center">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeUsersTableBody" class="divide-y divide-gray-100 dark:divide-gray-700/60">
+                            <tr>
+                                <td colspan="6" class="py-8 text-center text-gray-400">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i> Đang quét người dùng trực tuyến...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION 2: BIỂU ĐỒ LƯU LƯỢNG CHÍNH (THEO GIỜ / THEO NGÀY) -->
+            <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                    <div>
+                        <h2 class="text-lg font-black text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-chart-area mr-2 text-indigo-500"></i> <span id="mainChartTitle">Biểu Đồ Lưu Lượng Theo Giờ (24 Giờ Qua)</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-0.5">So sánh Lượt xem trang (Pageviews) và Khách truy cập độc nhất (Unique Visitors)</p>
+                    </div>
+
+                    <!-- Range Selector Tabs -->
+                    <div class="flex items-center space-x-1.5 bg-gray-100 dark:bg-gray-700/60 p-1 rounded-2xl">
+                        <button onclick="switchRange('24h')" id="tab_24h" class="range-tab px-3.5 py-1.5 rounded-xl text-xs font-black transition-all bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm">
+                            24 Giờ (Theo Giờ)
+                        </button>
+                        <button onclick="switchRange('7d')" id="tab_7d" class="range-tab px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 transition-all">
+                            7 Ngày Qua
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative h-64 sm:h-72 w-full">
+                    <canvas id="trafficMainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- SECTION 3: TOP TRANG & PHÂN BỔ TRÌNH DUYỆT -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Col 1 (2 span): Bảng Top Trang -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-fire mr-2 text-orange-500"></i> Top Trang Được Xem Nhiều Nhất
+                        </h3>
+                        <span class="text-xs text-gray-400">Xếp hạng theo lượt xem</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-gray-50 dark:bg-gray-750 text-gray-400 uppercase text-[10px] font-bold tracking-wider">
+                                <tr>
+                                    <th class="py-2.5 px-3">Đường Dẫn (URL)</th>
+                                    <th class="py-2.5 px-3 text-right">Lượt Xem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topPagesTableBody" class="divide-y divide-gray-100 dark:divide-gray-700/60">
+                                <tr><td colspan="2" class="py-6 text-center text-gray-400">Đang tải danh sách trang...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Col 2 (1 span): Phân Bố Trình Duyệt -->
+                <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-black text-gray-900 dark:text-white flex items-center mb-3">
+                            <i class="fas fa-globe mr-2 text-blue-500"></i> Trình Duyệt Phổ Biến
+                        </h3>
+                        <div class="relative h-48 w-full flex justify-center items-center">
+                            <canvas id="browserDoughnutChart"></canvas>
+                        </div>
+                    </div>
+                    <div id="browserLegend" class="space-y-1.5 text-xs mt-3 pt-3 border-t border-gray-100 dark:border-gray-700"></div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: DÒNG SỰ KIỆN TRUY CẬP THỜI GIAN THỰC (LIVE STREAM) -->
+            <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h3 class="text-base font-black text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-stream mr-2 text-teal-500"></i> Nhật Ký Dòng Sự Kiện Truy Cập Thực Tế (Live Stream)
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Giám sát các thao tác mở trang mới nhất của người dùng</p>
+                    </div>
+                    <span class="text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 px-3 py-1 rounded-xl">
+                        <i class="fas fa-shield-alt mr-1"></i> IP đã ẩn danh bảo mật
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left min-w-[700px]">
+                        <thead class="bg-gray-50 dark:bg-gray-750 text-gray-400 uppercase text-[10px] font-bold tracking-wider">
+                            <tr>
+                                <th class="py-2.5 px-3">Thời Gian</th>
+                                <th class="py-2.5 px-3">Người Dùng</th>
+                                <th class="py-2.5 px-3">Trang Vừa Xem</th>
+                                <th class="py-2.5 px-3">Thiết Bị & OS</th>
+                                <th class="py-2.5 px-3">Trình Duyệt</th>
+                                <th class="py-2.5 px-3">Vị Trí & IP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentVisitsTableBody" class="divide-y divide-gray-100 dark:divide-gray-700/60">
+                            <tr><td colspan="6" class="py-6 text-center text-gray-400">Đang tải nhật ký luồng truy cập...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Admin UI Framework JS -->
+    <script src="admin-ui.js?v=20261116_v6"></script>
+
+    <!-- Page Logic -->
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://project-internship-8z76.onrender.com';
+
+        let currentRange = '24h';
+        let mainChartInstance = null;
+        let browserChartInstance = null;
+        let countdownTimer = 5;
+        let intervalRef = null;
+        let rawAnalyticsData = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAnalytics('24h');
+            startAutoRefreshTimer();
+        });
+
+        function switchRange(range) {
+            currentRange = range;
+            document.querySelectorAll('.range-tab').forEach(btn => {
+                btn.classList.remove('bg-white', 'dark:bg-gray-800', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm', 'font-black');
+                btn.classList.add('text-gray-600', 'dark:text-gray-300', 'font-bold');
+            });
+            const activeBtn = document.getElementById(`tab_${range}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-white', 'dark:bg-gray-800', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm', 'font-black');
+                activeBtn.classList.remove('text-gray-600', 'dark:text-gray-300');
+            }
+
+            document.getElementById('mainChartTitle').innerText = range === '24h' 
+                ? 'Biểu Đồ Lưu Lượng Theo Giờ (24 Giờ Qua)' 
+                : 'Biểu Đồ Lưu Lượng Theo Ngày (7 Ngày Qua)';
+
+            if (rawAnalyticsData) {
+                renderMainChart(rawAnalyticsData, range);
+            } else {
+                loadAnalytics(range);
+            }
+        }
+
+        async function loadAnalytics(range = '24h') {
+            const refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/analytics/overview?range=${range}`);
+                const data = await res.json();
+
+                rawAnalyticsData = data;
+
+                // 1. KPI Cards
+                renderKpiCards(data);
+
+                // 2. NGƯỜI DÙNG ĐANG TRỰC TUYẾN THỰC TẾ (LIVE USERS)
+                renderActiveUsers(data.active_users || []);
+
+                // 3. Main Chart
+                renderMainChart(data, range);
+
+                // 4. Top Pages Table
+                renderTopPages(data.top_pages || []);
+
+                // 5. Browser Doughnut
+                renderBrowsers(data.browsers || {});
+
+                // 6. Recent visits
+                renderRecentVisits(data.recent_visits || []);
+
+            } catch (err) {
+                console.error('Lỗi khi tải dữ liệu analytics:', err);
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        function renderKpiCards(data) {
+            const sum = data.summary || {};
+            document.getElementById('kpiTodayPageviews').innerText = Number(sum.today_pageviews || 0).toLocaleString();
+            document.getElementById('kpiTotalPageviews').innerText = Number(sum.total_pageviews || 0).toLocaleString();
+            document.getElementById('kpiTodayUnique').innerText = Number(sum.today_unique_visitors || 0).toLocaleString();
+            document.getElementById('kpiTotalUnique').innerText = Number(sum.total_unique_visitors || 0).toLocaleString();
+            document.getElementById('kpiLiveVisitors').innerText = sum.live_visitors || (data.active_users ? data.active_users.length : 0);
+
+            const dev = data.devices || { desktop: 0, mobile: 0 };
+            const totalDev = (dev.desktop || 0) + (dev.mobile || 0) + (dev.tablet || 0) || 1;
+            const dPct = Math.round(((dev.desktop || 0) / totalDev) * 100);
+            const mPct = 100 - dPct;
+
+            document.getElementById('kpiDesktopPercent').innerText = `${dPct}%`;
+            document.getElementById('kpiMobilePercent').innerText = `${mPct}%`;
+            document.getElementById('barDesktop').style.width = `${dPct}%`;
+            document.getElementById('barMobile').style.width = `${mPct}%`;
+        }
+
+        // BẢNG NGƯỜI DÙNG ĐANG TRỰC TUYẾN THỰC TẾ (LIVE USERS)
+        function renderActiveUsers(users = []) {
+            const tbody = document.getElementById('activeUsersTableBody');
+            const badge = document.getElementById('badgeLiveCount');
+            if (badge) badge.innerText = `${users.length} Đang Online`;
+
+            if (!tbody) return;
+            if (!users || users.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-gray-400 dark:text-gray-500">
+                            <i class="fas fa-user-slash text-2xl mb-2 block"></i>
+                            Hiện tại chưa có người dùng nào đang mở trang trong 3 phút qua.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = users.map(u => {
+                const timeAgo = formatTimeAgo(new Date(u.last_seen));
+                const devIcon = u.device === 'mobile' ? 'fas fa-mobile-alt text-pink-500' : 'fas fa-desktop text-indigo-500';
+
+                let roleBadge = '';
+                if (u.user_role === 'client') {
+                    roleBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Khách Hàng</span>';
+                } else if (u.user_role === 'freelancer') {
+                    roleBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Freelancer</span>';
+                } else if (u.user_role === 'admin') {
+                    roleBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-200 dark:border-rose-800">Quản Trị Viên</span>';
+                } else {
+                    roleBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">Khách Vãng Lai</span>';
+                }
+
+                const avatarChar = (u.user_name || 'U').charAt(0).toUpperCase();
+
+                return `
+                    <tr class="hover:bg-emerald-50/30 dark:hover:bg-gray-750 transition-colors">
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                                    ${avatarChar}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-900 dark:text-white">${u.user_name}</div>
+                                    <div class="text-[10px] text-gray-400 font-mono">${u.user_email || 'Chưa đăng nhập'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                            ${roleBadge}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-bold text-gray-800 dark:text-gray-200 truncate max-w-xs" title="${u.current_title}">
+                                ${u.current_title}
+                            </div>
+                            <div class="font-mono text-[10px] text-indigo-600 dark:text-indigo-400">${u.current_path}</div>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                            <span class="inline-flex items-center font-semibold text-gray-700 dark:text-gray-300">
+                                <i class="${devIcon} mr-1.5"></i> ${u.os} • ${u.browser}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap font-mono text-gray-500">
+                            ${u.masked_ip}
+                        </td>
+                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-ping"></span> ${timeAgo}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderMainChart(data, range) {
+            const isDark = document.documentElement.classList.contains('dark');
+            const theme = {
+                textColor: isDark ? '#9ca3af' : '#6b7280',
+                gridColor: isDark ? '#374151' : '#f3f4f6'
+            };
+
+            const chartData = range === '24h' ? (data.charts?.hourly || {}) : (data.charts?.daily || {});
+
+            const ctx = document.getElementById('trafficMainChart').getContext('2d');
+            if (mainChartInstance) mainChartInstance.destroy();
+
+            const gradientPv = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientPv.addColorStop(0, 'rgba(99, 102, 241, 0.45)');
+            gradientPv.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+            const gradientUv = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientUv.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+            gradientUv.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+            mainChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels || [],
+                    datasets: [
+                        {
+                            label: 'Lượt Xem Trang (Pageviews)',
+                            data: chartData.pageviews || [],
+                            borderColor: '#6366f1',
+                            backgroundColor: gradientPv,
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2.5,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#6366f1'
+                        },
+                        {
+                            label: 'Khách Độc Nhất (Unique Visitors)',
+                            data: chartData.unique || [],
+                            borderColor: '#10b981',
+                            backgroundColor: gradientUv,
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2,
+                            borderDash: [4, 4],
+                            pointRadius: 3,
+                            pointBackgroundColor: '#10b981'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: {
+                            grid: { color: theme.gridColor },
+                            ticks: { color: theme.textColor, font: { size: 10, weight: 'bold' } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grace: '20%',
+                            grid: { color: theme.gridColor },
+                            ticks: { color: theme.textColor, font: { size: 10, weight: 'bold' } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: theme.textColor, usePointStyle: true, font: { weight: 'bold', size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTopPages(pages = []) {
+            const tbody = document.getElementById('topPagesTableBody');
+            if (!pages.length) {
+                tbody.innerHTML = '<tr><td colspan="2" class="py-6 text-center text-gray-400">Chưa có dữ liệu trang.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pages.map(p => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
+                    <td class="py-2.5 px-3 font-mono text-[11px] text-indigo-600 dark:text-indigo-400 font-bold truncate max-w-[280px]">
+                        ${p.path}
+                    </td>
+                    <td class="py-2.5 px-3 text-right font-black text-gray-900 dark:text-white">
+                        ${Number(p.views).toLocaleString()} lượt
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBrowsers(browsers = {}) {
+            const ctx = document.getElementById('browserDoughnutChart').getContext('2d');
+            if (browserChartInstance) browserChartInstance.destroy();
+
+            const browserLabels = Object.keys(browsers);
+            const browserData = Object.values(browsers);
+            const hasData = browserData.length > 0 && browserData.some(v => v > 0);
+
+            browserChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: hasData ? browserLabels : ['Chưa có dữ liệu'],
+                    datasets: [{
+                        data: hasData ? browserData : [1],
+                        backgroundColor: hasData ? ['#3b82f6', '#06b6d4', '#8b5cf6', '#f97316', '#64748b'] : ['#e2e8f0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '70%'
+                }
+            });
+
+            // Legend
+            const legend = document.getElementById('browserLegend');
+            if (hasData) {
+                legend.innerHTML = browserLabels.map((b, i) => `
+                    <div class="flex justify-between items-center text-gray-700 dark:text-gray-300">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-2" style="background: ${['#3b82f6', '#06b6d4', '#8b5cf6', '#f97316', '#64748b'][i % 5]}"></span>${b}</span>
+                        <strong class="font-mono text-gray-900 dark:text-white">${browserData[i]}</strong>
+                    </div>
+                `).join('');
+            } else {
+                legend.innerHTML = '<p class="text-gray-400 text-center text-xs">Đang cập nhật...</p>';
+            }
+        }
+
+        function renderRecentVisits(visits = []) {
+            const tbody = document.getElementById('recentVisitsTableBody');
+            if (!visits.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-gray-400">Chưa có nhật ký truy cập.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = visits.slice(0, 15).map(v => {
+                const timeAgo = formatTimeAgo(new Date(v.timestamp));
+                const devIcon = v.device === 'mobile' ? 'fas fa-mobile-alt text-pink-500' : 'fas fa-desktop text-indigo-500';
+                
+                return `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
+                        <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400 font-bold whitespace-nowrap">
+                            ${timeAgo}
+                        </td>
+                        <td class="py-2.5 px-3 whitespace-nowrap">
+                            <span class="font-bold text-gray-800 dark:text-gray-200 block">${v.user_name || 'Khách vãng lai'}</span>
+                            <span class="text-[10px] text-gray-400">${v.user_role || 'guest'}</span>
+                        </td>
+                        <td class="py-2.5 px-3">
+                            <span class="font-bold text-gray-800 dark:text-gray-200 block truncate max-w-[200px]" title="${v.title}">
+                                ${v.title}
+                            </span>
+                            <span class="font-mono text-[10px] text-gray-400 block">${v.path}</span>
+                        </td>
+                        <td class="py-2.5 px-3 whitespace-nowrap">
+                            <span class="inline-flex items-center text-gray-700 dark:text-gray-300 font-semibold">
+                                <i class="${devIcon} mr-1.5"></i> ${v.os || 'Windows'}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 whitespace-nowrap font-bold text-gray-700 dark:text-gray-300">
+                            ${v.browser || 'Chrome'}
+                        </td>
+                        <td class="py-2.5 px-3 whitespace-nowrap">
+                            <span class="font-mono text-gray-600 dark:text-gray-400 block font-bold">${v.ip_masked}</span>
+                            <span class="text-[10px] text-gray-400 block">${v.location || 'Việt Nam'}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 15) return 'Vừa xong';
+            if (seconds < 60) return `${seconds}s trước`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}p trước`;
+            const hours = Math.floor(minutes / 60);
+            return `${hours}h trước`;
+        }
+
+        function startAutoRefreshTimer() {
+            if (intervalRef) clearInterval(intervalRef);
+            countdownTimer = 3;
+            intervalRef = setInterval(async () => {
+                countdownTimer--;
+                const timerEl = document.getElementById('autoRefreshCountdown');
+                if (timerEl) timerEl.innerText = countdownTimer;
+
+                if (countdownTimer <= 0) {
+                    countdownTimer = 3;
+                    // Nhẹ nhàng cập nhật live pulse không reload toàn trang
+                    try {
+                        const res = await fetch(`${API_URL}/api/admin/analytics/live`);
+                        const live = await res.json();
+                        if (live.success) {
+                            document.getElementById('kpiLiveVisitors').innerText = live.live_visitors;
+                            renderActiveUsers(live.active_users || []);
+                        }
+                    } catch(e) {}
+                }
+            }, 1000);
+        }
+
+        async function simulateTraffic() {
+            const btn = document.getElementById('btnSimulate');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi tín hiệu...';
+
+            try {
+                await fetch(`${API_URL}/api/admin/analytics/simulate-visit`, { method: 'POST' });
+                await loadAnalytics(currentRange);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt mr-2 text-yellow-300"></i> Giả lập 1 lượt truy cập test';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ Sơ Năng Lực Ứng Viên | HT Work</title>
+    <title>Hồ Sơ Năng Lực Ứng Viên | KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -20,7 +20,7 @@
             }
         }
     </script>
-    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
+    <script src="../assets/js/token-formatter.js?v=1794810000"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
     <!-- Sidebar Placeholder -->
@@ -212,7 +212,7 @@
                                 <img src="https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(p.title)}" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-overlay opacity-60" alt="Placeholder">
                                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <i class="fas fa-magic text-2xl text-indigo-400 mb-1 drop-shadow-md"></i>
-                                    <span class="text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 drop-shadow-md">HT Portfolio</span>
+                                    <span class="text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 drop-shadow-md">KGS Portfolio</span>
                                 </div>
                             </div>
                         `}
@@ -308,11 +308,27 @@
             const elCover = document.getElementById('coverContainer');
             if (elCover && data.cover_url) elCover.style.backgroundImage = `url('${data.cover_url}')`;
 
-            // Phone Verified Badge
+            // Phone Verified Badge / Mở Khóa Liên Hệ Trực Tiếp (VIP Feature)
             const phoneBadge = document.getElementById('phoneVerifiedBadge');
             if (phoneBadge) {
                 if (data.is_phone_verified && data.phone_number) {
-                    phoneBadge.innerHTML = `<span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm"><i class="fas fa-check-circle mr-1.5 text-emerald-600"></i> ${data.phone_number} (Đã xác minh)</span>`;
+                    let clientSub = null;
+                    try {
+                        const savedSub = localStorage.getItem('kgs_user_sub') || localStorage.getItem('kgs_client_sub_cache');
+                        if (savedSub) clientSub = JSON.parse(savedSub);
+                    } catch (e) {}
+
+                    const isVip = clientSub && clientSub.is_active && !clientSub.is_expired && (clientSub.plan_id === 'client_pro' || clientSub.plan_id === 'client_vip');
+                    if (isVip) {
+                        const cleanDigits = data.phone_number.replace(/\D/g, '');
+                        phoneBadge.innerHTML = `
+                            <a href="tel:${data.phone_number}" class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-black px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center shadow-sm hover:scale-105 transition"><i class="fas fa-phone-alt mr-1.5 text-emerald-600"></i> ${data.phone_number} (Đã Mở Khóa VIP)</a>
+                            <a href="https://zalo.me/${cleanDigits}" target="_blank" class="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-black px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 flex items-center shadow-sm hover:scale-105 transition ml-1"><i class="fas fa-comment-dots mr-1.5 text-blue-500"></i> Chat Zalo</a>
+                        `;
+                    } else {
+                        const maskedPhone = data.phone_number.substring(0, 4) + ' ••• •••';
+                        phoneBadge.innerHTML = `<button onclick="window.openPricingModal('client')" class="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-xs font-black px-3 py-1 rounded-full border border-amber-300 dark:border-amber-700 flex items-center shadow-sm hover:scale-105 transition cursor-pointer" title="Bấm để mở khóa số điện thoại & Zalo liên hệ trực tiếp"><i class="fas fa-lock mr-1.5 text-amber-500"></i> ${maskedPhone} (Mở Khóa VIP)</button>`;
+                    }
                 } else {
                     phoneBadge.innerHTML = `<span class="bg-gray-100 dark:bg-gray-800 text-gray-500 text-xs font-bold px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700 flex items-center"><i class="fas fa-phone mr-1.5 text-gray-400"></i> Chưa xác thực SĐT</span>`;
                 }
@@ -399,6 +415,10 @@
             e.preventDefault();
         }, false);
     </script>
+
+    <!-- Real-time Traffic & Analytics Tracker -->
+    <script src="../assets/js/session-presence.js?v=20261116_v6"></script>
+    <script src="../assets/js/traffic-tracker.js?v=20261116_v6"></script>
 </body>
 
 </html>

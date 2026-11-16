@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const supabase = require('../config/supabase');
 
-const DATA_DIR = path.join(__dirname, '..', 'node_modules', '.cache', 'htwork_data');
+const DATA_DIR = path.join(__dirname, '..', 'node_modules', '.cache', 'kgs work_data');
 const CONNECTIONS_FILE = path.join(DATA_DIR, 'connections.json');
 const FAVORITES_FILE = path.join(DATA_DIR, 'favorites.json');
 const BLOCKS_FILE = path.join(DATA_DIR, 'blocks.json');

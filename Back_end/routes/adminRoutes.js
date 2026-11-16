@@ -4,9 +4,10 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 const blockchain = require('../blockchain');
-const { logEvent, getAuditLogs } = require('../services/auditLogger');
+const { logEvent, getAuditLogs, getAuditLogsAsync, batchSyncToGoogleSheets, batchSyncToFirebase } = require('../services/auditLogger');
 const { getDisputes } = require('../services/disputeStore');
-const settingsStore = require('../services/settingsStore');
+const subscriptionService = require('../services/subscriptionService');
+const supportStore = require('../services/supportStore');
 
 // 1. API: Thống kê tổng quan KPI cho Admin Dashboard
 router.get('/api/admin/stats', async (req, res) => {
@@ -25,14 +26,16 @@ router.get('/api/admin/stats', async (req, res) => {
         const completedJobs = jobs ? jobs.filter(j => j.status === 'completed').length : 0;
 
         // Wallets & Escrow stats
-        const { data: ledgers } = await supabase.from('wallet_ledger').select('amount, type');
+        const { data: ledgers } = await supabase.from('wallet_ledger').select('amount, type, receiver_id');
         let totalDeposits = 0;
         let totalWithdrawn = 0;
-        let totalPlatformRevenue = 0;
+        let totalPlatformProfit = 0;
         if (ledgers) {
             totalDeposits = ledgers.filter(l => l.type === 'DEPOSIT' || l.type === 'ADMIN_CREDIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
             totalWithdrawn = ledgers.filter(l => l.type === 'WITHDRAW' || l.type === 'ADMIN_DEBIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
-            totalPlatformRevenue = ledgers.filter(l => l.type === 'PLATFORM_FEE' || l.type === 'JOB_BOOST_FEE').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
+            // LOGIC CHUẨN: Lợi nhuận sàn CHỈ tính từ các gói nạp VIP, Tiện ích Đẩy Top và Phí dịch vụ sàn.
+            // Tiền Nạp và Rút là Dòng tiền hệ thống của User, TUYỆT ĐỐI không tính vào lợi nhuận sàn!
+            totalPlatformProfit = ledgers.filter(l => l.type === 'SUBSCRIPTION_VIP' || l.type === 'JOB_BOOST' || l.type === 'PLATFORM_FEE').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
         }
 
         const { data: wallets } = await supabase.from('wallets').select('balance, locked_balance');
@@ -58,6 +61,16 @@ router.get('/api/admin/stats', async (req, res) => {
             totalWithdrawn = approvedWithdrawAmount;
         }
 
+        // Deposit requests stats (Lệnh nạp Token chờ duyệt)
+        const { data: deposits } = await supabase.from('deposit_requests').select('amount, status');
+        const pendingDeposits = (deposits || []).filter(d => d.status === 'pending');
+        const pendingDepositCount = pendingDeposits.length;
+        const pendingDepositAmount = pendingDeposits.reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
+
+        // Support tickets stats (Yêu cầu hỗ trợ mở)
+        const pendingTickets = (supportStore.getTickets ? supportStore.getTickets() : []).filter(t => t.status === 'open' || t.status === 'pending');
+        const pendingSupportCount = pendingTickets.length;
+
         res.status(200).json({
             success: true,
             stats: {
@@ -74,15 +87,103 @@ router.get('/api/admin/stats', async (req, res) => {
                 total_deposits: totalDeposits,
                 total_withdrawn: totalWithdrawn,
                 pending_withdraw_count: pendingWithdrawCount,
+                pending_deposit_count: pendingDepositCount,
+                pending_deposit_amount: pendingDepositAmount,
+                pending_support_count: pendingSupportCount,
                 pending_withdraw_amount: pendingWithdrawAmount,
-                total_platform_revenue: totalPlatformRevenue,
-                platform_fee_percent: settingsStore.getPlatformFeePercent ? settingsStore.getPlatformFeePercent() : 10,
-                urgent_job_fee: settingsStore.getUrgentJobFee ? settingsStore.getUrgentJobFee() : 50000
+                total_platform_profit: totalPlatformProfit
             }
         });
     } catch (error) {
         console.error('Lỗi lấy admin stats:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// 1.1 API: Chi tiết Báo Cáo Doanh Thu & Dòng Tiền Hệ Thống dành cho Admin
+// Phân tách hoàn toàn: Lợi Nhuận Sàn Thực Thu vs Dòng Tiền Vận Hành Hệ Thống của User
+router.get('/api/admin/revenue/overview', async (req, res) => {
+    try {
+        // 1. CHỈ lấy các giao dịch doanh thu thực tế của Sàn (Gói VIP, Tiện ích Đẩy Top, Phí hoa hồng)
+        // TUYỆT ĐỐI không lấy lệnh Rút tiền (WITHDRAW) hay Nạp tiền (DEPOSIT) vào đây!
+        const { data: ledgers, error: lErr } = await supabase
+            .from('wallet_ledger')
+            .select('*, sender:sender_id(id, full_name, email, role, avatar_url)')
+            .in('type', ['SUBSCRIPTION_VIP', 'JOB_BOOST', 'PLATFORM_FEE'])
+            .order('created_at', { ascending: false });
+
+        if (lErr) throw lErr;
+
+        let vipRevenue = 0;
+        let boostRevenue = 0;
+        let feeRevenue = 0;
+
+        const transactions = (ledgers || []).map(l => {
+            const amt = parseFloat(l.amount || 0);
+            if (l.type === 'SUBSCRIPTION_VIP') vipRevenue += amt;
+            else if (l.type === 'JOB_BOOST') boostRevenue += amt;
+            else if (l.type === 'PLATFORM_FEE') feeRevenue += amt;
+            return l;
+        });
+
+        // TỔNG LỢI NHUẬN SÀN THỰC THU (Admin được tự do sử dụng)
+        const totalPlatformProfit = vipRevenue + boostRevenue + feeRevenue;
+
+        // 2. Lấy DÒNG TIỀN HỆ THỐNG CỦA USER (Tiền nạp, rút, tiền trong ví user, tiền ký quỹ Escrow)
+        const { data: allLedgers } = await supabase.from('wallet_ledger').select('amount, type');
+        let totalDeposits = 0;
+        let totalWithdrawn = 0;
+        if (allLedgers) {
+            totalDeposits = allLedgers.filter(l => l.type === 'DEPOSIT' || l.type === 'ADMIN_CREDIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
+            totalWithdrawn = allLedgers.filter(l => l.type === 'WITHDRAW' || l.type === 'ADMIN_DEBIT').reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
+        }
+
+        // Lấy số dư ví User và Escrow đang khóa
+        const { data: wallets } = await supabase.from('wallets').select('user_id, balance, locked_balance');
+        let userWalletsBalance = 0;
+        let totalLockedEscrow = 0;
+        let treasuryBalance = totalPlatformProfit;
+
+        if (wallets) {
+            wallets.forEach(w => {
+                if (w.user_id === '11111111-1111-1111-1111-111111111111') {
+                    treasuryBalance = parseFloat(w.balance || 0);
+                } else {
+                    userWalletsBalance += parseFloat(w.balance || 0);
+                    totalLockedEscrow += parseFloat(w.locked_balance || 0);
+                }
+            });
+        }
+
+        const totalUserFundsInSystem = userWalletsBalance + totalLockedEscrow;
+
+        res.status(200).json({
+            success: true,
+            revenue: {
+                // Nhóm 1: LỢI NHUẬN SÀN THỰC THU (TIỀN LỜI TỰ DO DÙNG)
+                total_platform_profit: totalPlatformProfit,
+                vip_revenue: vipRevenue,
+                boost_revenue: boostRevenue,
+                fee_revenue: feeRevenue,
+                treasury_balance: treasuryBalance,
+                estimated_costs: 0,
+                net_profit: totalPlatformProfit,
+
+                // Nhóm 2: DÒNG TIỀN VẬN HÀNH HỆ THỐNG (TIỀN CỦA KHÁCH HÀNG & FREELANCER)
+                system_flow: {
+                    total_deposits: totalDeposits,
+                    total_withdrawn: totalWithdrawn,
+                    user_wallets_balance: userWalletsBalance,
+                    escrow_locked: totalLockedEscrow,
+                    total_user_funds: totalUserFundsInSystem
+                },
+
+                transactions: transactions
+            }
+        });
+    } catch (err) {
+        console.error('Lỗi lấy báo cáo doanh thu admin:', err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -270,10 +371,52 @@ router.post('/api/admin/users/:id/adjust-tokens', async (req, res) => {
 });
 
 // 6. API: Lấy danh sách Nhật Ký Kiểm Toán Hệ Thống Toàn Diện (System Audit Logs)
+// API Đồng bộ hàng loạt Audit Logs lên Google Sheets Webhook
+router.post('/api/admin/audit-logs/sync-sheets', async (req, res) => {
+    const { webhookUrl, maxRows } = req.body || {};
+    try {
+        const settingsStore = require('../services/settingsStore');
+        const targetUrl = webhookUrl || settingsStore.getGoogleSheetWebhook();
+        if (!targetUrl) {
+            return res.status(400).json({ error: 'Chưa cấu hình URL Webhook Google Sheets!' });
+        }
+        const result = await batchSyncToGoogleSheets(targetUrl, maxRows || 300);
+        res.status(200).json({
+            success: true,
+            message: `Đã đồng bộ thành công ${result.count} bản ghi log kiểm toán lên Google Sheets!`,
+            count: result.count
+        });
+    } catch (error) {
+        console.error('Lỗi đồng bộ Google Sheets:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API Đồng bộ hàng loạt Audit Logs lên Firebase Realtime Database
+router.post('/api/admin/audit-logs/sync-firebase', async (req, res) => {
+    const { firebaseUrl, maxRows } = req.body || {};
+    try {
+        const settingsStore = require('../services/settingsStore');
+        const targetUrl = firebaseUrl || settingsStore.getFirebaseDbUrl();
+        if (!targetUrl) {
+            return res.status(400).json({ error: 'Chưa cấu hình URL Firebase Realtime Database!' });
+        }
+        const result = await batchSyncToFirebase(targetUrl, maxRows || 500);
+        res.status(200).json({
+            success: true,
+            message: `Đã đồng bộ thành công ${result.count} bản ghi log kiểm toán lên Firebase Cloud!`,
+            count: result.count
+        });
+    } catch (error) {
+        console.error('Lỗi đồng bộ Firebase:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.get('/api/admin/audit-logs', async (req, res) => {
     try {
         const { module, level, search, limit, offset } = req.query;
-        const result = getAuditLogs({
+        const result = await getAuditLogsAsync({
             module: module || 'ALL',
             level: level || 'ALL',
             search: search || '',
@@ -284,7 +427,9 @@ router.get('/api/admin/audit-logs', async (req, res) => {
         res.status(200).json({
             success: true,
             total: result.total,
-            logs: result.logs
+            logs: result.logs,
+            firebaseConnected: result.firebaseConnected,
+            firebaseCount: result.firebaseCount
         });
     } catch (error) {
         console.error('Lỗi lấy audit logs:', error);

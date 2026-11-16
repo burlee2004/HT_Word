@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dự Án Của Tôi - HT Work Freelancer</title>
+    <title>Dự Án Của Tôi - KGS Work Freelancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -20,7 +20,7 @@
             }
         }
     </script>
-    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
+    <script src="../assets/js/token-formatter.js?v=1794810000"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
     <!-- Sidebar Placeholder -->
@@ -38,7 +38,7 @@
                 <i class="fas fa-shield-alt text-amber-500 text-lg mt-0.5 shrink-0"></i>
                 <div class="leading-relaxed">
                     <strong class="font-bold block mb-0.5">QUY CHẾ BẢO VỆ FREELANCER (ESCROW PROTECTION)</strong>
-                    <span>Mọi báo cáo tiến độ, nộp tệp tin minh chứng và nhận thù lao phải thực hiện trực tiếp trên HT Work. Hệ thống ký quỹ Escrow bảo đảm 100% quyền lợi thanh toán khi bạn hoàn thành đúng cam kết.</span>
+                    <span>Mọi báo cáo tiến độ, nộp tệp tin minh chứng và nhận thù lao phải thực hiện trực tiếp trên KGS Work. Hệ thống ký quỹ Escrow bảo đảm 100% quyền lợi thanh toán khi bạn hoàn thành đúng cam kết.</span>
                 </div>
             </div>
 
@@ -219,7 +219,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-black text-red-600 dark:text-red-400">Khiếu Nại & Tranh Chấp</h2>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Admin HT Work sẽ can thiệp để bảo vệ quyền lợi của bạn.</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Admin KGS Work sẽ can thiệp để bảo vệ quyền lợi của bạn.</p>
                     </div>
                 </div>
                 
@@ -247,7 +247,7 @@
     </div>
 
     <!-- Load UI Framework -->
-    <script src="freelancer-ui.js?v=1791344398"></script>
+    <script src="freelancer-ui.js?v=1794810000"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
@@ -414,6 +414,7 @@
                 else if (job.status === 'pending_plan_approval') badge = '<span class="bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 text-[11px] px-2.5 py-0.5 rounded-full font-bold border border-amber-200 dark:border-amber-800">Chờ duyệt Plan</span>';
                 else if (job.status === 'in_progress') badge = '<span class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[11px] px-2.5 py-0.5 rounded-full font-bold border border-emerald-200 dark:border-emerald-800">Đang thực hiện</span>';
                 else if (job.status === 'completed') badge = '<span class="bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 text-[11px] px-2.5 py-0.5 rounded-full font-bold border border-purple-200 dark:border-purple-800">Đã nghiệm thu</span>';
+                else if (job.status === 'disputed') badge = '<span class="bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 text-[11px] px-2.5 py-0.5 rounded-full font-bold border border-rose-200 dark:border-rose-800 animate-pulse"><i class="fas fa-balance-scale mr-1"></i> Đang Tranh Chấp</span>';
 
                 // Tiến độ milestones
                 const totalM = job.milestones ? job.milestones.length : 0;
@@ -518,6 +519,31 @@
                         </h3>
                         <div class="space-y-4">
                             ${(job.milestones || []).map(m => renderMilestone(m)).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (job.status === 'disputed') {
+                headerBadge = '<span class="bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 text-xs font-black px-3 py-1 rounded-full border border-rose-200 dark:border-rose-800 animate-pulse"><i class="fas fa-gavel mr-1"></i> Đang Tranh Chấp</span>';
+                contentHtml = `
+                    <div class="bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-950/40 dark:to-gray-800 border-2 border-rose-300 dark:border-rose-800 rounded-2xl p-5 mt-4 text-xs sm:text-sm">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-md">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between flex-wrap gap-2">
+                                    <h4 class="font-black text-rose-900 dark:text-rose-200 text-sm">DỰ ÁN ĐANG TRONG TRẠNG THÁI TRANH CHẤP</h4>
+                                    <span class="px-2.5 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 text-[10px] font-black uppercase">Đang thụ lý</span>
+                                </div>
+                                <p class="text-rose-800 dark:text-rose-300 mt-1 leading-relaxed text-xs">
+                                    Dự án này đã được đưa lên Tòa án Ban Quản Trị KGS Work thụ lý. Toàn bộ tiền thù lao đang được bảo vệ an toàn trong quỹ Escrow. Ban Quản Trị đang kiểm định các bằng chứng sản phẩm và tin nhắn trao đổi để ra phán quyết bảo đảm quyền lợi cho bạn.
+                                </p>
+                                <div class="mt-2.5 flex items-center gap-2 text-xs">
+                                    <a href="support.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition shadow-xs">
+                                        <i class="fas fa-headset"></i> Gửi giải trình tới Admin
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1587,7 +1613,7 @@ function openPlanModal(jobId, jobBudget) {
                     <div>
                         <div class="flex items-center space-x-2">
                             <h2 class="text-base md:text-lg font-bold">Trợ Lý AI Phân Bổ Kế Hoạch</h2>
-                            <span class="text-[10px] bg-yellow-400/20 text-yellow-200 border border-yellow-300/30 px-2 py-0.5 rounded-full font-bold">HT Work</span>
+                            <span class="text-[10px] bg-yellow-400/20 text-yellow-200 border border-yellow-300/30 px-2 py-0.5 rounded-full font-bold">KGS Work</span>
                         </div>
                         <p class="text-xs text-purple-100 mt-0.5">Yêu cầu AI tự động chia giai đoạn theo ý muốn</p>
                     </div>

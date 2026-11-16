@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - HT Work</title>
+    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - KGS Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -21,7 +21,7 @@
             }
         }
     </script>
-    <script src="../assets/js/token-formatter.js?v=1791344398"></script>
+    <script src="../assets/js/token-formatter.js?v=1794810000"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
     <!-- Sidebar Placeholder -->
@@ -432,7 +432,7 @@
                 updateTabCounts();
                 renderFilteredJobs();
             } catch (err) {
-                console.error('[HT Work] Lỗi load pending actions:', err);
+                console.error('[KGS Work] Lỗi load pending actions:', err);
                 if (allJobsData.length === 0) {
                     listDiv.innerHTML = `
                         <div class="bg-red-50 text-red-600 p-6 rounded-2xl text-center text-sm font-bold border border-red-200">
@@ -518,6 +518,8 @@
             else if (job.status === 'pending_plan_approval') statusBadge = '<span class="bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-bold animate-pulse"><i class="fas fa-file-signature mr-1"></i> Chờ Bạn Duyệt Kế Hoạch</span>';
             else if (job.status === 'in_progress') statusBadge = '<span class="bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-spinner fa-spin mr-1"></i> Đang Thực Hiện</span>';
             else if (job.status === 'completed') statusBadge = '<span class="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-check-circle mr-1"></i> Đã Hoàn Thành</span>';
+            else if (job.status === 'disputed') statusBadge = '<span class="bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 px-3 py-1 rounded-full text-xs font-bold animate-pulse"><i class="fas fa-balance-scale mr-1"></i> Đang Tranh Chấp</span>';
+            else if (job.status === 'cancelled') statusBadge = '<span class="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-ban mr-1"></i> Đã Hủy</span>';
             else statusBadge = `<span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-bold">${job.status}</span>`;
 
             // --- Nội dung Milestones / Timeline ---
@@ -564,6 +566,33 @@
             }
 
             // --- Banner Duyệt Kế Hoạch khi ở pending_plan_approval ---
+            let disputeBanner = '';
+            if (job.status === 'disputed') {
+                disputeBanner = `
+                    <div class="mt-4 p-4.5 bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-950/40 dark:to-gray-800 border-2 border-rose-300 dark:border-rose-800 rounded-2xl shadow-sm">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-md">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between flex-wrap gap-2">
+                                    <h4 class="font-black text-rose-900 dark:text-rose-200 text-sm">DỰ ÁN ĐANG TRONG TRẠNG THÁI TRANH CHẤP / KHIẾU NẠI</h4>
+                                    <span class="px-2.5 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 text-[10px] font-black uppercase">Đang thụ lý</span>
+                                </div>
+                                <p class="text-xs text-rose-800 dark:text-rose-300 mt-1 leading-relaxed">
+                                    Toàn bộ số tiền Escrow đang được đóng băng an toàn trên hệ thống. Ban Quản Trị KGS Work đang trực tiếp thẩm định các bằng chứng, lịch sử bàn giao và nhật ký tin nhắn giữa hai bên để đưa ra phán quyết công bằng nhất.
+                                </p>
+                                <div class="mt-2.5 flex items-center gap-2 text-xs">
+                                    <a href="support.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition shadow-xs">
+                                        <i class="fas fa-headset"></i> Trung tâm hỗ trợ Admin
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             let planApprovalBanner = '';
             if (job.status === 'pending_plan_approval') {
                 planApprovalBanner = `
@@ -642,7 +671,7 @@
                                 </div>
                                 <div>
                                     <p class="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Dự án đã hoàn tất nghiệm thu & thanh toán!</p>
-                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên HT Work.</p>
+                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên KGS Work.</p>
                                 </div>
                             </div>
                             <button onclick="openReviewModal('${job.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">
@@ -687,7 +716,8 @@
                         </div>
                     </div>
 
-                    ${planApprovalBanner}
+                    ${disputeBanner}
+                        ${planApprovalBanner}
                     ${milestonesHtml}
                     ${reviewActionHtml}
                 </div>
@@ -1429,7 +1459,7 @@
     </script>
 
     <!-- Shared UI Script -->
-    <script src="ui.js?v=1791344398"></script>
+    <script src="ui.js?v=1794810000"></script>
 
     <script>
         // Global Drag and Drop protection

@@ -163,7 +163,7 @@
 
                     <!-- Withdrawals Table -->
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm" id="withdrawTable">
+                        <table class="w-full min-w-[850px] text-left text-sm whitespace-nowrap" id="withdrawTable">
                             <thead class="bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-bold border-b border-slate-200 dark:border-slate-800">
                                 <tr>
                                     <th class="py-3.5 px-4 text-center w-10">
@@ -353,13 +353,13 @@
     </div>
 
     <!-- UI Core Script -->
-    <script src="admin-ui.js?v=1791344398"></script>
+    <script src="admin-ui.js?v=20261116_v6"></script>
 
     <!-- Page Logic Script -->
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         let allRequests = [];
         let currentFilter = 'pending';

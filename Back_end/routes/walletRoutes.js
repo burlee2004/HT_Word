@@ -18,25 +18,26 @@ router.get('/api/admin/transactions', async (req, res) => {
     }
 });
 
-// 15. API: Lấy thông tin ví của user (Tối ưu phản hồi siêu tốc)
+// 15. API: Lấy thông tin ví của user (Tối ưu phản hồi siêu tốc, chống lỗi trùng lặp ví)
 router.get('/api/wallet/:user_id', async (req, res) => {
     const { user_id } = req.params;
     try {
-        const { data, error } = await supabase.from('wallets').select('*').eq('user_id', user_id).single();
-        if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
+        const { data, error } = await supabase.from('wallets').select('*').eq('user_id', user_id).order('created_at', { ascending: false });
+        if (error) throw error;
         
-        let dbBalance = data ? (parseFloat(data.balance) || 0) : 0;
-        let dbLocked = data ? Math.max(0, parseFloat(data.locked_balance) || 0) : 0;
+        const wallet = data && data.length > 0 ? data[0] : null;
+        let dbBalance = wallet ? (parseFloat(wallet.balance) || 0) : 0;
+        let dbLocked = wallet ? Math.max(0, parseFloat(wallet.locked_balance) || 0) : 0;
 
         // BẢO MẬT WEB2.5: Đối chiếu Blockchain chạy nền bất đồng bộ (không block làm chậm response của User)
-        if (blockchain.isConfigured() && data) {
+        if (blockchain.isConfigured() && wallet) {
             blockchain.getBalance(user_id).catch(() => {});
         }
 
         res.status(200).json({ 
             balance: dbBalance, 
             locked_balance: dbLocked,
-            wallet: { ...data, balance: dbBalance, locked_balance: dbLocked } || { balance: 0, locked_balance: 0 }
+            wallet: wallet || { balance: 0, locked_balance: 0 }
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -82,7 +83,20 @@ router.get('/api/wallet/:user_id/transactions', async (req, res) => {
             .limit(50);
             
         if (error) throw error;
-        res.status(200).json({ transactions: data });
+
+        // Chuẩn hóa mô tả thân thiện với User (Bỏ nhãn nội bộ [DOANH THU SÀN])
+        const userTransactions = (data || []).map(tx => {
+            let cleanNote = tx.note || '';
+            if (cleanNote.includes('[DOANH THU SÀN]')) {
+                cleanNote = cleanNote.replace(/\[DOANH THU SÀN\]\s*/gi, '').trim();
+            }
+            return {
+                ...tx,
+                note: cleanNote
+            };
+        });
+
+        res.status(200).json({ transactions: userTransactions });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -114,7 +128,7 @@ router.get('/api/admin/audit/users', async (req, res) => {
 });
 
 // API DEV / TESTER (DỌN DẸP VÍ)
-const ALLOWED_TESTERS = ['admin@htwork.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
+const ALLOWED_TESTERS = ['admin@kgs work.com', 'hoanglubo2004@gmail.com', 'burlee2004@gmail.com'];
 
 router.post('/api/test/reset-wallet', async (req, res) => {
     const { user_id, email } = req.body;

@@ -1,0 +1,489 @@
+{
+  "summary": {
+    "total_pageviews": 4363,
+    "total_unique_visitors": 2700,
+    "initialized_at": "2026-11-16T02:13:32.593Z"
+  },
+  "daily": {
+    "2026-10-18": {
+      "pageviews": 65,
+      "unique_visitors": 35,
+      "devices": {
+        "desktop": 37,
+        "mobile": 24,
+        "tablet": 4
+      }
+    },
+    "2026-10-19": {
+      "pageviews": 131,
+      "unique_visitors": 80,
+      "devices": {
+        "desktop": 75,
+        "mobile": 49,
+        "tablet": 7
+      }
+    },
+    "2026-10-20": {
+      "pageviews": 124,
+      "unique_visitors": 74,
+      "devices": {
+        "desktop": 71,
+        "mobile": 47,
+        "tablet": 6
+      }
+    },
+    "2026-10-21": {
+      "pageviews": 135,
+      "unique_visitors": 76,
+      "devices": {
+        "desktop": 78,
+        "mobile": 51,
+        "tablet": 6
+      }
+    },
+    "2026-10-22": {
+      "pageviews": 139,
+      "unique_visitors": 92,
+      "devices": {
+        "desktop": 80,
+        "mobile": 52,
+        "tablet": 7
+      }
+    },
+    "2026-10-23": {
+      "pageviews": 151,
+      "unique_visitors": 84,
+      "devices": {
+        "desktop": 87,
+        "mobile": 57,
+        "tablet": 7
+      }
+    },
+    "2026-10-24": {
+      "pageviews": 80,
+      "unique_visitors": 46,
+      "devices": {
+        "desktop": 46,
+        "mobile": 30,
+        "tablet": 4
+      }
+    },
+    "2026-10-25": {
+      "pageviews": 87,
+      "unique_visitors": 52,
+      "devices": {
+        "desktop": 50,
+        "mobile": 33,
+        "tablet": 4
+      }
+    },
+    "2026-10-26": {
+      "pageviews": 147,
+      "unique_visitors": 91,
+      "devices": {
+        "desktop": 85,
+        "mobile": 55,
+        "tablet": 7
+      }
+    },
+    "2026-10-27": {
+      "pageviews": 144,
+      "unique_visitors": 82,
+      "devices": {
+        "desktop": 83,
+        "mobile": 54,
+        "tablet": 7
+      }
+    },
+    "2026-10-28": {
+      "pageviews": 143,
+      "unique_visitors": 94,
+      "devices": {
+        "desktop": 82,
+        "mobile": 54,
+        "tablet": 7
+      }
+    },
+    "2026-10-29": {
+      "pageviews": 156,
+      "unique_visitors": 90,
+      "devices": {
+        "desktop": 90,
+        "mobile": 59,
+        "tablet": 7
+      }
+    },
+    "2026-10-30": {
+      "pageviews": 164,
+      "unique_visitors": 102,
+      "devices": {
+        "desktop": 95,
+        "mobile": 62,
+        "tablet": 7
+      }
+    },
+    "2026-10-31": {
+      "pageviews": 85,
+      "unique_visitors": 51,
+      "devices": {
+        "desktop": 49,
+        "mobile": 32,
+        "tablet": 4
+      }
+    },
+    "2026-11-01": {
+      "pageviews": 94,
+      "unique_visitors": 60,
+      "devices": {
+        "desktop": 54,
+        "mobile": 35,
+        "tablet": 5
+      }
+    },
+    "2026-11-02": {
+      "pageviews": 182,
+      "unique_visitors": 103,
+      "devices": {
+        "desktop": 105,
+        "mobile": 69,
+        "tablet": 8
+      }
+    },
+    "2026-11-03": {
+      "pageviews": 171,
+      "unique_visitors": 114,
+      "devices": {
+        "desktop": 99,
+        "mobile": 64,
+        "tablet": 8
+      }
+    },
+    "2026-11-04": {
+      "pageviews": 186,
+      "unique_visitors": 129,
+      "devices": {
+        "desktop": 107,
+        "mobile": 70,
+        "tablet": 9
+      }
+    },
+    "2026-11-05": {
+      "pageviews": 181,
+      "unique_visitors": 118,
+      "devices": {
+        "desktop": 104,
+        "mobile": 68,
+        "tablet": 9
+      }
+    },
+    "2026-11-06": {
+      "pageviews": 178,
+      "unique_visitors": 110,
+      "devices": {
+        "desktop": 103,
+        "mobile": 67,
+        "tablet": 8
+      }
+    },
+    "2026-11-07": {
+      "pageviews": 91,
+      "unique_visitors": 62,
+      "devices": {
+        "desktop": 52,
+        "mobile": 34,
+        "tablet": 5
+      }
+    },
+    "2026-11-08": {
+      "pageviews": 96,
+      "unique_visitors": 54,
+      "devices": {
+        "desktop": 55,
+        "mobile": 36,
+        "tablet": 5
+      }
+    },
+    "2026-11-09": {
+      "pageviews": 198,
+      "unique_visitors": 132,
+      "devices": {
+        "desktop": 114,
+        "mobile": 75,
+        "tablet": 9
+      }
+    },
+    "2026-11-10": {
+      "pageviews": 202,
+      "unique_visitors": 117,
+      "devices": {
+        "desktop": 117,
+        "mobile": 76,
+        "tablet": 9
+      }
+    },
+    "2026-11-11": {
+      "pageviews": 191,
+      "unique_visitors": 114,
+      "devices": {
+        "desktop": 110,
+        "mobile": 72,
+        "tablet": 9
+      }
+    },
+    "2026-11-12": {
+      "pageviews": 192,
+      "unique_visitors": 132,
+      "devices": {
+        "desktop": 111,
+        "mobile": 72,
+        "tablet": 9
+      }
+    },
+    "2026-11-13": {
+      "pageviews": 198,
+      "unique_visitors": 127,
+      "devices": {
+        "desktop": 114,
+        "mobile": 75,
+        "tablet": 9
+      }
+    },
+    "2026-11-14": {
+      "pageviews": 123,
+      "unique_visitors": 84,
+      "devices": {
+        "desktop": 71,
+        "mobile": 46,
+        "tablet": 6
+      }
+    },
+    "2026-11-15": {
+      "pageviews": 124,
+      "unique_visitors": 72,
+      "devices": {
+        "desktop": 71,
+        "mobile": 47,
+        "tablet": 6
+      }
+    },
+    "2026-11-16": {
+      "pageviews": 205,
+      "unique_visitors": 123,
+      "devices": {
+        "desktop": 118,
+        "mobile": 78,
+        "tablet": 9
+      },
+      "_visitors": [
+        "test_vid_123",
+        "test_vid_xyz",
+        "sim_wjr7zbi"
+      ]
+    }
+  },
+  "hourly": {
+    "2026-11-16T00": {
+      "pageviews": 2,
+      "unique_visitors": 1
+    },
+    "2026-11-16T01": {
+      "pageviews": 2,
+      "unique_visitors": 1
+    },
+    "2026-11-16T02": {
+      "pageviews": 2,
+      "unique_visitors": 1
+    },
+    "2026-11-16T03": {
+      "pageviews": 2,
+      "unique_visitors": 1
+    },
+    "2026-11-16T04": {
+      "pageviews": 2,
+      "unique_visitors": 1
+    },
+    "2026-11-16T05": {
+      "pageviews": 2,
+      "unique_visitors": 1
+    },
+    "2026-11-16T06": {
+      "pageviews": 3,
+      "unique_visitors": 1
+    },
+    "2026-11-16T07": {
+      "pageviews": 3,
+      "unique_visitors": 1
+    },
+    "2026-11-16T08": {
+      "pageviews": 17,
+      "unique_visitors": 11
+    },
+    "2026-11-16T09": {
+      "pageviews": 19,
+      "unique_visitors": 13
+    },
+    "2026-11-16T10": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T11": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T12": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T13": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T14": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T15": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T16": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T17": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T18": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T19": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T20": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T21": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T22": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    },
+    "2026-11-16T23": {
+      "pageviews": 0,
+      "unique_visitors": 0
+    }
+  },
+  "top_pages": {
+    "/": 1526,
+    "/index.html": 654,
+    "/explore-jobs.html": 961,
+    "/explore-freelancers.html": 523,
+    "/how-it-works.html": 348,
+    "/sharedFolder/login.html": 218,
+    "/freelancer/home.html": 88,
+    "/user/home.html": 43
+  },
+  "devices": {
+    "desktop": 2529,
+    "mobile": 1658,
+    "tablet": 174
+  },
+  "browsers": {
+    "Chrome": 2790,
+    "Safari": 828,
+    "Edge": 479,
+    "Firefox": 174,
+    "Khác": 90
+  },
+  "referrers": {
+    "Trực tiếp (Direct / Bookmark)": 1962,
+    "Google Tìm kiếm (Organic)": 1398,
+    "Mạng xã hội (Facebook / Zalo)": 654,
+    "Giới thiệu (Referral / GitHub)": 348
+  },
+  "recent_visits": [
+    {
+      "timestamp": "2026-11-16T02:15:58.782Z",
+      "path": "/freelancer/home.html",
+      "title": "Bảng Điều Khiển Freelancer",
+      "device": "mobile",
+      "browser": "Khác",
+      "os": "macOS",
+      "ip_masked": "42.112.***.99",
+      "referrer": "Google Tìm kiếm (Organic)",
+      "location": "Hải Phòng, Việt Nam"
+    },
+    {
+      "timestamp": "2026-11-16T02:15:58.738Z",
+      "path": "/explore-jobs.html",
+      "title": "Khám Phá Việc Làm IT",
+      "device": "mobile",
+      "browser": "Khác",
+      "os": "macOS",
+      "ip_masked": "118.69.***.14",
+      "referrer": "Google Tìm kiếm (Organic)",
+      "location": "Hà Nội, Việt Nam"
+    },
+    {
+      "timestamp": "2026-11-16T02:13:32.639Z",
+      "path": "/explore-jobs.html",
+      "title": "Khám Phá Việc Làm IT",
+      "device": "desktop",
+      "browser": "Khác",
+      "os": "Windows",
+      "ip_masked": "113.161.***.99",
+      "referrer": "Google Tìm kiếm (Organic)",
+      "location": "Hải Phòng, Việt Nam"
+    },
+    {
+      "timestamp": "2026-11-16T02:12:47.593Z",
+      "path": "/explore-jobs.html",
+      "title": "Khám Phá Việc Làm IT Freelance - KGS Work",
+      "device": "desktop",
+      "browser": "Chrome",
+      "os": "Windows",
+      "ip_masked": "118.69.***.14",
+      "referrer": "Google Tìm kiếm (Organic)",
+      "location": "Hà Nội, Việt Nam"
+    },
+    {
+      "timestamp": "2026-11-16T02:11:32.593Z",
+      "path": "/",
+      "title": "KGS Work - Nền tảng Freelancer IT & Ký Quỹ Escrow Hàng Đầu",
+      "device": "mobile",
+      "browser": "Safari",
+      "os": "iOS",
+      "ip_masked": "171.244.***.89",
+      "referrer": "Trực tiếp (Direct / Bookmark)",
+      "location": "TP. Hồ Chí Minh, Việt Nam"
+    },
+    {
+      "timestamp": "2026-11-16T02:09:12.593Z",
+      "path": "/explore-freelancers.html",
+      "title": "Tìm Kiếm Chuyên Gia & Lập Trình Viên IT - KGS Work",
+      "device": "desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "ip_masked": "14.238.***.55",
+      "referrer": "Mạng xã hội (Facebook / Zalo)",
+      "location": "Đà Nẵng, Việt Nam"
+    },
+    {
+      "timestamp": "2026-11-16T02:06:42.593Z",
+      "path": "/how-it-works.html",
+      "title": "Quy Trình Hoạt Động & Bảo Hộ Escrow - KGS Work",
+      "device": "mobile",
+      "browser": "Chrome",
+      "os": "Android",
+      "ip_masked": "115.79.***.201",
+      "referrer": "Google Tìm kiếm (Organic)",
+      "location": "Cần Thơ, Việt Nam"
+    }
+  ]
+}

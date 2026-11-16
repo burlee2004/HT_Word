@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="Admin" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-lg text-white tracking-wide block leading-tight">HT Work ADMIN</span>
+                <span class="font-black text-lg text-white tracking-wide block leading-tight">KGS Work ADMIN</span>
                 <span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Supreme Overseer</span>
             </div>
         </div>
@@ -34,6 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
             <a href="dashboard.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
                 <i class="fas fa-chart-pie w-5 text-indigo-400"></i> <span>Tổng quan & Sổ cái</span>
+            </a>
+            <a href="traffic-analytics.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
+                <i class="fas fa-chart-line w-5 text-emerald-400"></i> <span>Lưu lượng & Analytics</span>
+            </a>
+            <a href="revenue-report.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
+                <i class="fas fa-file-invoice-dollar w-5 text-amber-400"></i> <span>Báo Cáo Doanh Thu</span>
+            </a>
+            <a href="plans.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
+                <i class="fas fa-crown w-5 text-amber-400"></i> <span>Quản lý Gói & VIP</span>
             </a>
             <a href="users.html" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white font-semibold transition text-xs sm:text-sm">
                 <i class="fas fa-users-cog w-5 text-blue-400"></i> <span>Quản lý Người dùng</span>
@@ -95,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         HT
                     </div>
                     <div>
-                        <span class="font-black text-base text-white block">HT Work ADMIN</span>
+                        <span class="font-black text-base text-white block">KGS Work ADMIN</span>
                         <span class="text-[9px] font-bold text-red-400 uppercase">Supreme Overseer</span>
                     </div>
                 </div>
@@ -107,6 +116,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <nav class="flex-1 p-3 space-y-1 overflow-y-auto text-xs">
                 <a href="dashboard.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
                     <i class="fas fa-chart-pie w-5 text-indigo-400"></i> <span>Tổng quan & Sổ cái</span>
+                </a>
+                <a href="traffic-analytics.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
+                    <i class="fas fa-chart-line w-5 text-emerald-400"></i> <span>Lưu lượng & Analytics</span>
+                </a>
+                <a href="revenue-report.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
+                    <i class="fas fa-file-invoice-dollar w-5 text-amber-400"></i> <span>Báo Cáo Doanh Thu</span>
+                </a>
+                <a href="plans.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
+                    <i class="fas fa-crown w-5 text-amber-400"></i> <span>Quản lý Gói & VIP</span>
                 </a>
                 <a href="users.html" class="drawer-item flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-300 hover:bg-gray-800 font-semibold">
                     <i class="fas fa-users-cog w-5 text-blue-400"></i> <span>Quản lý Người dùng</span>
@@ -169,6 +187,12 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         
         <div class="flex items-center space-x-2 sm:space-x-3 md:space-x-4 shrink-0">
+            <!-- Alert Badge Nạp tiền -->
+            <a href="deposits.html" id="headerDepositAlert" class="hidden items-center space-x-1.5 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-900 text-teal-600 dark:text-teal-400 px-2.5 py-1.5 rounded-full text-xs font-black shadow-sm hover:bg-teal-100 transition animate-pulse">
+                <i class="fas fa-coins text-teal-500"></i>
+                <span id="headerDepositCount">0 Lệnh nạp</span>
+            </a>
+
             <!-- Alert Badge Tranh chấp -->
             <a href="projects-monitor.html" id="headerDisputeAlert" class="hidden items-center space-x-1.5 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 px-2.5 py-1.5 rounded-full text-xs font-black shadow-sm hover:bg-red-100 transition">
                 <i class="fas fa-exclamation-circle text-red-500 animate-pulse"></i>
@@ -180,6 +204,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fas fa-money-bill-wave text-amber-500"></i>
                 <span id="headerWithdrawCount">0 Lệnh rút</span>
             </a>
+
+            <!-- Admin Notification Bell -->
+            <div class="relative" id="adminNotiDropdownContainer">
+                <button id="adminNotiBtn" class="relative text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 shrink-0" title="Thông báo Quản trị viên">
+                    <i class="fas fa-bell text-xs sm:text-sm md:text-base"></i>
+                    <span id="adminTotalNotiBadge" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-5 h-5 rounded-full font-black flex items-center justify-center border-2 border-white dark:border-gray-800 animate-pulse">0</span>
+                </button>
+
+                <!-- Dropdown Popup -->
+                <div id="adminNotiMenu" class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/70 dark:bg-gray-900/40">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-bell text-red-500 text-sm"></i>
+                            <span class="font-black text-sm text-gray-900 dark:text-white">Thông Báo Quản Trị</span>
+                        </div>
+                        <span id="notiSummaryText" class="text-[11px] font-bold text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">0 việc</span>
+                    </div>
+
+                    <div class="p-2 space-y-1.5 max-h-80 overflow-y-auto" id="adminNotiList">
+                        <div class="p-4 text-center text-gray-400 text-xs font-medium">Không có sự kiện mới cần xử lý</div>
+                    </div>
+
+                    <div class="p-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/40 flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400"><i class="fas fa-sync-alt mr-1 text-emerald-500"></i> Live Sync 10s</span>
+                        <a href="dashboard.html" class="text-red-500 font-bold hover:underline">Sổ cái & Tổng quan &rarr;</a>
+                    </div>
+                </div>
+            </div>
 
             <!-- Dark Mode Toggle -->
             <button id="themeToggle" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 shrink-0" title="Chuyển chế độ sáng/tối">
@@ -273,7 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 6. Logout
     const handleLogout = () => {
+        if (typeof window.__kgsSendPresenceLeave === 'function') {
+            try { window.__kgsSendPresenceLeave(); } catch(e) {}
+        }
         localStorage.removeItem('user');
+        sessionStorage.removeItem('__kgs_tab_sid');
         window.location.href = '../sharedFolder/login.html';
     };
 
@@ -323,14 +379,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 8. Global Modern Typography & Sleek Scrollbar Style
-    if (!document.getElementById('htwork-global-style')) {
+    if (!document.getElementById('kgs work-global-style')) {
         const fontLink = document.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap';
         document.head.appendChild(fontLink);
 
         const style = document.createElement('style');
-        style.id = 'htwork-global-style';
+        style.id = 'kgs work-global-style';
         style.innerHTML = `
             * {
                 font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -397,7 +453,7 @@ function sendAdminHeartbeat() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 admin_id: adminUser.id || '11111111-1111-1111-1111-111111111111', 
-                admin_name: adminUser.full_name || 'Quản Trị Viên HT Work' 
+                admin_name: adminUser.full_name || 'Quản Trị Viên KGS Work' 
             })
         }).catch(() => {});
     } catch(e) {}

@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tham gia HT Work - Đăng ký tài khoản</title>
+    <title>Tham gia KGS Work - Đăng ký tài khoản</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
     <script>
@@ -17,7 +16,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                        sans: ['"Be Vietnam Pro", "Inter"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
                     }
                 }
             }
@@ -25,7 +24,7 @@
     </script>
     <style>
         * {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
         .role-box {
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -85,7 +84,7 @@
                 <img src="../assets/logo.png" onerror="this.src='../user/logo.png'" alt="HT" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-lg text-gray-900 dark:text-white tracking-tight">HT Work</span>
+                <span class="font-black text-lg text-gray-900 dark:text-white tracking-tight">KGS Work</span>
                 <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 block -mt-1 tracking-wider uppercase">Sàn IT & Freelancer Hub</span>
             </div>
         </a>
@@ -111,7 +110,7 @@
             <!-- Headline Header -->
             <div class="text-center max-w-xl mx-auto mb-6 sm:mb-8">
                 <span class="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 mb-2 inline-block">
-                    ⚡ Bắt đầu cùng HT Work
+                    ⚡ Bắt đầu cùng KGS Work
                 </span>
                 <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-snug">
                     Chọn vai trò trải nghiệm của bạn
@@ -314,30 +313,6 @@
                     </div>
                 </form>
 
-                <div class="mt-4 flex items-center justify-center space-x-2">
-                    <div class="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
-                    <span class="text-xs text-gray-400 font-semibold px-2 uppercase">Hoặc đăng ký nhanh bằng</span>
-                    <div class="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
-                </div>
-
-                <div class="mt-3 flex justify-center w-full">
-                    <div id="g_id_onload"
-                        data-client_id="905738014040-8ba9e9i9qpq8s14h7hliogdeb41punkc.apps.googleusercontent.com"
-                        data-context="signup"
-                        data-ux_mode="popup"
-                        data-callback="handleGoogleRegister"
-                        data-auto_prompt="false">
-                    </div>
-                    <div class="g_id_signin"
-                        data-type="standard"
-                        data-shape="rectangular"
-                        data-theme="outline"
-                        data-text="signup_with"
-                        data-size="large"
-                        data-logo_alignment="center">
-                    </div>
-                </div>
-
                 <p class="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
                     Đã có tài khoản? 
                     <a href="/sharedFolder/login.html" class="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Đăng nhập</a>
@@ -434,7 +409,7 @@
 
     <!-- Footer -->
     <footer class="w-full py-3 text-center text-[11px] text-gray-400 border-t border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 z-10">
-        <p>© 2026 HT Work Platform. Sàn kết nối Lập Trình Viên & Nhân Sự IT.</p>
+        <p>© 2026 KGS Work Platform. Sàn kết nối Lập Trình Viên & Nhân Sự IT.</p>
     </footer>
 
     <script>
@@ -635,6 +610,12 @@
                 if (response.ok) {
                     // Chuyển sang Màn hình Step 3: Nhập OTP
                     showOtpStep(email);
+                    if (data.demo_otp) {
+                        alert(`ℹ️ [Chế độ thử nghiệm / Sandbox]:\nMã OTP xác thực của bạn là: ${data.demo_otp}`);
+                        const digits = String(data.demo_otp).split('');
+                        const inps = document.querySelectorAll('.otp-input');
+                        digits.forEach((d, i) => { if (inps[i]) inps[i].value = d; });
+                    }
                 } else {
                     showFormError(data.error || 'Không thể gửi mã OTP xác thực. Vui lòng thử lại!');
                 }
@@ -660,7 +641,7 @@
             hideOtpError();
 
             // Khởi động 5-minute countdown timer
-            startExpiryTimer(180);
+            startExpiryTimer(300);
 
             // Khởi động 60s cooldown timer cho nút gửi lại
             startCooldownTimer(60);
@@ -681,7 +662,7 @@
                     clearInterval(otpExpiryInterval);
                     timerDisplay.innerText = '00:00 (Hết hạn)';
                     timerDisplay.className = 'font-bold text-red-500 font-mono';
-                    showOtpError('Mã OTP đã hết hạn hiệu lực (quá 3 phút). Vui lòng bấm "Gửi lại mã"!');
+                    showOtpError('Mã OTP đã hết hạn hiệu lực (quá 5 phút). Vui lòng bấm "Gửi lại mã"!');
                 }
                 remainingExpirySeconds--;
             }
@@ -736,9 +717,16 @@
                 const data = await response.json();
                 if (response.ok) {
                     hideOtpError();
-                    startExpiryTimer(180);
+                    startExpiryTimer(300);
                     startCooldownTimer(60);
-                    alert(`✅ Mã OTP mới đã được gửi tới email: ${pendingRegistration.email}\n\nVui lòng kiểm tra hộp thư (kể cả thư mục Spam/Thư rác)! Mã có hiệu lực trong 3 phút.`);
+                    if (data.demo_otp) {
+                        alert(`ℹ️ [Chế độ thử nghiệm / Sandbox]:\nMã OTP gửi lại của bạn là: ${data.demo_otp}`);
+                        const digits = String(data.demo_otp).split('');
+                        const inps = document.querySelectorAll('.otp-input');
+                        digits.forEach((d, i) => { if (inps[i]) inps[i].value = d; });
+                    } else {
+                        alert(`✅ Mã OTP mới đã được gửi tới email: ${pendingRegistration.email}\n\nVui lòng kiểm tra hộp thư (kể cả thư mục Spam/Thư rác)!`);
+                    }
                 } else {
                     showOtpError(data.error || 'Không thể gửi lại mã OTP lúc này!');
                     if (data.remainingSeconds) {

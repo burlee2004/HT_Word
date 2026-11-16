@@ -3,7 +3,7 @@ const path = require('path');
 const supabase = require('../config/supabase');
 const connectionStore = require('./connectionStore');
 
-const DATA_DIR = path.join(__dirname, '..', 'node_modules', '.cache', 'htwork_data');
+const DATA_DIR = path.join(__dirname, '..', 'node_modules', '.cache', 'kgs work_data');
 const DM_FILE = path.join(DATA_DIR, 'direct_messages.json');
 const LEGACY_DM_FILE = path.join(__dirname, '..', 'data', 'direct_messages.json');
 

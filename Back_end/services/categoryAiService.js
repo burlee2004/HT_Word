@@ -1,7 +1,7 @@
 const { logEvent } = require('./auditLogger');
 
 /**
- * 15+ Danh mục Công nghệ Chuẩn hóa Toàn diện cho HT Work
+ * 15+ Danh mục Công nghệ Chuẩn hóa Toàn diện cho KGS Work
  * Bao phủ 100% ngành nghề IT, Công nghệ cao (IoT, Drone/UAV, Robotics, Game, AR/VR...)
  */
 const STANDARD_CATEGORIES = [
@@ -126,7 +126,7 @@ async function validateAndNormalizeCustomCategory(rawInput) {
             isValid: false,
             normalizedName: '',
             parentCategory: 'Lĩnh vực Khác',
-            reason: 'Nội dung chứa từ ngữ không phù hợp với quy chuẩn chuyên nghiệp của sàn HT Work.',
+            reason: 'Nội dung chứa từ ngữ không phù hợp với quy chuẩn chuyên nghiệp của sàn KGS Work.',
             suggestedSkills: []
         };
     }
@@ -147,7 +147,7 @@ async function validateAndNormalizeCustomCategory(rawInput) {
 
     if (groqKey && !groqKey.includes('YOUR_GROQ_KEY')) {
         try {
-            const systemPrompt = `Bạn là Chuyên gia Kiểm Duyệt & Phân Loại Danh Mục Nghề Nghiệp IT cao cấp của nền tảng sàn tuyển dụng công nghệ HT Work.
+            const systemPrompt = `Bạn là Chuyên gia Kiểm Duyệt & Phân Loại Danh Mục Nghề Nghiệp IT cao cấp của nền tảng sàn tuyển dụng công nghệ KGS Work.
 Nhiệm vụ của bạn là kiểm duyệt cụm từ chuyên môn do người dùng tự nhập và chuẩn hóa về ngữ pháp tiếng Việt trang trọng.
 
 Quy tắc kiểm duyệt:

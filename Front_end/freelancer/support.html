@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trung Tâm Hỗ Trợ - HT Work Freelancer</title>
+    <title>Trung Tâm Hỗ Trợ - KGS Work Freelancer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -15,7 +15,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                        sans: ['"Be Vietnam Pro", "Inter"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
                     },
                     colors: {
                         primary: '#4f46e5',
@@ -27,7 +27,7 @@
         }
     </script>
     <style>
-        * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
@@ -101,7 +101,7 @@
 
                 <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <i class="fas fa-shield-alt text-indigo-500"></i>
-                    <span>Bảo mật dữ liệu 100% qua chuẩn mã hóa HT Work</span>
+                    <span>Bảo mật dữ liệu 100% qua chuẩn mã hóa KGS Work</span>
                 </div>
             </div>
 
@@ -268,7 +268,7 @@
                             <i class="fas fa-question-circle"></i> Làm thế nào để đổi số điện thoại đã xác thực?
                         </h4>
                         <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                            Bạn vào mục "Hồ sơ năng lực", bấm nút "Đổi số điện thoại" và nhận mã OTP mới qua Telegram Bot `@htwork_bot` để xác thực số mới.
+                            Bạn vào mục "Hồ sơ năng lực", bấm nút "Đổi số điện thoại" và nhận mã OTP mới qua Telegram Bot `@kgs work_bot` để xác thực số mới.
                         </p>
                     </div>
 
@@ -337,7 +337,7 @@
     </div>
 
     <!-- Scripts Framework -->
-    <script src="freelancer-ui.js?v=1791344398"></script>
+    <script src="freelancer-ui.js?v=1794810000"></script>
 
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
@@ -640,7 +640,7 @@
 
             const replyBox = document.getElementById('mAdminReplyBox');
             if (t.admin_reply) {
-                document.getElementById('mAdminName').innerText = t.admin_name || 'Phản Hồi Từ Ban Quản Trị HT Work';
+                document.getElementById('mAdminName').innerText = t.admin_name || 'Phản Hồi Từ Ban Quản Trị KGS Work';
                 document.getElementById('mAdminRepliedAt').innerText = t.admin_replied_at ? new Date(t.admin_replied_at).toLocaleString('vi-VN') : '';
                 document.getElementById('mAdminReplyContent').innerText = t.admin_reply;
                 replyBox.classList.remove('hidden');

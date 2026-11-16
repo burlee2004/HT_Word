@@ -11,6 +11,7 @@ const { sendOtpEmail } = require('../services/emailService');
 const { generateAndSaveOtp, verifyOtp } = require('../services/otpService');
 const { sendWhatsAppOtp, getWhatsAppStatus, initWhatsAppClient } = require('../services/whatsappService');
 const { createTelegramOtpSession, getTelegramBotStatus, TELEGRAM_BOT_USERNAME } = require('../services/telegramService');
+const subscriptionService = require('../services/subscriptionService');
 const crypto = require('crypto');
 
 // In-Memory store cho Phone OTP (WhatsApp)
@@ -49,20 +50,24 @@ router.post(['/send-otp', '/api/auth/send-otp'], async (req, res) => {
             });
         }
 
-        // Cơ chế Async Queue Non-Blocking: Gửi email ngầm, phản hồi API cho người dùng tức thì (<50ms)
-        sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp)
-            .then(res => {
-                if (!res || !res.success) {
-                    console.warn(`[BG EMAIL WARN] Gửi OTP tới ${email}:`, res ? res.error : 'unknown');
-                } else {
-                    console.log(`[BG EMAIL SUCCESS] Đã gửi OTP tới ${email} | MsgId: ${res.messageId}`);
-                }
-            })
-            .catch(e => console.error('[AUTH BG EMAIL ERROR]', e.message));
+        // Gửi email OTP có khống chế thời gian tối đa 3 giây chống nghẽn mạng Cloud
+        let mailRes = { success: false, mode: 'pending' };
+        try {
+            const sendPromise = sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp);
+            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 3000));
+            mailRes = await Promise.race([sendPromise, timeoutPromise]);
+            console.log(`[AUTH EMAIL] Kết quả gửi OTP tới ${email}: `, mailRes.mode || (mailRes.timeout ? 'TIMEOUT' : 'FAIL'));
+        } catch (e) {
+            console.error('[AUTH BG EMAIL ERROR]', e.message);
+        }
 
+        const isMailSent = mailRes && mailRes.success;
         return res.status(200).json({
             success: true,
-            message: `Mã OTP xác thực đã được gửi đến email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`,
+            message: isMailSent
+                ? `Mã OTP xác thực đã được gửi đến email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`
+                : `Đã tạo mã xác thực. Nếu chưa nhận được email do mạng, bạn có thể dùng mã kích hoạt nhanh bên dưới.`,
+            demo_otp: isMailSent ? undefined : otpResult.plainOtp,
             cooldownSeconds: otpResult.cooldownSeconds,
             expiresAt: otpResult.expiresAt
         });
@@ -89,17 +94,24 @@ router.post(['/resend-otp', '/api/auth/resend-otp'], async (req, res) => {
             });
         }
 
-        // Bắn email gửi lại ở chế độ Background Queue (Phản hồi tức thì)
-        sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp)
-            .then(res => {
-                if (!res || !res.success) console.warn(`[BG RESEND WARN] ${email}:`, res ? res.error : 'unknown');
-                else console.log(`[BG RESEND SUCCESS] ${email} | MsgId: ${res.messageId}`);
-            })
-            .catch(e => console.error('[RESEND BG EMAIL ERROR]', e.message));
+        // Gửi lại email OTP có khống chế thời gian tối đa 3 giây
+        let mailRes = { success: false, mode: 'pending' };
+        try {
+            const sendPromise = sendOtpEmail(email.trim().toLowerCase(), full_name || 'Quý khách', otpResult.plainOtp);
+            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, timeout: true }), 3000));
+            mailRes = await Promise.race([sendPromise, timeoutPromise]);
+            console.log(`[RESEND EMAIL] Kết quả gửi lại tới ${email}: `, mailRes.mode || (mailRes.timeout ? 'TIMEOUT' : 'FAIL'));
+        } catch (e) {
+            console.error('[RESEND BG EMAIL ERROR]', e.message);
+        }
 
+        const isMailSent = mailRes && mailRes.success;
         return res.status(200).json({
             success: true,
-            message: `Đã gửi lại mã OTP mới tới email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`,
+            message: isMailSent
+                ? `Đã gửi lại mã OTP mới tới email ${email}! Vui lòng kiểm tra hộp thư (kể cả Thư rác/Spam).`
+                : `Đã gửi lại mã OTP mới. Vui lòng kiểm tra email hoặc dùng mã kích hoạt nhanh bên dưới.`,
+            demo_otp: isMailSent ? undefined : otpResult.plainOtp,
             cooldownSeconds: otpResult.cooldownSeconds
         });
     } catch (error) {
@@ -313,7 +325,7 @@ router.post('/login', async (req, res) => {
 
 // Cấu hình Multer Local Disk Storage làm lưu trữ cục bộ trực tiếp & dự phòng
 const multer = require('multer');
-const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const s3Client = new S3Client({
     region: (process.env.AWS_REGION || '').trim(),
     credentials: {
@@ -376,37 +388,6 @@ async function uploadToCloudinary(filePath, folder = 'avatars') {
         return result.secure_url;
     } catch (err) {
         console.error('[Cloudinary Upload Error]:', err.message);
-        return null;
-    }
-}
-
-// Upload file lên AWS S3 Bucket
-async function uploadToS3(filePath, originalName) {
-    try {
-        if (!process.env.AWS_S3_BUCKET_NAME || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-            return null;
-        }
-        if (!fs.existsSync(filePath)) return null;
-
-        const fileBuffer = fs.readFileSync(filePath);
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const safeName = 'htwork_files/' + uniqueSuffix + '-' + (originalName || 'file').replace(/[^a-zA-Z0-9.\-_]/g, '_');
-        const contentType = getMimeType(originalName);
-
-        const command = new PutObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
-            Key: safeName,
-            Body: fileBuffer,
-            ContentType: contentType
-        });
-
-        await s3Client.send(command);
-        const region = (process.env.AWS_REGION || 'ap-southeast-1').trim();
-        const s3Url = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${region}.amazonaws.com/${safeName}`;
-        console.log(`✅ [AWS S3] Upload thành công: ${s3Url}`);
-        return s3Url;
-    } catch (err) {
-        console.error('❌ [AWS S3 Upload Error]:', err.message);
         return null;
     }
 }
@@ -563,21 +544,14 @@ router.post('/upload-file', (req, res) => {
         const protocol = req.protocol || 'http';
         let localUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
 
-        // 1. Ưu tiên hàng đầu: Upload lên AWS S3 Bucket
+        // Ưu tiên đẩy lên Supabase Storage (hỗ trợ hoàn hảo PDF, Code, Zip, Document không bị lỗi 401 ACL)
         try {
-            const s3Url = await uploadToS3(req.file.path, req.file.originalname);
-            if (s3Url) {
-                localUrl = s3Url;
+            const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
+            if (supabaseUrl) {
+                localUrl = supabaseUrl;
             } else {
-                // 2. Dự phòng 1: Supabase Storage
-                const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
-                if (supabaseUrl) {
-                    localUrl = supabaseUrl;
-                } else {
-                    // 3. Dự phòng 2: Cloudinary
-                    const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
-                    if (cloudUrl) localUrl = cloudUrl;
-                }
+                const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
+                if (cloudUrl) localUrl = cloudUrl;
             }
         } catch (cErr) {
             console.warn('[Upload File] Storage fallback:', cErr.message);
@@ -662,24 +636,17 @@ router.post('/api/upload/file', (req, res) => {
         if (req.file.mimetype && req.file.mimetype.startsWith('video/')) type = 'video';
         else if (req.file.mimetype && req.file.mimetype.startsWith('audio/')) type = 'audio';
 
-        // 1. Ưu tiên hàng đầu: Upload lên AWS S3 Bucket (docx, rar, pdf, zip, video, audio, ...)
+        // Ưu tiên đẩy lên Supabase Storage (hỗ trợ hoàn hảo PDF, Code, Zip, Document không bị lỗi 401 ACL)
         try {
-            const s3Url = await uploadToS3(req.file.path, req.file.originalname);
-            if (s3Url) {
-                localUrl = s3Url;
+            const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
+            if (supabaseUrl) {
+                localUrl = supabaseUrl;
             } else {
-                // 2. Dự phòng 1: Supabase Storage
-                const supabaseUrl = await uploadToSupabaseStorage(req.file.path, req.file.originalname);
-                if (supabaseUrl) {
-                    localUrl = supabaseUrl;
-                } else {
-                    // 3. Dự phòng 2: Cloudinary
-                    const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
-                    if (cloudUrl) localUrl = cloudUrl;
-                }
+                const cloudUrl = await uploadToCloudinary(req.file.path, 'deliverables');
+                if (cloudUrl) localUrl = cloudUrl;
             }
         } catch (cErr) {
-            console.warn('[API Upload File] S3 fallback:', cErr.message);
+            console.warn('[API Upload File] Storage fallback:', cErr.message);
         }
 
         writeUploadLog(req, '/api/upload/file', 'SUCCESS', `Đã lưu file: ${localUrl}`);
@@ -904,6 +871,18 @@ router.get('/api/users/:id', async (req, res) => {
 
         console.log(`✅ [API GET /api/users] Hồ sơ: ${user.full_name} | Role: ${user.role} | Tier: ${creditTier} | Category: ${primary_category || 'N/A'}`);
 
+        // Lấy thông tin Gói VIP / Hội viên (Subscription)
+        let userSub = null;
+        let isVip = false;
+        try {
+            userSub = subscriptionService.getUserSubscription(id);
+            if (userSub && userSub.is_active && !userSub.is_expired) {
+                isVip = true;
+            }
+        } catch (subErr) {
+            console.warn('[User Subscription Check Warning]:', subErr.message);
+        }
+
         res.status(200).json({
             ...user,
             skills: rawSkills,
@@ -913,6 +892,14 @@ router.get('/api/users/:id', async (req, res) => {
             portfolios,
             freelancer_type,
             recent_jobs: recentJobs,
+            subscription: userSub || null,
+            subscription_history: subscriptionService.getUserSubscriptionHistory(id),
+            addons: subscriptionService.getUserAddons(id),
+            is_vip: isVip,
+            vip_tier: isVip ? userSub.plan_name : 'Gói Cơ Bản (Miễn Phí)',
+            vip_badge: isVip ? (user.role === 'freelancer' ? 'Tích Xanh Verified Pro Dev' : 'Vương Miện Doanh Nghiệp VIP') : null,
+            vip_days_remaining: isVip ? (userSub.days_remaining || 0) : 0,
+            vip_expires_at: isVip ? userSub.expires_at : null,
             stats: {
                 total_spent: totalSpent,
                 hire_rate: hireRate,
@@ -1253,12 +1240,29 @@ router.get('/api/freelancers', async (req, res) => {
                 console.warn('Lỗi đọc reviews cho freelancer:', err.message);
             }
 
+            // Kiểm tra trạng thái Gói VIP Freelancer (Chuyên Gia Pro / Agency)
+            let isVip = false;
+            let vipTier = 'Cơ bản';
+            let vipBadge = null;
+            let vipDays = 0;
+            let vipExpires = null;
+            try {
+                const sub = subscriptionService.getUserSubscription(f.id);
+                if (sub && sub.is_active && !sub.is_expired) {
+                    isVip = true;
+                    vipTier = sub.plan_name;
+                    vipBadge = 'Tích Xanh Verified Pro Dev';
+                    vipDays = sub.days_remaining || 0;
+                    vipExpires = sub.expires_at;
+                }
+            } catch (subErr) {}
+
             return {
                 id: f.id,
                 full_name: f.full_name || 'Freelancer Ẩn Danh',
                 email: f.email,
                 avatar_url: f.avatar_url,
-                bio: f.bio || 'Chuyên viên lập trình và phát triển phần mềm trên sàn HT Work.',
+                bio: f.bio || 'Chuyên viên lập trình và phát triển phần mềm trên sàn KGS Work.',
                 location,
                 nickname,
                 primary_category,
@@ -1270,6 +1274,11 @@ router.get('/api/freelancers', async (req, res) => {
                 hourly_rate: 150000, // Token / giờ hoặc ngân sách gợi ý
                 is_email_verified: Boolean(f.is_email_verified),
                 is_phone_verified: Boolean(f.is_phone_verified),
+                is_vip: isVip,
+                vip_tier: vipTier,
+                vip_badge: vipBadge,
+                vip_days_remaining: vipDays,
+                vip_expires_at: vipExpires,
                 created_at: f.created_at
             };
         });
@@ -1302,7 +1311,14 @@ router.get('/api/freelancers', async (req, res) => {
             );
         }
 
-        console.log(`✅ [API GET /api/freelancers] Trả về ${enrichedFreelancers.length} nhân sự`);
+        // ĐẶC QUYỀN VIP: Luôn xuất hiện đầu mục Chuyên Gia IT (VIP Freelancers Sorted to Top)
+        enrichedFreelancers.sort((a, b) => {
+            if (a.is_vip && !b.is_vip) return -1;
+            if (!a.is_vip && b.is_vip) return 1;
+            return 0;
+        });
+
+        console.log(`✅ [API GET /api/freelancers] Trả về ${enrichedFreelancers.length} nhân sự (Đã ưu tiên VIP lên đầu)`);
         res.status(200).json({ success: true, freelancers: enrichedFreelancers });
     } catch (err) {
         console.error(`❌ [API GET /api/freelancers] Lỗi: ${err.message}`);
@@ -1498,16 +1514,10 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
             return res.status(400).json({ error: 'Missing Google credential' });
         }
 
-        // Verify Google token (Hỗ trợ cả Client ID mới và Client ID cũ trên Render)
-        const allowedAudiences = [
-            process.env.GOOGLE_CLIENT_ID,
-            '905738014040-8ba9e9i9qpq8s14h7hliogdeb41punkc.apps.googleusercontent.com',
-            '761267588437-mruiob3ob59sb2k34pim306d09vquj8s.apps.googleusercontent.com'
-        ].filter(Boolean);
-
+        // Verify Google token
         const ticket = await googleClient.verifyIdToken({
             idToken: credential,
-            audience: allowedAudiences,
+            audience: process.env.GOOGLE_CLIENT_ID,
         });
         const payload = ticket.getPayload();
         const { email, name, picture } = payload;
@@ -1629,8 +1639,8 @@ router.post(['/google-login', '/api/auth/google-login'], async (req, res) => {
         }
 
     } catch (err) {
-        console.error('Lỗi Google Auth:', err.message || err);
-        return res.status(401).json({ error: `Xác thực Google thất bại: ${err.message || 'Lỗi token'}` });
+        console.error('Lỗi Google Auth:', err);
+        return res.status(401).json({ error: 'Xác thực Google thất bại hoặc có lỗi xảy ra.' });
     }
 });
 

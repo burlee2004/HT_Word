@@ -114,7 +114,7 @@
 
         <!-- Bảng Quản Lý Danh Mục -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            <div class="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                     <i class="fas fa-list-ul mr-2 text-indigo-600"></i> Danh Sách Danh Mục Chuyên Môn
                 </h2>
@@ -122,7 +122,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
+                <table class="w-full min-w-[700px] text-left text-sm whitespace-nowrap">
                     <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold uppercase text-xs border-b border-gray-200 dark:border-gray-700">
                         <tr>
                             <th class="px-6 py-4">Icon & Tên Danh Mục</th>
@@ -199,7 +199,7 @@
 <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://htwork-backend.onrender.com';
+            : 'https://project-internship-8z76.onrender.com';
 
         let categoriesList = [];
 
@@ -393,6 +393,6 @@
 
         loadCategoriesData();
     </script>
-    <script src="admin-ui.js?v=1791344398"></script>
+    <script src="admin-ui.js?v=20261116_v6"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@
 
 ### Bước 1: Thiết kế Trang chủ chính (Landing Page) tại `Front_end/index.html`
 - [x] Giao diện hiện đại với Tailwind CSS, font `Plus Jakarta Sans`, hỗ trợ Dark/Light mode, hiệu ứng mượt mà.
-- [x] **Header Điều hướng:** Logo HT Work, Menu (Việc làm, Chuyên gia IT, Cơ chế Escrow), nút "Đăng nhập" & "Đăng ký".
+- [x] **Header Điều hướng:** Logo KGS Work, Menu (Việc làm, Chuyên gia IT, Cơ chế Escrow), nút "Đăng nhập" & "Đăng ký".
 - [x] **Hero Section:** Tiêu đề ấn tượng về Sàn IT & Thanh toán Trung gian Escrow; nút CTA kép: "Khám phá dự án" (Freelancer) và "Đăng việc ngay" (Client).
 - [x] **Metrics & Trust Proof:** Thống kê dự án, khối lượng giao dịch bảo vệ qua Escrow, độ tin cậy 100%.
 - [x] **Live Job Showcase:** Tải tự động các dự án IT mới nhất từ API, xem preview nhanh mà không cần đăng nhập.
@@ -32,10 +32,21 @@
 
 ### Bước 4: Xây dựng Trang Cơ chế Escrow & Về chúng tôi (`Front_end/how-it-works.html`)
 - [x] Giải thích minh bạch cơ chế Smart Contract / Ký quỹ ngân hàng bảo vệ 100% dòng tiền của cả 2 bên.
-- [x] Bảng so sánh rủi ro khi làm tự do ngoài thị trường vs Lợi ích khi giao dịch qua HT Work Escrow.
+- [x] Bảng so sánh rủi ro khi làm tự do ngoài thị trường vs Lợi ích khi giao dịch qua KGS Work Escrow.
 - [x] Chính sách giải quyết tranh chấp minh bạch và câu hỏi thường gặp (FAQ).
 
 ### Bước 5: Cấu hình Routing & Kiểm tra đồng bộ liên kết
 - [x] Kiểm tra liên kết từ trang chủ đến các trang con và dẫn sang `sharedFolder/login.html`, `sharedFolder/register.html`.
 - [x] Đã cập nhật `netlify.toml` và `vercel.json` phục vụ `index.html` làm Landing Page thay vì ép chuyển sang `login.html`.
 - [x] Đảm bảo tương thích trên cả Localhost lẫn khi deploy lên Internet (Render / Netlify / Vercel).
+
+### Bước 6: Xây dựng Bộ 6 Sơ đồ Tuần tự StarUML (`Report_file/Diagram`)
+- [x] Xóa bỏ các định dạng `.puml` và `.svg` không tương thích mở trực tiếp trong StarUML.
+- [x] Khởi tạo 6 file mô hình StarUML chuẩn (`.mdj`) có thể nhấp đúp mở trực tiếp bằng StarUML:
+  * `sequence_1_Auth_DangKy_OTP.mdj`
+  * `sequence_2_Client_KyQuy_EscrowLock.mdj`
+  * `sequence_3_UngTuyen_DauThau_HopDong.mdj`
+  * `sequence_4_Freelancer_BanGiao_Milestone.mdj`
+  * `sequence_5_Client_NghiemThu_EscrowRelease.mdj`
+  * `sequence_6_Admin_PhanXu_TranhChap.mdj`
+- [x] Đồng bộ 6 file ảnh độ phân giải cao (`.png`) để phục vụ chèn vào file Word báo cáo tốt nghiệp.

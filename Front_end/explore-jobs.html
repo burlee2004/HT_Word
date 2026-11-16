@@ -3,11 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá Việc Làm IT & Cơ Hội Đấu Thầu - HT Work</title>
+    <title>Khám Phá Việc Làm IT & Cơ Hội Đấu Thầu - KGS Work</title>
+    
+    <!-- Favicon & Brand Icons -->
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/assets/logo.png">
+
+    <!-- SEO Technical Meta Tags -->
+    <meta name="description" content="Tìm kiếm việc làm IT Freelance chất lượng cao: Lập trình Web, Mobile, AI, Blockchain, DevOps trên KGS Work sáng lập bởi Trịnh Huy Hoàng. Tất cả dự án đều được bảo chứng 100% qua ký quỹ Escrow.">
+    <meta name="keywords" content="Trịnh Huy Hoàng, trinhhuyhoang, trinhhuyhoang.id.vn, việc làm IT freelance, tuyển lập trình viên, freelance developer, dự án IT, chào thầu dự án IT, KGS Work">
+    <meta name="author" content="Trịnh Huy Hoàng - KGS Work">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://trinhhuyhoang.id.vn/explore-jobs.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://trinhhuyhoang.id.vn/explore-jobs.html">
+    <meta property="og:title" content="Khám Phá Việc Làm IT & Cơ Hội Đấu Thầu - KGS Work">
+    <meta property="og:description" content="Cơ hội nhận dự án IT chất lượng cao với ngân sách cam kết bảo chứng 100% qua Escrow.">
+    <meta property="og:image" content="https://trinhhuyhoang.id.vn/assets/logo.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS with data-cfasync="false" to prevent Cloudflare Rocket Loader from deferring runtime styles -->
+    <script data-cfasync="false" src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
         tailwind.config = {
@@ -15,56 +36,57 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif']
+                        sans: ['"Be Vietnam Pro", "Inter"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif']
                     }
                 }
             }
         }
     </script>
     <style>
-        * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200 antialiased selection:bg-indigo-500 selection:text-white">
 
     <!-- NAVIGATION HEADER -->
-    <header class="w-full px-4 sm:px-8 py-3.5 border-b border-gray-200/80 dark:border-gray-800/80 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md sticky top-0 z-40">
+    <header class="w-full px-4 sm:px-8 py-3.5 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg sticky top-0 z-50 shadow-xs transition-colors">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <a href="index.html" class="flex items-center space-x-3 group">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 overflow-hidden text-white font-bold transition-transform group-hover:scale-105">
-                    <img src="assets/logo.png" onerror="this.src='user/logo.png'" alt="HT" class="w-full h-full object-cover">
-                </div>
+                <img src="assets/logo.png" alt="KGS Work Logo" class="w-9 h-9 rounded-xl object-contain shadow-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-transform group-hover:scale-105">
                 <div>
-                    <span class="font-black text-xl text-gray-900 dark:text-white tracking-tight">HT <span class="text-indigo-600 dark:text-indigo-400">Work</span></span>
-                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 block -mt-1 tracking-wider uppercase">Sàn IT & Escrow Hub</span>
+                    <span class="font-black text-lg text-slate-900 dark:text-white tracking-tight">KGS <span class="text-indigo-600 dark:text-indigo-400">Work</span></span>
+                    <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-400 block -mt-1 tracking-wider uppercase font-mono">Escrow Hub</span>
                 </div>
             </a>
 
             <!-- Nav Links -->
-            <nav class="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-bold text-gray-600 dark:text-gray-300">
-                <a href="index.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    <i class="fas fa-home mr-1.5"></i> Trang Chủ
+            <nav class="hidden md:flex items-center space-x-1 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                <a href="index.html" class="px-3.5 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                    Trang Chủ
                 </a>
-                <a href="explore-jobs.html" class="px-3 py-2 rounded-xl text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 font-black">
-                    <i class="fas fa-briefcase mr-1.5 text-indigo-500"></i> Việc Làm IT
+                <a href="explore-jobs.html" class="px-3.5 py-2 rounded-xl text-indigo-600 dark:text-indigo-400 bg-indigo-50/80 dark:bg-indigo-950/60 font-bold transition">
+                    Việc Làm IT
                 </a>
-                <a href="explore-freelancers.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    <i class="fas fa-users mr-1.5 text-purple-500"></i> Chuyên Gia IT
+                <a href="explore-freelancers.html" class="px-3.5 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                    Chuyên Gia IT
                 </a>
-                <a href="how-it-works.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    <i class="fas fa-shield-alt mr-1.5 text-emerald-500"></i> Cơ Chế Escrow
+                <a href="how-it-works.html" class="px-3.5 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                    Cơ Chế Escrow
+                </a>
+                <a href="javascript:void(0)" onclick="window.openPricingModal()" class="px-3 py-1.5 rounded-xl text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 font-bold border border-amber-300/40 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition flex items-center space-x-1.5 shadow-xs">
+                    <i class="fas fa-crown text-amber-500 text-xs"></i> <span>Gói VIP & Bảng Giá</span>
                 </a>
             </nav>
 
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <button id="themeToggle" class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center justify-center transition shadow-sm" title="Chuyển chế độ Sáng / Tối">
-                    <i class="fas fa-moon dark:hidden text-sm"></i>
-                    <i class="fas fa-sun hidden dark:block text-sm text-yellow-400"></i>
+                <button id="themeToggle" class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-center transition" title="Chuyển chế độ Sáng / Tối">
+                    <i class="fas fa-moon dark:hidden text-xs"></i>
+                    <i class="fas fa-sun hidden dark:block text-xs text-amber-400"></i>
                 </button>
-                <a href="sharedFolder/login.html" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                <a href="sharedFolder/login.html" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
                     Đăng nhập
                 </a>
-                <button onclick="openOnboardingModal('freelancer')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 transition">
+                <button onclick="openOnboardingModal('freelancer')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 transition shadow-sm hover:shadow">
                     Đăng ký ứng tuyển
                 </button>
             </div>
@@ -160,7 +182,7 @@
 
     <!-- FOOTER -->
     <footer class="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 text-xs text-gray-500 text-center mt-12">
-        <p>© 2026 HT Work - Nền tảng kết nối nhân sự IT Freelancer qua Ký quỹ Escrow.</p>
+        <p>© 2026 KGS Work - Nền tảng kết nối nhân sự IT Freelancer qua Ký quỹ Escrow.</p>
     </footer>
 
     <!-- ONBOARDING MODAL -->
@@ -184,28 +206,45 @@
         </div>
     </div>
 
-    <!-- QUICK JOB PREVIEW MODAL -->
-    <div id="jobDetailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700">
-            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-750">
-                <div class="flex items-center space-x-2">
-                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                    <h3 id="previewModalTitle" class="text-base font-black text-gray-900 dark:text-white truncate max-w-md">Chi Tiết Dự Án</h3>
+    <!-- ============================================================== -->
+    <!-- GATED JOB PREVIEW MODAL (CHUYÊN NGHIỆP 2 CỘT CHUẨN VLANCE) -->
+    <!-- ============================================================== -->
+    <div id="jobDetailModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs hidden z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-dark-900 rounded-3xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800 relative">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/90 dark:bg-dark-850/90 shrink-0">
+                <div class="flex items-center gap-2.5 min-w-0 pr-4">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0 animate-pulse"></span>
+                    <h3 id="previewModalTitle" class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate">
+                        Chi Tiết Dự Án IT
+                    </h3>
                 </div>
-                <button onclick="closeJobDetailModal()" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-white flex items-center justify-center">
+                <button onclick="closeJobDetailModal()" class="w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center transition shrink-0">
                     &times;
                 </button>
             </div>
-            <div id="previewModalBody" class="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed flex-grow"></div>
-            <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 flex items-center justify-between">
-                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-black flex items-center">
-                    <i class="fas fa-shield-alt mr-1.5"></i> Ngân sách đã khóa Escrow
+
+            <!-- Modal 2-Column Body (vLance Style) -->
+            <div id="previewModalBody" class="flex flex-col lg:flex-row overflow-hidden flex-grow">
+                <!-- Dynamically populated via renderJobDetailModalContent -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-dark-850/90 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
+                    <i class="fas fa-shield-alt"></i> Ngân sách đã được Doanh nghiệp ký quỹ bảo đảm 100%
                 </span>
-                <div class="flex items-center space-x-2">
-                    <button onclick="closeJobDetailModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">Đóng</button>
-                    <button onclick="openOnboardingModal('freelancer')" class="px-5 py-2 rounded-xl text-xs font-black bg-indigo-600 hover:bg-indigo-700 text-white shadow">Ứng Tuyển Dự Án Này</button>
+                <div class="flex items-center gap-2.5">
+                    <button onclick="closeJobDetailModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+                        Đóng
+                    </button>
+                    <button id="modalActionBtn" onclick="handleJobModalAction()" class="px-5 py-2 rounded-xl text-xs font-black bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition">
+                        Ứng Tuyển / Chào Thầu Dự Án
+                    </button>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -339,22 +378,37 @@
 
             container.innerHTML = filteredJobs.map(job => {
                 const budgetNum = parseFloat(job.budget) || 0;
-                const formattedBudget = budgetNum.toLocaleString('vi-VN') + ' Token';
+                const formattedBudget = budgetNum > 0 ? (budgetNum.toLocaleString('vi-VN') + ' Token') : 'Thương lượng / Mở thầu';
                 const clientName = (job.users && job.users.full_name) ? job.users.full_name : 'Doanh nghiệp ẩn danh';
                 const clientAvatar = (job.users && job.users.avatar_url) ? job.users.avatar_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(clientName)}&background=6366f1&color=fff`;
                 const catName = job.category_name || 'Phần mềm IT';
                 const cleanDesc = job.clean_description || job.description || 'Chưa có mô tả chi tiết';
 
                 return `
-                    <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 border border-gray-100 dark:border-gray-800 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                    <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 border ${job.is_boosted ? 'border-amber-400 dark:border-amber-500 shadow-xl ring-2 ring-amber-400/40 relative' : (job.is_urgent ? 'border-rose-500 dark:border-rose-500 shadow-xl ring-2 ring-rose-500/40 relative bg-rose-50/10' : 'border-gray-100 dark:border-gray-800')} hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
                         <div>
+                            ${job.is_boosted ? `
+                                <div class="mb-3 -mt-1 flex items-center justify-between">
+                                    <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-gray-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow flex items-center space-x-1">
+                                        <i class="fas fa-bolt text-xs"></i> <span>TOP 1 ƯU TIÊN TUYỂN DỤNG</span>
+                                    </span>
+                                    <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold">★ Đã Ghim Đầu Trang</span>
+                                </div>
+                            ` : (job.is_urgent ? `
+                                <div class="mb-3 -mt-1 flex items-center justify-between">
+                                    <span class="bg-gradient-to-r from-red-600 to-rose-500 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow flex items-center space-x-1">
+                                        <i class="fas fa-fire text-xs"></i> <span>TUYỂN GẤP TRONG 24H</span>
+                                    </span>
+                                    <span class="text-[10px] text-rose-600 dark:text-rose-400 font-bold animate-pulse">🔥 Cần Bàn Giao Gấp</span>
+                                </div>
+                            ` : '')}
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center space-x-2.5">
                                     <img src="${clientAvatar}" alt="${escapeHtml(clientName)}" class="w-8 h-8 rounded-xl object-cover border border-gray-200 dark:border-gray-700">
                                     <div class="min-w-0">
                                         <span class="text-xs font-bold text-gray-800 dark:text-gray-200 block truncate max-w-[130px]">${escapeHtml(clientName)}</span>
-                                        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center">
-                                            <i class="fas fa-shield-alt mr-1"></i> Đã Ký Quỹ
+                                        <span class="text-[10px] ${budgetNum > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'} font-semibold flex items-center">
+                                            <i class="fas ${budgetNum > 0 ? 'fa-shield-alt' : 'fa-handshake'} mr-1"></i> ${budgetNum > 0 ? 'Đã Bảo Chứng Escrow' : 'Mở Báo Giá Tự Do'}
                                         </span>
                                     </div>
                                 </div>
@@ -391,46 +445,372 @@
             }).join('');
         }
 
+        // ==============================================================
+        // PARSE & FORMAT JOB DESCRIPTION (CHỐNG "1 NHÙI" VĂN BẢN)
+        // ==============================================================
+        function parseAndFormatJobDescription(rawDesc) {
+            if (!rawDesc) {
+                return {
+                    introText: 'Dự án đang mở thầu tuyển dụng nhân sự IT có chuyên môn cao.',
+                    detailedSectionsHtml: '',
+                    fullContentHtml: '<p class="text-xs text-slate-500">Chưa có mô tả chi tiết.</p>',
+                    deadline: '15 ngày sau ký kết',
+                    audience: 'Cá nhân / Doanh nghiệp',
+                    skills: []
+                };
+            }
+
+            let deadlineMatch = rawDesc.match(/\[Hạn chót mong muốn:\s*([^\]]+)\]/i);
+            let deadline = deadlineMatch ? deadlineMatch[1].trim() : '15 ngày sau ký kết';
+
+            let audienceMatch = rawDesc.match(/\[Đối tượng:\s*([^\]]+)\]/i);
+            let audience = audienceMatch ? audienceMatch[1].trim() : 'Cá nhân / Doanh nghiệp';
+
+            let skillsMatch = rawDesc.match(/\[Kỹ năng yêu cầu:\s*([^\]]+)\]/i);
+            let skillsList = [];
+            if (skillsMatch) {
+                skillsList = skillsMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+            }
+
+            let attachmentMatch = rawDesc.match(/\[Tài liệu đính kèm:\s*([^\]]+)\]/i);
+            let attachments = [];
+            if (attachmentMatch) {
+                const attStr = attachmentMatch[1];
+                const pairs = attStr.split(/\d+\.\s*/).filter(Boolean);
+                pairs.forEach(p => {
+                    const parts = p.split('->');
+                    if (parts.length === 2) {
+                        attachments.push({ name: parts[0].trim(), url: parts[1].trim() });
+                    } else if (parts[0].trim()) {
+                        attachments.push({ name: parts[0].trim(), url: '#' });
+                    }
+                });
+            }
+
+            let narrative = rawDesc
+                .replace(/\[Hạn chót mong muốn:[^\]]+\]/gi, '')
+                .replace(/\[Đối tượng:[^\]]+\]/gi, '')
+                .replace(/\[Tài liệu đính kèm:[^\]]+\]/gi, '')
+                .replace(/\[Kỹ năng yêu cầu:[^\]]+\]/gi, '')
+                .trim();
+
+            const parts = narrative.split(/(?:🎯|💻|📦|📋|⚡|🚀)?\s*\[([^\]]+)\]/);
+            const sections = [];
+            let introText = '';
+
+            if (parts[0] && parts[0].trim()) {
+                introText = parts[0].trim();
+                sections.push({ title: '1. Giới thiệu & Mục tiêu dự án', body: introText });
+            }
+
+            for (let i = 1; i < parts.length; i += 2) {
+                const title = parts[i].trim();
+                const body = (parts[i+1] || '').trim();
+                if (title || body) {
+                    sections.push({ title: title, body: body });
+                }
+            }
+
+            if (sections.length === 0) {
+                introText = narrative;
+                sections.push({ title: '1. Giới thiệu dự án', body: narrative });
+            }
+
+            function formatBody(text) {
+                if (!text) return '';
+                let items = [];
+                if (text.includes(' - ')) {
+                    items = text.split(/\s*-\s+/).filter(Boolean);
+                } else if (text.includes('\n')) {
+                    items = text.split('\n').map(l => l.trim()).filter(Boolean);
+                } else {
+                    items = [text];
+                }
+
+                if (items.length > 1) {
+                    let html = '<ul class="space-y-2 my-2">';
+                    items.forEach(it => {
+                        const clean = it.replace(/^[-•\d.]\s*/, '').trim();
+                        if (clean) {
+                            html += `<li class="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1.5"></span><span>${escapeHtml(clean)}</span></li>`;
+                        }
+                    });
+                    html += '</ul>';
+                    return html;
+                } else {
+                    return `<p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">${escapeHtml(text)}</p>`;
+                }
+            }
+
+            let detailedHtml = '';
+            for (let i = 1; i < sections.length; i++) {
+                detailedHtml += `
+                    <div class="mb-4">
+                        <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <span class="w-1.5 h-3.5 rounded-full bg-indigo-600"></span>
+                            ${escapeHtml(sections[i].title)}
+                        </h4>
+                        <div class="pl-3.5 border-l-2 border-slate-200 dark:border-slate-800">
+                            ${formatBody(sections[i].body)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            let fullHtml = '';
+            sections.forEach(sec => {
+                fullHtml += `
+                    <div class="mb-5">
+                        <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <span class="w-1.5 h-3.5 rounded-full bg-indigo-600"></span>
+                            ${escapeHtml(sec.title)}
+                        </h4>
+                        <div class="pl-3.5 border-l-2 border-slate-200 dark:border-slate-800">
+                            ${formatBody(sec.body)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (attachments.length > 0) {
+                const attSnippet = `
+                    <div class="mb-5">
+                        <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <span class="w-1.5 h-3.5 rounded-full bg-indigo-600"></span>
+                            Tài Liệu Đính Kèm Theo Dự Án
+                        </h4>
+                        <div class="flex flex-wrap gap-2 pl-3.5 border-l-2 border-slate-200 dark:border-slate-800">
+                            ${attachments.map(att => `
+                                <a href="${escapeHtml(att.url)}" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition">
+                                    <i class="fas fa-file-pdf text-rose-500"></i>
+                                    <span class="truncate max-w-[200px]">${escapeHtml(att.name)}</span>
+                                    <i class="fas fa-external-link-alt text-[10px] text-slate-400"></i>
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                detailedHtml += attSnippet;
+                fullHtml += attSnippet;
+            }
+
+            if (skillsList.length > 0) {
+                const skillSnippet = `
+                    <div class="mb-4">
+                        <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <span class="w-1.5 h-3.5 rounded-full bg-indigo-600"></span>
+                            Kỹ Năng Cần Tuyển Dụng
+                        </h4>
+                        <div class="flex flex-wrap gap-1.5 pl-3.5 border-l-2 border-slate-200 dark:border-slate-800">
+                            ${skillsList.map(s => `
+                                <span class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 font-mono text-[11px] font-bold">
+                                    ${escapeHtml(s)}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                detailedHtml += skillSnippet;
+                fullHtml += skillSnippet;
+            }
+
+            return {
+                introText: introText || 'Dự án đang mở thầu tuyển dụng nhân sự IT có chuyên môn cao, cam kết bàn giao đúng tiến độ theo thỏa thuận.',
+                detailedSectionsHtml: detailedHtml || `
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-slate-900 dark:text-white mb-1">Yêu Cầu Kỹ Thuật Chi Tiết & Bàn Giao:</h4>
+                        <p class="leading-relaxed">- Xây dựng mã nguồn hoàn chỉnh, đáp ứng tiêu chuẩn kiến trúc hiện đại và bảo mật.<br>- Tích hợp cơ chế kiểm thử và tài liệu triển khai Docker chi tiết.<br>- Cam kết hỗ trợ nghiệm thu và bàn giao 100% repository mã nguồn.</p>
+                    </div>
+                `,
+                fullContentHtml: fullHtml,
+                deadline: deadline,
+                audience: audience,
+                skills: skillsList
+            };
+        }
+
+        // ==============================================================
+        // GATED JOB DETAIL MODAL PREVIEW (CHUẨN 2 CỘT VLANCE)
+        // ==============================================================
         function openJobDetail(jobId) {
             const job = allJobs.find(j => String(j.id) === String(jobId));
             if (!job) return;
 
             document.getElementById('previewModalTitle').innerText = job.title;
+            const isGuest = !localStorage.getItem('token');
             const budgetNum = parseFloat(job.budget) || 0;
-            const formattedBudget = budgetNum.toLocaleString('vi-VN') + ' Token';
+            const formattedBudget = budgetNum > 0 ? (budgetNum.toLocaleString('vi-VN') + ' Token') : 'Thương lượng / Mở thầu';
             const clientName = (job.users && job.users.full_name) ? job.users.full_name : 'Doanh nghiệp tuyển dụng';
+            const clientAvatar = (job.users && job.users.avatar_url) ? job.users.avatar_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(clientName)}&background=4f46e5&color=fff`;
+            const catName = job.category_name || 'Phát Triển Phần Mềm';
+            const dateFormatted = job.created_at ? new Date(job.created_at).toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '10/11/2026';
 
-            document.getElementById('previewModalBody').innerHTML = `
-                <div class="bg-indigo-50 dark:bg-indigo-950/60 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-between">
+            const parsed = parseAndFormatJobDescription(job.description || job.clean_description || '');
+
+            const leftColumnHtml = `
+                <div class="w-full lg:w-7/12 p-6 overflow-y-auto custom-scrollbar border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800 relative flex flex-col justify-between">
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 text-xs block">Ngân sách dự kiến</span>
-                        <span class="text-lg font-black text-emerald-600 dark:text-emerald-400">${formattedBudget}</span>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-gray-500 dark:text-gray-400 text-xs block">Khách hàng</span>
-                        <span class="text-xs font-bold text-gray-800 dark:text-gray-200">🏢 ${escapeHtml(clientName)}</span>
-                    </div>
-                </div>
+                        <!-- Category Banner (vLance Style) -->
+                        <div class="mb-4 p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <div>
+                                <span class="text-slate-500 dark:text-slate-400">Dịch vụ cần thuê:</span>
+                                <span class="font-bold text-indigo-600 dark:text-indigo-400 ml-1">${escapeHtml(catName)}</span>
+                            </div>
+                            <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                                <i class="fas fa-shield-alt"></i> Bảo chứng Escrow
+                            </span>
+                        </div>
 
-                <div>
-                    <h4 class="font-black text-gray-900 dark:text-white text-xs uppercase tracking-wider mb-1.5">Mô tả công việc & yêu cầu:</h4>
-                    <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl whitespace-pre-line text-gray-700 dark:text-gray-300 border border-gray-100 dark:border-gray-700">
-                        ${escapeHtml(job.description || 'Không có mô tả chi tiết.')}
-                    </div>
-                </div>
+                        ${isGuest ? `
+                            <!-- Phần giới thiệu công khai có thể đọc được -->
+                            <div class="mb-4">
+                                <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <span class="w-1.5 h-3.5 rounded-full bg-indigo-600"></span>
+                                    1. Giới thiệu & Mục tiêu dự án
+                                </h4>
+                                <div class="pl-3.5 border-l-2 border-indigo-600/30 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                    ${escapeHtml(parsed.introText)}
+                                </div>
+                            </div>
 
-                <div class="bg-emerald-50 dark:bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-100 dark:border-emerald-900/60 flex items-center space-x-3 text-emerald-700 dark:text-emerald-300">
-                    <i class="fas fa-check-shield text-xl"></i>
-                    <p class="text-xs">
-                        <strong>Cam kết Escrow:</strong> Ngân sách của dự án này sẽ được ký quỹ trước khi giao việc. Bạn hoàn toàn yên tâm 100% được chi trả khi hoàn tất.
-                    </p>
+                            <!-- Vùng chi tiết bị làm mờ (Gated Content) -->
+                            <div class="relative mt-4">
+                                <div class="filter blur-[5px] select-none pointer-events-none opacity-25 space-y-4 text-xs sm:text-sm">
+                                    ${parsed.detailedSectionsHtml}
+                                </div>
+
+                                <!-- Card khóa đăng nhập chuẩn vLance -->
+                                <div class="absolute inset-0 flex items-center justify-center p-2 z-10">
+                                    <div class="max-w-md w-full p-5 sm:p-6 rounded-2xl bg-white/95 dark:bg-dark-850/95 backdrop-blur-xl border border-indigo-100 dark:border-indigo-900/80 shadow-2xl text-center space-y-3.5">
+                                        <div class="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 mx-auto flex items-center justify-center text-base">
+                                            <i class="fas fa-lock"></i>
+                                        </div>
+                                        <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-snug">
+                                            Để đọc toàn bộ thông tin dự án & nộp hồ sơ chào thầu, vui lòng đăng nhập bằng một trong hai cách sau:
+                                        </h4>
+                                        <div class="space-y-2 pt-1">
+                                            <a href="sharedFolder/login.html" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 transition shadow-xs">
+                                                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                                                Đăng nhập bằng Google / Email
+                                            </a>
+                                            <div class="relative py-1 flex items-center justify-center">
+                                                <div class="border-t border-slate-200 dark:border-slate-700 w-full"></div>
+                                                <span class="bg-white dark:bg-dark-850 px-2 text-[10px] text-slate-400 font-bold uppercase absolute">Hoặc</span>
+                                            </div>
+                                            <a href="sharedFolder/login.html" class="w-full block py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-black transition shadow-sm text-center">
+                                                Tài khoản KGS Work
+                                            </a>
+                                        </div>
+                                        <div class="pt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                                            Bạn chưa có tài khoản KGS Work? <a href="sharedFolder/register.html?role=freelancer" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Đăng ký ngay (miễn phí)</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="space-y-4">
+                                ${parsed.fullContentHtml}
+                            </div>
+                        `}
+                    </div>
                 </div>
             `;
+
+            const rightColumnHtml = `
+                <div class="w-full lg:w-5/12 p-6 bg-slate-50/70 dark:bg-dark-850/70 overflow-y-auto custom-scrollbar space-y-4 shrink-0">
+                    <!-- Box 1: Thông tin dự án (vLance Style) -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white pb-2.5 border-b border-slate-100 dark:border-slate-800">
+                            Thông Tin Dự Án
+                        </h4>
+                        <div class="space-y-2.5 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">ID dự án:</span>
+                                <span class="font-mono font-bold text-slate-800 dark:text-slate-200">#${job.id}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Ngày đăng:</span>
+                                <span class="font-medium text-slate-700 dark:text-slate-300">${dateFormatted}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Thời hạn còn lại:</span>
+                                <span class="font-bold text-amber-600 dark:text-amber-400">${parsed.deadline || '15 ngày'}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Địa điểm:</span>
+                                <span class="font-medium text-slate-700 dark:text-slate-300">Toàn Quốc (Remote)</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <span class="text-slate-400 font-bold">Ngân sách ký quỹ:</span>
+                                <span class="font-mono font-black text-indigo-600 dark:text-indigo-400 text-sm">${formattedBudget}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Hình thức làm việc:</span>
+                                <span class="font-medium text-slate-700 dark:text-slate-300">Online / Remote 100%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Hình thức trả lương:</span>
+                                <span class="font-semibold text-emerald-600 dark:text-emerald-400">Trả theo mốc Escrow</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 2: Thông tin khách hàng (vLance Style) -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white pb-2.5 border-b border-slate-100 dark:border-slate-800">
+                            Thông Tin Khách Hàng
+                        </h4>
+                        <div class="flex items-center gap-3">
+                            <img src="${clientAvatar}" alt="${escapeHtml(clientName)}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-xs">
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-sm text-slate-900 dark:text-white">${escapeHtml(clientName)}</span>
+                                    <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] font-bold" title="KYC & Escrow Đã Xác Thực">✓</span>
+                                </div>
+                                <div class="flex items-center text-amber-500 text-xs mt-0.5">
+                                    ★★★★★ <span class="text-[11px] text-slate-400 ml-1">(5.0)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Đến từ:</span>
+                                <span class="font-medium text-slate-700 dark:text-slate-300">Việt Nam</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Tham gia sàn:</span>
+                                <span class="font-medium text-slate-700 dark:text-slate-300">Năm 2026</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Dự án đã đăng:</span>
+                                <span class="font-bold text-indigo-600 dark:text-indigo-400">2 việc</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Bảo chứng ký quỹ:</span>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                                    <i class="fas fa-shield-alt"></i> 100% Escrow Vault
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('previewModalBody').innerHTML = leftColumnHtml + rightColumnHtml;
             document.getElementById('jobDetailModal').classList.remove('hidden');
         }
 
         function closeJobDetailModal() {
             document.getElementById('jobDetailModal').classList.add('hidden');
+        }
+
+        function handleJobModalAction() {
+            const isGuest = !localStorage.getItem('token');
+            if (isGuest) {
+                window.location.href = 'sharedFolder/login.html?redirect=explore-jobs.html';
+            } else {
+                openOnboardingModal('freelancer');
+            }
         }
 
         function escapeHtml(str) {
@@ -448,7 +828,7 @@
                 { id: 'fb-1', title: 'Xây dựng Website Thương Mại Điện Tử bằng Next.js 14 & Supabase', description: 'Cần tìm một Senior Fullstack Dev có kinh nghiệm dựng hệ thống thanh toán qua PayOS và quản lý kho hàng thời gian thực. Giao diện Tailwind CSS hoàn chỉnh.', budget: 15000000, category_name: 'Phát triển Website & Web App', users: { full_name: 'TechCorp Asia' } },
                 { id: 'fb-2', title: 'Lập Trình Ứng Dụng Đặt Lịch Spa bằng Flutter (iOS & Android)', description: 'Yêu cầu có kinh nghiệm tích hợp Firebase Auth, Push Notification và kết nối Zalo Mini App. Hạn chót hoàn thành trong 4 tuần.', budget: 20000000, category_name: 'Ứng dụng Di Động (Mobile App)', users: { full_name: 'Beauty Spa Group' } },
                 { id: 'fb-3', title: 'Tích Hợp Chatbot Trí Tuệ Nhân Tạo Llama 3.3 vào Hệ Thống CSKH', description: 'Xây dựng luồng RAG (Retrieval-Augmented Generation) tra cứu cẩm nang nội bộ và tích hợp webhook vào Telegram & Web Widget.', budget: 12000000, category_name: 'Trí tuệ nhân tạo (AI & Machine Learning)', users: { full_name: 'Smart Solutions VN' } },
-                { id: 'fb-4', title: 'Viết Smart Contract Escrow Quản Lý Ký Quỹ & Milestone trên Polygon', description: 'Triển khai hợp đồng Solidity đa chữ ký (Multi-sig), tối ưu hóa phí Gas và tích hợp ethers.js vào Backend Node.js.', budget: 25000000, category_name: 'Blockchain & Smart Contract', users: { full_name: 'HT Tech Holding' } },
+                { id: 'fb-4', title: 'Viết Smart Contract Escrow Quản Lý Ký Quỹ & Milestone trên Polygon', description: 'Triển khai hợp đồng Solidity đa chữ ký (Multi-sig), tối ưu hóa phí Gas và tích hợp ethers.js vào Backend Node.js.', budget: 25000000, category_name: 'Blockchain & Smart Contract', users: { full_name: 'KGS Tech Holding' } },
                 { id: 'fb-5', title: 'Thiết Kế Hệ Thống UI/UX Design System cho Sàn Bất Động Sản', description: 'Thiết kế bộ UI Kit hoàn chỉnh trên Figma gồm hơn 80 screens, hỗ trợ Dark/Light mode và chuẩn bị sẵn component interactive prototypes.', budget: 10000000, category_name: 'Thiết kế UI/UX & Đồ Họa', users: { full_name: 'GreenLand RealEstate' } },
                 { id: 'fb-6', title: 'Tối Ưu Hiệu Năng & Bảo Mật Cơ Sở Dữ Liệu PostgreSQL Supabase', description: 'Cần chuyên gia Database tuning index, viết trigger tự động tính toán tổng số dư và cấu hình Row Level Security (RLS) chặt chẽ.', budget: 8000000, category_name: 'DevOps, Cloud & An Ninh Mạng', users: { full_name: 'DataScale Studio' } }
             ];
@@ -456,5 +836,9 @@
 
         window.addEventListener('DOMContentLoaded', loadJobs);
     </script>
+    <script src="assets/js/pricing-modal.js"></script>
+
+    <!-- Real-time Traffic & Analytics Tracker -->
+    <script src="assets/js/traffic-tracker.js"></script>
 </body>
 </html>

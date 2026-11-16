@@ -3,263 +3,828 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cơ Chế Thanh Toán Trung Gian (Escrow) - HT Work</title>
+    <title>Cơ Chế Thanh Toán Trung Gian (Escrow) & So Sánh - KGS Work</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS with data-cfasync="false" to prevent Cloudflare Rocket Loader from deferring runtime styles -->
+    <script data-cfasync="false" src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    colors: {
+                        dark: {
+                            800: '#1e293b',
+                            850: '#162032',
+                            900: '#0f172a',
+                            950: '#020617'
+                        }
+                    },
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif']
+                        sans: ['"Be Vietnam Pro"', '"Inter"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
                     }
                 }
             }
         }
     </script>
     <style>
-        * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .glow-mesh {
+            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
+        }
+        .dark .glow-mesh {
+            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%);
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200 antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-50 dark:bg-dark-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 antialiased selection:bg-indigo-600 selection:text-white">
 
-    <!-- NAVIGATION HEADER -->
-    <header class="w-full px-4 sm:px-8 py-3.5 border-b border-gray-200/80 dark:border-gray-800/80 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md sticky top-0 z-40">
+    <!-- ============================================================== -->
+    <!-- 1. NAVIGATION HEADER -->
+    <!-- ============================================================== -->
+    <header class="w-full px-4 sm:px-8 py-3.5 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg sticky top-0 z-50 shadow-xs transition-colors">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <a href="index.html" class="flex items-center space-x-3 group">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 overflow-hidden text-white font-bold transition-transform group-hover:scale-105">
-                    <img src="assets/logo.png" onerror="this.src='user/logo.png'" alt="HT" class="w-full h-full object-cover">
-                </div>
+                <img src="assets/logo.png" alt="KGS Work Logo" class="w-9 h-9 rounded-xl object-contain shadow-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-transform group-hover:scale-105">
                 <div>
-                    <span class="font-black text-xl text-gray-900 dark:text-white tracking-tight">HT <span class="text-indigo-600 dark:text-indigo-400">Work</span></span>
-                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 block -mt-1 tracking-wider uppercase">Sàn IT & Escrow Hub</span>
+                    <span class="font-black text-lg text-slate-900 dark:text-white tracking-tight">KGS <span class="text-indigo-600 dark:text-indigo-400">Work</span></span>
+                    <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-400 block -mt-1 tracking-wider uppercase font-mono">Escrow Hub</span>
                 </div>
             </a>
 
             <!-- Nav Links -->
-            <nav class="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-bold text-gray-600 dark:text-gray-300">
-                <a href="index.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    <i class="fas fa-home mr-1.5"></i> Trang Chủ
+            <nav class="hidden md:flex items-center space-x-1 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                <a href="index.html" class="px-3.5 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                    Trang Chủ
                 </a>
-                <a href="explore-jobs.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    <i class="fas fa-briefcase mr-1.5 text-indigo-500"></i> Việc Làm IT
+                <a href="explore-jobs.html" class="px-3.5 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                    Việc Làm IT
                 </a>
-                <a href="explore-freelancers.html" class="px-3 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    <i class="fas fa-users mr-1.5 text-purple-500"></i> Chuyên Gia IT
+                <a href="explore-freelancers.html" class="px-3.5 py-2 rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                    Chuyên Gia IT
                 </a>
-                <a href="how-it-works.html" class="px-3 py-2 rounded-xl text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 font-black">
-                    <i class="fas fa-shield-alt mr-1.5 text-emerald-500"></i> Cơ Chế Escrow
+                <a href="how-it-works.html" class="px-3.5 py-2 rounded-xl text-indigo-600 dark:text-indigo-400 bg-indigo-50/80 dark:bg-indigo-950/60 font-bold transition">
+                    Cơ Chế Escrow
+                </a>
+                <a href="javascript:void(0)" onclick="window.openPricingModal()" class="px-3 py-1.5 rounded-xl text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 font-bold border border-amber-300/40 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition flex items-center space-x-1.5 shadow-xs">
+                    <i class="fas fa-crown text-amber-500 text-xs"></i> <span>Gói VIP & Bảng Giá</span>
                 </a>
             </nav>
 
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <button id="themeToggle" class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center justify-center transition shadow-sm" title="Chuyển chế độ Sáng / Tối">
-                    <i class="fas fa-moon dark:hidden text-sm"></i>
-                    <i class="fas fa-sun hidden dark:block text-sm text-yellow-400"></i>
+                <button id="themeToggle" class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-center transition" title="Chuyển chế độ Sáng / Tối">
+                    <i class="fas fa-moon dark:hidden text-xs"></i>
+                    <i class="fas fa-sun hidden dark:block text-xs text-amber-400"></i>
                 </button>
-                <a href="sharedFolder/login.html" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                <a href="sharedFolder/login.html" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
                     Đăng nhập
                 </a>
-                <a href="sharedFolder/register.html" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 transition">
+                <a href="sharedFolder/register.html" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 transition shadow-sm hover:shadow">
                     Tham gia ngay
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- MAIN BODY -->
+    <!-- ============================================================== -->
+    <!-- 2. MAIN CONTENT -->
+    <!-- ============================================================== -->
     <main class="flex-grow">
-        <!-- Hero Explanation -->
-        <section class="py-16 sm:py-20 bg-gradient-to-b from-white via-indigo-50/30 to-slate-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-950 border-b border-gray-100 dark:border-gray-800 text-center">
-            <div class="max-w-4xl mx-auto px-4 sm:px-8">
-                <div class="inline-flex items-center space-x-2 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 px-4 py-1.5 rounded-full text-xs font-black text-emerald-700 dark:text-emerald-300 mb-6 shadow-sm">
-                    <i class="fas fa-lock"></i>
-                    <span>Bảo Mật Dòng Tiền & Công Sức Toàn Diện</span>
+
+        <!-- ========================================================== -->
+        <!-- HERO SECTION: CƠ CHẾ THANH TOÁN TRUNG GIAN ESCROW -->
+        <!-- ========================================================== -->
+        <section class="py-16 sm:py-24 bg-gradient-to-b from-white via-indigo-50/20 to-slate-50 dark:from-dark-900 dark:via-dark-950 dark:to-dark-950 border-b border-slate-200/80 dark:border-slate-800/80 glow-mesh text-center relative overflow-hidden">
+            <div class="max-w-5xl mx-auto px-4 sm:px-8 relative z-10">
+                
+                <div class="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 px-4 py-1.5 rounded-full text-xs font-black text-emerald-700 dark:text-emerald-300 mb-6 shadow-xs">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Bảo Chứng Dòng Tiền & Công Sức Toàn Diện 100%</span>
                 </div>
-                <h1 class="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
-                    Cơ Chế Thanh Toán Trung Gian (Escrow) Hoạt Động Thế Nào?
+                
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.15] max-w-4xl mx-auto">
+                    Cơ Chế Ký Quỹ Escrow Là Gì & <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 dark:from-indigo-400 dark:via-purple-300 dark:to-pink-400">
+                        Bảo Vệ Bạn Ra Sao?
+                    </span>
                 </h1>
-                <p class="mt-4 text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                    Escrow là giải pháp tài chính công nghệ giữ vai trò trung gian độc lập. Tiền của dự án sẽ được ký quỹ an toàn và chỉ được giải ngân cho lập trình viên khi khách hàng đã kiểm tra và hài lòng 100% với sản phẩm bàn giao.
+                
+                <p class="mt-5 text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
+                    Escrow (Ký quỹ trung gian) đóng vai trò két sắt bảo đảm độc lập. Tiền đặt cọc của Doanh nghiệp được khóa an toàn và <strong>chỉ được giải phóng cho Lập trình viên khi sản phẩm bàn giao đã được nghiệm thu hài lòng</strong>. Không lo bùng tiền, không lo mất cọc.
                 </p>
+
+                <!-- Flow Visual Diagram (Khách Hàng -> Smart Escrow Vault -> Freelancer) -->
+                <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-white/90 dark:bg-dark-850/90 border border-slate-200 dark:border-slate-800 shadow-xl max-w-4xl mx-auto">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                        
+                        <!-- Box 1: Khách Hàng -->
+                        <div class="p-5 rounded-2xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-800 text-center space-y-2">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 mx-auto flex items-center justify-center text-xl font-bold shadow-xs">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-slate-900 dark:text-white">1. Doanh Nghiệp (Client)</h4>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Nạp tiền cọc mốc dự án qua VietQR hoặc Smart Contract</p>
+                            <span class="inline-block px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-[10px] font-mono font-bold">Nắm Quyền Nghiệm Thu</span>
+                        </div>
+
+                        <!-- Box 2: Smart Escrow Vault (Trung Tâm) -->
+                        <div class="p-6 rounded-2xl bg-gradient-to-b from-indigo-600 to-indigo-700 text-white text-center space-y-2.5 shadow-lg shadow-indigo-600/25 relative animate-pulse-glow">
+                            <div class="w-12 h-12 rounded-2xl bg-white/20 mx-auto flex items-center justify-center text-xl font-bold">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white">2. KGS Escrow Vault</h4>
+                            <p class="text-[11px] text-indigo-100">Tiền được khóa trung gian an toàn. Không ai có thể đơn phương rút trộm.</p>
+                            <span class="inline-block px-2.5 py-0.5 rounded-md bg-white/20 text-white text-[10px] font-mono font-bold">Sepolia / PayOS Vault</span>
+                        </div>
+
+                        <!-- Box 3: Freelancer IT -->
+                        <div class="p-5 rounded-2xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-800 text-center space-y-2">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center text-xl font-bold shadow-xs">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-slate-900 dark:text-white">3. Freelancer Lập Trình</h4>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">An tâm code vì thấy tiền đã vào Vault. Nghiệm thu là nhận tiền ngay.</p>
+                            <span class="inline-block px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold">Rút Về Bank 30 Giây</span>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
         </section>
 
-        <!-- Detailed 4-Step Flow -->
-        <section class="py-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-            <div class="max-w-6xl mx-auto px-4 sm:px-8">
-                <div class="text-center mb-14">
-                    <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Hành Trình Giao Dịch An Toàn</span>
-                    <h2 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mt-1">4 Giai Đoạn Trong Chu Trình Ký Quỹ Escrow</h2>
+        <!-- ========================================================== -->
+        <!-- 3. INTERACTIVE ESCROW MILESTONE SIMULATOR (MÔ PHỎNG DÒNG TIỀN) -->
+        <!-- ========================================================== -->
+        <section class="py-16 sm:py-20 bg-white dark:bg-dark-900 border-b border-slate-200/80 dark:border-slate-800/80">
+            <div class="max-w-5xl mx-auto px-4 sm:px-8">
+                
+                <div class="text-center max-w-2xl mx-auto mb-10">
+                    <span class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Trải Nghiệm Thực Tế</span>
+                    <h2 class="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mt-1">
+                        Mô Phỏng Dòng Tiền & Mốc Ký Quỹ
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
+                        Nhập ngân sách dự án và bấm trải nghiệm quy trình tiền được khóa và giải phóng theo từng giai đoạn nghiệm thu.
+                    </p>
                 </div>
 
-                <div class="space-y-8">
-                    <!-- Step 1 Detail -->
-                    <div class="flex flex-col md:flex-row items-center gap-6 p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-700/80 shadow-sm">
-                        <div class="w-16 h-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-2xl font-black shrink-0 shadow-lg shadow-indigo-600/30">
-                            01
+                <!-- Simulator Interactive Widget -->
+                <div class="p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+                    
+                    <!-- Budget Input & Presets -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Ngân sách dự án mô phỏng (Token / VNĐ):</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="simBudgetInput" value="20000000" step="1000000" min="1000000" class="px-4 py-2.5 rounded-xl bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-700 font-mono font-black text-base sm:text-lg text-slate-900 dark:text-white w-48 sm:w-56 focus:outline-hidden focus:ring-2 focus:ring-indigo-500" oninput="calculateSimulator()">
+                                <span class="font-mono text-xs font-bold text-slate-400">Token</span>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-black text-gray-900 dark:text-white mb-1.5">
-                                Đăng Dự Án & Chốt Thỏa Thuận Các Mốc (Milestones)
-                            </h3>
-                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                Khách hàng đăng tin tuyển dụng kèm mô tả chi tiết, thời hạn và ngân sách. Các Freelancer gửi hồ sơ chào thầu. Sau khi chọn được ứng viên phù hợp, hai bên cùng xác nhận kế hoạch thực hiện chia thành từng mốc tiến độ cụ thể.
-                            </p>
-                        </div>
-                        <div class="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold shrink-0 border border-indigo-200 dark:border-indigo-800">
-                            📋 Hợp đồng rõ ràng
-                        </div>
-                    </div>
-
-                    <!-- Step 2 Detail -->
-                    <div class="flex flex-col md:flex-row items-center gap-6 p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-700/80 shadow-sm">
-                        <div class="w-16 h-16 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-2xl font-black shrink-0 shadow-lg shadow-purple-600/30">
-                            02
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-black text-gray-900 dark:text-white mb-1.5">
-                                Khách Hàng Nạp Tiền Ký Quỹ (Escrow Lock)
-                            </h3>
-                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                Khách hàng nạp ngân sách vào hệ thống ký quỹ thông qua cổng thanh toán tự động (PayOS/VietQR hoặc Smart Contract). Số tiền này lập tức được **khóa lại (Locked Balance)**. Khách hàng không thể tự ý rút lại khi chưa có thỏa thuận, và Freelancer cũng chưa thể rút tiền ngay. Freelancer nhìn thấy tiền đã được bảo đảm và an tâm bắt tay vào lập trình.
-                            </p>
-                        </div>
-                        <div class="px-4 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-bold shrink-0 border border-purple-200 dark:border-purple-800">
-                            🔒 Tiền đã khóa an toàn
+                        <div>
+                            <span class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Mức ngân sách mẫu:</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button onclick="setSimBudget(10000000)" class="px-3 py-1 rounded-lg bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-700 text-xs font-bold hover:border-indigo-500 transition">10 Triệu</button>
+                                <button onclick="setSimBudget(20000000)" class="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950 border border-indigo-300 dark:border-indigo-700 text-xs font-bold text-indigo-600 dark:text-indigo-400 transition">20 Triệu</button>
+                                <button onclick="setSimBudget(50000000)" class="px-3 py-1 rounded-lg bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-700 text-xs font-bold hover:border-indigo-500 transition">50 Triệu</button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Step 3 Detail -->
-                    <div class="flex flex-col md:flex-row items-center gap-6 p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-700/80 shadow-sm">
-                        <div class="w-16 h-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl font-black shrink-0 shadow-lg shadow-blue-600/30">
-                            03
+                    <!-- Live Milestone Stepper Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="simMilestoneCards">
+                        
+                        <!-- Milestone 1 -->
+                        <div id="simM1Card" class="p-5 rounded-2xl bg-white dark:bg-dark-900 border-2 border-emerald-500 shadow-sm space-y-3 transition-all">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-600 font-mono text-[10px] font-bold">MỐC 01 (30%)</span>
+                                <span id="simM1Status" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                                    <i class="fas fa-check-circle"></i> Đã Nghiệm Thu
+                                </span>
+                            </div>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Thiết kế UI/UX & API Specs</h4>
+                            <div class="font-mono font-black text-indigo-600 dark:text-indigo-400 text-base" id="simM1Amount">6.000.000 Token</div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Đã duyệt bàn giao bản vẽ Figma & Database Schema. Tiền đã giải phóng sang ví Freelancer.</p>
+                            <button id="simM1Btn" onclick="toggleSimM1()" class="w-full py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold transition">
+                                Đã Giải Ngân ✓
+                            </button>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-black text-gray-900 dark:text-white mb-1.5">
-                                Lập Trình & Nộp Sản Phẩm (Deliverables)
-                            </h3>
-                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                Freelancer tiến hành triển khai công việc, cập nhật tiến độ liên tục và tải sản phẩm hoàn thiện (mã nguồn, file thiết kế, tài liệu) lên hệ thống lưu trữ có mã hóa an toàn của HT Work.
-                            </p>
+
+                        <!-- Milestone 2 -->
+                        <div id="simM2Card" class="p-5 rounded-2xl bg-white dark:bg-dark-900 border-2 border-indigo-600 shadow-md space-y-3 transition-all ring-2 ring-indigo-500/20">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-600 font-mono text-[10px] font-bold">MỐC 02 (40%)</span>
+                                <span id="simM2Status" class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600">
+                                    <i class="fas fa-lock"></i> Đang Khóa Tiền
+                                </span>
+                            </div>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Lập Trình Chức Năng Chính</h4>
+                            <div class="font-mono font-black text-indigo-600 dark:text-indigo-400 text-base" id="simM2Amount">8.000.000 Token</div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Dev đang code và push branch Git staging. Tiền nằm an toàn trong Smart Vault.</p>
+                            <button id="simM2Btn" onclick="toggleSimM2()" class="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition">
+                                Bấm Thử Duyệt Mốc 2 →
+                            </button>
                         </div>
-                        <div class="px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-bold shrink-0 border border-blue-200 dark:border-blue-800">
-                            📦 Bàn giao minh bạch
+
+                        <!-- Milestone 3 -->
+                        <div id="simM3Card" class="p-5 rounded-2xl bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 transition-all opacity-70">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 font-mono text-[10px] font-bold">MỐC 03 (30%)</span>
+                                <span id="simM3Status" class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400">
+                                    <i class="fas fa-hourglass-start"></i> Chờ Kích Hoạt
+                                </span>
+                            </div>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Kiểm Thử & Bàn Giao Docker</h4>
+                            <div class="font-mono font-black text-slate-700 dark:text-slate-300 text-base" id="simM3Amount">6.000.000 Token</div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Chạy thử nghiệm toàn diện và bàn giao 100% mã nguồn sạch.</p>
+                            <button disabled class="w-full py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 text-xs font-bold cursor-not-allowed">
+                                Chờ Mốc 2 Xong
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- Summary Vault Strip -->
+                    <div class="p-4 rounded-2xl bg-indigo-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-sm font-bold text-emerald-400">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold text-white block">Quyền kiểm soát 100% nằm ở phía bạn</span>
+                                <span class="text-[11px] text-indigo-200">Freelancer chỉ nhận được từng mốc khi bạn bấm "Duyệt nghiệm thu".</span>
+                            </div>
+                        </div>
+                        <div class="font-mono text-left sm:text-right shrink-0">
+                            <span class="text-[10px] text-indigo-300 block uppercase">Trạng Thái Vault Ký Quỹ</span>
+                            <span class="text-xs font-black text-emerald-400">🟢 An Toàn Tuyệt Đối (0% Rủi Ro)</span>
                         </div>
                     </div>
 
-                    <!-- Step 4 Detail -->
-                    <div class="flex flex-col md:flex-row items-center gap-6 p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-700/80 shadow-sm">
-                        <div class="w-16 h-16 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl font-black shrink-0 shadow-lg shadow-emerald-600/30">
-                            04
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-black text-gray-900 dark:text-white mb-1.5">
-                                Nghiệm Thu & Tự Động Giải Ngân (Instant Payout)
-                            </h3>
-                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                Khách hàng kiểm tra sản phẩm. Nếu đạt yêu cầu, khách hàng ấn nút "Duyệt nghiệm thu". Hợp đồng Escrow lập tức giải phóng tiền khóa và cộng thẳng vào số dư khả dụng của Freelancer. Freelancer có thể rút tiền tức thì về tài khoản ngân hàng bất kỳ lúc nào.
-                            </p>
-                        </div>
-                        <div class="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold shrink-0 border border-emerald-200 dark:border-emerald-800">
-                            ⚡ Giải ngân tức thì
-                        </div>
-                    </div>
                 </div>
+
             </div>
         </section>
 
-        <!-- Comparison Table: Thị trường tự do vs HT Work Escrow -->
-        <section class="py-16 bg-slate-50 dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
+        <!-- ========================================================== -->
+        <!-- 4. REDESIGNED COMPARISON ARENA (BẢNG SO SÁNH FINTECH CAO CẤP) -->
+        <!-- ========================================================== -->
+        <section class="py-16 sm:py-24 bg-slate-50 dark:bg-dark-950 border-b border-slate-200/80 dark:border-slate-800/80" id="comparisonSection">
             <div class="max-w-6xl mx-auto px-4 sm:px-8">
-                <div class="text-center mb-12">
-                    <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">So Sánh Thực Tế</span>
-                    <h2 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mt-1">Tại Sao Nên Chọn Giao Dịch Qua Escrow?</h2>
+                
+                <div class="text-center max-w-3xl mx-auto mb-10">
+                    <span class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">So Sánh Nghiệp Vụ Thực Tế</span>
+                    <h2 class="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mt-1 tracking-tight">
+                        Tại Sao Nên Chọn Giao Dịch Qua Escrow?
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2.5 leading-relaxed">
+                        Bảng phân tích trực diện giữa việc tự giao dịch tự do ngoài thị trường (chợ đen, group mạng xã hội) và giao dịch được bảo chứng qua KGS Work Escrow Protocol.
+                    </p>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs sm:text-sm bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-200/80 dark:border-gray-800 overflow-hidden">
+                <!-- Role Filter Switcher Tabs -->
+                <div class="flex items-center justify-center gap-2 mb-8">
+                    <button onclick="filterComparison('all')" id="btnCompAll" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition">
+                        Tất Cả Tiêu Chí (8)
+                    </button>
+                    <button onclick="filterComparison('client')" id="btnCompClient" class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-dark-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition">
+                        Góc Nhìn Khách Hàng Thuê IT
+                    </button>
+                    <button onclick="filterComparison('freelancer')" id="btnCompFreelancer" class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-dark-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition">
+                        Góc Nhìn Lập Trình Viên (Dev)
+                    </button>
+                </div>
+
+                <!-- Modern Fintech Comparison Table -->
+                <div class="overflow-x-auto rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-dark-900">
+                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
                         <thead>
-                            <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-850">
-                                <th class="p-4 sm:p-5 font-black text-gray-700 dark:text-gray-300">Tiêu Chí Đánh Giá</th>
-                                <th class="p-4 sm:p-5 font-black text-red-600 dark:text-red-400">Giao Dịch Tự Do Ngoài Thị Trường</th>
-                                <th class="p-4 sm:p-5 font-black text-emerald-600 dark:text-emerald-400">HT Work Escrow Bảo Chứng</th>
+                            <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-dark-850/80">
+                                <th class="p-4 sm:p-5 font-black text-slate-700 dark:text-slate-300 w-1/4">
+                                    Tiêu Chí Nghiệp Vụ
+                                </th>
+                                <th class="p-4 sm:p-5 font-black text-rose-600 dark:text-rose-400 w-3/8 bg-rose-50/40 dark:bg-rose-950/20 border-x border-slate-200 dark:border-slate-800">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-6 h-6 rounded-lg bg-rose-500/10 text-rose-600 flex items-center justify-center text-xs font-black">✗</span>
+                                        <span>Giao Dịch Tự Do (Chợ Đen / Mạng Xã Hội)</span>
+                                    </div>
+                                </th>
+                                <th class="p-4 sm:p-5 font-black text-emerald-600 dark:text-emerald-400 w-3/8 bg-emerald-50/40 dark:bg-emerald-950/30 relative">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xs font-black">✓</span>
+                                            <span>KGS Work Escrow Protocol</span>
+                                        </div>
+                                        <span class="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-600 text-white uppercase font-mono">
+                                            ★ Tối Ưu Cho IT
+                                        </span>
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-gray-600 dark:text-gray-300">
-                            <tr>
-                                <td class="p-4 sm:p-5 font-bold text-gray-900 dark:text-white">Rủi ro bùng tiền Freelancer</td>
-                                <td class="p-4 sm:p-5 text-red-500 font-semibold"><i class="fas fa-times-circle mr-1.5"></i> Rất cao (làm xong bị chặn liên lạc)</td>
-                                <td class="p-4 sm:p-5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="fas fa-check-circle mr-1.5"></i> 0% (Tiền đã được khóa trong Escrow)</td>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80" id="comparisonTableBody">
+                            
+                            <!-- Row 1: Rủi ro bùng tiền Freelancer (Freelancer focus) -->
+                            <tr class="comp-row comp-freelancer hover:bg-slate-50/60 dark:hover:bg-dark-850/50 transition">
+                                <td class="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-user-shield text-indigo-500"></i>
+                                        <span>Rủi ro bùng tiền Freelancer</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-normal block mt-0.5">Lập trình xong nhưng đối tác biến mất</span>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-rose-50/30 dark:bg-rose-950/10 border-x border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 font-medium">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✗</span>
+                                        <span><strong>Rất cao (85%):</strong> Khách nhận mã nguồn xong liền chặn Zalo/Telegram. Dev mất trắng hàng tuần công sức không cách nào đòi lại.</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✓</span>
+                                        <span><strong>0% Rủi Ro:</strong> Toàn bộ tiền đã được khóa trước trong Smart Escrow Vault. Khi hoàn thành cam kết, tiền tự động về ví Dev.</span>
+                                    </div>
+                                </td>
                             </tr>
-                            <tr>
-                                <td class="p-4 sm:p-5 font-bold text-gray-900 dark:text-white">Rủi ro mất cọc Khách hàng</td>
-                                <td class="p-4 sm:p-5 text-red-500 font-semibold"><i class="fas fa-times-circle mr-1.5"></i> Dễ bị nhận sản phẩm dở dang rồi mất cọc</td>
-                                <td class="p-4 sm:p-5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="fas fa-check-circle mr-1.5"></i> Chỉ thanh toán khi đã nghiệm thu hài lòng</td>
+
+                            <!-- Row 2: Rủi ro mất cọc Khách hàng (Client focus) -->
+                            <tr class="comp-row comp-client hover:bg-slate-50/60 dark:hover:bg-dark-850/50 transition">
+                                <td class="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-hand-holding-dollar text-indigo-500"></i>
+                                        <span>Rủi ro mất cọc Khách hàng</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-normal block mt-0.5">Đặt cọc 30-50% trước cho Dev</span>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-rose-50/30 dark:bg-rose-950/10 border-x border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 font-medium">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✗</span>
+                                        <span><strong>Dễ mất trắng:</strong> Dev nhận tiền cọc xong làm sơ sài, trễ deadline kéo dài hoặc ôm tiền bốc hơi không bàn giao sản phẩm.</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✓</span>
+                                        <span><strong>Bảo vệ 100%:</strong> Tiền nạp vẫn nằm trong két trung gian, chỉ giải phóng khi chính bạn kiểm thử hài lòng và bấm nghiệm thu.</span>
+                                    </div>
+                                </td>
                             </tr>
-                            <tr>
-                                <td class="p-4 sm:p-5 font-bold text-gray-900 dark:text-white">Giải quyết khi có tranh chấp</td>
-                                <td class="p-4 sm:p-5 text-red-500 font-semibold"><i class="fas fa-times-circle mr-1.5"></i> Không có người phân xử, tự chịu thiệt hại</td>
-                                <td class="p-4 sm:p-5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="fas fa-check-circle mr-1.5"></i> Trọng tài Admin & AI phân xử khách quan</td>
+
+                            <!-- Row 3: Phân chia mốc thanh toán (Both) -->
+                            <tr class="comp-row comp-client comp-freelancer hover:bg-slate-50/60 dark:hover:bg-dark-850/50 transition">
+                                <td class="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-layer-group text-indigo-500"></i>
+                                        <span>Cơ chế mốc Milestone</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-normal block mt-0.5">Chia nhỏ tiến độ thanh toán dự án</span>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-rose-50/30 dark:bg-rose-950/10 border-x border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 font-medium">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✗</span>
+                                        <span><strong>Thỏa thuận miệng:</strong> Thường bắt trả một cục hoặc chia mốc mập mờ, dễ xảy ra tranh cãi về tiêu chuẩn bàn giao.</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✓</span>
+                                        <span><strong>Chia 2-4 mốc tự động:</strong> Mốc 1 UI/UX (30%), Mốc 2 API Core (40%), Mốc 3 Deploy (30%). Xong mốc nào nghiệm thu mốc đó.</span>
+                                    </div>
+                                </td>
                             </tr>
-                            <tr>
-                                <td class="p-4 sm:p-5 font-bold text-gray-900 dark:text-white">Tốc độ nhận tiền</td>
-                                <td class="p-4 sm:p-5 text-red-500 font-semibold"><i class="fas fa-times-circle mr-1.5"></i> Phụ thuộc sự tự giác của khách hàng</td>
-                                <td class="p-4 sm:p-5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="fas fa-check-circle mr-1.5"></i> Tự động cộng ví và rút ngay lập tức</td>
+
+                            <!-- Row 4: Bằng chứng & Lưu vết Git (Both) -->
+                            <tr class="comp-row comp-client comp-freelancer hover:bg-slate-50/60 dark:hover:bg-dark-850/50 transition">
+                                <td class="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-code-branch text-indigo-500"></i>
+                                        <span>Lưu vết mã nguồn & Tin nhắn</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-normal block mt-0.5">Bảo toàn chứng cứ kỹ thuật</span>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-rose-50/30 dark:bg-rose-950/10 border-x border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 font-medium">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✗</span>
+                                        <span><strong>Dễ bị xóa / thu hồi:</strong> Trao đổi rải rác trên Zalo/Telegram. Đối phương thu hồi tin nhắn hoặc xóa chat là mất hết bằng chứng.</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✓</span>
+                                        <span><strong>Audit Log Bất Biến:</strong> Lưu vết 100% nhật ký chat, link Git commit hash, file zip kiến trúc làm căn cứ đối soát minh bạch.</span>
+                                    </div>
+                                </td>
                             </tr>
+
+                            <!-- Row 5: Xử lý tranh chấp (Both) -->
+                            <tr class="comp-row comp-client comp-freelancer hover:bg-slate-50/60 dark:hover:bg-dark-850/50 transition">
+                                <td class="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-scale-balanced text-indigo-500"></i>
+                                        <span>Giải quyết khi có tranh chấp</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-normal block mt-0.5">Bất đồng về chất lượng / tính năng</span>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-rose-50/30 dark:bg-rose-950/10 border-x border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 font-medium">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✗</span>
+                                        <span><strong>Tự chịu thiệt hại:</strong> Không ai phân xử. Thường dẫn đến đấu tố vô ích trên mạng xã hội, mất tiền và mất uy tín.</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✓</span>
+                                        <span><strong>Trọng tài phân xử công bằng:</strong> Ban Quản Trị & AI kiểm toán mã nguồn, ra phán quyết hoàn tiền 100% hoặc hòa giải 50/50.</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 6: Tốc độ thanh toán & Ngân hàng (Freelancer focus) -->
+                            <tr class="comp-row comp-freelancer hover:bg-slate-50/60 dark:hover:bg-dark-850/50 transition">
+                                <td class="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-bolt text-indigo-500"></i>
+                                        <span>Tốc độ nhận tiền về Ngân Hàng</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-normal block mt-0.5">Thời gian rút tiền khả dụng</span>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-rose-50/30 dark:bg-rose-950/10 border-x border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 font-medium">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✗</span>
+                                        <span><strong>Chậm & Ngại ngùng:</strong> Phải nhắn tin giục khách chuyển khoản nhiều lần, đối tác có thể khất nợ hoặc viện cớ trì hoãn.</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✓</span>
+                                        <span><strong>30 Giây Về Bank:</strong> Khách duyệt là tiền cộng thẳng số dư ví. Rút tiền tự động 24/7 qua VietQR & PayOS (PCI-DSS).</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 7: Smart Contract & Blockchain (Client focus) -->
+                            <tr class="comp-row comp-client hover:bg-slate-50/60 dark:hover:bg-dark-850/50 transition">
+                                <td class="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fab fa-ethereum text-indigo-500"></i>
+                                        <span>Minh bạch Smart Contract</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-normal block mt-0.5">Mã nguồn bảo chứng on-chain</span>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-rose-50/30 dark:bg-rose-950/10 border-x border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 font-medium">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✗</span>
+                                        <span><strong>Không có gì chứng thực:</strong> Chỉ có lời hứa cá nhân, không thể xác minh đối tác có đủ tiền trả hay không.</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✓</span>
+                                        <span><strong>Sepolia Etherscan Verified:</strong> Khách hàng có thể tra cứu trực tiếp smart contract ký quỹ công khai, bất biến.</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 8: Xác thực tín nhiệm (Client focus) -->
+                            <tr class="comp-row comp-client hover:bg-slate-50/60 dark:hover:bg-dark-850/50 transition">
+                                <td class="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-star text-indigo-500"></i>
+                                        <span>Đánh giá tín nhiệm & Review</span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-normal block mt-0.5">Độ chân thực của hồ sơ</span>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-rose-50/30 dark:bg-rose-950/10 border-x border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 font-medium">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✗</span>
+                                        <span><strong>Review ảo tràn lan:</strong> Dễ dàng tạo nick clone tự khen, chụp màn hình tin nhắn fake để lừa tuyển dụng.</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 sm:p-5 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                                    <div class="flex items-start gap-2">
+                                        <span class="font-bold text-base shrink-0">✓</span>
+                                        <span><strong>100% Review Người Thật:</strong> Đánh giá sao chỉ được tạo sau khi hợp đồng đã hoàn tất giải ngân tiền thật.</span>
+                                    </div>
+                                </td>
+                            </tr>
+
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Bottom Guarantee Strip -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-3 px-6 py-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/60 dark:border-indigo-900/60 text-xs">
+                    <span class="font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-2">
+                        <i class="fas fa-certificate text-indigo-600 dark:text-indigo-400"></i>
+                        Cam kết hoàn tiền 100% nếu Freelancer không bàn giao đúng cam kết đã ký.
+                    </span>
+                    <a href="sharedFolder/register.html?role=client" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                        Bảo vệ dự án của bạn ngay hôm nay →
+                    </a>
+                </div>
+
             </div>
         </section>
 
-        <!-- Dispute Resolution Policy (Chính sách Tranh chấp) -->
-        <section class="py-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-            <div class="max-w-4xl mx-auto px-4 sm:px-8">
-                <div class="p-8 rounded-3xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-purple-500/10 border border-amber-200 dark:border-amber-800/60">
-                    <div class="flex items-center space-x-3 text-amber-700 dark:text-amber-400 font-black text-sm mb-3">
-                        <i class="fas fa-balance-scale text-xl"></i>
-                        <span>Cơ Chế Phân Xử Tranh Chấp Công Bằng (Dispute Arbitration)</span>
-                    </div>
-                    <p class="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                        Nếu một trong hai bên cảm thấy thỏa thuận không được tôn trọng (ví dụ: Freelancer giao trễ hạn quá lâu, hoặc Khách hàng đòi hỏi các tính năng ngoài thỏa thuận ban đầu mà không duyệt bài), tính năng **Tạo khiếu nại (Open Dispute)** sẽ được kích hoạt.
+        <!-- ========================================================== -->
+        <!-- 5. 4 GIAI ĐOẠN TRONG CHU TRÌNH KÝ QUỸ (CONNECTING STEPPER) -->
+        <!-- ========================================================== -->
+        <section class="py-16 sm:py-24 bg-white dark:bg-dark-900 border-b border-slate-200/80 dark:border-slate-800/80">
+            <div class="max-w-6xl mx-auto px-4 sm:px-8">
+                
+                <div class="text-center max-w-2xl mx-auto mb-14">
+                    <span class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Quy Trình Tiêu Chuẩn</span>
+                    <h2 class="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mt-1 tracking-tight">
+                        4 Giai Đoạn Trong Chu Trình Ký Quỹ Escrow
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
+                        Từ lúc đăng việc đến khi nhận tiền về tài khoản ngân hàng, mọi bước đều diễn ra minh bạch.
                     </p>
-                    <ul class="mt-3 space-y-1.5 text-xs text-gray-600 dark:text-gray-300 list-disc list-inside">
-                        <li>Hệ thống đóng băng trạng thái hợp đồng, giữ nguyên số tiền ký quỹ an toàn.</li>
-                        <li>Đội ngũ Admin kiểm toán lịch sử tin nhắn, các mốc cam kết và file mã nguồn bàn giao.</li>
-                        <li>Đưa ra phán quyết hoàn tiền toàn bộ/một phần hoặc giải ngân cho thợ theo tỷ lệ công việc đã hoàn thành chuẩn xác.</li>
-                    </ul>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+                    
+                    <!-- Step 1 -->
+                    <div class="p-6 rounded-3xl bg-slate-50 dark:bg-dark-850 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between relative group hover:shadow-xl transition-all">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-mono font-black text-lg mb-4 shadow-md shadow-indigo-600/30">
+                                01
+                            </div>
+                            <span class="text-[11px] font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block mb-1">Khởi Tạo</span>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white mb-2">
+                                Đăng Việc & Chốt Milestone
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Khách đăng tin tuyển dụng. Freelancer gửi báo giá chào thầu. Hai bên thống nhất kế hoạch chia các mốc bàn giao cụ thể.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i class="fas fa-file-contract text-indigo-500"></i> Hợp đồng số hóa
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="p-6 rounded-3xl bg-slate-50 dark:bg-dark-850 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between relative group hover:shadow-xl transition-all">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-mono font-black text-lg mb-4 shadow-md shadow-purple-600/30">
+                                02
+                            </div>
+                            <span class="text-[11px] font-mono font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider block mb-1">Bảo Chứng</span>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white mb-2">
+                                Nạp Tiền Khóa Escrow Vault
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Khách hàng nạp ngân sách mốc qua VietQR hoặc Smart Contract. Tiền lập tức bị khóa trong Vault. Dev thấy tiền là an tâm code.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i class="fas fa-lock text-purple-500"></i> Khóa tiền 100%
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="p-6 rounded-3xl bg-slate-50 dark:bg-dark-850 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between relative group hover:shadow-xl transition-all">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-mono font-black text-lg mb-4 shadow-md shadow-blue-600/30">
+                                03
+                            </div>
+                            <span class="text-[11px] font-mono font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block mb-1">Triển Khai</span>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white mb-2">
+                                Lập Trình & Bàn Giao Source
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Freelancer triển khai, push Git staging và tải deliverables lên hệ thống. Mọi tương tác chat và mã nguồn đều được lưu vết kiểm toán.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i class="fas fa-code text-blue-500"></i> Git Staging Audit
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="p-6 rounded-3xl bg-slate-50 dark:bg-dark-850 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between relative group hover:shadow-xl transition-all">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-mono font-black text-lg mb-4 shadow-md shadow-emerald-600/30">
+                                04
+                            </div>
+                            <span class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-1">Hoàn Tất</span>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white mb-2">
+                                Nghiệm Thu & Tự Động Rút Tiền
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Khách kiểm thử hài lòng và bấm "Duyệt". Tiền được mở khóa thẳng vào ví Freelancer và có thể rút ngay về tài khoản ngân hàng trong 30 giây.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i class="fas fa-bolt text-emerald-500"></i> Giải ngân tức thì
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!-- 6. HỘI ĐỒNG TRỌNG TÀI & 3 PHÁN QUYẾT MINH BẠCH (DISPUTE POLICY) -->
+        <!-- ========================================================== -->
+        <section class="py-16 sm:py-20 bg-slate-50/70 dark:bg-dark-950 border-b border-slate-200/80 dark:border-slate-800/80">
+            <div class="max-w-5xl mx-auto px-4 sm:px-8">
+                
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <span class="font-mono text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Bảo Vệ Công Bằng</span>
+                    <h2 class="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mt-1">
+                        Cơ Chế Trọng Tài Tranh Chấp & 3 Phán Quyết
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
+                        Khi có bất đồng, số tiền ký quỹ được đóng băng ngay lập tức. Admin và AI đối soát toàn bộ mã nguồn Git và nhật ký trao đổi để ra phán quyết khách quan.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    
+                    <!-- Phán quyết 1: Hoàn tiền 100% -->
+                    <div class="p-6 rounded-3xl bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-arrow-rotate-left"></i>
+                        </div>
+                        <h4 class="font-black text-sm text-slate-900 dark:text-white">Hoàn Tiền 100% Cho Khách Hàng</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Áp dụng khi Freelancer trễ hạn quá lâu, không thể liên lạc hoặc sản phẩm nộp vi phạm nghiêm trọng thỏa thuận specs ban đầu.
+                        </p>
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-mono text-[11px] font-bold">Khách Nhận Lại 100%</span>
+                    </div>
+
+                    <!-- Phán quyết 2: Hòa giải 50/50 -->
+                    <div class="p-6 rounded-3xl bg-white dark:bg-dark-900 border-2 border-indigo-600 shadow-xl space-y-3 ring-2 ring-indigo-500/20">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h4 class="font-black text-sm text-slate-900 dark:text-white">Hòa Giải 50 / 50 Theo Thực Tế</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Áp dụng khi Freelancer đã làm được một phần công việc có giá trị (ví dụ UI đã xong, backend dở dang). Tiền được chia công bằng theo khối lượng thực.
+                        </p>
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-mono text-[11px] font-bold">Phân Chia Hài Hòa 50/50</span>
+                    </div>
+
+                    <!-- Phán quyết 3: Giải ngân 100% -->
+                    <div class="p-6 rounded-3xl bg-white dark:bg-dark-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <h4 class="font-black text-sm text-slate-900 dark:text-white">Giải Ngân 100% Cho Freelancer</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Áp dụng khi đối soát chứng minh Freelancer đã bàn giao đúng 100% specs cam kết nhưng Khách hàng cố tình im lặng hoặc đòi hỏi thêm ngoài thỏa thuận.
+                        </p>
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-mono text-[11px] font-bold">Dev Nhận Đủ 100% Tiền</span>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!-- 7. INTERACTIVE FAQ ACCORDION (CÂU HỎI THƯỜNG GẶP) -->
+        <!-- ========================================================== -->
+        <section class="py-16 sm:py-20 bg-white dark:bg-dark-900 border-b border-slate-200/80 dark:border-slate-800/80">
+            <div class="max-w-4xl mx-auto px-4 sm:px-8">
+                
+                <div class="text-center max-w-xl mx-auto mb-12">
+                    <span class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Giải Đáp Thắc Mắc</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
+                        Câu Hỏi Thường Gặp Về Escrow
+                    </h2>
+                </div>
+
+                <div class="space-y-3" id="faqAccordion">
+                    
+                    <!-- Q1 -->
+                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-slate-800 cursor-pointer" onclick="toggleFaq(1)">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-sm text-slate-900 dark:text-white">
+                                Tiền nạp ký quỹ Escrow được giữ ở đâu? Có an toàn không?
+                            </h4>
+                            <i id="faqIcon1" class="fas fa-chevron-down text-xs text-slate-400 transition-transform"></i>
+                        </div>
+                        <p id="faqAnswer1" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed hidden">
+                            Tiền của bạn được giữ an toàn trong tài khoản ủy thác Escrow Vault chuyên biệt của KGS Work, kết nối trực tiếp với cổng thanh toán ngân hàng tự động VietQR / PayOS (chuẩn bảo mật PCI-DSS) và đồng bộ Smart Contract on-chain trên Ethereum Sepolia. Cả Doanh nghiệp lẫn Freelancer đều không thể đơn phương rút tiền khi chưa có thỏa thuận nghiệm thu hợp lệ.
+                        </p>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-slate-800 cursor-pointer" onclick="toggleFaq(2)">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-sm text-slate-900 dark:text-white">
+                                Nếu Freelancer làm xong nhưng Khách hàng im lặng không duyệt thì sao?
+                            </h4>
+                            <i id="faqIcon2" class="fas fa-chevron-down text-xs text-slate-400 transition-transform"></i>
+                        </div>
+                        <p id="faqAnswer2" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed hidden">
+                            Hệ thống KGS Work áp dụng quy tắc <strong>Tự động giải ngân sau 72 giờ</strong>. Nếu Freelancer đã nộp sản phẩm hoàn thiện mà Khách hàng không có phản hồi và cũng không mở khiếu nại tranh chấp trong vòng 72 giờ, hợp đồng sẽ tự động giải phóng tiền vào ví Freelancer để bảo vệ quyền lợi chính đáng cho thợ.
+                        </p>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-slate-800 cursor-pointer" onclick="toggleFaq(3)">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-sm text-slate-900 dark:text-white">
+                                Phí dịch vụ ký quỹ Escrow là bao nhiêu?
+                            </h4>
+                            <i id="faqIcon3" class="fas fa-chevron-down text-xs text-slate-400 transition-transform"></i>
+                        </div>
+                        <p id="faqAnswer3" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed hidden">
+                            Đăng tin tuyển dụng và tìm việc hoàn toàn <strong>Miễn phí (0đ)</strong>. Khi hợp đồng giải ngân thành công, hệ thống chỉ thu phí vận hành sàn tối ưu 5% để duy trì hạ tầng máy chủ, hệ thống trọng tài kiểm toán và phí cổng ngân hàng tự động.
+                        </p>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-slate-800 cursor-pointer" onclick="toggleFaq(4)">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-sm text-slate-900 dark:text-white">
+                                Rút tiền từ ví về tài khoản ngân hàng mất bao lâu?
+                            </h4>
+                            <i id="faqIcon4" class="fas fa-chevron-down text-xs text-slate-400 transition-transform"></i>
+                        </div>
+                        <p id="faqAnswer4" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed hidden">
+                            Hệ thống tích hợp cổng chuyển tiền tự động 24/7. Ngay khi bạn gửi lệnh rút tiền từ Ví sang số tài khoản ngân hàng (Vietcombank, MB, Techcombank, ACB, v.v.), hệ thống xử lý tức thì trong vòng <strong>30 giây đến 2 phút</strong>, hoạt động cả ban đêm, thứ Bảy và Chủ Nhật.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!-- 8. FINAL CALL TO ACTION -->
+        <!-- ========================================================== -->
+        <section class="py-20 bg-slate-900 text-white text-center relative overflow-hidden">
+            <div class="max-w-3xl mx-auto px-4 sm:px-8 relative z-10 space-y-4">
+                <span class="inline-block px-3 py-1 rounded-full bg-white/10 text-xs font-mono font-bold tracking-wider uppercase">
+                    Bảo Vệ Dự Án Của Bạn 100%
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-black">
+                    Khởi Chạy Dự Án IT Đầu Tiên Với KGS Work
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+                    Đăng tin miễn phí chỉ trong 30 giây để kết nối ngay với đội ngũ lập trình viên chuyên nghiệp đã được xác thực danh tính KYC.
+                </p>
+                <div class="pt-3 flex flex-wrap justify-center gap-3">
+                    <a href="sharedFolder/register.html?role=client" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/20 transition">
+                        Đăng Tuyển Dự Án Ký Quỹ
+                    </a>
+                    <a href="explore-jobs.html" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm transition border border-slate-700">
+                        Khám Phá Việc Làm IT
+                    </a>
                 </div>
             </div>
         </section>
 
-        <!-- CTA Section -->
-        <section class="py-16 bg-gradient-to-br from-indigo-800 to-purple-900 text-white text-center">
-            <div class="max-w-3xl mx-auto px-4 sm:px-8">
-                <h2 class="text-2xl sm:text-4xl font-black">Trải Nghiệm Cơ Chế Escrow Của HT Work Ngay Hôm Nay</h2>
-                <p class="mt-3 text-xs sm:text-sm text-indigo-200">Bảo đảm an toàn tuyệt đối cho mọi giao dịch lập trình và phát triển phần mềm của bạn.</p>
-                <div class="mt-6 flex flex-wrap justify-center gap-3">
-                    <a href="explore-jobs.html" class="px-6 py-3 rounded-2xl bg-white text-indigo-900 font-black text-xs sm:text-sm hover:bg-gray-100 shadow transition">
-                        Tìm Việc Làm
-                    </a>
-                    <a href="sharedFolder/register.html?role=client" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm shadow transition">
-                        Đăng Tuyển Ngay
-                    </a>
-                </div>
-            </div>
-        </section>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 text-xs text-gray-500 text-center">
-        <p>© 2026 HT Work - Báo cáo thực tập tốt nghiệp: Website kết nối nhân sự IT Freelancer dựa trên cơ chế thanh toán trung gian Escrow.</p>
+    <!-- ============================================================== -->
+    <!-- 9. FOOTER & TRUST STRIP -->
+    <!-- ============================================================== -->
+    <footer class="bg-white dark:bg-dark-900 border-t border-slate-200/80 dark:border-slate-800/80 py-10 transition-colors">
+        <div class="max-w-6xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div>
+                <p>© 2026 KGS Work - Sàn Giao Dịch Việc Làm IT & Ký Quỹ Escrow Hub.</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Báo cáo thực tập tốt nghiệp: Website kết nối nhân sự IT Freelancer.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3 font-mono text-[11px]">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold">
+                    <i class="fas fa-shield-alt text-emerald-500"></i> 100% Escrow Vault Protected
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">
+                    <i class="fas fa-lock text-indigo-500"></i> SSL 256-Bit
+                </span>
+                <a href="https://sepolia.etherscan.io/address/0xCe6A4e01aB3fd44be7f538B28e284f103426A54b" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold hover:underline">
+                    <i class="fab fa-ethereum text-indigo-500"></i> Sepolia Verified
+                </a>
+            </div>
+        </div>
     </footer>
 
+    <!-- ============================================================== -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- ============================================================== -->
     <script>
+        // 1. Theme toggle
         const themeToggleBtn = document.getElementById('themeToggle');
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -277,6 +842,114 @@
                 }
             });
         }
+
+        // 2. Interactive Simulator
+        let simBudget = 20000000;
+        let simM2Released = false;
+
+        function setSimBudget(val) {
+            simBudget = val;
+            document.getElementById('simBudgetInput').value = val;
+            calculateSimulator();
+        }
+
+        function calculateSimulator() {
+            const inputVal = parseFloat(document.getElementById('simBudgetInput').value) || 20000000;
+            simBudget = inputVal;
+
+            const m1 = Math.round(simBudget * 0.3);
+            const m2 = Math.round(simBudget * 0.4);
+            const m3 = Math.round(simBudget * 0.3);
+
+            document.getElementById('simM1Amount').innerText = m1.toLocaleString('vi-VN') + ' Token';
+            document.getElementById('simM2Amount').innerText = m2.toLocaleString('vi-VN') + ' Token';
+            document.getElementById('simM3Amount').innerText = m3.toLocaleString('vi-VN') + ' Token';
+        }
+
+        function toggleSimM1() {
+            // Already released feedback
+            alert('Mốc 1 đã được Doanh nghiệp duyệt nghiệm thu và giải ngân thành công 100% vào ví của Freelancer!');
+        }
+
+        function toggleSimM2() {
+            simM2Released = !simM2Released;
+            const card = document.getElementById('simM2Card');
+            const status = document.getElementById('simM2Status');
+            const btn = document.getElementById('simM2Btn');
+
+            if (simM2Released) {
+                card.className = "p-5 rounded-2xl bg-white dark:bg-dark-900 border-2 border-emerald-500 shadow-sm space-y-3 transition-all";
+                status.className = "inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600";
+                status.innerHTML = `<i class="fas fa-check-circle"></i> Vừa Giải Ngân Xong!`;
+                btn.className = "w-full py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold transition";
+                btn.innerText = "✓ Đã Duyệt Nghiệm Thu";
+            } else {
+                card.className = "p-5 rounded-2xl bg-white dark:bg-dark-900 border-2 border-indigo-600 shadow-md space-y-3 transition-all ring-2 ring-indigo-500/20";
+                status.className = "inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600";
+                status.innerHTML = `<i class="fas fa-lock"></i> Đang Khóa Tiền`;
+                btn.className = "w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition";
+                btn.innerText = "Bấm Thử Duyệt Mốc 2 →";
+            }
+        }
+
+        // 3. Comparison Filter
+        function filterComparison(role) {
+            const rows = document.querySelectorAll('.comp-row');
+            const btnAll = document.getElementById('btnCompAll');
+            const btnClient = document.getElementById('btnCompClient');
+            const btnFreelancer = document.getElementById('btnCompFreelancer');
+
+            // Reset button styles
+            [btnAll, btnClient, btnFreelancer].forEach(b => {
+                b.className = "px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-dark-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition";
+            });
+
+            if (role === 'all') {
+                btnAll.className = "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition";
+                rows.forEach(r => r.classList.remove('hidden'));
+            } else if (role === 'client') {
+                btnClient.className = "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition";
+                rows.forEach(r => {
+                    if (r.classList.contains('comp-client')) {
+                        r.classList.remove('hidden');
+                    } else {
+                        r.classList.add('hidden');
+                    }
+                });
+            } else if (role === 'freelancer') {
+                btnFreelancer.className = "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition";
+                rows.forEach(r => {
+                    if (r.classList.contains('comp-freelancer')) {
+                        r.classList.remove('hidden');
+                    } else {
+                        r.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        // 4. FAQ Accordion Toggle
+        function toggleFaq(id) {
+            const answer = document.getElementById(`faqAnswer${id}`);
+            const icon = document.getElementById(`faqIcon${id}`);
+            if (!answer || !icon) return;
+
+            const isHidden = answer.classList.contains('hidden');
+            if (isHidden) {
+                answer.classList.remove('hidden');
+                icon.className = "fas fa-chevron-up text-xs text-indigo-600 transition-transform";
+            } else {
+                answer.classList.add('hidden');
+                icon.className = "fas fa-chevron-down text-xs text-slate-400 transition-transform";
+            }
+        }
+
+        // Initialize Simulator
+        calculateSimulator();
     </script>
+    <script src="assets/js/pricing-modal.js"></script>
+
+    <!-- Real-time Traffic & Analytics Tracker -->
+    <script src="assets/js/traffic-tracker.js"></script>
 </body>
 </html>

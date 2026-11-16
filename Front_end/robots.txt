@@ -1,38 +1,13 @@
-# ==============================================================================
-# HT Work Platform - Robots.txt Policy
-# ==============================================================================
-
+# robots.txt for KGS Work (trinhhuyhoang.id.vn)
 User-agent: *
-# Cho phép lập chỉ mục các trang giới thiệu công khai
 Allow: /
-Allow: /index.html
-Allow: /how-it-works.html
-Allow: /explore-jobs.html
-Allow: /explore-freelancers.html
-Allow: /assets/
-
-# Nghiêm cấm lập chỉ mục các phân hệ nội bộ và dữ liệu tài chính
+Allow: /jobs
+Allow: /freelancers
+Allow: /how-it-works
 Disallow: /Admin/
+Disallow: /admin/
 Disallow: /user/
 Disallow: /freelancer/
-Disallow: /sharedFolder/
 Disallow: /api/
-Disallow: /*wallet.html
-Disallow: /*direct-chat.html
-Disallow: /*backup_html/
 
-# Chặn hoàn toàn các crawler cào dữ liệu tự động
-User-agent: Scrapy
-Disallow: /
-
-User-agent: Python-urllib
-Disallow: /
-
-User-agent: ByteSpider
-Disallow: /
-
-User-agent: AhrefsBot
-Disallow: /
-
-User-agent: SemrushBot
-Disallow: /
+Sitemap: https://trinhhuyhoang.id.vn/sitemap.xml

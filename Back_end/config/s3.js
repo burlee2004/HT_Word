@@ -23,7 +23,7 @@ const uploadFile = multer({
     key: function (req, file, cb) {
       // Đặt tên file duy nhất tránh trùng lặp
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, 'htwork_files/' + uniqueSuffix + '-' + file.originalname);
+      cb(null, 'kgs work_files/' + uniqueSuffix + '-' + file.originalname);
     }
   }),
   limits: { fileSize: 50 * 1024 * 1024 } // Giới hạn file 50MB

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Doanh Thu & Dòng Tiền Hệ Thống - KGS Work Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/js/token-formatter.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex overflow-hidden font-sans transition-colors">
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Placeholder -->
+        <div id="header-container"></div>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 pb-24 md:pb-12 max-w-7xl mx-auto w-full relative space-y-8">
+            
+            <!-- HEADER TIÊU ĐỀ & NÚT THAO TÁC -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+                <div>
+                    <div class="flex items-center space-x-3 mb-1.5">
+                        <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-file-invoice-dollar mr-3 text-amber-500"></i> Báo Cáo Doanh Thu & Dòng Tiền Sàn
+                        </h1>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-400 border border-amber-300 dark:border-amber-800">
+                            <i class="fas fa-scale-balanced mr-1.5"></i> Hạch Toán Độc Lập
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed">
+                        Phân tách minh bạch: <strong class="text-amber-600 dark:text-amber-400 font-bold">Lợi Nhuận Sàn Thực Thu</strong> (Tiền bán Gói VIP, Tiện ích của Admin) và <strong class="text-teal-600 dark:text-teal-400 font-bold">Dòng Tiền Vận Hành Của User</strong> (Tiền nạp, rút, ký quỹ Escrow bảo đảm thanh khoản khi User rút tiền).
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                    <!-- Nút Xuất Báo Cáo In / PDF -->
+                    <button onclick="window.print()" class="bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm cursor-pointer">
+                        <i class="fas fa-file-pdf mr-2 text-rose-400"></i> Xuất Báo Cáo PDF
+                    </button>
+
+                    <!-- Nút Làm Mới Dữ Liệu -->
+                    <button onclick="loadRevenueReport()" id="btnRefresh" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold py-2.5 px-4 rounded-2xl shadow-sm transition flex items-center text-xs sm:text-sm cursor-pointer">
+                        <i class="fas fa-sync-alt mr-2 text-amber-500" id="refreshIcon"></i> Làm mới dữ liệu
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- KHỐI 1: LỢI NHUẬN THUẦN SÀN KGS WORK (TỰ DO SỬ DỤNG) -->
+            <!-- ============================================================== -->
+            <div class="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/40 dark:via-gray-850 dark:to-gray-850 p-5 sm:p-6 rounded-3xl border border-amber-300 dark:border-amber-700/60 shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-amber-200/60 dark:border-amber-800/40">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-black text-amber-900 dark:text-amber-300 uppercase tracking-wide">
+                                Lợi Nhuận Sàn Thực Thu (Kho Bạc Sàn Tự Do Sử Dụng)
+                            </h2>
+                            <p class="text-xs text-amber-700/80 dark:text-amber-400/80">
+                                Tiền lời thực tế thu từ bán Gói VIP và Tiện ích Đẩy Top. Khoản này là tài sản ròng của Admin.
+                            </p>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-black bg-amber-500 text-white shadow-xs">
+                        Tỷ suất lợi nhuận: 100%
+                    </span>
+                </div>
+
+                <!-- 4 KPI Cards Lợi Nhuận Sàn -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- KPI 1: Tổng Lợi Nhuận Ròng -->
+                    <div class="bg-white dark:bg-gray-800 p-4.5 rounded-2xl border border-amber-200 dark:border-amber-800/60 shadow-xs flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300">Tổng Lợi Nhuận Sàn</span>
+                            <div class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">
+                                <i class="fas fa-sack-dollar"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="kpiNetProfit" class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight">0 Token</p>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium block mt-1">
+                                Quy đổi: <strong id="kpiNetProfitVND" class="text-gray-700 dark:text-gray-200">0 VNĐ</strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Gói Hội Viên VIP -->
+                    <div class="bg-white dark:bg-gray-800 p-4.5 rounded-2xl border border-purple-200 dark:border-purple-800/60 shadow-xs flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-purple-700 dark:text-purple-300">Doanh Thu Gói VIP</span>
+                            <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="kpiVipRevenue" class="text-2xl sm:text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tight">0 Token</p>
+                            <span class="text-xs text-purple-600/90 dark:text-purple-300 font-semibold block mt-1">
+                                Đã thu từ Client & Freelancer
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Tiện Ích Đẩy Top / Addon -->
+                    <div class="bg-white dark:bg-gray-800 p-4.5 rounded-2xl border border-indigo-200 dark:border-indigo-800/60 shadow-xs flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300">Tiện Ích & Đẩy Top</span>
+                            <div class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="kpiBoostRevenue" class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">0 Token</p>
+                            <span class="text-xs text-indigo-600/90 dark:text-indigo-300 font-semibold block mt-1">
+                                Ghim bài đăng & mở khóa SĐT
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Ví Kho Bạc Sàn Thực Tế -->
+                    <div class="bg-white dark:bg-gray-800 p-4.5 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 shadow-xs flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Số Dư Ví Kho Bạc Admin</span>
+                            <div class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="kpiTreasuryBalance" class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">0 Token</p>
+                            <span class="text-xs text-emerald-600/90 dark:text-emerald-300 font-semibold block mt-1">
+                                Tiền sẵn sàng trong ví Admin
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- KHỐI 2: DÒNG TIỀN VẬN HÀNH HỆ THỐNG CỦA USER (TIỀN BẢO LÃNH TẠM GIỮ) -->
+            <!-- ============================================================== -->
+            <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-teal-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-black text-gray-900 dark:text-white uppercase tracking-wide">
+                                Dòng Tiền Vận Hành Hệ Thống (Tiền Bảo Lãnh Của User)
+                            </h2>
+                            <p class="text-xs text-gray-400">
+                                Tiền nạp, tiền rút, số dư trong ví người dùng và tiền ký quỹ Escrow. Sàn phải bảo toàn thanh khoản để chi trả khi người dùng rút tiền.
+                            </p>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                        <i class="fas fa-lock mr-1.5"></i> Bảo Chứng Escrow 100%
+                    </span>
+                </div>
+
+                <!-- 4 Thẻ Dòng Tiền Hệ Thống -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Thẻ 1: Tổng Nạp Token -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[11px] font-bold text-gray-400 block mb-1">TỔNG NẠP TOKEN CỦA USER</span>
+                        <p id="flowTotalDeposits" class="text-xl font-black text-emerald-600 dark:text-emerald-400">0 Token</p>
+                        <span class="text-[11px] text-gray-400 block mt-1">Qua VietQR & PayOS</span>
+                    </div>
+
+                    <!-- Thẻ 2: Tổng Rút Đã Chi Trả -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[11px] font-bold text-gray-400 block mb-1">TỔNG RÚT ĐÃ CHI TRẢ CHO USER</span>
+                        <p id="flowTotalWithdrawn" class="text-xl font-black text-rose-500">0 Token</p>
+                        <span class="text-[11px] text-gray-400 block mt-1">Đã giải ngân về ngân hàng</span>
+                    </div>
+
+                    <!-- Thẻ 3: Tiền Trong Ví User Khả Dụng -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[11px] font-bold text-gray-400 block mb-1">SỐ DƯ KHẢ DỤNG TRONG VÍ USER</span>
+                        <p id="flowUserWallets" class="text-xl font-black text-blue-600 dark:text-blue-400">0 Token</p>
+                        <span class="text-[11px] text-gray-400 block mt-1">Khách & Freelancer có thể rút</span>
+                    </div>
+
+                    <!-- Thẻ 4: Quỹ Ký Quỹ Escrow Đang Khóa -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <span class="text-[11px] font-bold text-gray-400 block mb-1">KÝ QUỸ ESCROW ĐANG KHÓA</span>
+                        <p id="flowEscrowLocked" class="text-xl font-black text-teal-600 dark:text-teal-400">0 Token</p>
+                        <span class="text-[11px] text-gray-400 block mt-1">Bảo đảm cho các hợp đồng đang chạy</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- KHỐI 3: CƠ CẤU DOANH THU & BÁO CÁO LỜI / LỖ (P&L) -->
+            <!-- ============================================================== -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Cơ Cấu Nguồn Thu Sàn (Doughnut Chart) -->
+                <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-chart-pie mr-2 text-amber-500"></i> Cơ Cấu Doanh Thu Sàn KGS Work
+                            </h2>
+                            <span class="text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-1 rounded-xl">
+                                100% Thực Thu
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-4">
+                            Biểu đồ chỉ phân tích tỷ trọng các khoản thực thu thuộc về Admin (không trộn lẫn tiền nạp/rút của user).
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                        <div class="h-48 relative flex items-center justify-center">
+                            <canvas id="revenuePieChart"></canvas>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-purple-50 dark:bg-purple-950/40 rounded-xl border border-purple-100 dark:border-purple-800/40 flex justify-between items-center">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                                    <span class="font-bold text-gray-800 dark:text-gray-200">Gói Hội Viên VIP</span>
+                                </div>
+                                <span id="labelVipAmount" class="font-black text-purple-600 dark:text-purple-400">0 Token</span>
+                            </div>
+                            <div class="p-3 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-800/40 flex justify-between items-center">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-3 h-3 rounded-full bg-indigo-500"></span>
+                                    <span class="font-bold text-gray-800 dark:text-gray-200">Tiện Ích Đẩy Top</span>
+                                </div>
+                                <span id="labelBoostAmount" class="font-black text-indigo-600 dark:text-indigo-400">0 Token</span>
+                            </div>
+                            <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-800/40 flex justify-between items-center">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                    <span class="font-bold text-gray-800 dark:text-gray-200">Phí Giao Dịch Sàn</span>
+                                </div>
+                                <span id="labelFeeAmount" class="font-black text-emerald-600 dark:text-emerald-400">0 Token</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Báo Cáo Lời / Lỗ Tóm Tắt (P&L) -->
+                <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center">
+                                <i class="fas fa-balance-scale mr-2 text-emerald-500"></i> Báo Cáo Lời / Lỗ (P&L Statement)
+                            </h2>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Hạch Toán Ròng</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-4">Tổng hợp dòng tiền lời thực thu trừ chi phí vận hành.</p>
+
+                        <div class="space-y-2.5 text-xs">
+                            <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-gray-600 dark:text-gray-400">(+) Doanh thu bán Gói VIP:</span>
+                                <strong id="plVipRevenue" class="text-purple-600 font-bold">+0 Token</strong>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-gray-600 dark:text-gray-400">(+) Doanh thu Tiện ích Đẩy Top:</span>
+                                <strong id="plBoostRevenue" class="text-indigo-600 font-bold">+0 Token</strong>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-gray-600 dark:text-gray-400">(-) Chi phí máy chủ Render / Vercel:</span>
+                                <span class="text-emerald-600 font-medium">0đ (Gói Free Tier)</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-gray-600 dark:text-gray-400">(-) Chi phí cổng thanh toán PayOS / VietQR:</span>
+                                <span class="text-emerald-600 font-medium">0đ (Miễn phí 0%)</span>
+                            </div>
+                            <div class="flex justify-between py-3 font-bold text-sm bg-emerald-50 dark:bg-emerald-950/40 px-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                                <span class="text-emerald-800 dark:text-emerald-300">(=) LỢI NHUẬN THUẦN SÀN (NET PROFIT):</span>
+                                <span id="plNetProfitTotal" class="text-emerald-600 font-black text-base">+0 Token</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-[11px] text-gray-400 flex items-center justify-between">
+                        <span><i class="fas fa-check-circle text-emerald-500 mr-1"></i> Trạng thái dòng tiền:</span>
+                        <strong class="text-emerald-600 font-bold">Thặng dư dương tuyệt đối</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- KHỐI 4: SỔ CÁI CHI TIẾT CÁC KHOẢN DOANH THU SÀN THỰC THU -->
+            <!-- ============================================================== -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                    <div>
+                        <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-list-check mr-2 text-amber-500"></i> Sổ Cái Các Khoản Doanh Thu Sàn Đã Thu
+                        </h2>
+                        <p class="text-xs text-gray-400">
+                            Danh sách các giao dịch nâng cấp Gói VIP và Tiện ích đã nộp tiền vào Kho bạc Admin
+                        </p>
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <input type="text" id="revenueSearchInput" oninput="filterRevenueLedger()" placeholder="Tìm người thanh toán, gói..." class="w-full text-xs pl-8 pr-3 py-2 bg-gray-50 dark:bg-gray-750 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500">
+                            <i class="fas fa-search absolute left-2.5 top-2.5 text-xs text-gray-400"></i>
+                        </div>
+                        
+                        <select id="revenueFilterType" onchange="filterRevenueLedger()" class="text-xs px-3 py-2 bg-gray-50 dark:bg-gray-750 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer">
+                            <option value="all">Tất cả nguồn thu</option>
+                            <option value="SUBSCRIPTION_VIP">Gói Hội Viên VIP</option>
+                            <option value="JOB_BOOST">Tiện Ích Đẩy Top</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-gray-50 dark:bg-gray-750 text-gray-400 uppercase text-[10px] font-bold tracking-wider border-b border-gray-100 dark:border-gray-700">
+                            <tr>
+                                <th class="px-5 py-3.5 whitespace-nowrap">Thời Gian</th>
+                                <th class="px-5 py-3.5 whitespace-nowrap">Người Thanh Toán</th>
+                                <th class="px-5 py-3.5 whitespace-nowrap">Nguồn Thu</th>
+                                <th class="px-5 py-3.5 whitespace-nowrap">Số Tiền (Token)</th>
+                                <th class="px-5 py-3.5">Nội Dung Thanh Toán</th>
+                                <th class="px-5 py-3.5 text-center whitespace-nowrap">Chứng Từ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="revenueTableBody" class="divide-y divide-gray-100 dark:divide-gray-700/60">
+                            <tr>
+                                <td colspan="6" class="px-5 py-8 text-center text-gray-400 dark:text-gray-500">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải sổ cái doanh thu sàn...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Admin UI Framework JS -->
+    <script src="admin-ui.js?v=20261116_v6"></script>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://project-internship-8z76.onrender.com';
+
+        let rawRevenueData = null;
+        let revenueChartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRevenueReport();
+        });
+
+        async function loadRevenueReport() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/revenue/overview`);
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    rawRevenueData = data.revenue;
+                    renderData(data.revenue);
+                } else {
+                    document.getElementById('revenueTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-5 py-8 text-center text-red-500">
+                                Không thể tải dữ liệu: ${data.error || 'Lỗi máy chủ'}
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (err) {
+                console.error('Lỗi tải báo cáo doanh thu:', err);
+                document.getElementById('revenueTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-5 py-8 text-center text-red-500">
+                            Lỗi kết nối khi tải báo cáo doanh thu.
+                        </td>
+                    </tr>
+                `;
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        function renderData(rev) {
+            // 1. Khối Lợi Nhuận Sàn Thực Thu
+            const profit = rev.total_platform_profit || 0;
+            const vip = rev.vip_revenue || 0;
+            const boost = rev.boost_revenue || 0;
+            const treasury = rev.treasury_balance || profit;
+
+            document.getElementById('kpiNetProfit').innerText = `${profit.toLocaleString()} Token`;
+            document.getElementById('kpiNetProfitVND').innerText = `${profit.toLocaleString()} VNĐ`;
+            document.getElementById('kpiVipRevenue').innerText = `${vip.toLocaleString()} Token`;
+            document.getElementById('kpiBoostRevenue').innerText = `${boost.toLocaleString()} Token`;
+            document.getElementById('kpiTreasuryBalance').innerText = `${treasury.toLocaleString()} Token`;
+
+            document.getElementById('labelVipAmount').innerText = `${vip.toLocaleString()} Token`;
+            document.getElementById('labelBoostAmount').innerText = `${boost.toLocaleString()} Token`;
+            document.getElementById('labelFeeAmount').innerText = `0 Token`;
+
+            document.getElementById('plVipRevenue').innerText = `+${vip.toLocaleString()} Token`;
+            document.getElementById('plBoostRevenue').innerText = `+${boost.toLocaleString()} Token`;
+            document.getElementById('plNetProfitTotal').innerText = `+${profit.toLocaleString()} Token`;
+
+            // 2. Khối Dòng Tiền Hệ Thống
+            const flow = rev.system_flow || {};
+            document.getElementById('flowTotalDeposits').innerText = `${(flow.total_deposits || 0).toLocaleString()} Token`;
+            document.getElementById('flowTotalWithdrawn').innerText = `${(flow.total_withdrawn || 0).toLocaleString()} Token`;
+            document.getElementById('flowUserWallets').innerText = `${(flow.user_wallets_balance || 0).toLocaleString()} Token`;
+            document.getElementById('flowEscrowLocked').innerText = `${(flow.escrow_locked || 0).toLocaleString()} Token`;
+
+            // 3. Biểu đồ tròn cơ cấu doanh thu sàn
+            renderChart(vip, boost, rev.fee_revenue || 0);
+
+            // 4. Bảng sổ cái
+            renderRevenueTable(rev.transactions || []);
+        }
+
+        function renderChart(vip, boost, fee) {
+            const ctx = document.getElementById('revenuePieChart');
+            if (!ctx) return;
+
+            if (revenueChartInstance) {
+                revenueChartInstance.destroy();
+            }
+
+            const dataValues = [vip, boost, fee];
+            const hasData = (vip + boost + fee) > 0;
+
+            revenueChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Gói VIP', 'Tiện Ích Đẩy Top', 'Phí Dịch Vụ'],
+                    datasets: [{
+                        data: hasData ? dataValues : [1],
+                        backgroundColor: hasData ? ['#a855f7', '#6366f1', '#10b981'] : ['#e2e8f0'],
+                        borderWidth: 2,
+                        borderColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '72%'
+                }
+            });
+        }
+
+        function filterRevenueLedger() {
+            if (!rawRevenueData || !rawRevenueData.transactions) return;
+
+            const search = (document.getElementById('revenueSearchInput')?.value || '').toLowerCase().trim();
+            const filterType = document.getElementById('revenueFilterType')?.value || 'all';
+
+            const filtered = rawRevenueData.transactions.filter(t => {
+                if (filterType !== 'all' && t.type !== filterType) return false;
+                if (search) {
+                    const senderName = (t.sender?.full_name || '').toLowerCase();
+                    const senderEmail = (t.sender?.email || '').toLowerCase();
+                    const note = (t.note || '').toLowerCase();
+                    const id = (t.id || '').toLowerCase();
+                    if (!senderName.includes(search) && !senderEmail.includes(search) && !note.includes(search) && !id.includes(search)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            renderRevenueTable(filtered);
+        }
+
+        function renderRevenueTable(transactions) {
+            const tbody = document.getElementById('revenueTableBody');
+            if (!tbody) return;
+
+            if (!transactions || transactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-5 py-10 text-center text-gray-400 dark:text-gray-500">
+                            <i class="fas fa-folder-open text-2xl mb-2 block"></i>
+                            Chưa có giao dịch doanh thu nào phù hợp.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = transactions.map(tx => {
+                const dateStr = new Date(tx.created_at).toLocaleString('vi-VN');
+                const senderName = tx.sender ? (tx.sender.full_name || tx.sender.email) : 'Người dùng hệ thống';
+                const senderEmail = tx.sender?.email || '';
+                const senderRole = tx.sender?.role || 'freelancer';
+                const roleBadge = senderRole === 'freelancer' 
+                    ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">Freelancer</span>'
+                    : '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">Khách Hàng</span>';
+
+                let sourceBadge = '';
+                if (tx.type === 'SUBSCRIPTION_VIP') {
+                    sourceBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800"><i class="fas fa-crown text-[10px]"></i> Gói Hội Viên VIP</span>';
+                } else if (tx.type === 'JOB_BOOST') {
+                    sourceBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"><i class="fas fa-rocket text-[10px]"></i> Tiện Ích Đẩy Top</span>';
+                } else {
+                    sourceBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">${tx.type}</span>`;
+                }
+
+                const cleanNote = (tx.note || '').replace(/\[DOANH THU SÀN\]\s*/gi, '').trim();
+
+                return `
+                    <tr class="hover:bg-amber-50/30 dark:hover:bg-gray-750 transition-colors border-b border-gray-100 dark:border-gray-700/60">
+                        <td class="px-5 py-4 text-xs font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                            ${dateStr}
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                                    ${senderName.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                        ${senderName} ${roleBadge}
+                                    </div>
+                                    <div class="text-[10px] text-gray-400">${senderEmail}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            ${sourceBadge}
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <span class="font-black text-sm text-amber-600 dark:text-amber-400 block">+${Number(tx.amount || 0).toLocaleString()} Token</span>
+                            <span class="text-[10px] text-gray-400">${Number(tx.amount || 0).toLocaleString()} VNĐ</span>
+                        </td>
+                        <td class="px-5 py-4 text-xs text-gray-700 dark:text-gray-300">
+                            <span class="font-medium">${cleanNote || 'Thanh toán dịch vụ nền tảng'}</span>
+                            <span class="block text-[10px] font-mono text-gray-400 mt-0.5">Mã GD: ${tx.idempotency_key || tx.id}</span>
+                        </td>
+                        <td class="px-5 py-4 text-center whitespace-nowrap">
+                            <button onclick="printReceipt('${tx.id}', '${tx.type}', '${tx.amount}', '${dateStr}', '${cleanNote.replace(/'/g, "\\'")}')" class="bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white px-3 py-1.5 rounded-xl shadow-xs text-xs font-bold transition inline-flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i class="fas fa-file-invoice text-amber-400"></i> Hóa Đơn PDF
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function printReceipt(txId, type, amount, dateStr, note) {
+            const printWindow = window.open('', '_blank', 'width=700,height=800');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Biên Lai Thu Tiền Dịch Vụ - KGS Work</title>
+                    <style>
+                        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; color: #1e293b; }
+                        .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
+                        .title { font-size: 22px; font-weight: 900; color: #d97706; text-transform: uppercase; }
+                        .badge { display: inline-block; padding: 4px 12px; background: #fef3c7; color: #92400e; border-radius: 999px; font-weight: 700; font-size: 12px; margin-top: 5px; }
+                        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; }
+                        .total-row { display: flex; justify-content: space-between; padding: 18px 0; font-size: 18px; font-weight: 900; border-top: 2px solid #0f172a; margin-top: 20px; }
+                        .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #64748b; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="title">HÓA ĐƠN THU TIỀN DỊCH VỤ SÀN</div>
+                        <div class="badge">KGS WORK PLATFORM TREASURY</div>
+                    </div>
+                    <div class="row"><span>Mã giao dịch:</span><strong>${txId}</strong></div>
+                    <div class="row"><span>Thời gian ghi nhận:</span><strong>${dateStr}</strong></div>
+                    <div class="row"><span>Loại dịch vụ:</span><strong>${type}</strong></div>
+                    <div class="row"><span>Nội dung chi tiết:</span><strong>${note}</strong></div>
+                    <div class="row"><span>Đơn vị hưởng lợi:</span><strong>Kho Bạc Sàn KGS Work (Admin)</strong></div>
+                    <div class="total-row">
+                        <span>TỔNG DOANH THU THỰC THU:</span>
+                        <span style="color: #059669;">+${Number(amount).toLocaleString()} Token (VNĐ)</span>
+                    </div>
+                    <div class="footer">
+                        <p>Hóa đơn điện tử được sinh tự động bởi Hệ thống KGS Work Freelancer Platform.</p>
+                        <p>Website: trinhhuyhoang.id.vn</p>
+                    </div>
+                    <script>window.onload = function() { window.print(); }<\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+    </script>
+</body>
+</html>

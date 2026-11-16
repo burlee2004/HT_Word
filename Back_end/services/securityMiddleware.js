@@ -150,6 +150,7 @@ const corsOptions = {
         
         const isAllowed = allowedOrigins.includes(origin) ||
                           origin.endsWith('.netlify.app') ||
+                          origin.endsWith('.vercel.app') ||
                           origin.endsWith('.onrender.com');
 
         if (isAllowed) {

@@ -1,0 +1,21 @@
+{
+  "outputDirectory": "Front_end",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/favicon.ico", "destination": "/favicon.ico" },
+    { "source": "/favicon.png", "destination": "/favicon.png" },
+    { "source": "/google52e2fe7176c0247e.html", "destination": "/google52e2fe7176c0247e.html" },
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/jobs", "destination": "/explore-jobs.html" },
+    { "source": "/freelancers", "destination": "/explore-freelancers.html" },
+    { "source": "/how-it-works", "destination": "/how-it-works.html" },
+    { "source": "/login", "destination": "/sharedFolder/login.html" },
+    { "source": "/login.html", "destination": "/sharedFolder/login.html" },
+    { "source": "/register", "destination": "/sharedFolder/register.html" },
+    { "source": "/register.html", "destination": "/sharedFolder/register.html" },
+    { "source": "/forgot-password", "destination": "/sharedFolder/forgot-password.html" },
+    { "source": "/forgot-password.html", "destination": "/sharedFolder/forgot-password.html" }
+  ]
+}

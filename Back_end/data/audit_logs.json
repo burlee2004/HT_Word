@@ -43,7 +43,7 @@
     "level": "INFO",
     "details": "Kiểm tra kết nối Firebase Realtime Database & Google Sheets Webhook",
     "user_id": null,
-    "user_email": "admin@kgswork.com",
+    "user_email": "admin@htwork.vn",
     "user_role": "admin",
     "ip": "127.0.0.1",
     "metadata": {

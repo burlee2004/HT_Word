@@ -1,8 +1,8 @@
 const crypto = require('crypto');
 const { logEvent } = require('./auditLogger');
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8963688224:AAH0UHy82q_Rynxr9bvsSRG-y4F4EtyvDk4';
-const TELEGRAM_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'kgswork_hoang_otp_bot';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '9238575613:AAElGw5DO1fm6yAY17ZjcsNLu8FtVla1hm0';
+const TELEGRAM_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'htwork_otp_bot';
 let activeBotUsername = TELEGRAM_BOT_USERNAME;
 
 /**
@@ -112,7 +112,7 @@ function createTelegramOtpSession(phone, otpCode, userId = null) {
     telegramOtpSessions.set(token, session);
     phoneToSessionMap.set(phone, token);
 
-    const botName = activeBotUsername || 'kgswork_hoang_otp_bot';
+    const botName = activeBotUsername || 'htwork_otp_bot';
     const deepLink = `https://t.me/${botName}?start=otp_${token}`;
 
     console.log(`📱 [TELEGRAM OTP CREATED] SĐT: ${phone} | OTP: ${otpCode} | DeepLink: ${deepLink}`);

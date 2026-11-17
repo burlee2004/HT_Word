@@ -12,7 +12,7 @@
 
 ### Bước 1: Thiết kế Trang chủ chính (Landing Page) tại `Front_end/index.html`
 - [x] Giao diện hiện đại với Tailwind CSS, font `Plus Jakarta Sans`, hỗ trợ Dark/Light mode, hiệu ứng mượt mà.
-- [x] **Header Điều hướng:** Logo KGS Work, Menu (Việc làm, Chuyên gia IT, Cơ chế Escrow), nút "Đăng nhập" & "Đăng ký".
+- [x] **Header Điều hướng:** Logo HT Work, Menu (Việc làm, Chuyên gia IT, Cơ chế Escrow), nút "Đăng nhập" & "Đăng ký".
 - [x] **Hero Section:** Tiêu đề ấn tượng về Sàn IT & Thanh toán Trung gian Escrow; nút CTA kép: "Khám phá dự án" (Freelancer) và "Đăng việc ngay" (Client).
 - [x] **Metrics & Trust Proof:** Thống kê dự án, khối lượng giao dịch bảo vệ qua Escrow, độ tin cậy 100%.
 - [x] **Live Job Showcase:** Tải tự động các dự án IT mới nhất từ API, xem preview nhanh mà không cần đăng nhập.
@@ -32,7 +32,7 @@
 
 ### Bước 4: Xây dựng Trang Cơ chế Escrow & Về chúng tôi (`Front_end/how-it-works.html`)
 - [x] Giải thích minh bạch cơ chế Smart Contract / Ký quỹ ngân hàng bảo vệ 100% dòng tiền của cả 2 bên.
-- [x] Bảng so sánh rủi ro khi làm tự do ngoài thị trường vs Lợi ích khi giao dịch qua KGS Work Escrow.
+- [x] Bảng so sánh rủi ro khi làm tự do ngoài thị trường vs Lợi ích khi giao dịch qua HT Work Escrow.
 - [x] Chính sách giải quyết tranh chấp minh bạch và câu hỏi thường gặp (FAQ).
 
 ### Bước 5: Cấu hình Routing & Kiểm tra đồng bộ liên kết

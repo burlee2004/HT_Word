@@ -2,8 +2,8 @@
 
 // Tự động kích hoạt beacon đo lường lưu lượng truy cập & session trực tuyến thực tế (Chống AdBlocker)
 (function() {
-    if (!window.__kgsTrafficTracked) {
-        window.__kgsTrafficTracked = true;
+    if (!window.__htTrafficTracked) {
+        window.__htTrafficTracked = true;
         const s = document.createElement('script');
         s.src = '../assets/js/session-presence.js?v=20261116_v6';
         s.async = true;
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="../assets/logo.png" onerror="this.src='logo.png'" alt="HT" class="w-full h-full object-cover">
             </div>
             <div>
-                <span class="font-black text-xl text-gray-800 dark:text-white tracking-wide block leading-tight">KGS Work</span>
+                <span class="font-black text-xl text-gray-800 dark:text-white tracking-wide block leading-tight">HT Work</span>
                 <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Client Hub</span>
             </div>
         </div>
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="../assets/logo.png" onerror="this.src='logo.png'" alt="HT" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <span class="font-black text-lg text-gray-900 dark:text-white block leading-tight">KGS Work</span>
+                        <span class="font-black text-lg text-gray-900 dark:text-white block leading-tight">HT Work</span>
                         <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider">Client Hub</span>
                     </div>
                 </div>
@@ -361,11 +361,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const handleLogout = () => {
-        if (typeof window.__kgsSendPresenceLeave === 'function') {
-            try { window.__kgsSendPresenceLeave(); } catch(e) {}
+        if (typeof window.__htSendPresenceLeave === 'function') {
+            try { window.__htSendPresenceLeave(); } catch(e) {}
         }
         localStorage.removeItem('user');
-        sessionStorage.removeItem('__kgs_tab_sid');
+        sessionStorage.removeItem('__ht_tab_sid');
         window.location.href = '../sharedFolder/login.html';
     };
 
@@ -533,14 +533,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // 10. Global Modern Typography & Sleek Scrollbar Style
-    if (!document.getElementById('kgs work-global-style')) {
+    if (!document.getElementById('htwork-global-style')) {
         const fontLink = document.createElement('link');
         fontLink.rel = 'stylesheet';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap';
         document.head.appendChild(fontLink);
 
         const style = document.createElement('style');
-        style.id = 'kgs work-global-style';
+        style.id = 'htwork-global-style';
         style.innerHTML = `
             * {
                 font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -607,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Check local cache first for instant render
         try {
-            const cachedSub = JSON.parse(localStorage.getItem('kgs_user_sub') || localStorage.getItem('kgs_client_sub_cache'));
+            const cachedSub = JSON.parse((localStorage.getItem('ht_user_sub') || localStorage.getItem('kgs_user_sub')) || (localStorage.getItem('ht_client_sub_cache') || localStorage.getItem('kgs_client_sub_cache')));
             if (cachedSub && cachedSub.is_active && !cachedSub.is_expired && cachedSub.plan_id && !cachedSub.plan_id.includes('starter') && !cachedSub.plan_id.includes('newbie')) {
                 if (topBtn) {
                     topBtn.className = "flex items-center space-x-1.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-gray-950 font-black px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-full shadow-lg border border-amber-300 transition transform hover:scale-105 shrink-0 text-xs cursor-pointer";
@@ -630,8 +630,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             if (data.success && data.subscription) {
                 const sub = data.subscription;
-                localStorage.setItem('kgs_user_sub', JSON.stringify(sub));
-                localStorage.setItem('kgs_client_sub_cache', JSON.stringify(sub));
+                localStorage.setItem('ht_user_sub', JSON.stringify(sub));
+                localStorage.setItem('ht_client_sub_cache', JSON.stringify(sub));
 
                 if (sub.is_active && !sub.is_expired && sub.plan_id && !sub.plan_id.includes('starter') && !sub.plan_id.includes('newbie')) {
                     if (topBtn) {
@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tự động tải Pricing & VIP Module
     function initPricingSystem() {
-        if (!window.KGS_PRICING_INITIALIZED) {
+        if (!window.HT_PRICING_INITIALIZED) {
             const sc = document.createElement('script');
             sc.src = '../assets/js/pricing-modal.js?v=' + Date.now();
             sc.onload = () => {

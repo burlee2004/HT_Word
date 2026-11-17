@@ -130,7 +130,7 @@ function guessLocation(ip = '') {
  */
 function recordVisit({
     path: reqPath = '/',
-    title = 'KGS Work',
+    title = 'HT Work',
     referrer = '',
     userAgent = '',
     ip = '',
@@ -170,7 +170,7 @@ function recordVisit({
         user_role: user_role || 'guest',
         user_avatar: user_avatar || '',
         current_path: cleanPath,
-        current_title: title || 'KGS Work',
+        current_title: title || 'HT Work',
         device,
         browser,
         os,

@@ -55,7 +55,7 @@ const processPresencePing = (req, res) => {
 
         const result = trafficService.recordVisit({
             path: path || '/',
-            title: title || 'KGS Work',
+            title: title || 'HT Work',
             referrer: referrer || '',
             userAgent,
             ip,
@@ -139,7 +139,7 @@ router.get('/api/admin/analytics/live', (req, res) => {
 router.post('/api/admin/analytics/simulate-visit', (req, res) => {
     try {
         const samplePages = [
-            { path: '/', title: 'KGS Work - Trang Chủ Sàn IT Freelancer' },
+            { path: '/', title: 'HT Work - Trang Chủ Sàn IT Freelancer' },
             { path: '/explore-jobs.html', title: 'Khám Phá Việc Làm IT Freelance' },
             { path: '/explore-freelancers.html', title: 'Danh Sách Chuyên Gia Lập Trình Viên' },
             { path: '/how-it-works.html', title: 'Quy Trình Hoạt Động & Bảo Hộ Escrow' },

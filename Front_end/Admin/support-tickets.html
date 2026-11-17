@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Yêu Cầu Hỗ Trợ (Tickets) - KGS Work Admin</title>
+    <title>Quản Lý Yêu Cầu Hỗ Trợ (Tickets) - HT Work Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -233,7 +233,7 @@
                             <option value="Lệnh nạp/rút Token của bạn đã được đối soát thành công và tiền đã được cộng vào số dư ví. Vui lòng kiểm tra lại.">Đã cộng/hoàn Token</option>
                             <option value="Vụ việc tranh chấp đã được chuyển sang bộ phận Tòa Án Giám Sát Escrow. Admin sẽ triệu tập hai bên để đối chất và phán quyết.">Chuyển sang Tranh chấp Escrow</option>
                             <option value="Sự cố kỹ thuật đã được đội ngũ lập trình khắc phục hoàn tất. Bạn có thể thử lại ngay bây giờ.">Đã fix lỗi kỹ thuật</option>
-                            <option value="Tài khoản vi phạm đã bị xử lý cảnh cáo/khóa theo quy chế hoạt động của KGS Work. Cảm ơn bạn đã báo cáo.">Đã xử lý gian lận</option>
+                            <option value="Tài khoản vi phạm đã bị xử lý cảnh cáo/khóa theo quy chế hoạt động của HT Work. Cảm ơn bạn đã báo cáo.">Đã xử lý gian lận</option>
                         </select>
                     </div>
                 </div>
@@ -487,7 +487,7 @@
             const payload = {
                 status: document.getElementById('actStatusSelect').value,
                 admin_reply: document.getElementById('actAdminReplyText').value.trim(),
-                admin_name: 'Quản Trị Viên KGS Work'
+                admin_name: 'Quản Trị Viên HT Work'
             };
 
             try {

@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const primaryModerationPath = path.join(__dirname, '..', 'data', 'job_moderation.json');
-const secondaryModerationPath = path.join(__dirname, '..', 'node_modules', '.cache', 'kgs_work_data', 'job_moderation.json');
+const secondaryModerationPath = path.join(__dirname, '..', 'node_modules', '.cache', 'htwork_data', 'job_moderation.json');
 
 function ensureDir(filePath) {
     try {
@@ -77,7 +77,7 @@ async function moderateJobContent({ title = '', description = '', category_name 
     }
 
     try {
-        const prompt = `Bạn là Trợ lý AI Kiểm Duyệt Tin Đăng Tuyển Dụng IT chuyên nghiệp cho sàn KGS Work.
+        const prompt = `Bạn là Trợ lý AI Kiểm Duyệt Tin Đăng Tuyển Dụng IT chuyên nghiệp cho nền tảng HT Work.
 Hãy đánh giá bài đăng sau:
 - Tiêu đề: "${title}"
 - Danh mục: "${category_name}"
@@ -148,7 +148,7 @@ BẮT BUỘC TRẢ VỀ DUY NHẤT 1 ĐỐI TƯỢNG JSON chuẩn định dạng
                 is_approved: parsed.is_approved,
                 score: score,
                 flagged: !parsed.is_approved,
-                reason: parsed.reason || (parsed.is_approved ? 'Bài đăng chuẩn mực, đáp ứng tiêu chuẩn cộng đồng KGS Work.' : 'Bài đăng có dấu hiệu vi phạm tiêu chuẩn cộng đồng.'),
+                reason: parsed.reason || (parsed.is_approved ? 'Bài đăng chuẩn mực, đáp ứng tiêu chuẩn cộng đồng HT Work.' : 'Bài đăng có dấu hiệu vi phạm tiêu chuẩn cộng đồng.'),
                 model: 'Groq AI (GPT-OSS / Llama)',
                 moderated_at: new Date().toISOString()
             };

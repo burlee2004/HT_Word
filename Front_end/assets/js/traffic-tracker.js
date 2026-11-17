@@ -1,11 +1,11 @@
 ﻿/**
- * KGS Work - Real-time Presence & Active User Session Tracker (v6)
+ * HT Work - Real-time Presence & Active User Session Tracker (v6)
  * Multi-tab, multi-device, instant leave on logout/close, adblock-immune
  */
 (function() {
     'use strict';
-    if (window.__kgsPresenceTrackerActive) return;
-    window.__kgsPresenceTrackerActive = true;
+    if (window.__htPresenceTrackerActive) return;
+    window.__htPresenceTrackerActive = true;
 
     try {
         // 1. Xác định API Backend URL
@@ -24,16 +24,16 @@
         }
 
         // 3. Mỗi Tab / Thiết bị có một Session ID độc lập tuyệt đối (iPhone, iPad, PC không bao giờ bị đè)
-        let tabSessionId = sessionStorage.getItem('__kgs_tab_sid');
+        let tabSessionId = sessionStorage.getItem('__ht_tab_sid');
         if (!tabSessionId) {
             tabSessionId = 'tab_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-            sessionStorage.setItem('__kgs_tab_sid', tabSessionId);
+            sessionStorage.setItem('__ht_tab_sid', tabSessionId);
         }
 
-        let visitorId = localStorage.getItem('__kgs_vid');
+        let visitorId = localStorage.getItem('__ht_vid');
         if (!visitorId) {
             visitorId = 'vid_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
-            localStorage.setItem('__kgs_vid', visitorId);
+            localStorage.setItem('__ht_vid', visitorId);
         }
 
         // 4. Hàm gửi tín hiệu hiện diện (Presence Ping - Stealth & CORS-safe)
@@ -42,7 +42,7 @@
 
             const payload = {
                 path: window.location.pathname || '/',
-                title: document.title || 'KGS Work',
+                title: document.title || 'HT Work',
                 referrer: document.referrer || '',
                 visitor_id: visitorId,
                 session_id: tabSessionId,
@@ -95,8 +95,8 @@
             }).catch(() => {});
         }
 
-        window.__kgsSendPresencePing = sendPresencePing;
-        window.__kgsSendPresenceLeave = sendPresenceLeave;
+        window.__htSendPresencePing = sendPresencePing;
+        window.__htSendPresenceLeave = sendPresenceLeave;
 
         // 6. Gửi ping ngay lập tức khi file vừa nạp xong
         sendPresencePing(false);

@@ -1,5 +1,5 @@
 ﻿/**
- * KGS Work - VIP Membership & Monetization Pricing Modal Framework (v2.0)
+ * HT Work - VIP Membership & Monetization Pricing Modal Framework (v2.0)
  * Tách biệt 100% vai trò Khách hàng (Client) và Freelancer:
  * - Trong Freelancer Hub: Chỉ hiển thị Gói Chuyên Gia IT & Tiện ích Dev (Ẩn hoàn toàn gói Client).
  * - Trong Client Hub: Chỉ hiển thị Gói Doanh Nghiệp & Tiện ích Bài Đăng (Ẩn hoàn toàn gói Freelancer).
@@ -8,8 +8,8 @@
  */
 
 (function() {
-    if (window.KGS_PRICING_INITIALIZED) return;
-    window.KGS_PRICING_INITIALIZED = true;
+    if (window.HT_PRICING_INITIALIZED) return;
+    window.HT_PRICING_INITIALIZED = true;
 
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:5000'
@@ -34,11 +34,11 @@
     // 1. Tạo CSS hiệu ứng cho Modal & Banner
     const styleEl = document.createElement('style');
     styleEl.innerHTML = `
-        @keyframes kgsGlow {
+        @keyframes htGlow {
             0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
             50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); }
         }
-        .kgs-vip-glow { animation: kgsGlow 3s infinite ease-in-out; }
+        .ht-vip-glow { animation: htGlow 3s infinite ease-in-out; }
         .pricing-card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .pricing-card-hover:hover { transform: translateY(-6px); }
     `;
@@ -46,8 +46,8 @@
 
     // 2. HTML Cấu trúc Modal Bảng Giá VIP
     const modalHtml = `
-    <div id="kgsPricingModalOverlay" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 md:p-6 transition-opacity duration-300">
-        <div id="kgsPricingModalContent" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300">
+    <div id="htPricingModalOverlay" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 md:p-6 transition-opacity duration-300">
+        <div id="htPricingModalContent" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300">
             
             <!-- Header Modal -->
             <div class="p-5 sm:p-6 bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-950 text-white relative shrink-0">
@@ -56,7 +56,7 @@
                 </button>
                 <div class="flex items-center space-x-2.5 mb-1.5">
                     <span id="modalHeaderBadge" class="bg-amber-400 text-gray-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider shadow">
-                        👑 KGS Work VIP Hub
+                        👑 HT Work VIP Hub
                     </span>
                     <span class="text-xs text-indigo-200" id="modalHeaderSubtitle">Gói Hội Viên & Dịch Vụ Tăng Tốc</span>
                 </div>
@@ -118,7 +118,7 @@
     </div>
 
     <!-- Modal Xác Nhận Nâng Cấp / Mua Tiện Ích -->
-    <div id="kgsConfirmPurchaseModal" class="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="htConfirmPurchaseModal" class="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center text-2xl mx-auto">
                 <i class="fas fa-crown"></i>
@@ -207,16 +207,16 @@
             const data = await res.json();
             if (data.success && data.subscription) {
                 const sub = data.subscription;
-                localStorage.setItem('kgs_user_sub', JSON.stringify(sub));
-                localStorage.setItem('kgs_client_sub_cache', JSON.stringify(sub));
-                localStorage.setItem('kgs_freelancer_sub_cache', JSON.stringify(sub));
+                localStorage.setItem('ht_user_sub', JSON.stringify(sub));
+                localStorage.setItem('ht_client_sub_cache', JSON.stringify(sub));
+                localStorage.setItem('ht_freelancer_sub_cache', JSON.stringify(sub));
                 return sub;
             }
         } catch (e) {
             console.warn('[Pricing] Error fetching user subscription:', e);
         }
         try {
-            return JSON.parse(localStorage.getItem('kgs_user_sub')) || null;
+            return JSON.parse((localStorage.getItem('ht_user_sub') || localStorage.getItem('kgs_user_sub'))) || null;
         } catch (e) {
             return null;
         }
@@ -304,7 +304,7 @@
             <div class="pricing-card-hover rounded-3xl p-6 sm:p-7 flex flex-col justify-between border ${
                 isCurrentActivePlan
                     ? 'border-2 border-emerald-500 dark:border-emerald-400 bg-gradient-to-b from-emerald-50/80 via-white to-white dark:from-emerald-950/40 dark:via-gray-800 dark:to-gray-800 shadow-xl relative'
-                    : (isPopular ? 'border-amber-400 dark:border-amber-500 bg-gradient-to-b from-amber-50/50 via-white to-white dark:from-amber-950/20 dark:via-gray-800 dark:to-gray-800 kgs-vip-glow shadow-xl relative' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm')
+                    : (isPopular ? 'border-amber-400 dark:border-amber-500 bg-gradient-to-b from-amber-50/50 via-white to-white dark:from-amber-950/20 dark:via-gray-800 dark:to-gray-800 ht-vip-glow shadow-xl relative' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm')
             }">
                 ${isCurrentActivePlan ? `
                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow flex items-center space-x-1">
@@ -376,7 +376,7 @@
         if (!container) return;
 
         let userSub = null;
-        try { userSub = JSON.parse(localStorage.getItem('kgs_user_sub')); } catch(e) {}
+        try { userSub = JSON.parse((localStorage.getItem('ht_user_sub') || localStorage.getItem('kgs_user_sub'))); } catch(e) {}
         const userAddons = userSub?.addons || { job_boost_credits: 0, urgent_tag_credits: 0, extra_bids: 0 };
         const role = detectContextRole();
 
@@ -481,13 +481,13 @@
             if (btnF) btnF.style.display = 'inline-flex';
             currentTab = defaultTab || 'client';
             if (titleEl) titleEl.innerText = 'Nâng Tầm Trải Nghiệm & Đột Phá Doanh Thu';
-            if (descEl) descEl.innerHTML = 'Tính năng cơ bản luôn <span class="font-bold text-emerald-400">100% Miễn Phí</span>. Nâng cấp để bứt phá hiệu quả trên sàn KGS Work.';
-            if (badgeEl) badgeEl.innerText = '👑 KGS Work VIP Hub';
+            if (descEl) descEl.innerHTML = 'Tính năng cơ bản luôn <span class="font-bold text-emerald-400">100% Miễn Phí</span>. Nâng cấp để bứt phá hiệu quả trên nền tảng HT Work.';
+            if (badgeEl) badgeEl.innerText = '👑 HT Work VIP Hub';
         }
 
         updateTabButtons();
-        const overlay = document.getElementById('kgsPricingModalOverlay');
-        const content = document.getElementById('kgsPricingModalContent');
+        const overlay = document.getElementById('htPricingModalOverlay');
+        const content = document.getElementById('htPricingModalContent');
         if (overlay && content) {
             overlay.classList.remove('hidden');
             setTimeout(() => {
@@ -499,8 +499,8 @@
     };
 
     window.closePricingModal = function() {
-        const overlay = document.getElementById('kgsPricingModalOverlay');
-        const content = document.getElementById('kgsPricingModalContent');
+        const overlay = document.getElementById('htPricingModalOverlay');
+        const content = document.getElementById('htPricingModalContent');
         if (overlay && content) {
             content.classList.remove('scale-100');
             content.classList.add('scale-95');
@@ -625,11 +625,11 @@
             if (jobSelectWrapper) jobSelectWrapper.classList.add('hidden');
         }
 
-        document.getElementById('kgsConfirmPurchaseModal').classList.remove('hidden');
+        document.getElementById('htConfirmPurchaseModal').classList.remove('hidden');
     };
 
     window.closeConfirmModal = function() {
-        document.getElementById('kgsConfirmPurchaseModal').classList.add('hidden');
+        document.getElementById('htConfirmPurchaseModal').classList.add('hidden');
         pendingPurchase = null;
     };
 
@@ -666,20 +666,20 @@
             }
 
             if (result.subscription) {
-                localStorage.setItem('kgs_user_sub', JSON.stringify(result.subscription));
+                localStorage.setItem('ht_user_sub', JSON.stringify(result.subscription));
                 if (pendingPurchase.role === 'client') {
-                    localStorage.setItem('kgs_client_sub_cache', JSON.stringify(result.subscription));
+                    localStorage.setItem('ht_client_sub_cache', JSON.stringify(result.subscription));
                 } else {
-                    localStorage.setItem('kgs_freelancer_sub_cache', JSON.stringify(result.subscription));
+                    localStorage.setItem('ht_freelancer_sub_cache', JSON.stringify(result.subscription));
                 }
             }
 
             if (result.user_addons) {
-                localStorage.setItem('kgs_user_addons', JSON.stringify(result.user_addons));
+                localStorage.setItem('ht_user_addons', JSON.stringify(result.user_addons));
                 let cachedSub = null;
-                try { cachedSub = JSON.parse(localStorage.getItem('kgs_user_sub')) || {}; } catch(e){}
+                try { cachedSub = JSON.parse((localStorage.getItem('ht_user_sub') || localStorage.getItem('kgs_user_sub'))) || {}; } catch(e){}
                 cachedSub.addons = result.user_addons;
-                localStorage.setItem('kgs_user_sub', JSON.stringify(cachedSub));
+                localStorage.setItem('ht_user_sub', JSON.stringify(cachedSub));
             }
 
             alert(`🎉 ${result.message}`);
@@ -720,7 +720,7 @@
         if (!user || !user.id) return;
 
         let userSub = null;
-        try { userSub = JSON.parse(localStorage.getItem('kgs_user_sub')); } catch(e) {}
+        try { userSub = JSON.parse((localStorage.getItem('ht_user_sub') || localStorage.getItem('kgs_user_sub'))); } catch(e) {}
         const userCredits = userSub?.addons || { job_boost_credits: 0, urgent_tag_credits: 0 };
         const creditCount = boostType === 'urgent_tag' ? (userCredits.urgent_tag_credits || 0) : (userCredits.job_boost_credits || 0);
 
@@ -809,17 +809,17 @@
 
     // 9. Smart Promo Banner Tự Động
     window.renderSmartPromoBanner = function(role = 'client') {
-        const bannerKey = `kgs_promo_dismissed_${role}_v1`;
+        const bannerKey = `ht_promo_dismissed_${role}_v1`;
         if (localStorage.getItem(bannerKey)) return;
 
         const mainEl = document.querySelector('main');
         if (!mainEl) return;
 
-        const bannerId = 'kgsSmartPromoBanner';
+        const bannerId = 'htSmartPromoBanner';
         if (document.getElementById(bannerId)) return;
 
         let userSub = null;
-        try { userSub = JSON.parse(localStorage.getItem('kgs_user_sub')); } catch(e) {}
+        try { userSub = JSON.parse((localStorage.getItem('ht_user_sub') || localStorage.getItem('kgs_user_sub'))); } catch(e) {}
         const isVip = Boolean(userSub && userSub.is_active && !userSub.is_expired && userSub.plan_id && !userSub.plan_id.includes('starter') && !userSub.plan_id.includes('newbie'));
 
         const isClient = role === 'client';
@@ -901,9 +901,9 @@
     };
 
     window.dismissPromoBanner = function(role) {
-        const bannerKey = `kgs_promo_dismissed_${role}_v1`;
+        const bannerKey = `ht_promo_dismissed_${role}_v1`;
         localStorage.setItem(bannerKey, 'true');
-        const b = document.getElementById('kgsSmartPromoBanner');
+        const b = document.getElementById('htSmartPromoBanner');
         if (b) {
             b.style.opacity = '0';
             b.style.transform = 'translateY(-10px)';

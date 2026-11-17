@@ -77,7 +77,7 @@ function generateOfflineHeuristicJob(promptText, currentCat) {
         category_id: matchedCat.id,
         category_name: matchedCat.name,
         description: `🎯 [MỤC TIÊU DỰ ÁN]
-Triển khai xây dựng sản phẩm: ${cleanTitle}. Yêu cầu chất lượng cao, chuẩn quy trình chuyên nghiệp trên nền tảng KGS Work.
+Triển khai xây dựng sản phẩm: ${cleanTitle}. Yêu cầu chất lượng cao, chuẩn quy trình chuyên nghiệp trên nền tảng HT Work.
 
 ⚙️ [YÊU CẦU CHỨC NĂNG CHÍNH]
 1. Xây dựng giao diện hiện đại, chuẩn UI/UX, hỗ trợ Responsive đầy đủ trên Mobile & Desktop.
@@ -112,7 +112,7 @@ router.post('/api/ai/suggest-job', async (req, res) => {
     const categories = getCategories();
     const catListText = categories.map(c => `- id: "${c.id}", name: "${c.name}", mô tả: "${c.description || ''}"`).join('\n');
 
-    const systemPrompt = `Bạn là Trợ lý AI Quản lý Dự án Công nghệ Cấp cao của sàn Freelance IT "KGS Work".
+    const systemPrompt = `Bạn là Trợ lý AI Quản lý Dự án Công nghệ Cấp cao của sàn Freelance IT "HT Work".
 Nhiệm vụ của bạn: Đọc mô tả hoặc yêu cầu của khách hàng (bằng văn nói hoặc văn viết) và chuẩn hóa thành một ĐẶC TẢ DỰ ÁN HOÀN CHỈNH, CHUYÊN NGHIỆP để đăng tuyển Freelancer.
 
 Danh mục dự án hợp lệ trên sàn:
@@ -276,7 +276,7 @@ router.post('/api/ai/suggest-proposal', async (req, res) => {
     const budgetVal = parseFloat(job_budget) || 300000;
     const suggestedBid = Math.round(budgetVal * 0.95); // Chào thầu hợp lý ~95% ngân sách
 
-    const systemPrompt = `Bạn là Trợ lý AI Cố vấn Đấu thầu & Soạn thảo Đề xuất chuyên nghiệp của sàn Freelance IT "KGS Work".
+    const systemPrompt = `Bạn là Trợ lý AI Cố vấn Đấu thầu & Soạn thảo Đề xuất chuyên nghiệp của sàn Freelance IT "HT Work".
 Nhiệm vụ của bạn: Giúp Freelancer tên "${flName}" soạn một BỨC THƯ ỨNG TUYỂN (COVER LETTER / PROPOSAL) CỰC KỲ CHUYÊN NGHIỆP, THUYẾT PHỤC VÀ TẬP TRUNG ĐÚNG VÀO YÊU CẦU DỰ ÁN CỦA KHÁCH HÀNG.
 
 Cấu trúc Cover Letter tiêu chuẩn:
@@ -407,7 +407,7 @@ Tôi là ${flName}, một Freelancer chuyên sâu trong lĩnh vực ${category_n
 3. Giai đoạn 3: Kiểm thử toàn diện (Function, Responsive, Performance) và bàn giao mã nguồn.
 
 🤝 Cam kết từ tôi:
-- Báo cáo tiến độ đầy đủ theo từng phân kỳ Milestones trên KGS Work.
+- Báo cáo tiến độ đầy đủ theo từng phân kỳ Milestones trên HT Work.
 - Hỗ trợ bảo hành, sửa lỗi nhanh chóng và hướng dẫn triển khai chu đáo.
 
 Rất mong có cơ hội được đồng hành và hợp tác cùng Quý Khách hàng.
@@ -443,7 +443,7 @@ router.post('/api/ai/suggest-milestones', async (req, res) => {
 
     const budgetVal = parseFloat(budget);
 
-    const systemPrompt = `Bạn là Trợ lý AI Quản lý Dự án cấp cao của sàn Freelance IT "KGS Work".
+    const systemPrompt = `Bạn là Trợ lý AI Quản lý Dự án cấp cao của sàn Freelance IT "HT Work".
 Nhiệm vụ của bạn: Chia nhỏ một dự án thành các giai đoạn (milestones) hợp lý, dựa trên mô tả và tổng ngân sách (Token) mà người dùng cung cấp. ĐẶC BIỆT chú ý đến các yêu cầu tùy chỉnh của người dùng (nếu có) như số lượng giai đoạn cụ thể.
 
 Quy tắc phân bổ ngân sách:

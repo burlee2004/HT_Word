@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Báo Cáo Doanh Thu & Dòng Tiền Hệ Thống - KGS Work Admin</title>
+    <title>Báo Cáo Doanh Thu & Dòng Tiền Hệ Thống - HT Work Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script>
@@ -65,7 +65,7 @@
             </div>
 
             <!-- ============================================================== -->
-            <!-- KHỐI 1: LỢI NHUẬN THUẦN SÀN KGS WORK (TỰ DO SỬ DỤNG) -->
+            <!-- KHỐI 1: LỢI NHUẬN THUẦN SÀN HT WORK (TỰ DO SỬ DỤNG) -->
             <!-- ============================================================== -->
             <div class="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/40 dark:via-gray-850 dark:to-gray-850 p-5 sm:p-6 rounded-3xl border border-amber-300 dark:border-amber-700/60 shadow-sm">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-amber-200/60 dark:border-amber-800/40">
@@ -219,7 +219,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center">
-                                <i class="fas fa-chart-pie mr-2 text-amber-500"></i> Cơ Cấu Doanh Thu Sàn KGS Work
+                                <i class="fas fa-chart-pie mr-2 text-amber-500"></i> Cơ Cấu Doanh Thu Sàn HT Work
                             </h2>
                             <span class="text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-1 rounded-xl">
                                 100% Thực Thu
@@ -575,7 +575,7 @@
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Biên Lai Thu Tiền Dịch Vụ - KGS Work</title>
+                    <title>Biên Lai Thu Tiền Dịch Vụ - HT Work</title>
                     <style>
                         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; color: #1e293b; }
                         .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
@@ -589,19 +589,19 @@
                 <body>
                     <div class="header">
                         <div class="title">HÓA ĐƠN THU TIỀN DỊCH VỤ SÀN</div>
-                        <div class="badge">KGS WORK PLATFORM TREASURY</div>
+                        <div class="badge">HT WORK PLATFORM TREASURY</div>
                     </div>
                     <div class="row"><span>Mã giao dịch:</span><strong>${txId}</strong></div>
                     <div class="row"><span>Thời gian ghi nhận:</span><strong>${dateStr}</strong></div>
                     <div class="row"><span>Loại dịch vụ:</span><strong>${type}</strong></div>
                     <div class="row"><span>Nội dung chi tiết:</span><strong>${note}</strong></div>
-                    <div class="row"><span>Đơn vị hưởng lợi:</span><strong>Kho Bạc Sàn KGS Work (Admin)</strong></div>
+                    <div class="row"><span>Đơn vị hưởng lợi:</span><strong>Kho Bạc Sàn HT Work (Admin)</strong></div>
                     <div class="total-row">
                         <span>TỔNG DOANH THU THỰC THU:</span>
                         <span style="color: #059669;">+${Number(amount).toLocaleString()} Token (VNĐ)</span>
                     </div>
                     <div class="footer">
-                        <p>Hóa đơn điện tử được sinh tự động bởi Hệ thống KGS Work Freelancer Platform.</p>
+                        <p>Hóa đơn điện tử được sinh tự động bởi Hệ thống HT Work Freelancer Platform.</p>
                         <p>Website: trinhhuyhoang.id.vn</p>
                     </div>
                     <script>window.onload = function() { window.print(); }<\/script>

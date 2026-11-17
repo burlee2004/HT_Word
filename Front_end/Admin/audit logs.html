@@ -432,7 +432,7 @@
                             </span>
                         </div>
                         <ol class="list-decimal list-inside space-y-1 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mb-2">
-                            <li>Mở trang <b>Google Sheets</b> mới &rarr; Đặt tên file là <b>KGS_Work_Audit_Logs</b>.</li>
+                            <li>Mở trang <b>Google Sheets</b> mới &rarr; Đặt tên file là <b>HT_Work_Audit_Logs</b>.</li>
                             <li>Trên thanh menu chọn <b>Tiện ích mở rộng (Extensions)</b> &rarr; <b>Apps Script</b>.</li>
                             <li>Dán đoạn mã dưới đây rồi nhấn <b>Triển khai (Deploy)</b> &rarr; <b>Bản triển khai mới (New deployment)</b> &rarr; Loại <b>Ứng dụng web (Web app)</b> &rarr; Quyền truy cập: <b>Bất kỳ ai (Anyone)</b>.</li>
                         </ol>
@@ -1019,7 +1019,7 @@ Trạng thái thu hồi: ${activeEvidenceLog.action.includes('RECALL') ? 'ĐÃ B
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `KGS_Audit_Logs_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.download = `HT_Audit_Logs_${new Date().toISOString().slice(0, 10)}.csv`;
             document.body.appendChild(a);
             a.click();
             a.remove();

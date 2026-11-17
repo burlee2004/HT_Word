@@ -1,5 +1,5 @@
 -- ============================================================
--- KGS WORK - BẢNG LƯU TRỮ NHẬT KÝ KIỂM TOÁN HỆ THỐNG VĨNH VIỄN
+-- HT WORK - BẢNG LƯU TRỮ NHẬT KÝ KIỂM TOÁN HỆ THỐNG VĨNH VIỄN
 -- Chạy script này trong Supabase SQL Editor để lưu log trực tiếp trên Supabase
 -- ============================================================
 

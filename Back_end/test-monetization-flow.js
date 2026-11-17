@@ -1,5 +1,5 @@
 /**
- * KGS Work - End-to-End Monetization Simulation & Testing Script
+ * HT Work - End-to-End Monetization Simulation & Testing Script
  * Giả lập hành vi Người Dùng:
  * 1. Client mua Gói "Doanh Nghiệp Pro" (199.000 Token)
  * 2. Client kích hoạt Tiện ích "Đẩy Top 1" cho bài đăng (25.000 Token)

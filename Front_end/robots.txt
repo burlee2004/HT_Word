@@ -1,4 +1,4 @@
-# robots.txt for KGS Work (trinhhuyhoang.id.vn)
+# robots.txt for HT Work (trinhhuyhoang.id.vn)
 User-agent: *
 Allow: /
 Allow: /jobs
@@ -10,4 +10,4 @@ Disallow: /user/
 Disallow: /freelancer/
 Disallow: /api/
 
-Sitemap: https://trinhhuyhoang.id.vn/sitemap.xml
+Sitemap: https://htwork.id.vn/sitemap.xml

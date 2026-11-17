@@ -100,7 +100,7 @@ router.post('/api/jobs/dispute', async (req, res) => {
             await sendNotification(
                 counterpartId,
                 '⚠️ Dự án phát sinh khiếu nại tranh chấp',
-                `Dự án "${job.title}" vừa bị đối tác mở khiếu nại tranh chấp: "${reason}". Ban Quản Trị KGS Work đang thụ lý và yêu cầu hai bên hợp tác cung cấp thông tin.`
+                `Dự án "${job.title}" vừa bị đối tác mở khiếu nại tranh chấp: "${reason}". Ban Quản Trị HT Work đang thụ lý và yêu cầu hai bên hợp tác cung cấp thông tin.`
             );
         }
 
@@ -343,13 +343,13 @@ router.post('/api/admin/projects/resolve-dispute', async (req, res) => {
         // Gửi Thông Báo Tới Cả 2 Bên
         await sendNotification(
             client_id,
-            '⚖️ Phán quyết cuối cùng của Tòa án KGS Work',
+            '⚖️ Phán quyết cuối cùng của Tòa án HT Work',
             `Dự án "${job.title}" đã được Admin phán quyết: ${verdictText}. ${clientRefundAmount > 0 ? `Ví bạn được cộng lại +${clientRefundAmount.toLocaleString()} Token.` : ''}`
         );
 
         await sendNotification(
             freelancer_id,
-            '⚖️ Phán quyết cuối cùng của Tòa án KGS Work',
+            '⚖️ Phán quyết cuối cùng của Tòa án HT Work',
             `Dự án "${job.title}" đã được Admin phán quyết: ${verdictText}. ${freelancerPayoutAmount > 0 ? `Ví bạn nhận được +${freelancerPayoutAmount.toLocaleString()} Token.` : ''}`
         );
 
@@ -360,7 +360,7 @@ router.post('/api/admin/projects/resolve-dispute', async (req, res) => {
             level: 'CRITICAL',
             details: `Admin đã đưa ra phán quyết: [${verdictText}] cho dự án "${job.title}" (Tổng tiền tranh chấp: ${amount.toLocaleString()} Token)`,
             user_id: '11111111-1111-1111-1111-111111111111',
-            user_email: 'admin@kgs work.vn',
+            user_email: 'admin@htwork.vn',
             user_role: 'admin',
             metadata: {
                 job_id,

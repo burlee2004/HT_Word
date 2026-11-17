@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const disputesFilePath = path.join(__dirname, '..', 'disputes.json');
-const cacheDisputesFilePath = path.join(__dirname, '..', 'node_modules', '.cache', 'kgs work_data', 'disputes.json');
+const cacheDisputesFilePath = path.join(__dirname, '..', 'node_modules', '.cache', 'htwork_data', 'disputes.json');
 const dataDisputesFilePath = path.join(__dirname, '..', 'data', 'disputes.json');
 
 function ensureDir(p) {

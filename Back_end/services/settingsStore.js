@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const primarySettingsPath = path.join(__dirname, '..', 'data', 'system_settings.json');
-const secondarySettingsPath = path.join(__dirname, '..', 'node_modules', '.cache', 'kgs work_data', 'system_settings.json');
+const secondarySettingsPath = path.join(__dirname, '..', 'node_modules', '.cache', 'htwork_data', 'system_settings.json');
 
 function ensureDir(filePath) {
     try {

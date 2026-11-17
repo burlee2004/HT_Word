@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - KGS Work</title>
+    <title>Khách hàng - Quản Lý Tiến Độ & Nghiệm Thu - HT Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -432,7 +432,7 @@
                 updateTabCounts();
                 renderFilteredJobs();
             } catch (err) {
-                console.error('[KGS Work] Lỗi load pending actions:', err);
+                console.error('[HT Work] Lỗi load pending actions:', err);
                 if (allJobsData.length === 0) {
                     listDiv.innerHTML = `
                         <div class="bg-red-50 text-red-600 p-6 rounded-2xl text-center text-sm font-bold border border-red-200">
@@ -580,7 +580,7 @@
                                     <span class="px-2.5 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 text-[10px] font-black uppercase">Đang thụ lý</span>
                                 </div>
                                 <p class="text-xs text-rose-800 dark:text-rose-300 mt-1 leading-relaxed">
-                                    Toàn bộ số tiền Escrow đang được đóng băng an toàn trên hệ thống. Ban Quản Trị KGS Work đang trực tiếp thẩm định các bằng chứng, lịch sử bàn giao và nhật ký tin nhắn giữa hai bên để đưa ra phán quyết công bằng nhất.
+                                    Toàn bộ số tiền Escrow đang được đóng băng an toàn trên hệ thống. Ban Quản Trị HT Work đang trực tiếp thẩm định các bằng chứng, lịch sử bàn giao và nhật ký tin nhắn giữa hai bên để đưa ra phán quyết công bằng nhất.
                                 </p>
                                 <div class="mt-2.5 flex items-center gap-2 text-xs">
                                     <a href="support.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition shadow-xs">
@@ -671,7 +671,7 @@
                                 </div>
                                 <div>
                                     <p class="font-bold text-emerald-900 dark:text-emerald-200 text-sm">Dự án đã hoàn tất nghiệm thu & thanh toán!</p>
-                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên KGS Work.</p>
+                                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Hãy chấm điểm chất lượng để giúp Freelancer tích lũy uy tín trên HT Work.</p>
                                 </div>
                             </div>
                             <button onclick="openReviewModal('${job.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition shrink-0 flex items-center">

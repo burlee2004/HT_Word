@@ -599,7 +599,7 @@ async function getAllSubscribersWithUserInfo(supabase) {
 
         list.push({
             user_id: userId,
-            user_name: u.full_name || 'Người Dùng KGS',
+            user_name: u.full_name || 'Người Dùng HT Work',
             user_email: u.email || '',
             user_phone: u.phone_number || '',
             user_avatar: u.avatar_url || '',

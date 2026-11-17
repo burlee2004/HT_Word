@@ -50,6 +50,10 @@ async function callTelegramApi(endpoint, body = {}) {
         const data = await res.json();
         return data;
     } catch (err) {
+        // Bỏ qua log lỗi nếu là timeout định kỳ bình thường của getUpdates (Long-polling)
+        if (endpoint === 'getUpdates' && (err.message.includes('fetch failed') || err.message.includes('timeout'))) {
+            return { ok: false, description: 'polling_timeout' };
+        }
         console.error(`❌ [TELEGRAM API ERROR] ${endpoint}:`, err.message);
         return { ok: false, description: err.message };
     }

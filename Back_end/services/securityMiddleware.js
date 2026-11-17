@@ -64,11 +64,11 @@ const BLOCKED_SCRAPERS = [
 function antiBotMiddleware(req, res, next) {
     const userAgent = (req.headers['user-agent'] || '').toLowerCase();
     
-    // Bỏ qua cho các request nội bộ/localhost khi test nếu có header bypass, webhook hoặc static uploads
+    // Bỏ qua cho các request nội bộ/localhost khi test nếu có header bypass, webhook, static uploads hoặc health check trang chủ
     if (req.headers['x-internal-test'] === 'htwork_trusted_testing') {
         return next();
     }
-    if (req.method === 'OPTIONS' || req.path.startsWith('/uploads') || req.path.includes('webhook')) {
+    if (req.method === 'OPTIONS' || req.path === '/' || req.path.startsWith('/uploads') || req.path.includes('webhook')) {
         return next();
     }
 

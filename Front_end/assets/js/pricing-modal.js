@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KGS Work - VIP Membership & Monetization Pricing Modal Framework (v2.0)
  * Tách biệt 100% vai trò Khách hàng (Client) và Freelancer:
  * - Trong Freelancer Hub: Chỉ hiển thị Gói Chuyên Gia IT & Tiện ích Dev (Ẩn hoàn toàn gói Client).
@@ -13,7 +13,7 @@
 
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:5000'
-        : 'https://project-internship-8z76.onrender.com';
+        : 'https://htwork-backend.onrender.com';
 
     let currentBillingCycle = 'monthly';
     let currentTab = 'client'; // 'client' | 'freelancer' | 'addons'

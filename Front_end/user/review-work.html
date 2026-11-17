@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -328,7 +328,7 @@
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:5000' 
-            : 'https://project-internship-8z76.onrender.com';
+            : 'https://htwork-backend.onrender.com';
 
         let currentUser = null;
         let allJobsData = [];
@@ -756,7 +756,7 @@
                         ${m.proof_urls.map((u, i) => {
                             let linkUrl = typeof u === 'string' ? u : u.url;
                             let linkName = typeof u === 'string' ? `Tệp Báo Cáo #${i+1}` : (u.name || `Tệp Báo Cáo #${i+1}`);
-                            if (linkUrl && linkUrl.startsWith('http://project-internship-8z76.onrender.com')) {
+                            if (linkUrl && linkUrl.startsWith('http://htwork-backend.onrender.com')) {
                                 linkUrl = linkUrl.replace('http://', 'https://');
                             }
                             const isGit = linkUrl.includes('github.com') || linkUrl.includes('.git');

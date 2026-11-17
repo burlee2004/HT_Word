@@ -1,4 +1,4 @@
-// JavaScript framework to build Responsive Sidebar, Header, Mobile Drawer, Bottom Nav, Dark Mode, and Live KPI alerts for Admin Portal
+﻿// JavaScript framework to build Responsive Sidebar, Header, Mobile Drawer, Bottom Nav, Dark Mode, and Live KPI alerts for Admin Portal
 
 document.addEventListener('DOMContentLoaded', () => {
     // 0. Kiểm tra quyền Admin
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:5000' 
-        : 'https://project-internship-8z76.onrender.com';
+        : 'https://htwork-backend.onrender.com';
 
     // 1. Khởi tạo Desktop Sidebar & Mobile Drawer
     const sidebarHtml = 

@@ -1,4 +1,4 @@
-// JavaScript framework to build Responsive Sidebar, Header, Mobile Drawer, Bottom Nav, Dark Mode, and Live Balance for Client/User Workspace
+﻿// JavaScript framework to build Responsive Sidebar, Header, Mobile Drawer, Bottom Nav, Dark Mode, and Live Balance for Client/User Workspace
 
 // Tự động kích hoạt beacon đo lường lưu lượng truy cập & session trực tuyến thực tế (Chống AdBlocker)
 (function() {
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:5000' 
-        : 'https://project-internship-8z76.onrender.com';
+        : 'https://htwork-backend.onrender.com';
 
     // 1. Khởi tạo Sidebar (Desktop Sidebar + Mobile Drawer Slide-over)
     const sidebarHtml = 

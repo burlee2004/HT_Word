@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KGS Work - Real-time Presence & Active User Session Tracker (v6)
  * Multi-tab, multi-device, instant leave on logout/close, adblock-immune
  */
@@ -12,7 +12,7 @@
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const API_BASE = isLocal 
             ? 'http://localhost:5000' 
-            : 'https://project-internship-8z76.onrender.com';
+            : 'https://htwork-backend.onrender.com';
 
         // 2. Lấy thông tin người dùng đang đăng nhập (nếu có)
         function getCurrentUser() {

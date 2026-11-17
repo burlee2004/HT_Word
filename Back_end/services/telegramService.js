@@ -3,6 +3,7 @@ const { logEvent } = require('./auditLogger');
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8963688224:AAH0UHy82q_Rynxr9bvsSRG-y4F4EtyvDk4';
 const TELEGRAM_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'kgswork_hoang_otp_bot';
+let activeBotUsername = TELEGRAM_BOT_USERNAME;
 
 /**
  * Lưu trữ phiên OTP Telegram trong Memory
@@ -54,6 +55,10 @@ async function callTelegramApi(endpoint, body = {}) {
         if (endpoint === 'getUpdates' && (err.message.includes('fetch failed') || err.message.includes('timeout'))) {
             return { ok: false, description: 'polling_timeout' };
         }
+        // getMe lúc khởi động có thể gặp độ trễ mạng ban đầu trên Render, trả về mô tả để hàm init retry
+        if (endpoint === 'getMe') {
+            return { ok: false, description: err.message };
+        }
         console.error(`❌ [TELEGRAM API ERROR] ${endpoint}:`, err.message);
         return { ok: false, description: err.message };
     }
@@ -79,6 +84,11 @@ async function sendTelegramMessage(chatId, text, extra = {}) {
  * @returns {{ token: string, deepLink: string, botUsername: string }}
  */
 function createTelegramOtpSession(phone, otpCode, userId = null) {
+    // Đảm bảo bot luôn được kích hoạt kể cả khi mạng khởi động container trễ
+    if (!isPollingActive && TELEGRAM_BOT_TOKEN) {
+        initTelegramBot().catch(() => {});
+    }
+
     // Xóa session cũ nếu có
     const existingToken = phoneToSessionMap.get(phone);
     if (existingToken) {
@@ -102,14 +112,15 @@ function createTelegramOtpSession(phone, otpCode, userId = null) {
     telegramOtpSessions.set(token, session);
     phoneToSessionMap.set(phone, token);
 
-    const deepLink = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=otp_${token}`;
+    const botName = activeBotUsername || 'kgswork_hoang_otp_bot';
+    const deepLink = `https://t.me/${botName}?start=otp_${token}`;
 
     console.log(`📱 [TELEGRAM OTP CREATED] SĐT: ${phone} | OTP: ${otpCode} | DeepLink: ${deepLink}`);
 
     return {
         token,
         deepLink,
-        botUsername: TELEGRAM_BOT_USERNAME,
+        botUsername: botName,
         expiresAt: session.expiresAt
     };
 }
@@ -127,7 +138,7 @@ function getTelegramOtpSession(token) {
 async function startLongPolling() {
     if (isPollingActive) return;
     isPollingActive = true;
-    console.log(`🤖 [TELEGRAM BOT POLLING] Đang lắng nghe tin nhắn từ bot @${TELEGRAM_BOT_USERNAME}...`);
+    console.log(`🤖 [TELEGRAM BOT POLLING] Đang lắng nghe tin nhắn từ bot @${activeBotUsername || TELEGRAM_BOT_USERNAME}...`);
 
     while (isPollingActive) {
         try {
@@ -243,26 +254,44 @@ async function handleTelegramUpdate(update) {
 }
 
 /**
- * Khởi tạo Telegram Bot
+ * Khởi tạo Telegram Bot với cơ chế tự động thử lại (Retry)
+ * Giúp bot chống chịu được độ trễ mạng lúc Container trên Render khởi động
  */
-async function initTelegramBot() {
+async function initTelegramBot(maxRetries = 10, delayMs = 3000) {
     if (!TELEGRAM_BOT_TOKEN) {
         console.warn('⚠️ [TELEGRAM BOT] Chưa có TELEGRAM_BOT_TOKEN. Bỏ qua khởi động Telegram Bot.');
         return;
     }
 
-    try {
-        const me = await callTelegramApi('getMe');
-        if (me && me.ok) {
-            console.log(`✅ [TELEGRAM BOT READY] Đã kết nối thành công Bot: @${me.result.username} (${me.result.first_name})`);
-            // Bắt đầu lắng nghe tin nhắn
-            startLongPolling();
-        } else {
-            console.warn('⚠️ [TELEGRAM BOT] Không thể kết nối với Telegram API:', me?.description);
-        }
-    } catch (e) {
-        console.warn('⚠️ [TELEGRAM BOT INIT FAILED]:', e.message);
+    if (isPollingActive) {
+        return; // Đã đang hoạt động
     }
+
+    // Đợi 2.5s đầu khi khởi động container để DNS và đường truyền ra ngoài của Render ổn định
+    await new Promise(r => setTimeout(r, 2500));
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const me = await callTelegramApi('getMe');
+            if (me && me.ok) {
+                activeBotUsername = me.result.username;
+                console.log(`✅ [TELEGRAM BOT READY] Đã kết nối thành công Bot: @${me.result.username} (${me.result.first_name})`);
+                // Bắt đầu lắng nghe tin nhắn
+                startLongPolling();
+                return;
+            } else {
+                console.warn(`⏳ [TELEGRAM BOT] Đang kết nối lần ${attempt}/${maxRetries} (${me?.description || 'chờ mạng Render'}). Thử lại sau ${delayMs / 1000}s...`);
+            }
+        } catch (e) {
+            console.warn(`⏳ [TELEGRAM BOT] Lần ${attempt}/${maxRetries} gặp lỗi: ${e.message}`);
+        }
+
+        if (attempt < maxRetries) {
+            await new Promise(r => setTimeout(r, delayMs));
+        }
+    }
+
+    console.warn('⚠️ [TELEGRAM BOT] Tạm thời chưa kết nối được Telegram API. Bot sẽ tự thử lại khi có yêu cầu OTP.');
 }
 
 /**
@@ -271,7 +300,7 @@ async function initTelegramBot() {
 function getTelegramBotStatus() {
     return {
         isPolling: isPollingActive,
-        botUsername: TELEGRAM_BOT_USERNAME,
+        botUsername: activeBotUsername,
         activeSessions: telegramOtpSessions.size
     };
 }

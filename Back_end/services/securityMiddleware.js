@@ -64,8 +64,11 @@ const BLOCKED_SCRAPERS = [
 function antiBotMiddleware(req, res, next) {
     const userAgent = (req.headers['user-agent'] || '').toLowerCase();
     
-    // Bỏ qua cho các request nội bộ/localhost khi test nếu có header bypass
+    // Bỏ qua cho các request nội bộ/localhost khi test nếu có header bypass, webhook hoặc static uploads
     if (req.headers['x-internal-test'] === 'htwork_trusted_testing') {
+        return next();
+    }
+    if (req.method === 'OPTIONS' || req.path.startsWith('/uploads') || req.path.includes('webhook')) {
         return next();
     }
 
@@ -151,7 +154,8 @@ const corsOptions = {
         const isAllowed = allowedOrigins.includes(origin) ||
                           origin.endsWith('.netlify.app') ||
                           origin.endsWith('.vercel.app') ||
-                          origin.endsWith('.onrender.com');
+                          origin.endsWith('.onrender.com') ||
+                          /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)(:\d+)?$/.test(origin);
 
         if (isAllowed) {
             callback(null, true);
@@ -161,7 +165,7 @@ const corsOptions = {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Idempotency-Key', 'x-internal-test']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Idempotency-Key', 'x-internal-test', 'Accept', 'Origin']
 };
 
 module.exports = {

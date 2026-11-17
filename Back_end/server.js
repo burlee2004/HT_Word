@@ -1,15 +1,42 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-
+const helmet = require('helmet');
 const path = require('path');
 const fs = require('fs');
 
-// 1. Khởi tạo Express app & Middleware toàn cục
+const {
+    authRateLimiter,
+    publicApiRateLimiter,
+    financialRateLimiter,
+    antiBotMiddleware,
+    xssSanitizerMiddleware,
+    corsOptions
+} = require('./services/securityMiddleware');
+
+// 1. Khởi tạo Express app & Middleware bảo mật toàn cục
 const app = express();
-app.use(cors()); // Cho phép Frontend gọi API
-app.use(express.json({ limit: '50mb' })); // Hỗ trợ đọc dữ liệu JSON & Base64 từ request body
+
+// 1.1. Helmet thiết lập các HTTP Security Headers (Chống Clickjacking, MIME Sniffing, HSTS)
+app.use(helmet({
+    contentSecurityPolicy: false, // Cho phép CDN, Cloudinary & S3 hoạt động trơn tru
+    crossOriginEmbedderPolicy: false
+}));
+
+// 1.2. CORS Whitelist bảo vệ máy chủ
+app.use(cors(corsOptions));
+
+// 1.3. Hỗ trợ đọc dữ liệu JSON & Base64 từ request body
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// 1.4. Tường lửa lọc dữ liệu XSS Injection & Chặn Bot / Scraper cào dữ liệu
+app.use(xssSanitizerMiddleware);
+app.use(antiBotMiddleware);
+
+// 1.5. Bộ giới hạn tần suất (Rate Limiter) chống Brute-Force & Spam tài chính
+app.use(['/send-otp', '/verify-otp', '/register', '/login', '/api/auth'], authRateLimiter);
+app.use(['/api/escrow', '/api/milestones', '/api/wallet', '/api/payment', '/api/withdraw'], financialRateLimiter);
 
 // Đảm bảo thư mục uploads tồn tại để phục vụ static files & fallback uploads
 const uploadsDir = path.join(__dirname, 'uploads');

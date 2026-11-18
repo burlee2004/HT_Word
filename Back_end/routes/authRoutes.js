@@ -13,6 +13,7 @@ const { sendWhatsAppOtp, getWhatsAppStatus, initWhatsAppClient } = require('../s
 const { createTelegramOtpSession, getTelegramBotStatus, TELEGRAM_BOT_USERNAME } = require('../services/telegramService');
 const subscriptionService = require('../services/subscriptionService');
 const crypto = require('crypto');
+const { generateSecret, generate2FASetup, verify2FAToken } = require('../services/twoFactorService');
 
 // In-Memory store cho Phone OTP (WhatsApp)
 const phoneOtpStore = new Map();
@@ -265,15 +266,19 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Route Đăng nhập (Login)
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+// Route Đăng nhập (Login) - Tích hợp Bảo mật 2 lớp Google Authenticator (2FA)
+router.post(['/login', '/api/auth/login'], async (req, res) => {
+    const { email, password, two_factor_code } = req.body;
     try {
-        // Lấy thông tin user (bao gồm cả role)
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Vui lòng nhập đầy đủ Email và Mật khẩu!' });
+        }
+
+        // Lấy thông tin user (bao gồm cả role và trạng thái 2FA)
         const { data: user, error } = await supabase
             .from('users')
-            .select('*')
-            .eq('email', email)
+            .select('id, email, full_name, role, password, is_2fa_enabled, two_factor_secret')
+            .eq('email', email.trim().toLowerCase())
             .single();
 
         if (error || !user) {
@@ -302,7 +307,67 @@ router.post('/login', async (req, res) => {
             throw new Error('Mật khẩu không đúng!');
         }
 
-        // Ghi log đăng nhập thành công
+        // 1. Nếu client đã gửi kèm mã 2FA sẵn (ví dụ login direct)
+        if (two_factor_code && user.is_2fa_enabled && user.two_factor_secret) {
+            const isValid = verify2FAToken(two_factor_code, user.two_factor_secret);
+            if (!isValid) {
+                return res.status(400).json({ error: 'Mã xác thực Google Authenticator (6 số) không chính xác hoặc đã hết hạn!' });
+            }
+
+            await logEvent({
+                module: 'AUTH',
+                action: 'LOGIN_2FA_SUCCESS',
+                level: 'INFO',
+                details: `Người dùng ${email} (${user.role.toUpperCase()}) đăng nhập thành công kèm 2FA TOTP.`,
+                user_id: user.id,
+                user_email: email,
+                user_role: user.role
+            });
+
+            return res.status(200).json({
+                message: 'Đăng nhập thành công',
+                user: { id: user.id, email: user.email, full_name: user.full_name, role: user.role, is_2fa_enabled: true }
+            });
+        }
+
+        // 2. Kiểm tra điều kiện 2FA bắt buộc cho Admin
+        if (user.role === 'admin') {
+            if (!user.is_2fa_enabled || !user.two_factor_secret) {
+                // Admin lần đầu chưa kích hoạt 2FA -> BẮT BUỘC thiết lập Google Authenticator ngay
+                const setup = await generate2FASetup(user.email);
+                return res.status(200).json({
+                    require_2fa_setup: true,
+                    user_id: user.id,
+                    email: user.email,
+                    role: user.role,
+                    secret: setup.secret,
+                    qrCode: setup.qrCode,
+                    message: 'Quản trị viên (Admin) bắt buộc phải kích hoạt Xác thực 2 bước (Google Authenticator) để bảo vệ hệ thống!'
+                });
+            } else {
+                // Admin đã có 2FA -> Yêu cầu nhập mã 6 số
+                return res.status(200).json({
+                    require_2fa: true,
+                    user_id: user.id,
+                    email: user.email,
+                    role: user.role,
+                    message: 'Vui lòng nhập mã Google Authenticator 6 số để tiếp tục truy cập quyền Quản trị.'
+                });
+            }
+        }
+
+        // 3. Người dùng thường (Client / Freelancer) nếu ĐÃ BẬT 2FA
+        if (user.is_2fa_enabled && user.two_factor_secret) {
+            return res.status(200).json({
+                require_2fa: true,
+                user_id: user.id,
+                email: user.email,
+                role: user.role,
+                message: 'Tài khoản của bạn đã bật xác thực 2 bước. Vui lòng nhập mã 6 số từ ứng dụng Google Authenticator.'
+            });
+        }
+
+        // 4. Đăng nhập thành công trực tiếp (cho user thường chưa bật 2FA)
         await logEvent({
             module: 'AUTH',
             action: 'LOGIN_SUCCESS',
@@ -316,10 +381,251 @@ router.post('/login', async (req, res) => {
         // Trả về thông tin user (để Frontend biết đường điều hướng)
         res.status(200).json({ 
             message: 'Đăng nhập thành công', 
-            user: { id: user.id, email: user.email, full_name: user.full_name, role: user.role } 
+            user: { id: user.id, email: user.email, full_name: user.full_name, role: user.role, is_2fa_enabled: false } 
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+});
+
+// ==========================================
+// 🛡️ GOOGLE AUTHENTICATOR (2FA / TOTP) FLOW
+// ==========================================
+
+// 1. Xác thực mã 2FA 6 số để hoàn tất Đăng nhập
+router.post(['/2fa/verify-login', '/api/auth/2fa/verify-login'], async (req, res) => {
+    const { user_id, code } = req.body;
+    try {
+        if (!user_id || !code) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp mã xác thực 6 số!' });
+        }
+
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('id, email, full_name, role, is_2fa_enabled, two_factor_secret')
+            .eq('id', user_id)
+            .single();
+
+        if (error || !user) {
+            return res.status(404).json({ error: 'Không tìm thấy thông tin tài khoản!' });
+        }
+
+        if (!user.is_2fa_enabled || !user.two_factor_secret) {
+            return res.status(400).json({ error: 'Tài khoản này chưa kích hoạt tính năng 2FA!' });
+        }
+
+        const isValid = verify2FAToken(code, user.two_factor_secret);
+        if (!isValid) {
+            await logEvent({
+                module: 'AUTH',
+                action: '2FA_VERIFY_FAILED',
+                level: 'WARN',
+                details: `Xác thực 2FA thất bại: Mã không đúng cho ${user.email}`,
+                user_id: user.id,
+                user_email: user.email,
+                user_role: user.role
+            });
+            return res.status(400).json({ error: 'Mã xác thực Google Authenticator không chính xác hoặc đã hết hạn. Vui lòng thử lại!' });
+        }
+
+        await logEvent({
+            module: 'AUTH',
+            action: 'LOGIN_2FA_SUCCESS',
+            level: 'INFO',
+            details: `Xác thực 2FA thành công. Đăng nhập hệ thống: ${user.email} (${user.role.toUpperCase()})`,
+            user_id: user.id,
+            user_email: user.email,
+            user_role: user.role
+        });
+
+        return res.status(200).json({
+            message: 'Xác thực 2 bước thành công! Đang chuyển hướng...',
+            user: {
+                id: user.id,
+                email: user.email,
+                full_name: user.full_name,
+                role: user.role,
+                is_2fa_enabled: true
+            }
+        });
+    } catch (error) {
+        console.error('Lỗi xác thực 2FA login:', error);
+        return res.status(500).json({ error: error.message || 'Lỗi xử lý xác thực 2 bước' });
+    }
+});
+
+// 2. Bắt đầu thiết lập 2FA: Tạo mã Secret & QR Code (dành cho Hồ sơ cá nhân)
+router.post(['/2fa/setup', '/api/auth/2fa/setup'], async (req, res) => {
+    const { user_id } = req.body;
+    try {
+        if (!user_id) {
+            return res.status(400).json({ error: 'Thiếu thông tin người dùng!' });
+        }
+
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('id, email, role, is_2fa_enabled, two_factor_secret')
+            .eq('id', user_id)
+            .single();
+
+        if (error || !user) {
+            return res.status(404).json({ error: 'Không tìm thấy người dùng!' });
+        }
+
+        // Tạo secret và QR code mới (hoặc dùng lại secret đang pending nếu có)
+        const setup = await generate2FASetup(user.email);
+
+        return res.status(200).json({
+            success: true,
+            email: user.email,
+            secret: setup.secret,
+            qrCode: setup.qrCode,
+            is_2fa_enabled: !!user.is_2fa_enabled
+        });
+    } catch (error) {
+        console.error('Lỗi tạo setup 2FA:', error);
+        return res.status(500).json({ error: error.message || 'Lỗi tạo mã QR 2FA' });
+    }
+});
+
+// 3. Xác nhận kích hoạt 2FA: Kiểm tra mã 6 số với Secret & lưu vào Database
+router.post(['/2fa/setup-confirm', '/api/auth/2fa/setup-confirm'], async (req, res) => {
+    const { user_id, secret, code } = req.body;
+    try {
+        if (!user_id || !secret || !code) {
+            return res.status(400).json({ error: 'Vui lòng nhập đầy đủ mã bí mật và mã xác thực 6 số!' });
+        }
+
+        // Kiểm tra tính hợp lệ của mã 6 số với secret vừa quét
+        const isValid = verify2FAToken(code, secret);
+        if (!isValid) {
+            return res.status(400).json({ 
+                error: 'Mã xác thực không chính xác! Hãy kiểm tra đồng hồ trên điện thoại đã khớp giờ chuẩn mạng và thử lại.' 
+            });
+        }
+
+        // Cập nhật Database: Bật 2FA và lưu secret
+        const { data: updatedUser, error: updateErr } = await supabase
+            .from('users')
+            .update({
+                two_factor_secret: secret.trim(),
+                is_2fa_enabled: true
+            })
+            .eq('id', user_id)
+            .select('id, email, full_name, role, is_2fa_enabled')
+            .single();
+
+        if (updateErr) {
+            throw updateErr;
+        }
+
+        await logEvent({
+            module: 'AUTH',
+            action: '2FA_ENABLED',
+            level: 'INFO',
+            details: `Người dùng ${updatedUser.email} đã kích hoạt thành công Xác thực 2 bước (Google Authenticator).`,
+            user_id: updatedUser.id,
+            user_email: updatedUser.email,
+            user_role: updatedUser.role
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: '🎉 Chúc mừng! Bạn đã kích hoạt Xác thực 2 bước (Google Authenticator) thành công!',
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error('Lỗi kích hoạt 2FA:', error);
+        return res.status(500).json({ error: error.message || 'Lỗi lưu thông tin 2FA vào hệ thống' });
+    }
+});
+
+// 4. Lấy trạng thái 2FA của người dùng
+router.get(['/2fa/status/:user_id', '/api/auth/2fa/status/:user_id'], async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('id, email, role, is_2fa_enabled')
+            .eq('id', user_id)
+            .single();
+
+        if (error || !user) {
+            return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+        }
+
+        return res.status(200).json({
+            success: true,
+            is_2fa_enabled: !!user.is_2fa_enabled,
+            role: user.role
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+});
+
+// 5. Tắt xác thực 2 bước (yêu cầu nhập mã 6 số hiện tại để xác thực chủ sở hữu)
+router.post(['/2fa/disable', '/api/auth/2fa/disable'], async (req, res) => {
+    const { user_id, code } = req.body;
+    try {
+        if (!user_id || !code) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp mã 6 số từ Google Authenticator để xác nhận tắt!' });
+        }
+
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('id, email, role, is_2fa_enabled, two_factor_secret')
+            .eq('id', user_id)
+            .single();
+
+        if (error || !user) {
+            return res.status(404).json({ error: 'Không tìm thấy người dùng!' });
+        }
+
+        // Admin không được phép tắt 2FA để đảm bảo an toàn tối cao cho sàn
+        if (user.role === 'admin') {
+            return res.status(403).json({ 
+                error: 'CẢNH BÁO AN NINH: Tài khoản Quản trị viên (Admin) bắt buộc phải duy trì Xác thực 2 bước (2FA) theo chính sách bảo mật hệ thống!' 
+            });
+        }
+
+        if (!user.is_2fa_enabled || !user.two_factor_secret) {
+            return res.status(400).json({ error: 'Tài khoản chưa bật xác thực 2 bước.' });
+        }
+
+        const isValid = verify2FAToken(code, user.two_factor_secret);
+        if (!isValid) {
+            return res.status(400).json({ error: 'Mã xác thực không chính xác! Không thể tắt 2FA.' });
+        }
+
+        // Tắt 2FA trong Database
+        const { error: updateErr } = await supabase
+            .from('users')
+            .update({
+                two_factor_secret: null,
+                is_2fa_enabled: false
+            })
+            .eq('id', user_id);
+
+        if (updateErr) throw updateErr;
+
+        await logEvent({
+            module: 'AUTH',
+            action: '2FA_DISABLED',
+            level: 'WARN',
+            details: `Người dùng ${user.email} đã tắt Xác thực 2 bước (2FA).`,
+            user_id: user.id,
+            user_email: user.email,
+            user_role: user.role
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Đã tắt Xác thực 2 bước thành công!'
+        });
+    } catch (error) {
+        console.error('Lỗi tắt 2FA:', error);
+        return res.status(500).json({ error: error.message || 'Lỗi khi tắt 2FA' });
     }
 });
 
@@ -688,7 +994,7 @@ router.get('/api/users/:id', async (req, res) => {
     try {
         const { data: user, error } = await supabase
             .from('users')
-            .select('id, full_name, email, role, avatar_url, cover_url, bio, skills, bank_name, bank_account, bank_owner, phone_number, is_email_verified, is_phone_verified, kyc_status, created_at')
+            .select('id, full_name, email, role, avatar_url, cover_url, bio, skills, bank_name, bank_account, bank_owner, phone_number, is_email_verified, is_phone_verified, kyc_status, is_2fa_enabled, created_at')
             .eq('id', id)
             .single();
             

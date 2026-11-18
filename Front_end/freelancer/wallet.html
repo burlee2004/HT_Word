@@ -259,6 +259,17 @@
                                 <button type="button" onclick="withdrawAll()" class="text-xs bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-black px-3.5 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition">Rút toàn bộ</button>
                             </div>
 
+                            <!-- Mã Xác Thực Google Authenticator (Hiện khi Freelancer đã bật 2FA) -->
+                            <div id="freelancerWithdraw2FASection" class="hidden pt-1">
+                                <div class="p-3.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 rounded-2xl space-y-2">
+                                    <label class="block text-xs font-bold text-purple-900 dark:text-purple-300 flex items-center justify-between">
+                                        <span><i class="fas fa-shield-alt text-purple-600 mr-1.5"></i> Mã xác thực Google Authenticator (6 số) (*):</span>
+                                        <span class="text-[10px] text-purple-600 bg-purple-100 dark:bg-purple-900 px-2 py-0.5 rounded-full font-bold">2FA Active</span>
+                                    </label>
+                                    <input type="text" id="freelancerWithdraw2FACode" maxlength="6" inputmode="numeric" placeholder="Nhập mã 6 số từ ứng dụng..." class="w-full text-center text-lg font-mono font-bold tracking-widest py-2.5 px-3 bg-white dark:bg-gray-800 border border-purple-300 dark:border-purple-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                </div>
+                            </div>
+
                             <button type="submit" id="btnSubmitWithdraw" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-2xl shadow-md transition flex items-center justify-center text-sm cursor-pointer">
                                 <i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền Về Ngân Hàng
                             </button>
@@ -667,11 +678,12 @@
                 console.error('Lỗi tải ví:', e);
             }
 
-            // 2. Lấy ngân hàng liên kết
+            // 2. Lấy ngân hàng liên kết & Trạng thái 2FA
             try {
                 const uRes = await fetch(`${API_URL}/api/users/${currentUser.id}`);
                 if (uRes.ok) {
                     const uData = await uRes.json();
+                    window.currentFreelancerProfile = uData;
                     if (uData.bank_account) {
                         document.getElementById('txtBankName').textContent = uData.bank_name || 'Ngân hàng liên kết';
                         document.getElementById('txtBankAccount').textContent = uData.bank_account;
@@ -687,6 +699,16 @@
                         `;
                         document.getElementById('btnSubmitWithdraw').disabled = true;
                         document.getElementById('btnSubmitWithdraw').classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+
+                    // Hiển thị ô nhập mã 2FA nếu tài khoản Freelancer đã bật 2FA
+                    const sec2FA = document.getElementById('freelancerWithdraw2FASection');
+                    if (sec2FA) {
+                        if (uData.is_2fa_enabled) {
+                            sec2FA.classList.remove('hidden');
+                        } else {
+                            sec2FA.classList.add('hidden');
+                        }
                     }
                 } else {
                     document.getElementById('txtBankName').textContent = 'Lỗi tải ngân hàng';
@@ -833,6 +855,16 @@
                 return;
             }
 
+            // Kiểm tra mã 2FA nếu Freelancer đã kích hoạt Google Authenticator
+            const twoFactorInput = document.getElementById('freelancerWithdraw2FACode');
+            const twoFactorCode = twoFactorInput ? twoFactorInput.value.trim() : '';
+            if (window.currentFreelancerProfile && window.currentFreelancerProfile.is_2fa_enabled && (!twoFactorCode || twoFactorCode.length !== 6)) {
+                errorMsg.textContent = '⚠️ Vui lòng nhập đúng 6 chữ số từ ứng dụng Google Authenticator để xác nhận rút tiền!';
+                errorMsg.classList.remove('hidden');
+                if (twoFactorInput) twoFactorInput.focus();
+                return;
+            }
+
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
 
@@ -840,7 +872,11 @@
                 const res = await fetch(`${API_URL}/api/withdraw`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: currentUser.id, amount })
+                    body: JSON.stringify({ 
+                        user_id: currentUser.id, 
+                        amount,
+                        two_factor_code: twoFactorCode
+                    })
                 });
 
                 const data = await res.json();
@@ -848,6 +884,7 @@
 
                 alert('🎉 Tạo lệnh rút tiền thành công! Admin sẽ giải ngân về tài khoản ngân hàng của bạn trong ít phút.');
                 document.getElementById('withdrawAmount').value = '';
+                if (twoFactorInput) twoFactorInput.value = '';
                 loadWalletData();
                 if (window.loadGlobalBalance) window.loadGlobalBalance();
             } catch (err) {

@@ -291,6 +291,17 @@
                         <button type="button" onclick="withdrawAll()" class="text-xs bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-black px-3.5 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 transition">Rút toàn bộ</button>
                     </div>
 
+                    <!-- Mã Xác Thực Google Authenticator (Hiện khi tài khoản đã kích hoạt 2FA) -->
+                    <div id="withdraw2FASection" class="hidden pt-1">
+                        <div class="p-3.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 rounded-2xl space-y-2">
+                            <label class="block text-xs font-bold text-purple-900 dark:text-purple-300 flex items-center justify-between">
+                                <span><i class="fas fa-shield-alt text-purple-600 mr-1.5"></i> Mã xác thực Google Authenticator (6 số) (*):</span>
+                                <span class="text-[10px] text-purple-600 bg-purple-100 dark:bg-purple-900 px-2 py-0.5 rounded-full font-bold">2FA Active</span>
+                            </label>
+                            <input type="text" id="withdraw2FACode" maxlength="6" inputmode="numeric" placeholder="Nhập mã 6 số từ ứng dụng..." class="w-full text-center text-lg font-mono font-bold tracking-widest py-2.5 px-3 bg-white dark:bg-gray-800 border border-purple-300 dark:border-purple-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                    </div>
+
                     <button type="submit" id="btnSubmitWithdraw" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-2xl shadow-md transition flex items-center justify-center text-sm cursor-pointer">
                         <i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền Về Ngân Hàng
                     </button>
@@ -1112,6 +1123,16 @@
                         btn.classList.remove('opacity-50', 'cursor-not-allowed');
                         btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền Về Ngân Hàng';
                     }
+
+                    // Hiển thị ô nhập mã 2FA nếu user đã kích hoạt Google Authenticator
+                    const sec2FA = document.getElementById('withdraw2FASection');
+                    if (sec2FA) {
+                        if (user.is_2fa_enabled) {
+                            sec2FA.classList.remove('hidden');
+                        } else {
+                            sec2FA.classList.add('hidden');
+                        }
+                    }
                 }
             } catch (err) {
                 console.error('Lỗi lấy thông tin ngân hàng:', err);
@@ -1145,6 +1166,16 @@
                 return;
             }
 
+            // Kiểm tra 2FA nếu tài khoản đã bật
+            const twoFactorInput = document.getElementById('withdraw2FACode');
+            const twoFactorCode = twoFactorInput ? twoFactorInput.value.trim() : '';
+            if (currentUserBank && currentUserBank.is_2fa_enabled && (!twoFactorCode || twoFactorCode.length !== 6)) {
+                errorMsg.textContent = '⚠️ Vui lòng nhập đúng 6 chữ số từ ứng dụng Google Authenticator để xác nhận rút tiền!';
+                errorMsg.classList.remove('hidden');
+                if (twoFactorInput) twoFactorInput.focus();
+                return;
+            }
+
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
 
@@ -1152,7 +1183,11 @@
                 const res = await fetch(`${API_URL}/api/withdraw`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: currentUser.id, amount })
+                    body: JSON.stringify({ 
+                        user_id: currentUser.id, 
+                        amount,
+                        two_factor_code: twoFactorCode
+                    })
                 });
 
                 const data = await res.json();
@@ -1161,6 +1196,7 @@
                 alert('✅ Tạo lệnh rút tiền thành công! Vui lòng chờ Admin duyệt.');
                 
                 document.getElementById('withdrawAmount').value = '';
+                if (twoFactorInput) twoFactorInput.value = '';
                 toggleWithdrawForm();
                 loadWallet();
             } catch (err) {

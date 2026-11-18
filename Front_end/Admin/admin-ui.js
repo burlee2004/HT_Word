@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    if (!user.is_2fa_enabled) {
+        alert('CẢNH BÁO AN NINH: Quản trị viên bắt buộc phải kích hoạt Xác thực 2 bước (Google Authenticator) để truy cập quyền Quản trị!');
+        localStorage.removeItem('user');
+        window.location.href = '../sharedFolder/login.html';
+        return;
+    }
+
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:5000' 
         : 'https://htwork-backend.onrender.com';

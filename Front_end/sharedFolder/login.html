@@ -238,16 +238,20 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    const role = data.user.role;
-                    if (role === 'admin') {
-                        window.location.href = '../Admin/home.html';
-                    } else if (role === 'freelancer') {
-                        window.location.href = '../freelancer/home.html';
-                    } else {
-                        window.location.href = '../user/home.html';
+                    // 1. Nếu hệ thống yêu cầu Admin thiết lập 2FA lần đầu
+                    if (data.require_2fa_setup) {
+                        open2FASetupModal(data);
+                        return;
                     }
+
+                    // 2. Nếu tài khoản yêu cầu nhập mã 2FA 6 số để đăng nhập
+                    if (data.require_2fa) {
+                        open2FAVerifyModal(data);
+                        return;
+                    }
+
+                    // 3. Đăng nhập thành công trực tiếp
+                    redirectAfterLogin(data.user);
                 } else {
                     alert('❌ Đăng nhập thất bại: ' + (data.error || 'Email hoặc mật khẩu không chính xác!'));
                 }
@@ -259,6 +263,156 @@
                 submitBtnText.innerText = 'Đăng nhập ngay';
             }
         });
+
+        // ==========================================
+        // 🛡️ XỬ LÝ XÁC THỰC 2 BƯỚC (GOOGLE AUTHENTICATOR)
+        // ==========================================
+        let pending2FAData = null;
+
+        function redirectAfterLogin(user) {
+            localStorage.setItem('user', JSON.stringify(user));
+            const role = user.role;
+            if (role === 'admin') {
+                window.location.href = '../Admin/home.html';
+            } else if (role === 'freelancer') {
+                window.location.href = '../freelancer/home.html';
+            } else {
+                window.location.href = '../user/home.html';
+            }
+        }
+
+        // Mở Modal Nhập mã 2FA
+        function open2FAVerifyModal(data) {
+            pending2FAData = data;
+            document.getElementById('verify2faEmail').innerText = data.email || 'tài khoản của bạn';
+            document.getElementById('input2FACode').value = '';
+            document.getElementById('verify2FAError').classList.add('hidden');
+            document.getElementById('modal2FAVerify').classList.remove('hidden');
+            setTimeout(() => document.getElementById('input2FACode').focus(), 150);
+        }
+
+        function close2FAVerifyModal() {
+            document.getElementById('modal2FAVerify').classList.add('hidden');
+            pending2FAData = null;
+        }
+
+        // Mở Modal Thiết lập 2FA lần đầu (Bắt buộc Admin)
+        function open2FASetupModal(data) {
+            pending2FAData = data;
+            document.getElementById('setupQrImage').src = data.qrCode;
+            document.getElementById('setupSecretKey').innerText = data.secret;
+            document.getElementById('setup2FACode').value = '';
+            document.getElementById('setup2FAError').classList.add('hidden');
+            document.getElementById('modal2FASetup').classList.remove('hidden');
+            setTimeout(() => document.getElementById('setup2FACode').focus(), 150);
+        }
+
+        function close2FASetupModal() {
+            document.getElementById('modal2FASetup').classList.add('hidden');
+            pending2FAData = null;
+        }
+
+        // Copy mã khóa bí mật thủ công
+        window.copy2FASecret = function() {
+            const secret = document.getElementById('setupSecretKey').innerText;
+            navigator.clipboard.writeText(secret).then(() => {
+                alert('📋 Đã sao chép mã khóa bí mật vào bộ nhớ tạm: ' + secret);
+            }).catch(() => {
+                prompt('Sao chép mã khóa bên dưới:', secret);
+            });
+        };
+
+        // Gửi xác thực mã 2FA Đăng nhập
+        window.submit2FAVerify = async function() {
+            const code = document.getElementById('input2FACode').value.trim();
+            const errEl = document.getElementById('verify2FAError');
+            const btn = document.getElementById('btnSubmit2FACode');
+
+            if (!code || code.length !== 6) {
+                errEl.innerText = '⚠️ Vui lòng nhập đúng đủ 6 chữ số từ Google Authenticator!';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            errEl.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Đang xác thực...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth/2fa/verify-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: pending2FAData.user_id,
+                        code: code
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    close2FAVerifyModal();
+                    redirectAfterLogin(data.user);
+                } else {
+                    errEl.innerText = '❌ ' + (data.error || 'Mã xác thực không chính xác!');
+                    errEl.classList.remove('hidden');
+                    document.getElementById('input2FACode').select();
+                }
+            } catch (err) {
+                console.error(err);
+                errEl.innerText = '❌ Không thể kết nối đến máy chủ!';
+                errEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-shield-alt mr-2"></i> Xác nhận Đăng nhập';
+            }
+        };
+
+        // Gửi xác nhận kích hoạt 2FA lần đầu
+        window.submit2FASetup = async function() {
+            const code = document.getElementById('setup2FACode').value.trim();
+            const errEl = document.getElementById('setup2FAError');
+            const btn = document.getElementById('btnSubmitSetup2FA');
+
+            if (!code || code.length !== 6) {
+                errEl.innerText = '⚠️ Vui lòng nhập đúng đủ 6 chữ số hiển thị trên ứng dụng!';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            errEl.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Đang kích hoạt...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth/2fa/setup-confirm`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: pending2FAData.user_id,
+                        secret: pending2FAData.secret,
+                        code: code
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert('🎉 ' + (data.message || 'Kích hoạt xác thực 2 bước thành công!'));
+                    close2FASetupModal();
+                    redirectAfterLogin(data.user);
+                } else {
+                    errEl.innerText = '❌ ' + (data.error || 'Mã xác thực không đúng!');
+                    errEl.classList.remove('hidden');
+                    document.getElementById('setup2FACode').select();
+                }
+            } catch (err) {
+                console.error(err);
+                errEl.innerText = '❌ Lỗi kết nối máy chủ!';
+                errEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Xác nhận & Hoàn tất';
+            }
+        };
     </script>
 
     <script>
@@ -306,6 +460,119 @@
                 </div>
                 
                 <p id="googleRoleError" class="text-red-500 text-sm text-center mt-4 hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🛡️ MODAL 1: XÁC THỰC 2 BƯỚC (2FA LOGIN VERIFICATION) -->
+    <div id="modal2FAVerify" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-150">
+            <div class="p-6 sm:p-7 text-center">
+                <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-100 dark:border-indigo-900/60 shadow-sm">
+                    <i class="fas fa-shield-alt text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 dark:text-white">Xác Thực 2 Bước (2FA)</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                    Tài khoản <span id="verify2faEmail" class="font-bold text-indigo-600 dark:text-indigo-400">...</span> đã được bảo vệ bằng Google Authenticator.
+                </p>
+
+                <div class="mt-6">
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 text-left mb-2">
+                        Nhập mã 6 chữ số từ ứng dụng:
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="input2FACode" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+                            class="w-full text-center text-3xl font-mono tracking-widest font-black py-3 px-4 bg-gray-50 dark:bg-gray-800 border-2 border-indigo-200 dark:border-indigo-800 rounded-2xl focus:border-indigo-600 dark:focus:border-indigo-400 focus:outline-none transition text-gray-900 dark:text-white"
+                            placeholder="------"
+                            onkeypress="if(event.key==='Enter') submit2FAVerify()"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 6) submit2FAVerify();">
+                    </div>
+                    <p id="verify2FAError" class="text-rose-500 text-xs font-bold mt-2.5 text-left hidden"></p>
+                </div>
+
+                <div class="mt-6 space-y-2">
+                    <button type="button" onclick="submit2FAVerify()" id="btnSubmit2FACode"
+                        class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center cursor-pointer">
+                        <i class="fas fa-shield-alt mr-2"></i> Xác nhận Đăng nhập
+                    </button>
+                    <button type="button" onclick="close2FAVerifyModal()"
+                        class="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold text-xs rounded-xl transition">
+                        Quay lại
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🛡️ MODAL 2: THIẾT LẬP GOOGLE AUTHENTICATOR (BẮT BUỘC CHO ADMIN) -->
+    <div id="modal2FASetup" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 my-6 animate-in zoom-in-95 duration-150">
+            <div class="bg-gradient-to-r from-red-600 to-indigo-700 p-5 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white text-lg font-black">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-base text-white">Kích Hoạt Bảo Mật 2 Lớp (Admin)</h3>
+                        <p class="text-white/80 text-xs">Yêu cầu bắt buộc để bảo vệ hệ thống HT Work</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-5 text-sm">
+                <!-- Hướng dẫn các bước -->
+                <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+                    <div class="flex items-start">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white font-black inline-flex items-center justify-center mr-2.5 shrink-0 text-[11px]">1</span>
+                        <span class="text-gray-700 dark:text-gray-300">
+                            Mở ứng dụng <b>Google Authenticator</b> (hoặc Microsoft Authenticator) trên điện thoại của bạn.
+                        </span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white font-black inline-flex items-center justify-center mr-2.5 shrink-0 text-[11px]">2</span>
+                        <span class="text-gray-700 dark:text-gray-300">
+                            Chọn <b>"Quét mã QR"</b> và quét hình ảnh bên dưới:
+                        </span>
+                    </div>
+                </div>
+
+                <!-- QR Code Box -->
+                <div class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
+                    <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-100">
+                        <img id="setupQrImage" src="" alt="Mã QR 2FA" class="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg">
+                    </div>
+
+                    <!-- Secret Text fallback -->
+                    <div class="mt-4 text-center w-full max-w-xs">
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Hoặc nhập thủ công mã khóa bí mật này:</p>
+                        <div class="flex items-center justify-center space-x-1.5 bg-gray-200/80 dark:bg-gray-700 px-3 py-1.5 rounded-xl">
+                            <span id="setupSecretKey" class="font-mono font-bold text-xs text-indigo-700 dark:text-indigo-300 select-all tracking-wider">...</span>
+                            <button type="button" onclick="copy2FASecret()" class="text-gray-500 hover:text-indigo-600 ml-1.5 text-xs" title="Sao chép">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Step 3 -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                        <span class="text-indigo-600 font-black">Bước 3:</span> Nhập mã xác nhận 6 số hiển thị trên ứng dụng:
+                    </label>
+                    <input type="text" id="setup2FACode" maxlength="6" inputmode="numeric"
+                        class="w-full text-center text-2xl font-mono tracking-widest font-black py-3 px-4 bg-gray-50 dark:bg-gray-800 border-2 border-indigo-300 dark:border-indigo-700 rounded-2xl focus:border-indigo-600 focus:outline-none transition text-gray-900 dark:text-white"
+                        placeholder="000000"
+                        onkeypress="if(event.key==='Enter') submit2FASetup()"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 6) submit2FASetup();">
+                    <p id="setup2FAError" class="text-rose-500 text-xs font-bold mt-2 hidden"></p>
+                </div>
+
+                <div class="pt-2">
+                    <button type="button" onclick="submit2FASetup()" id="btnSubmitSetup2FA"
+                        class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-700 hover:to-indigo-700 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center cursor-pointer">
+                        <i class="fas fa-check-circle mr-2"></i> Xác nhận & Hoàn tất
+                    </button>
+                </div>
             </div>
         </div>
     </div>

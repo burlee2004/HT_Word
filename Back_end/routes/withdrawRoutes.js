@@ -4,6 +4,7 @@ const supabase = require('../config/supabase');
 const blockchain = require('../blockchain');
 const settingsStore = require('../services/settingsStore');
 const { logEvent } = require('../services/auditLogger');
+const { sendTransactionReceiptEmail } = require('../services/emailService');
 
 // 1. Tạo lệnh rút tiền (Web2.5)
 router.post('/api/withdraw', async (req, res) => {
@@ -168,6 +169,21 @@ router.post('/api/admin/withdrawals/bulk-approve', async (req, res) => {
                 await supabase.from('notifications').insert([{
                     user_id: user_id, title: 'Tiền đã về ví!', content: `Lệnh rút ${amount} Token của bạn đã được Admin giải ngân thành công.`
                 }]);
+
+                // Gửi email biên lai giải ngân tiền về tài khoản ngân hàng
+                supabase.from('users').select('full_name, email').eq('id', user_id).single().then(({ data: u }) => {
+                    if (u && u.email) {
+                        sendTransactionReceiptEmail({
+                            toEmail: u.email,
+                            fullName: u.full_name,
+                            type: 'withdraw',
+                            title: 'Giải Ngân Rút Tiền Thành Công',
+                            amount: -amount,
+                            txCode: `WD-${reqData.id.slice(0, 8)}`,
+                            note: 'Chuyển tiền về tài khoản ngân hàng liên kết (Napas 247)'
+                        }).catch(err => console.warn('Lỗi gửi mail giải ngân:', err.message));
+                    }
+                }).catch(() => {});
 
                 logEvent({
                     module: 'WALLET',

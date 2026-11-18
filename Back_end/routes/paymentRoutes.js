@@ -5,6 +5,7 @@ const payos = require('../config/payos');
 const blockchain = require('../blockchain');
 const settingsStore = require('../services/settingsStore');
 const { logEvent } = require('../services/auditLogger');
+const { sendTransactionReceiptEmail } = require('../services/emailService');
 
 // Rate limiting store: user_id -> timestamp
 const lastDepositMap = new Map();
@@ -164,6 +165,38 @@ router.post('/api/payment/payos-webhook', async (req, res) => {
                 title: 'Nạp tiền tự động thành công!',
                 content: `Bạn vừa nạp thành công ${amount.toLocaleString()} Token thông qua Cổng thanh toán PayOS.`
             }]);
+
+            // Gửi email biên lai giao dịch chính danh từ no-reply@htwork.id.vn
+            supabase.from('users').select('full_name, email').eq('id', request.user_id).single().then(({ data: u }) => {
+                if (u && u.email) {
+                    sendTransactionReceiptEmail({
+                        toEmail: u.email,
+                        fullName: u.full_name,
+                        type: 'deposit',
+                        title: 'Nạp Token Tự Động (PayOS)',
+                        amount: amount,
+                        balanceAfter: newBalance,
+                        txCode: `PAYOS-${orderCode}`,
+                        note: 'Nạp tiền tự động qua Cổng thanh toán PayOS'
+                    }).catch(err => console.warn('Lỗi gửi mail biên lai PayOS Verify:', err.message));
+                }
+            }).catch(() => {});
+
+            // Gửi email biên lai giao dịch chính danh từ no-reply@htwork.id.vn
+            supabase.from('users').select('full_name, email').eq('id', request.user_id).single().then(({ data: u }) => {
+                if (u && u.email) {
+                    sendTransactionReceiptEmail({
+                        toEmail: u.email,
+                        fullName: u.full_name,
+                        type: 'deposit',
+                        title: 'Nạp Token Tự Động (PayOS)',
+                        amount: amount,
+                        balanceAfter: newBalance,
+                        txCode: `PAYOS-${orderCode}`,
+                        note: 'Nạp tiền tự động qua Cổng thanh toán PayOS'
+                    }).catch(err => console.warn('Lỗi gửi mail biên lai PayOS:', err.message));
+                }
+            }).catch(() => {});
             
             console.log(`✅ [PayOS Webhook] Đã tự động cộng tiền cho user ${request.user_id}!`);
         }
@@ -224,6 +257,22 @@ router.post('/api/payment/verify-deposit', async (req, res) => {
                 title: 'Nạp tiền tự động thành công!',
                 content: `Bạn vừa nạp thành công ${amount.toLocaleString()} Token thông qua Cổng thanh toán PayOS.`
             }]);
+
+            // Gửi email biên lai giao dịch chính danh từ no-reply@htwork.id.vn
+            supabase.from('users').select('full_name, email').eq('id', request.user_id).single().then(({ data: u }) => {
+                if (u && u.email) {
+                    sendTransactionReceiptEmail({
+                        toEmail: u.email,
+                        fullName: u.full_name,
+                        type: 'deposit',
+                        title: 'Nạp Token Tự Động (PayOS)',
+                        amount: amount,
+                        balanceAfter: newBalance,
+                        txCode: `PAYOS-${orderCode}`,
+                        note: 'Nạp tiền tự động qua Cổng thanh toán PayOS'
+                    }).catch(err => console.warn('Lỗi gửi mail biên lai PayOS Verify:', err.message));
+                }
+            }).catch(() => {});
 
             return res.json({ success: true, processed_now: true, amount: amount, new_balance: newBalance });
         }

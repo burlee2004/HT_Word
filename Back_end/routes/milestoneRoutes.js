@@ -3,6 +3,7 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const blockchain = require('../blockchain');
 const { logEvent } = require('../services/auditLogger');
+const { sendMilestoneNoticeEmail, sendTransactionReceiptEmail } = require('../services/emailService');
 
 // 4.1. API: Freelancer tạo Kế hoạch (Tạo nhiều Milestones)
 router.post('/api/milestones/create-plan', async (req, res) => {
@@ -99,13 +100,27 @@ router.post('/api/milestones/submit', async (req, res) => {
         if (error) throw error;
 
         // Gửi thông báo cho Client
-        const { data: jobData } = await supabase.from('jobs').select('client_id').eq('id', data[0].job_id).single();
+        const { data: jobData } = await supabase.from('jobs').select('client_id, title').eq('id', data[0].job_id).single();
         if (jobData) {
             await supabase.from('notifications').insert([{
                 user_id: jobData.client_id,
                 title: 'Có báo cáo công việc mới',
                 content: 'Freelancer vừa nộp báo cáo (minh chứng) cho dự án. Hãy vào kiểm tra và nghiệm thu.'
             }]);
+
+            // Gửi email thông báo cho Khách hàng kiểm tra nghiệm thu
+            supabase.from('users').select('full_name, email').eq('id', jobData.client_id).single().then(({ data: client }) => {
+                if (client && client.email) {
+                    sendMilestoneNoticeEmail({
+                        toEmail: client.email,
+                        fullName: client.full_name,
+                        projectTitle: jobData.title || 'Dự án HT Work',
+                        milestoneTitle: data[0].title || 'Giai đoạn Milestone',
+                        statusText: 'Freelancer vừa bàn giao sản phẩm / nộp minh chứng',
+                        actionUrl: 'https://htwork.id.vn/user/review-work.html'
+                    }).catch(err => console.warn('Lỗi gửi mail milestone submit:', err.message));
+                }
+            }).catch(() => {});
         }
 
         res.status(200).json({ message: 'Nộp bằng chứng thành công!', milestone: data[0] });
@@ -250,6 +265,21 @@ router.post('/api/escrow/release', async (req, res) => {
             content: `Khách hàng đã nghiệm thu công việc và giải ngân ${amount} Token vào ví của bạn.`
         }]);
 
+        // Gửi email biên lai giải ngân Escrow cho Freelancer
+        supabase.from('users').select('full_name, email').eq('id', freelancer_id).single().then(({ data: f }) => {
+            if (f && f.email) {
+                sendTransactionReceiptEmail({
+                    toEmail: f.email,
+                    fullName: f.full_name,
+                    type: 'income',
+                    title: 'Nhận Tiền Nghiệm Thu Escrow',
+                    amount: amount,
+                    txCode: `ESCROW-${milestone_id.slice(0, 8)}`,
+                    note: `Nghiệm thu thành công giai đoạn Milestone #${milestone_id.slice(0, 8)}`
+                }).catch(err => console.warn('Lỗi gửi mail giải ngân Escrow:', err.message));
+            }
+        }).catch(() => {});
+
         logEvent({
             module: 'MILESTONE',
             action: 'APPROVE_MILESTONE',
@@ -281,13 +311,27 @@ router.post('/api/milestones/advanced/submit', async (req, res) => {
         if (error) throw error;
 
         // Gửi thông báo cho Client
-        const { data: jobData } = await supabase.from('jobs').select('client_id').eq('id', data[0].job_id).single();
+        const { data: jobData } = await supabase.from('jobs').select('client_id, title').eq('id', data[0].job_id).single();
         if (jobData) {
             await supabase.from('notifications').insert([{
                 user_id: jobData.client_id,
                 title: 'Có báo cáo công việc mới',
                 content: 'Freelancer vừa nộp báo cáo (minh chứng) cho dự án. Hãy vào kiểm tra và nghiệm thu.'
             }]);
+
+            // Gửi email thông báo cho Khách hàng kiểm tra nghiệm thu
+            supabase.from('users').select('full_name, email').eq('id', jobData.client_id).single().then(({ data: client }) => {
+                if (client && client.email) {
+                    sendMilestoneNoticeEmail({
+                        toEmail: client.email,
+                        fullName: client.full_name,
+                        projectTitle: jobData.title || 'Dự án HT Work',
+                        milestoneTitle: data[0].title || 'Giai đoạn Milestone',
+                        statusText: 'Freelancer vừa bàn giao sản phẩm / nộp minh chứng',
+                        actionUrl: 'https://htwork.id.vn/user/review-work.html'
+                    }).catch(err => console.warn('Lỗi gửi mail milestone submit:', err.message));
+                }
+            }).catch(() => {});
         }
 
         const { data: appData } = await supabase.from('job_applications').select('freelancer_id').eq('job_id', data[0].job_id).eq('status', 'accepted').single();

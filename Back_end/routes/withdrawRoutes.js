@@ -25,30 +25,35 @@ router.post('/api/withdraw', async (req, res) => {
             return res.status(400).json({ error: 'Bạn chưa liên kết tài khoản ngân hàng! Vui lòng cập nhật đầy đủ Tên ngân hàng, Số tài khoản và Chủ tài khoản trong Hồ sơ cá nhân trước khi rút tiền.' });
         }
 
-        // BẢO MẬT 2FA (GOOGLE AUTHENTICATOR): BẮT BUỘC NẾU TÀI KHOẢN ĐÃ BẬT 2FA
-        if (user.is_2fa_enabled && user.two_factor_secret) {
-            const token2fa = two_factor_code || otp_2fa;
-            if (!token2fa) {
-                return res.status(403).json({
-                    require_2fa: true,
-                    error: 'Tài khoản của bạn đã kích hoạt Xác thực 2 bước (Google Authenticator). Vui lòng nhập mã xác thực 6 số để hoàn tất lệnh rút tiền.'
-                });
-            }
+        // BẢO MẬT 2FA (GOOGLE AUTHENTICATOR): BẮT BUỘC ĐỂ CHỐNG KẺ XẤU RÚT TRỘM TIỀN
+        if (!user.is_2fa_enabled || !user.two_factor_secret) {
+            return res.status(403).json({
+                require_2fa_activation: true,
+                error: 'CẢNH BÁO BẢO MẬT: Bạn bắt buộc phải kích hoạt Xác thực 2 bước (Google Authenticator) trong trang Hồ sơ cá nhân trước khi tạo lệnh rút tiền để chống thất thoát tài sản!'
+            });
+        }
 
-            const isValid2FA = verify2FAToken(token2fa, user.two_factor_secret);
-            if (!isValid2FA) {
-                await logEvent({
-                    module: 'WALLET',
-                    action: 'WITHDRAW_2FA_FAILED',
-                    level: 'WARN',
-                    details: `Rút tiền thất bại: Sai mã 2FA Google Authenticator cho tài khoản ${user.email}`,
-                    user_id: user.id,
-                    user_email: user.email
-                });
-                return res.status(400).json({
-                    error: 'Mã xác thực Google Authenticator không chính xác hoặc đã hết hạn. Vui lòng kiểm tra lại ứng dụng và thử lại!'
-                });
-            }
+        const token2fa = two_factor_code || otp_2fa;
+        if (!token2fa) {
+            return res.status(403).json({
+                require_2fa: true,
+                error: 'Vui lòng nhập mã Google Authenticator (6 số) để xác thực an toàn lệnh rút tiền!'
+            });
+        }
+
+        const isValid2FA = verify2FAToken(token2fa, user.two_factor_secret);
+        if (!isValid2FA) {
+            await logEvent({
+                module: 'WALLET',
+                action: 'WITHDRAW_2FA_FAILED',
+                level: 'WARN',
+                details: `Rút tiền thất bại: Sai mã 2FA Google Authenticator cho tài khoản ${user.email}`,
+                user_id: user.id,
+                user_email: user.email
+            });
+            return res.status(400).json({
+                error: 'Mã xác thực Google Authenticator không chính xác hoặc đã hết hạn. Vui lòng kiểm tra lại ứng dụng và thử lại!'
+            });
         }
 
         // Kiểm tra ví DB

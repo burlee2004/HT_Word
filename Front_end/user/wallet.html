@@ -270,6 +270,39 @@
                     <p id="txtBankOwner" class="text-xs font-bold uppercase tracking-wider text-gray-300">ĐANG TẢI...</p>
                 </div>
 
+                <!-- Banner Cảnh Báo Bảo Mật 2FA Bắt Buộc (Hiện khi chưa bật 2FA) -->
+                <div id="security2FAWarningBanner" class="hidden p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border-2 border-amber-300 dark:border-amber-700/80 rounded-2xl mb-4 shadow-sm">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg font-black shrink-0 mt-0.5 shadow-md">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-black text-amber-900 dark:text-amber-200 flex items-center gap-1.5 flex-wrap">
+                                <span>Yêu Cầu Bảo Mật: Kích Hoạt Google Authenticator (2FA)</span>
+                                <span class="text-[10px] bg-red-600 text-white font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Chống rút trộm</span>
+                            </h4>
+                            <p class="text-xs text-amber-800 dark:text-amber-300 mt-1 leading-relaxed">
+                                Để bảo vệ tiền trong ví của bạn và ngăn chặn kẻ xấu xâm nhập rút tiền về tài khoản lạ, sàn HT Work yêu cầu bạn phải kích hoạt <b>Xác thực 2 bước (Google Authenticator)</b> trước khi rút tiền.
+                            </p>
+                            <div class="mt-3">
+                                <a href="profile.html" class="inline-flex items-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-black py-2.5 px-4 rounded-xl shadow-md transition transform hover:-translate-y-0.5">
+                                    <i class="fas fa-key"></i>
+                                    <span>👉 Kích hoạt 2FA ngay tại Hồ Sơ để mở khóa rút tiền &rarr;</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Huy hiệu Đã bật 2FA An Toàn (Hiện khi đã bật 2FA) -->
+                <div id="security2FAVerifiedBadge" class="hidden p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl mb-4 flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300 font-bold">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-shield-check text-emerald-600 text-base"></i>
+                        <span>Ví đã được bảo vệ bởi Google Authenticator (2FA)</span>
+                    </span>
+                    <span class="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-[10px] px-2 py-0.5 rounded-full">An toàn tuyệt đối</span>
+                </div>
+
                 <form id="withdrawForm" class="space-y-4">
                     <div>
                         <div class="flex justify-between items-center mb-1.5">
@@ -1118,19 +1151,34 @@
                         </div>
                     `;
                     const btn = document.getElementById('btnSubmitWithdraw');
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền Về Ngân Hàng';
-                    }
-
-                    // Hiển thị ô nhập mã 2FA nếu user đã kích hoạt Google Authenticator
+                    const banner2FA = document.getElementById('security2FAWarningBanner');
+                    const badge2FA = document.getElementById('security2FAVerifiedBadge');
                     const sec2FA = document.getElementById('withdraw2FASection');
-                    if (sec2FA) {
-                        if (user.is_2fa_enabled) {
-                            sec2FA.classList.remove('hidden');
-                        } else {
-                            sec2FA.classList.add('hidden');
+
+                    // BẢO VỆ 2FA BẮT BUỘC: NẾU CHƯA BẬT 2FA -> HIỆN THÔNG BÁO & KHÓA NÚT RÚT TIỀN
+                    if (!user.is_2fa_enabled) {
+                        if (banner2FA) banner2FA.classList.remove('hidden');
+                        if (badge2FA) badge2FA.classList.add('hidden');
+                        if (sec2FA) sec2FA.classList.add('hidden');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.className = 'w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black py-3.5 rounded-2xl shadow-md transition flex items-center justify-center text-sm cursor-pointer';
+                            btn.innerHTML = '<i class="fas fa-shield-alt mr-2"></i> Kích hoạt 2FA tại Hồ Sơ để rút tiền';
+                            btn.onclick = (e) => {
+                                e.preventDefault();
+                                alert('⚠️ CẢNH BÁO BẢO MẬT: Để phòng chống kẻ xấu xâm nhập rút trộm tiền của bạn, sàn HT Work yêu cầu kích hoạt Xác thực 2 bước (Google Authenticator) tại trang Hồ sơ cá nhân trước khi rút tiền!');
+                                window.location.href = 'profile.html';
+                            };
+                        }
+                    } else {
+                        if (banner2FA) banner2FA.classList.add('hidden');
+                        if (badge2FA) badge2FA.classList.remove('hidden');
+                        if (sec2FA) sec2FA.classList.remove('hidden');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.className = 'w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-2xl shadow-md transition flex items-center justify-center text-sm cursor-pointer';
+                            btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Tạo Lệnh Rút Tiền Về Ngân Hàng';
+                            btn.onclick = null;
                         }
                     }
                 }
@@ -1144,6 +1192,13 @@
 
             if (!currentUserBank || !currentUserBank.bank_account || !currentUserBank.bank_name || !currentUserBank.bank_account.trim()) {
                 alert('⚠️ Bạn chưa cập nhật tài khoản ngân hàng! Vui lòng sang trang Hồ sơ cá nhân (Profile) để cập nhật trước khi tạo lệnh rút tiền.');
+                window.location.href = 'profile.html';
+                return;
+            }
+
+            // Kiểm tra 2FA bắt buộc chống kẻ xấu rút trộm
+            if (!currentUserBank.is_2fa_enabled) {
+                alert('⚠️ CẢNH BÁO AN NINH: Bạn chưa kích hoạt Xác thực 2 bước (Google Authenticator)! Sàn HT Work yêu cầu bạn phải kích hoạt 2FA tại trang Hồ sơ để phòng chống kẻ xấu rút trộm tiền.');
                 window.location.href = 'profile.html';
                 return;
             }

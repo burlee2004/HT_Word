@@ -33,12 +33,14 @@ const publicApiRateLimiter = rateLimit({
     }
 });
 
-// 3. Rate Limiter cho API Dòng Tiền & Ký Quỹ (Chống Spam Giao Dịch)
+// 3. Rate Limiter cho API Dòng Tiền & Ký Quỹ (Chống Spam Giao Dịch Đột Biến)
+// Bỏ qua các lệnh GET/OPTIONS (xem số dư, xem lịch sử giao dịch, xem lệnh rút) để tránh nghẽn trang ví
 const financialRateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 phút
-    max: 25, // Tối đa 25 thao tác tài chính trong 5 phút
+    max: 60, // Tối đa 60 giao dịch biến động tiền trong 5 phút
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => req.method === 'GET' || req.method === 'OPTIONS',
     message: {
         error: 'Thao tác tài chính quá thường xuyên. Vui lòng chờ vài phút trước khi tiếp tục giao dịch.'
     }

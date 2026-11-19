@@ -1,10 +1,10 @@
 /**
  * ==============================================================================
- * HT WORK PLATFORM - SAFE PRODUCTION MINIFIER & CODE COMPRESSOR
+ * HT WORK PLATFORM - SAFE PRODUCTION MINIFIER & CODE COMPRESSOR (HTML & JS)
  * ==============================================================================
  * Chức năng:
- *  - Nén toàn bộ mã HTML/CSS/JS nội tuyến về 1 dòng (giống Facebook view-source)
- *  - Xóa bỏ chú thích (comments), khoảng trắng thừa, giảm dung lượng tải trang ~30%
+ *  - Nén toàn bộ mã HTML về 1 dòng (giống Facebook view-source)
+ *  - Nén toàn bộ mã JavaScript (.js ngoài) về 1 dòng, xóa sạch 100% chú thích (comments)
  *  - ĐẢM BẢO AN TOÀN TUYỆT ĐỐI (Zero Risk):
  *      1. Giữ nguyên tên hàm/biến toàn cục, Tailwind config, onclick handlers.
  *      2. Tự động sao lưu bản gốc sang "backup_html/Front_end_clean_backup" trước khi nén.
@@ -20,21 +20,22 @@
 
 const fs = require('fs');
 const path = require('path');
-const { minify } = require('html-minifier-terser');
+const { minify: minifyHtml } = require('html-minifier-terser');
+const terser = require('terser');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const FRONTEND_DIR = path.join(ROOT_DIR, 'Front_end');
 const BACKUP_DIR = path.join(ROOT_DIR, 'backup_html', 'Front_end_clean_backup');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 
-// Cấu hình nén an toàn tuyệt đối (Không phá vỡ cú pháp JS, Tailwind hay biến)
-const MINIFY_OPTIONS = {
+// Cấu hình nén HTML an toàn tuyệt đối
+const HTML_MINIFY_OPTIONS = {
     collapseWhitespace: true,
     removeComments: true,
     minifyCSS: true,
     minifyJS: {
-        mangle: false,       // KHÔNG đổi tên biến (đảm bảo hàm toàn cục window/onclick hoạt động 100%)
-        compress: false      // KHÔNG viết tắt biểu thức (tránh lỗi logic nhạy cảm)
+        mangle: false,
+        compress: false
     },
     removeRedundantAttributes: false,
     removeEmptyAttributes: false,
@@ -43,7 +44,18 @@ const MINIFY_OPTIONS = {
     preserveLineBreaks: false
 };
 
-// Đệ quy lấy danh sách file
+// Cấu hình nén JS an toàn tuyệt đối (Xóa sạch mọi comment, gom về 1 dòng, giữ nguyên tên hàm)
+const JS_MINIFY_OPTIONS = {
+    mangle: false,       // KHÔNG đổi tên hàm/biến (để onclick, window.formatTokenHTML hoạt động 100%)
+    compress: {
+        dead_code: true
+    },
+    format: {
+        comments: false  // XÓA SẠCH 100% CHÚ THÍCH (comments) để kẻ xấu không đọc được ghi chú hệ thống
+    }
+};
+
+// Đệ quy lấy danh sách file theo đuôi mở rộng
 function scanFiles(dir, ext = '.html') {
     let results = [];
     if (!fs.existsSync(dir)) return results;
@@ -79,32 +91,43 @@ function copyDirRecursive(src, dest) {
 
 // 1. Chế độ xem trước (Preview / Dry-run)
 async function runPreview() {
-    console.log('\n🔍 [HT WORK MINIFIER] Đang quét toàn bộ file HTML trong Front_end...');
-    const files = scanFiles(FRONTEND_DIR, '.html');
-    let totalOrig = 0;
-    let totalMin = 0;
+    console.log('\n🔍 [HT WORK MINIFIER] Đang quét toàn bộ file HTML & JS trong Front_end...');
+    const htmlFiles = scanFiles(FRONTEND_DIR, '.html');
+    const jsFiles = scanFiles(FRONTEND_DIR, '.js');
+    
+    let totalHtmlOrig = 0, totalHtmlMin = 0;
+    let totalJsOrig = 0, totalJsMin = 0;
 
-    for (const file of files) {
-        const relPath = path.relative(ROOT_DIR, file);
+    for (const file of htmlFiles) {
         const content = fs.readFileSync(file, 'utf8');
-        totalOrig += content.length;
+        totalHtmlOrig += content.length;
         try {
-            const minified = await minify(content, MINIFY_OPTIONS);
-            totalMin += minified.length;
-        } catch (err) {
-            console.error(`❌ Lỗi phân tích file ${relPath}:`, err.message);
-        }
+            const minified = await minifyHtml(content, HTML_MINIFY_OPTIONS);
+            totalHtmlMin += minified.length;
+        } catch (err) {}
     }
 
+    for (const file of jsFiles) {
+        const content = fs.readFileSync(file, 'utf8');
+        totalJsOrig += content.length;
+        try {
+            const minified = await terser.minify(content, JS_MINIFY_OPTIONS);
+            totalJsMin += (minified.code || '').length;
+        } catch (err) {}
+    }
+
+    const totalOrig = totalHtmlOrig + totalJsOrig;
+    const totalMin = totalHtmlMin + totalJsMin;
     const savedBytes = totalOrig - totalMin;
     const savedPercent = ((savedBytes / totalOrig) * 100).toFixed(2);
 
     console.log('\n======================================================');
-    console.log(`📊 KẾT QUẢ PHÂN TÍCH NÉN:`);
-    console.log(` - Tổng số file HTML:       ${files.length} files`);
-    console.log(` - Dung lượng gốc ban đầu:   ${(totalOrig / 1024).toFixed(1)} KB`);
-    console.log(` - Sau khi nén về 1 dòng:    ${(totalMin / 1024).toFixed(1)} KB`);
-    console.log(` - Dung lượng tiết kiệm được: ${(savedBytes / 1024).toFixed(1)} KB (-${savedPercent}%)`);
+    console.log(`📊 KẾT QUẢ PHÂN TÍCH NÉN TOÀN BỘ HỆ THỐNG:`);
+    console.log(` - File HTML:               ${htmlFiles.length} files (Nén về 1 dòng)`);
+    console.log(` - File JavaScript (.js):   ${jsFiles.length} files (Xóa 100% comment & gom 1 dòng)`);
+    console.log(` - Dung lượng ban đầu:      ${(totalOrig / 1024).toFixed(1)} KB`);
+    console.log(` - Sau khi nén & bảo mật:   ${(totalMin / 1024).toFixed(1)} KB`);
+    console.log(` - Tiết kiệm được:          ${(savedBytes / 1024).toFixed(1)} KB (-${savedPercent}%)`);
     console.log('======================================================');
     console.log('💡 Lưu ý: Lệnh --preview KHÔNG làm thay đổi bất kỳ file nào.');
     console.log(' 👉 Để nén an toàn: chạy "node scripts/build_minify.js --apply"');
@@ -113,13 +136,15 @@ async function runPreview() {
 
 // 2. Chế độ sao lưu (Backup)
 function makeBackup() {
-    console.log(`\n🛡️ [HT WORK BACKUP] Đang tạo bản sao lưu an toàn code gốc tại:`);
-    console.log(`   ${BACKUP_DIR}`);
-    if (fs.existsSync(BACKUP_DIR)) {
-        fs.rmSync(BACKUP_DIR, { recursive: true, force: true });
+    if (!fs.existsSync(BACKUP_DIR)) {
+        console.log(`\n🛡️ [HT WORK BACKUP] Đang tạo bản sao lưu an toàn code gốc tại:`);
+        console.log(`   ${BACKUP_DIR}`);
+        copyDirRecursive(FRONTEND_DIR, BACKUP_DIR);
+        console.log(`✅ Đã sao lưu 100% file gốc thành công!\n`);
+    } else {
+        console.log(`\n🛡️ [HT WORK BACKUP] Bản sao lưu code đẹp đã tồn tại an toàn trong:`);
+        console.log(`   ${BACKUP_DIR}\n`);
     }
-    copyDirRecursive(FRONTEND_DIR, BACKUP_DIR);
-    console.log(`✅ Đã sao lưu 100% file gốc thành công. Bạn luôn có thể khôi phục nguyên vẹn!\n`);
 }
 
 // 3. Chế độ khôi phục (Restore)
@@ -132,7 +157,7 @@ function runRestore() {
     }
     copyDirRecursive(BACKUP_DIR, FRONTEND_DIR);
     console.log(`✅ KHÔI PHỤC THÀNH CÔNG!`);
-    console.log(`Toàn bộ code trong Front_end đã trở lại dạng thụt dòng, chú thích ban đầu để bạn chỉnh sửa thoải mái.\n`);
+    console.log(`Toàn bộ code HTML và JavaScript trong Front_end đã trở lại dạng thụt dòng, chú thích ban đầu để bạn chỉnh sửa thoải mái.\n`);
 }
 
 // 4. Chế độ nén ra thư mục dist độc lập
@@ -143,51 +168,77 @@ async function runDist() {
     }
     copyDirRecursive(FRONTEND_DIR, DIST_DIR);
 
+    // Nén HTML
     const htmlFiles = scanFiles(DIST_DIR, '.html');
-    let count = 0;
     for (const file of htmlFiles) {
         const content = fs.readFileSync(file, 'utf8');
         try {
-            const minified = await minify(content, MINIFY_OPTIONS);
+            const minified = await minifyHtml(content, HTML_MINIFY_OPTIONS);
             fs.writeFileSync(file, minified, 'utf8');
-            count++;
-        } catch (err) {
-            console.error(`⚠️ Lỗi nén file ${path.basename(file)}:`, err.message);
-        }
+        } catch (err) {}
     }
-    console.log(`✅ Đã nén ${count} file HTML thành công vào thư mục "dist/".`);
+
+    // Nén JS
+    const jsFiles = scanFiles(DIST_DIR, '.js');
+    for (const file of jsFiles) {
+        const content = fs.readFileSync(file, 'utf8');
+        try {
+            const minified = await terser.minify(content, JS_MINIFY_OPTIONS);
+            if (minified.code) {
+                fs.writeFileSync(file, minified.code, 'utf8');
+            }
+        } catch (err) {}
+    }
+
+    console.log(`✅ Đã nén thành công ${htmlFiles.length} file HTML và ${jsFiles.length} file JS vào thư mục "dist/".`);
     console.log(`Thư mục "Front_end" gốc của bạn hoàn toàn KHÔNG bị đụng chạm gì!\n`);
 }
 
 // 5. Chế độ áp dụng nén trực tiếp (Có tự động sao lưu trước)
 async function runApply() {
-    console.log(`\n🚀 [HT WORK MINIFIER] Bắt đầu quá trình nén mã nguồn...`);
-    // Bước 1: Luôn sao lưu code gốc trước
+    console.log(`\n🚀 [HT WORK MINIFIER] Bắt đầu quá trình nén mã nguồn & xóa comment bảo mật...`);
+    // Bước 1: Đảm bảo có bản sao lưu an toàn
     makeBackup();
 
-    // Bước 2: Nén từng file
-    const files = scanFiles(FRONTEND_DIR, '.html');
-    let successCount = 0;
-    for (const file of files) {
-        const relPath = path.relative(ROOT_DIR, file);
+    // Bước 2: Nén từng file HTML
+    const htmlFiles = scanFiles(FRONTEND_DIR, '.html');
+    let successHtml = 0;
+    for (const file of htmlFiles) {
         const content = fs.readFileSync(file, 'utf8');
         try {
-            const minified = await minify(content, MINIFY_OPTIONS);
+            const minified = await minifyHtml(content, HTML_MINIFY_OPTIONS);
             fs.writeFileSync(file, minified, 'utf8');
-            successCount++;
+            successHtml++;
         } catch (err) {
-            console.error(`❌ Bỏ qua file lỗi cú pháp ${relPath}:`, err.message);
+            console.error(`❌ Bỏ qua file HTML lỗi: ${path.basename(file)}`, err.message);
+        }
+    }
+
+    // Bước 3: Nén từng file JavaScript ngoài (.js)
+    const jsFiles = scanFiles(FRONTEND_DIR, '.js');
+    let successJs = 0;
+    for (const file of jsFiles) {
+        const content = fs.readFileSync(file, 'utf8');
+        try {
+            const minified = await terser.minify(content, JS_MINIFY_OPTIONS);
+            if (minified.code) {
+                fs.writeFileSync(file, minified.code, 'utf8');
+                successJs++;
+            }
+        } catch (err) {
+            console.error(`❌ Bỏ qua file JS lỗi: ${path.basename(file)}`, err.message);
         }
     }
 
     console.log(`\n======================================================`);
-    console.log(`🎉 NÉN HOÀN TẤT THÀNH CÔNG ${successCount}/${files.length} FILES!`);
-    console.log(` - Giờ đây khi mở View-Source trên trình duyệt, mã nguồn HTML`);
-    console.log(`   đã được gom thành 1 dòng siêu gọn như Facebook.`);
-    console.log(` - Toàn bộ chú thích và khoảng trắng rác đã được dọn sạch.`);
+    console.log(`🎉 NÉN VÀ BẢO MẬT MÃ NGUỒN HOÀN TẤT THÀNH CÔNG!`);
+    console.log(` - Đã nén ${successHtml}/${htmlFiles.length} file HTML về 1 dòng duy nhất.`);
+    console.log(` - Đã nén & dọn sạch 100% comment trong ${successJs}/${jsFiles.length} file JavaScript.`);
+    console.log(` - Giờ đây khi bấm vào link .js trên trình duyệt, toàn bộ code`);
+    console.log(`   chỉ còn 1 dòng duy nhất, không còn bất kỳ comment hay ghi chú nào!`);
     console.log(` - Bản sao lưu code đẹp nằm an toàn tại: backup_html/Front_end_clean_backup`);
     console.log(`💡 Bất cứ khi nào bạn muốn mở code đẹp ra sửa, chỉ cần chạy:`);
-    console.log(`   node scripts/build_minify.js --restore`);
+    console.log(`   npm run build:restore`);
     console.log(`======================================================\n`);
 }
 

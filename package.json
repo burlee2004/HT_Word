@@ -8,9 +8,16 @@
     "test:fee": "npm run test:fee --prefix Back_end",
     "test:security": "npm run test:security --prefix Back_end",
     "test:otp": "npm run test:otp --prefix Back_end",
-    "test:storage": "npm run test:storage --prefix Back_end"
+    "test:storage": "npm run test:storage --prefix Back_end",
+    "build:preview": "node scripts/build_minify.js --preview",
+    "build:minify": "node scripts/build_minify.js --apply",
+    "build:restore": "node scripts/build_minify.js --restore",
+    "build:dist": "node scripts/build_minify.js --dist"
   },
   "keywords": [],
   "author": "HT Work",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "html-minifier-terser": "^7.2.0"
+  }
 }

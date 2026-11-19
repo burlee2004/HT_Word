@@ -3,3 +3,5 @@
 .DS_Store
 # Local Netlify folder
 .netlify
+dist/
+backup_html/Front_end_clean_backup/
